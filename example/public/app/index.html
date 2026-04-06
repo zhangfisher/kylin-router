@@ -1,0 +1,23 @@
+<div style="display: flex; flex-direction: column; height: 100vh">
+    <!-- Header 区域 -->
+    <div
+        style="
+            display: flex;
+            flex-direction: row;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        "
+    >
+        <kylin-link to="/">首页</kylin-link>
+        <kylin-link to="/products">产品</kylin-link>
+        <kylin-link to="/services">服务</kylin-link>
+        <kylin-link to="/docs">文档</kylin-link>
+        <kylin-link to="/help">帮助</kylin-link>
+    </div>
+
+    <!-- Body 区域 -->
+    <div style="flex-grow: 1; overflow: auto; padding: 1rem">
+        <kylin-outlet></kylin-outlet>
+    </div>
+</div>

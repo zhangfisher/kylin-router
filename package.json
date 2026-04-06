@@ -1,0 +1,30 @@
+{
+  "name": "kylin-router",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "bun test",
+    "test:watch": "bun test --watch"
+  },
+  "dependencies": {
+    "@lit/context": "^1.1.6",
+    "history": "^5.3.0",
+    "lit": "^3.3.2",
+    "mitt": "^3.0.1",
+    "ts-mixer": "^6.0.4"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.11",
+    "@types/node": "^25.5.2",
+    "happy-dom": "^20.8.9",
+    "oxfmt": "^0.43.0",
+    "oxlint": "^1.58.0",
+    "oxlint-tsgolint": "^0.19.0",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.1"
+  }
+}
