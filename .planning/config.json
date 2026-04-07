@@ -1,0 +1,17 @@
+{
+  "response_language": "中文",
+  "mode": "interactive",
+  "granularity": "feature-based",
+  "parallelization": false,
+  "model_profile": "inherit",
+  "commit_docs": true,
+  "workflow": {
+    "research": true,
+    "plan_check": false,
+    "verifier": false,
+    "nyquist_validation": true,
+    "ui_phase": true,
+    "ui_safety_gate": true,
+    "use_worktrees": false
+  }
+}
