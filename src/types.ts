@@ -81,6 +81,36 @@ export interface MatchedRoute {
     remainingPath: string;
 }
 
+/**
+ * 钩子函数类型定义
+ * @param to - 目标路由
+ * @param from - 来源路由
+ * @param next - 控制导航流程的回调函数
+ * @param router - 路由器实例
+ * @returns 可以返回 void 或 Promise<void>，通过 next 回调控制导航
+ */
+export type HookFunction = (
+    to: RouteItem,
+    from: RouteItem,
+    next: (result?: boolean | string) => void,
+    router: any
+) => void | Promise<void>;
+
+/**
+ * 钩子类型常量对象
+ * 使用对象字面量替代 enum，以符合 erasableSyntaxOnly 配置
+ */
+export const HookType = {
+    /** 导航前执行，可以取消导航或重定向 */
+    BEFORE_EACH: 'beforeEach',
+    /** 渲染前执行，用于数据预取 */
+    RENDER_EACH: 'renderEach',
+    /** 导航完成后执行 */
+    AFTER_EACH: 'afterEach'
+} as const;
+
+export type HookType = typeof HookType[keyof typeof HookType];
+
 export type KylinRouterOptiopns = {
     /** 路由模式：'history' 使用 BrowserHistory，'hash' 使用 HashHistory（默认 'history'） */
     mode?: "hash" | "history";
