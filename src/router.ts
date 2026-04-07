@@ -242,6 +242,53 @@ export class KylinRouter extends Mixin(
         );
         this.history.go(delta);
     }
+    /**
+     * 动态添加路由到路由表
+     * 如果 name 已存在则覆盖旧路由（后者覆盖策略）
+     * 按照 D-11: 后者覆盖策略、D-38: 统一优先级规则
+     */
+    addRoute(route: RouteItem): void {
+        // 检查是否已存在同名路由，存在则覆盖
+        const existingIndex = this.routes.findIndex((r) => r.name === route.name);
+        if (existingIndex !== -1) {
+            this.routes[existingIndex] = route;
+        } else {
+            this.routes.push(route);
+        }
+    }
+
+    /**
+     * 动态删除指定名称的路由
+     * 支持递归删除嵌套路由
+     * 如果删除的是当前访问的路由，自动重定向到默认路由或 404
+     * 按照 D-10: 静默处理不存在的路由、D-39: 当前路由删除后重定向
+     */
+    removeRoute(name: string): void {
+        const removed = removeRouteByName(this.routes, name);
+
+        // 如果删除了路由且当前正在访问该路由，触发重定向
+        if (removed && this.currentRoute && this.currentRoute.route.name === name) {
+            this._redirectToDefaultOrNotFound();
+        }
+    }
+
+    /**
+     * 当当前路由被删除或不可访问时，重定向到默认路由或 404
+     * 优先重定向到 defaultRoute，其次到 notFound
+     */
+    private _redirectToDefaultOrNotFound(): void {
+        if (this.defaultRoute) {
+            this.push(this.defaultRoute);
+        } else if (this.notFound) {
+            this.currentRoute = {
+                route: this.notFound,
+                params: {},
+                remainingPath: this.history.location.pathname,
+            };
+            this.params = {};
+        }
+    }
+
     detach() {
         this._cleanups.forEach((unsubscribe) => unsubscribe());
         this._cleanups = [];
@@ -267,4 +314,24 @@ function normalizeRoutes(routes: KylinRoutes): RouteItem[] {
     }
     // 单个路由对象包装为数组
     return [routes as RouteItem];
+}
+
+/**
+ * 从路由表中递归删除指定名称的路由
+ * 支持嵌套路由的递归查找和删除
+ * @returns 是否成功删除
+ */
+function removeRouteByName(routes: RouteItem[], name: string): boolean {
+    for (let i = 0; i < routes.length; i++) {
+        if (routes[i].name === name) {
+            routes.splice(i, 1);
+            return true;
+        }
+        // 递归检查子路由
+        if (routes[i].children) {
+            const removed = removeRouteByName(routes[i].children!, name);
+            if (removed) return true;
+        }
+    }
+    return false;
 }
