@@ -19,25 +19,25 @@ const MAX_REDIRECTS = 10;
 
 export class Routes {
     /** 路由表配置 */
-    routes!: RouteItem[];
+    public routes!: RouteItem[];
 
     /** 404 路由配置 */
-    notFound?: RouteItem;
+    public notFound?: RouteItem;
 
     /** 默认路径重定向 */
-    defaultRoute?: string;
+    public defaultRoute?: string;
 
     /** 当前匹配的路由 */
-    currentRoute: { route: RouteItem; params: Record<string, string>; remainingPath: string } | null = null;
+    public currentRoute: { route: RouteItem; params: Record<string, string>; remainingPath: string } | null = null;
 
     /** 当前路径参数 */
-    params: Record<string, string> = {};
+    public params: Record<string, string> = {};
 
     /** 当前查询参数 */
-    query: Record<string, string> = {};
+    public query: Record<string, string> = {};
 
     /** 当前会话的重定向次数（用于循环检测） */
-    protected _redirectCount: number = 0;
+    public _redirectCount: number = 0;
 
     /**
      * 初始化路由表
@@ -46,7 +46,6 @@ export class Routes {
      * 按照 D-17: 支持多种路由配置格式
      */
     protected initRoutes(
-        this: KylinRouter,
         rawRoutes: KylinRoutes,
         notFound?: RouteItem,
         defaultRoute?: string,
@@ -79,7 +78,7 @@ export class Routes {
      * 如果 name 已存在则覆盖旧路由（后者覆盖策略）
      * 按照 D-11: 后者覆盖策略、D-38: 统一优先级规则
      */
-    addRoute(this: KylinRouter, route: RouteItem): void {
+    public addRoute(route: RouteItem): void {
         const existingIndex = this.routes.findIndex((r) => r.name === route.name);
         if (existingIndex !== -1) {
             this.routes[existingIndex] = route;
@@ -94,7 +93,7 @@ export class Routes {
      * 如果删除的是当前访问的路由，自动重定向到默认路由或 404
      * 按照 D-10: 静默处理不存在的路由、D-39: 当前路由删除后重定向
      */
-    removeRoute(this: KylinRouter, name: string): void {
+    public removeRoute(name: string): void {
         const removed = removeRouteByName(this.routes, name);
 
         // 如果删除了路由且当前正在访问该路由，触发重定向
@@ -108,8 +107,7 @@ export class Routes {
      * 支持 RouteItem[]、函数、异步函数格式
      * 按照 D-17: 统一格式转换
      */
-    async loadRemoteRoutes(
-        this: KylinRouter,
+    public async loadRemoteRoutes(
         source: RouteItem[] | RouteItem | (() => KylinRoutes | Promise<KylinRoutes>),
     ): Promise<void> {
         let loaded: KylinRoutes;
@@ -134,12 +132,12 @@ export class Routes {
      * 执行初始路由匹配
      * 在构造函数中调用，匹配当前 URL 的路由
      */
-    protected _matchCurrentLocation(this: KylinRouter): void {
-        const pathname = this.history.location.pathname;
-        const search = this.history.location.search;
+    protected _matchCurrentLocation(): void {
+        const pathname = (this as any).history.location.pathname;
+        const search = (this as any).history.location.search;
 
         // 设置导航状态
-        this.isNavigating = true;
+        (this as any).isNavigating = true;
 
         // 执行路由匹配
         const matched = matchRoute(pathname, this.routes);
@@ -163,7 +161,7 @@ export class Routes {
         this.query = extractQueryParams(search);
 
         // 重置导航状态
-        this.isNavigating = false;
+        (this as any).isNavigating = false;
 
         // 检查默认路径重定向
         this._checkDefaultRedirect(pathname);
@@ -173,7 +171,7 @@ export class Routes {
      * 匹配路由并更新状态
      * 在 onRouteUpdate 中调用
      */
-    protected _matchAndUpdateState(this: KylinRouter, pathname: string, search: string): void {
+    protected _matchAndUpdateState(pathname: string, search: string): void {
         const matched = matchRoute(pathname, this.routes);
 
         if (matched) {
@@ -200,7 +198,7 @@ export class Routes {
      * 当访问根路径（/ 或 hash 模式的 #/）且配置了 defaultRoute 时触发
      * 按照 D-42: 重定向触发完整导航流程、D-43: 循环重定向检测
      */
-    protected _checkDefaultRedirect(this: KylinRouter, pathname: string): void {
+    protected _checkDefaultRedirect(pathname: string): void {
         if (!this.defaultRoute) return;
 
         // 规范化路径用于比较
@@ -228,20 +226,20 @@ export class Routes {
         }
 
         // 执行重定向
-        this.push(this.defaultRoute);
+        (this as any).push(this.defaultRoute);
     }
 
     /**
      * 当当前路由被删除或不可访问时，重定向到默认路由或 404
      */
-    private _redirectToDefaultOrNotFound(this: KylinRouter): void {
+    private _redirectToDefaultOrNotFound(): void {
         if (this.defaultRoute) {
-            this.push(this.defaultRoute);
+            (this as any).push(this.defaultRoute);
         } else if (this.notFound) {
             this.currentRoute = {
                 route: this.notFound,
                 params: {},
-                remainingPath: this.history.location.pathname,
+                remainingPath: (this as any).history.location.pathname,
             };
             this.params = {};
         }
