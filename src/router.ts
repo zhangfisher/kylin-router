@@ -68,6 +68,9 @@ export class KylinRouter extends Mixin(
     /** 是否正在导航 */
     isNavigating: boolean = false;
 
+    /** 上一个路由，用于 afterLeave 守卫 */
+    protected previousRoute?: RouteItem;
+
     /**
      *
      * @param host 元素或选择器字符串，指定 KylinRouter 的宿主元素
@@ -191,6 +194,34 @@ export class KylinRouter extends Mixin(
             return;
         }
 
+        // 获取匹配的路由链（包含嵌套路由）
+        // 简化实现：对于单个路由，包装在数组中
+        const matchedRoutes = this.current.route ? [{ route: this.current.route, params: this.current.params, remainingPath: this.current.remainingPath }] : [];
+
+        // 执行路由级 beforeEnter 守卫（父优先）
+        if (this.current.route && matchedRoutes.length > 0) {
+            const beforeEnterResult = await this.executeRouteGuards(
+                this.getOrderedMatchedRoutes(matchedRoutes),
+                this.current.route,
+                fromRoute,
+                this,
+                'beforeEnter'
+            );
+
+            if (beforeEnterResult === false) {
+                // 取消导航，回退到父路由或默认路由
+                this.handleGuardFailure(matchedRoutes);
+                this.isNavigating = false;
+                return;
+            }
+
+            if (typeof beforeEnterResult === 'string') {
+                // 重定向
+                this.replace(beforeEnterResult);
+                return;
+            }
+        }
+
         // TODO: 在组件渲染前执行 renderEach 钩子（Phase 3 实现）
 
         // 触发 route-change 事件（用于后续的组件渲染）
@@ -241,6 +272,22 @@ export class KylinRouter extends Mixin(
 
     /** 待处理的导航类型，用于在 onRouteUpdate 中判断导航来源 */
     private _pendingNavigationType?: "push" | "replace" | "pop";
+
+    /**
+     * 处理守卫失败时的回退逻辑
+     * 按照 D-25: 子路由守卫失败时回退到父路由
+     */
+    protected handleGuardFailure(matchedRoutes: any[]): void {
+        if (matchedRoutes.length > 1) {
+            // 有父路由，回退到父路由
+            const parentRoute = matchedRoutes[matchedRoutes.length - 2].route;
+            this.replace(parentRoute.path);
+        } else {
+            // 无父路由，回退到默认路由或根路径
+            const fallback = this.defaultRoute || '/';
+            this.replace(fallback);
+        }
+    }
 
     push(path: string, state?: unknown) {
         this._pendingNavigationType = "push";
