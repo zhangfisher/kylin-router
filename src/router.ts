@@ -38,32 +38,8 @@ export class KylinRouter extends Mixin(
 
     outlets?: OutletRefs;
 
-    /** 路由表配置 */
-    routes: RouteItem[];
-
-    /** 404 路由配置 */
-    notFound?: RouteItem;
-
-    /** 默认路径重定向 */
-    defaultRoute?: string;
-
-    /** 当前匹配的路由 */
-    currentRoute: MatchedRoute | null = null;
-
-    /** 当前路径参数 */
-    params: Record<string, string> = {};
-
-    /** 当前查询参数 */
-    query: Record<string, string> = {};
-
     /** 是否正在导航 */
     isNavigating: boolean = false;
-
-    /** 当前会话的重定向次数（用于循环检测） */
-    private _redirectCount: number = 0;
-
-    /** 最大重定向次数，防止循环重定向 */
-    private static readonly MAX_REDIRECTS: number = 10;
 
     /**
      *
