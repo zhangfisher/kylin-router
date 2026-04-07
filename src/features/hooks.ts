@@ -26,4 +26,39 @@ export class Hooks {
         // 钩子存储已在属性声明时初始化
         // 此方法保留用于未来扩展
     }
+
+    /**
+     * 添加钩子函数
+     * @param type - 钩子类型
+     * @param hook - 钩子函数
+     */
+    protected addHook(this: KylinRouter, type: HookType, hook: HookFunction): void {
+        this.hooks[type].push(hook);
+    }
+
+    /**
+     * 移除指定的钩子函数
+     * @param type - 钩子类型
+     * @param hook - 要移除的钩子函数
+     */
+    protected removeHook(this: KylinRouter, type: HookType, hook: HookFunction): void {
+        const index = this.hooks[type].indexOf(hook);
+        if (index > -1) {
+            this.hooks[type].splice(index, 1);
+        }
+    }
+
+    /**
+     * 清空钩子
+     * @param type - 可选，指定要清空的钩子类型。如果不指定，清空所有钩子
+     */
+    protected clearHooks(this: KylinRouter, type?: HookType): void {
+        if (type) {
+            this.hooks[type] = [];
+        } else {
+            (Object.keys(this.hooks) as HookType[]).forEach(key => {
+                this.hooks[key] = [];
+            });
+        }
+    }
 }
