@@ -169,12 +169,26 @@ export class KylinRouter extends Mixin(
         const pathname = location.location.pathname;
         const search = location.location.search;
 
+        // 调试日志：导航开始
+        this.debugLog(`导航开始: from=${this.current.route?.name || '(initial)'} to=${pathname}`);
+
+        // 在导航开始时重置重定向计数（仅针对非重定向触发的导航）
+        if (this._pendingNavigationType !== 'replace') {
+            this._redirectCount = 0;
+        }
+
+        const pathname = location.location.pathname;
+        const search = location.location.search;
+
         // 保存当前路由状态（用于 from 参数和 afterLeave 守卫）
         const fromRoute = this.current.route || { name: '', path: '', params: {}, query: {} };
         this.previousRoute = this.current.route || undefined;
 
         // 先执行路由匹配，获取目标路由信息
         this._matchAndUpdateState(pathname, search);
+
+        // 调试日志：路由匹配结果
+        this.debugLog(`路由匹配: name=${this.current.route?.name || '(not found)'} params=`, this.current.params);
 
         // 构造目标路由对象（用于 to 参数）
         const toRoute = this.current.route || { name: '', path: pathname, params: {}, query: {} };
@@ -313,6 +327,9 @@ export class KylinRouter extends Mixin(
         // 重置导航状态
         this.isNavigating = false;
         this._pendingNavigationType = undefined;
+
+        // 调试日志：导航完成
+        this.debugLog(`导航完成: route=${this.current.route?.name || '(not found)'} path=${pathname}`);
 
         // 默认路径重定向检测（D-41 到 D-44）
         // 当前路径为根路径且配置了 defaultRoute 时，自动重定向
