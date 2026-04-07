@@ -182,4 +182,6 @@ export type KylinRouterOptiopns = {
     onAfterEach?: (to: RouteItem, from: RouteItem) => void | Promise<void>;
     /** 全局 renderEach 钩子，用于数据预加载 */
     renderEach?: RenderEachHook | RenderEachHook[];
+    /** 是否启用调试模式，启用后会输出详细的导航日志（默认 false） */
+    debug?: boolean;
 };
