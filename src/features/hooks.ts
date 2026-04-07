@@ -12,8 +12,9 @@ export class Hooks {
     /**
      * 钩子存储结构
      * 按照 HookType 分组存储钩子函数，保持注册顺序（FIFO）
+     * 公开访问，允许开发者直接注册钩子
      */
-    protected hooks: Record<HookType, HookFunction[]> = {
+    public hooks: Record<HookType, HookFunction[]> = {
         beforeEach: [],
         renderEach: [],
         afterEach: []
@@ -81,12 +82,85 @@ export class Hooks {
         const hooks = this.hooks[type];
         if (hooks.length === 0) return true;
 
+        // afterEach 钩子使用特殊的执行逻辑，不抛出错误
+        if (type === HookType.AFTER_EACH) {
+            return this.executeAfterEachHooks(hooks, to, from, router);
+        }
+
         for (const hook of hooks) {
             const result = await this.runHook(hook, to, from, router);
             if (result === false) return false;
             if (typeof result === 'string') return result; // 重定向路径
         }
         return true;
+    }
+
+    /**
+     * 执行 afterEach 钩子，不会抛出错误
+     * @param hooks - afterEach 钩子数组
+     * @param to - 目标路由
+     * @param from - 来源路由
+     * @param router - 路由器实例
+     * @returns Promise<boolean> - 始终返回 true，afterEach 不影响导航流程
+     */
+    protected async executeAfterEachHooks(
+        this: KylinRouter,
+        hooks: HookFunction[],
+        to: RouteItem,
+        from: RouteItem,
+        router: any
+    ): Promise<boolean> {
+        for (const hook of hooks) {
+            try {
+                await this.runAfterEachHook(hook, to, from, router);
+            } catch (error) {
+                // afterEach 钩子出错不影响导航流程，只记录错误
+                console.error('[Router] afterEach hook error:', error);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 运行单个 afterEach 钩子函数
+     * @param hook - afterEach 钩子函数
+     * @param to - 目标路由
+     * @param from - 来源路由
+     * @param router - 路由器实例
+     */
+    protected async runAfterEachHook(
+        this: KylinRouter,
+        hook: HookFunction,
+        to: RouteItem,
+        from: RouteItem,
+        router: any
+    ): Promise<void> {
+        return new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                console.error('[Router] afterEach hook timeout after 30000ms');
+                resolve(); // 超时不阻塞
+            }, 30000);
+
+            try {
+                const result = hook(to, from, () => {}, router); // afterEach 不需要 next 回调
+
+                if (result instanceof Promise) {
+                    result.then(() => {
+                        clearTimeout(timeout);
+                        resolve();
+                    }).catch(error => {
+                        clearTimeout(timeout);
+                        reject(error);
+                    });
+                } else {
+                    clearTimeout(timeout);
+                    resolve();
+                }
+            } catch (error) {
+                clearTimeout(timeout);
+                reject(error);
+            }
+        });
     }
 
     /**
