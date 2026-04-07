@@ -5,29 +5,30 @@ import type { KylinRouter } from "@/router";
  * 创建测试用的 DOM 环境
  */
 function createTestDOM() {
-    // @ts-ignore - 设置全局对象用于测试
-    if (!globalThis.window) {
-        const { Window } = require("happy-dom");
-        const win = new Window({ url: "http://localhost/" });
-        // @ts-ignore
-        globalThis.window = win;
-        // @ts-ignore
-        globalThis.document = win.document;
-        // @ts-ignore
-        globalThis.history = win.history;
-        // @ts-ignore
-        globalThis.location = win.location;
-        // @ts-ignore
-        globalThis.Event = win.Event;
-        // @ts-ignore
-        globalThis.CustomEvent = win.CustomEvent;
-        // @ts-ignore
-        globalThis.HTMLElement = win.HTMLElement;
-    }
+    const { Window } = require("happy-dom");
+    const win = new Window({ url: "http://localhost/" });
+
+    // 设置全局对象 - 每次测试重新设置，确保干净状态
+    // @ts-ignore
+    globalThis.window = win;
+    // @ts-ignore
+    globalThis.document = win.document;
+    // @ts-ignore
+    globalThis.history = win.history;
+    // @ts-ignore
+    globalThis.location = win.location;
+    // @ts-ignore
+    globalThis.Event = win.Event;
+    // @ts-ignore
+    globalThis.CustomEvent = win.CustomEvent;
+    // @ts-ignore
+    globalThis.HTMLElement = win.HTMLElement;
+    // @ts-ignore
+    globalThis.URLSearchParams = win.URLSearchParams;
 
     // 创建 host 元素
     // @ts-ignore
-    const host = document.createElement("div");
+    const host = document.createElement("div") as HTMLElement;
     // @ts-ignore
     document.body.appendChild(host);
     return host;

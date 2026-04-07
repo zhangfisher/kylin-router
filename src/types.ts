@@ -69,10 +69,26 @@ export interface RouteItem {
 
 export type KylinRoutes = RouteItem[] | RouteItem;
 
+/**
+ * 路由匹配结果
+ */
+export interface MatchedRoute {
+    /** 匹配的路由配置 */
+    route: RouteItem;
+    /** 提取的路径参数 */
+    params: Record<string, string>;
+    /** 剩余未匹配的路径，用于嵌套路由 */
+    remainingPath: string;
+}
+
 export type KylinRouterOptiopns = {
     mode?: "hash" | "history";
     routes: KylinRoutes;
+    /** 未匹配路由时的 404 路由配置 */
+    notFound?: RouteItem;
+    /** 默认路径重定向 */
+    defaultRoute?: string;
     onBeforeResolve?: (to: RouteItem, from: RouteItem) => boolean | Promise<boolean>;
     onBeforeEach?: (to: RouteItem, from: RouteItem) => boolean | Promise<boolean>;
-    onAfterEach?: (to: RouteItem, from: RouteItem) => void | Promise<void>;    
+    onAfterEach?: (to: RouteItem, from: RouteItem) => void | Promise<void>;
 };
