@@ -32,7 +32,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. 路由器在未匹配到路由时显示 404 页面或兜底组件
   6. 组件可以通过 context-request 事件获取路由实例，访问路由状态和方法
   7. 事件监听器在断开时自动清理，防止内存泄漏
-**Plans**: TBD
+**Plans**: 3 plans
+
+**Plan List:**
+- [ ] 01-01-PLAN.md — 实现路由核心系统（路由匹配算法、参数解析、404 处理）
+- [ ] 01-02-PLAN.md — 实现导航系统（编程式导航 API、声明式导航组件）
+- [ ] 01-03-PLAN.md — 实现高级路由功能（Hash 模式、动态路由注册、默认重定向、远程路由表）
 
 ### Phase 2: Hooks（生命周期钩子）
 **Goal**: 实现路由守卫系统，在导航前后执行验证、数据预取和清理逻辑
@@ -98,7 +103,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Context（上下文传播） | 0/TBD | Not started | - |
+| 1. Context（上下文传播） | 0/3 | Planning complete | - |
 | 2. Hooks（生命周期钩子） | 0/TBD | Not started | - |
 | 3. Loader+Render+Data（组件加载系统） | 0/TBD | Not started | - |
 | 4. KeepAlive+Preload（性能优化） | 0/TBD | Not started | - |
