@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import type { KylinRouter } from "@/router";
+import { KylinLinkElement } from "@/components/link";
 
 /**
  * 创建测试用的 DOM 环境
@@ -37,6 +38,19 @@ async function createRouter(host: HTMLElement, options: any) {
     return new KylinRouter(host, options);
 }
 
+/**
+ * 直接创建 KylinLinkElement 实例
+ * happy-dom 不支持 LitElement 的 customElements.define 完整行为，
+ * 所以使用 new KylinLinkElement() 而不是 document.createElement。
+ * 不需要 appendChild 到 DOM，直接在实例上调用 handleClick 即可测试逻辑。
+ */
+function createLink(to: string = "", replace: boolean = false): KylinLinkElement {
+    const link = new KylinLinkElement();
+    link.to = to;
+    link.replace = replace;
+    return link;
+}
+
 describe("KylinLinkElement", () => {
     let host: HTMLElement;
     let router: KylinRouter;
@@ -65,16 +79,9 @@ describe("KylinLinkElement", () => {
         it("点击 <kylin-link to=\"/user\"> 应该调用 router.push('/user')", async () => {
             router = await createRouter(host, { routes });
 
-            // 创建 link 元素并设置属性
-            const { KylinLinkElement } = await import("@/components/link");
-            const link = document.createElement("kylin-link") as any;
-            link.to = "/user";
-            host.appendChild(link);
-
-            // 手动设置 router 实例（模拟 context 获取）
+            const link = createLink("/user");
             link.router = router;
 
-            // 模拟点击
             const clickEvent = new Event("click", { cancelable: true });
             link.handleClick(clickEvent);
 
@@ -85,14 +92,10 @@ describe("KylinLinkElement", () => {
         it("点击 <kylin-link to=\"/user\" replace> 应该调用 router.replace('/user')", async () => {
             router = await createRouter(host, { routes });
 
-            // 先导航到一个路径
+            // 先 push 到一个路径建立初始状态
             router.push("/settings");
 
-            const link = document.createElement("kylin-link") as any;
-            link.to = "/user";
-            link.replace = true;
-            host.appendChild(link);
-
+            const link = createLink("/user", true);
             link.router = router;
 
             // 监听 navigation-start 事件来验证 replace 类型
@@ -108,12 +111,10 @@ describe("KylinLinkElement", () => {
             expect(router.currentRoute!.route.name).toBe("user");
         });
 
-        it("<kylin-link> 应该阻止默认的链接跳转行为", async () => {
+        it("<kylin-link> 内部路由应该阻止默认的链接跳转行为", async () => {
             router = await createRouter(host, { routes });
 
-            const link = document.createElement("kylin-link") as any;
-            link.to = "/user";
-            host.appendChild(link);
+            const link = createLink("/user");
             link.router = router;
 
             const clickEvent = new Event("click", { cancelable: true });
@@ -124,59 +125,56 @@ describe("KylinLinkElement", () => {
         });
 
         it("<kylin-link> 应该支持 slot 内容渲染", async () => {
-            const { KylinLinkElement } = await import("@/components/link");
-            const link = document.createElement("kylin-link") as any;
-            link.to = "/user";
-            host.appendChild(link);
+            const link = createLink("/user");
 
             // 验证组件可以渲染 - 检查 render 方法返回值
             const renderResult = link.render();
             expect(renderResult).toBeDefined();
-            // render 返回的 TemplateResult 应该包含 <a> 标签和 <slot>
+            // render 返回的 TemplateResult 包含 <a> 标签和 <slot>
         });
     });
 
     describe("外部链接处理", () => {
         it("点击 <kylin-link to=\"https://external.com\"> 不应使用 router 导航", async () => {
             router = await createRouter(host, { routes });
-            const initialRoute = router.currentRoute!.route.name;
 
-            const link = document.createElement("kylin-link") as any;
-            link.to = "https://external.com";
-            host.appendChild(link);
+            // 先建立确定的路由状态
+            router.push("/settings");
+            const routeBefore = router.currentRoute!.route.name;
+
+            const link = createLink("https://external.com");
             link.router = router;
 
             const clickEvent = new Event("click", { cancelable: true });
             link.handleClick(clickEvent);
 
             // 外部链接不应该改变路由
-            expect(router.currentRoute!.route.name).toBe(initialRoute);
+            expect(router.currentRoute!.route.name).toBe(routeBefore);
             // 外部链接不应该阻止默认行为（允许浏览器直接跳转）
             expect(clickEvent.defaultPrevented).toBe(false);
         });
 
         it("点击 <kylin-link to=\"http://example.com\"> 不应使用 router 导航", async () => {
             router = await createRouter(host, { routes });
-            const initialRoute = router.currentRoute!.route.name;
 
-            const link = document.createElement("kylin-link") as any;
-            link.to = "http://example.com";
-            host.appendChild(link);
+            // 先建立确定的路由状态
+            router.push("/user");
+            const routeBefore = router.currentRoute!.route.name;
+
+            const link = createLink("http://example.com");
             link.router = router;
 
             const clickEvent = new Event("click", { cancelable: true });
             link.handleClick(clickEvent);
 
-            expect(router.currentRoute!.route.name).toBe(initialRoute);
+            expect(router.currentRoute!.route.name).toBe(routeBefore);
             expect(clickEvent.defaultPrevented).toBe(false);
         });
     });
 
     describe("降级处理", () => {
         it("<kylin-link> 在未获取到 router 实例时应该降级为普通链接", async () => {
-            const link = document.createElement("kylin-link") as any;
-            link.to = "/user";
-            host.appendChild(link);
+            const link = createLink("/user");
             // 不设置 router 实例，模拟降级场景
 
             const clickEvent = new Event("click", { cancelable: true });
@@ -190,34 +188,36 @@ describe("KylinLinkElement", () => {
     describe("安全性", () => {
         it("应该拒绝 javascript: 协议的链接", async () => {
             router = await createRouter(host, { routes });
-            const initialRoute = router.currentRoute!.route.name;
 
-            const link = document.createElement("kylin-link") as any;
-            link.to = "javascript:alert('xss')";
-            host.appendChild(link);
+            // 先建立确定的路由状态
+            router.push("/user");
+            const routeBefore = router.currentRoute!.route.name;
+
+            const link = createLink("javascript:alert('xss')");
             link.router = router;
 
             const clickEvent = new Event("click", { cancelable: true });
             link.handleClick(clickEvent);
 
-            // javascript: 协议应被阻止
-            expect(router.currentRoute!.route.name).toBe(initialRoute);
+            // javascript: 协议应被阻止，路由不变
+            expect(router.currentRoute!.route.name).toBe(routeBefore);
             expect(clickEvent.defaultPrevented).toBe(true);
         });
 
         it("应该拒绝 data: 协议的链接", async () => {
             router = await createRouter(host, { routes });
-            const initialRoute = router.currentRoute!.route.name;
 
-            const link = document.createElement("kylin-link") as any;
-            link.to = "data:text/html,<h1>test</h1>";
-            host.appendChild(link);
+            // 先建立确定的路由状态
+            router.push("/settings");
+            const routeBefore = router.currentRoute!.route.name;
+
+            const link = createLink("data:text/html,<h1>test</h1>");
             link.router = router;
 
             const clickEvent = new Event("click", { cancelable: true });
             link.handleClick(clickEvent);
 
-            expect(router.currentRoute!.route.name).toBe(initialRoute);
+            expect(router.currentRoute!.route.name).toBe(routeBefore);
             expect(clickEvent.defaultPrevented).toBe(true);
         });
     });
