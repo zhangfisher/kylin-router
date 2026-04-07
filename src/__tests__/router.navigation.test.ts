@@ -171,7 +171,7 @@ describe("KylinRouter navigation API", () => {
 
             // 应该有 route-change 事件被触发
             expect(routeChanges.length).toBeGreaterThan(0);
-            expect(routeChanges[routeChanges.length - 1].route.route.name).toBe("user");
+            expect(routeChanges[routeChanges.length - 1].route.name).toBe("user");
         });
 
         it("导航方法应该更新 current.route、current.params、current.query 属性", async () => {
