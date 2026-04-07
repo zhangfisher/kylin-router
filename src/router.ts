@@ -1,7 +1,8 @@
 import type { OutletRefs } from "@/utils/traverseOutlet";
 import { createBrowserHistory } from "history";
 import type { Update } from "history";
-import type { KylinRouterOptiopns, MatchedRoute, KylinRoutes, RouteItem } from "./types";
+import type { KylinRouterOptiopns, RouteItem } from "./types";
+import { HookType } from "./types";
 import { Mixin } from "ts-mixer";
 import {
     Context,
@@ -16,43 +17,18 @@ import {
     Routes,
 } from "./features";
 import { createHashHistoryFromLib } from "@/utils/hashUtils";
-
-/**
- * 类型守卫：检查对象是否为 RouteItem
- */
-function isRouteItem(obj: unknown): obj is RouteItem {
-    if (typeof obj !== 'object' || obj === null) {
-        return false;
-    }
-    const route = obj as Record<string, unknown>;
-    return (
-        typeof route.name === 'string' &&
-        typeof route.path === 'string'
-    );
-}
+import { isRouteItem } from "./utils/isRouteItem";
 
 /**
  * 类型守卫：检查对象是否为完整的 KylinRouterOptiopns
  */
 function isKylinRouterOptions(obj: unknown): obj is KylinRouterOptiopns {
-    if (typeof obj !== 'object' || obj === null) {
+    if (typeof obj !== "object" || obj === null) {
         return false;
     }
     const options = obj as Record<string, unknown>;
     // 检查是否有 routes 属性
-    return 'routes' in options;
-}
-
-/**
- * 定义 Routes mixin 提供的接口
- * 这让 TypeScript 知道混合后的类会有这些方法
- */
-interface RoutesMixin {
-    addRoute(route: RouteItem): void;
-    removeRoute(name: string): void;
-    loadRemoteRoutes(
-        source: RouteItem[] | RouteItem | (() => KylinRoutes | Promise<KylinRoutes>),
-    ): Promise<void>;
+    return "routes" in options;
 }
 
 /**
@@ -64,21 +40,18 @@ interface RoutesMixin {
  *
  *
  */
-export class KylinRouter
-    extends Mixin(
-        Context,
-        Hooks,
-        KeepAlive,
-        Transition,
-        DataLoader,
-        Preload,
-        Render,
-        Model,
-        Redirect,
-        Routes,
-    )
-    implements RoutesMixin
-{
+export class KylinRouter extends Mixin(
+    Context,
+    Hooks,
+    KeepAlive,
+    Transition,
+    DataLoader,
+    Preload,
+    Render,
+    Model,
+    Redirect,
+    Routes,
+) {
     // 用于存储一需要清理的副作用函数，比如 history.listen 返回的取消监听函数
     protected _cleanups: Array<() => void> = [];
     host: HTMLElement;
@@ -112,10 +85,10 @@ export class KylinRouter
         if (Array.isArray(options)) {
             // 情况1: 数组格式的路由配置
             resolvedOptions = { routes: options };
-        } else if (typeof options === 'string') {
+        } else if (typeof options === "string") {
             // 情况2: 字符串格式的路由配置（URL路径）
             resolvedOptions = { routes: options };
-        } else if (typeof options === 'function') {
+        } else if (typeof options === "function") {
             // 情况3: 函数格式的路由配置（异步加载）
             resolvedOptions = { routes: options };
         } else if (isRouteItem(options)) {
@@ -163,15 +136,50 @@ export class KylinRouter
      * 路由更新回调 - 在 URL 变化时被调用
      * 执行路由匹配和参数提取
      */
-    onRouteUpdate(location: Update) {
+    async onRouteUpdate(location: Update) {
         // 设置导航状态
         this.isNavigating = true;
 
         const pathname = location.location.pathname;
         const search = location.location.search;
 
-        // 执行路由匹配
+        // 保存当前路由状态（用于 from 参数）
+        const fromRoute = this.current.route || { name: '', path: '', params: {}, query: {} };
+
+        // 先执行路由匹配，获取目标路由信息
         this._matchAndUpdateState(pathname, search);
+
+        // 构造目标路由对象（用于 to 参数）
+        const toRoute = this.current.route || { name: '', path: pathname, params: {}, query: {} };
+
+        // 执行 beforeEach 钩子
+        try {
+            const beforeEachResult = await this.executeHooks(
+                HookType.BEFORE_EACH,
+                toRoute,
+                fromRoute,
+                this
+            );
+
+            if (beforeEachResult === false) {
+                // 取消导航
+                this.isNavigating = false;
+                return;
+            }
+
+            if (typeof beforeEachResult === 'string') {
+                // 重定向
+                this.replace(beforeEachResult);
+                return;
+            }
+        } catch (error) {
+            console.error('Error in beforeEach hooks:', error);
+            // 钩子出错时取消导航
+            this.isNavigating = false;
+            return;
+        }
+
+        // TODO: 在组件渲染前执行 renderEach 钩子（Phase 3 实现）
 
         // 触发 route-change 事件（用于后续的组件渲染）
         this.host.dispatchEvent(
@@ -185,6 +193,19 @@ export class KylinRouter
                 bubbles: true,
             }),
         );
+
+        // 执行 afterEach 钩子
+        try {
+            await this.executeHooks(
+                HookType.AFTER_EACH,
+                toRoute,
+                fromRoute,
+                this
+            );
+        } catch (error) {
+            console.error('Error in afterEach hooks:', error);
+            // afterEach 钩子出错不影响导航流程
+        }
 
         // 触发 navigation-end 事件
         this.host.dispatchEvent(
