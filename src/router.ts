@@ -365,6 +365,7 @@ export class KylinRouter extends Mixin(
 
     push(path: string, state?: unknown) {
         this._pendingNavigationType = "push";
+        this.debugLog(`导航方法: push(${path})`);
         // 触发 navigation-start 事件
         this.host.dispatchEvent(
             new CustomEvent("navigation-start", {
@@ -383,6 +384,7 @@ export class KylinRouter extends Mixin(
     }
     replace(path: string, state?: unknown) {
         this._pendingNavigationType = "replace";
+        this.debugLog(`导航方法: replace(${path})`);
         // 触发 navigation-start 事件
         this.host.dispatchEvent(
             new CustomEvent("navigation-start", {
@@ -401,6 +403,7 @@ export class KylinRouter extends Mixin(
     }
     back() {
         this._pendingNavigationType = "pop";
+        this.debugLog('导航方法: back()');
         // 触发 navigation-start 事件
         this.host.dispatchEvent(
             new CustomEvent("navigation-start", {
@@ -415,6 +418,7 @@ export class KylinRouter extends Mixin(
     }
     forward() {
         this._pendingNavigationType = "pop";
+        this.debugLog('导航方法: forward()');
         // 触发 navigation-start 事件
         this.host.dispatchEvent(
             new CustomEvent("navigation-start", {
@@ -429,6 +433,7 @@ export class KylinRouter extends Mixin(
     }
     go(delta: number) {
         this._pendingNavigationType = "pop";
+        this.debugLog(`导航方法: go(${delta})`);
         // 触发 navigation-start 事件
         this.host.dispatchEvent(
             new CustomEvent("navigation-start", {
