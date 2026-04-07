@@ -82,7 +82,10 @@ export interface MatchedRoute {
 }
 
 export type KylinRouterOptiopns = {
+    /** 路由模式：'history' 使用 BrowserHistory，'hash' 使用 HashHistory（默认 'history'） */
     mode?: "hash" | "history";
+    /** 基础路径，用于 Hash 模式（默认 ''） */
+    base?: string;
     routes: KylinRoutes;
     /** 未匹配路由时的 404 路由配置 */
     notFound?: RouteItem;

@@ -1,12 +1,13 @@
 
 import type { OutletRefs } from "@/utils/traverseOutlet";
-import { createBrowserHistory,createHashHistory } from "history";
+import { createBrowserHistory } from "history";
 import type { Update } from "history";
 import type { KylinRouterOptiopns, MatchedRoute, KylinRoutes, RouteItem } from "./types";
 import { Mixin } from "ts-mixer";
 import { Context,Hooks,ComponentLoader,KeepAlive,Transition ,Preload,Render,DataLoader,Model,Redirect} from "./features";
 import { matchRoute } from "@/utils/matchRoute";
 import { extractQueryParams } from "@/utils/parseParams";
+import { createHashHistoryFromLib } from "@/utils/hashUtils";
 
 
 /**
@@ -33,7 +34,7 @@ export class KylinRouter extends Mixin(
     // 用于存储一需要清理的副作用函数，比如 history.listen 返回的取消监听函数
     protected _cleanups: Array<() => void> = [];
     host: HTMLElement;
-    history = createBrowserHistory();
+    history: ReturnType<typeof createBrowserHistory>;
 
     outlets?: OutletRefs;
 
@@ -71,6 +72,13 @@ export class KylinRouter extends Mixin(
             Array.isArray(options) || ("path" in options && "name" in options)
                 ? { routes: options as KylinRoutes }
                 : options as KylinRouterOptiopns;
+
+        // 根据 mode 创建对应的 History 实例（D-29 到 D-32）
+        const mode = resolvedOptions.mode || "history";
+        const base = resolvedOptions.base;
+        this.history = mode === "hash"
+            ? createHashHistoryFromLib(base)
+            : createBrowserHistory({ basename: base || "" });
 
         // 初始化路由表（统一转换为 RouteItem[]）
         this.routes = normalizeRoutes(resolvedOptions.routes);
@@ -156,7 +164,7 @@ export class KylinRouter extends Mixin(
     /** 待处理的导航类型，用于在 onRouteUpdate 中判断导航来源 */
     private _pendingNavigationType?: "push" | "replace" | "pop";
 
-    push(path: string) {
+    push(path: string, state?: unknown) {
         this._pendingNavigationType = "push";
         // 触发 navigation-start 事件
         this.host.dispatchEvent(
@@ -168,9 +176,13 @@ export class KylinRouter extends Mixin(
                 bubbles: true,
             })
         );
-        this.history.push(path);
+        if (state !== undefined) {
+            this.history.push(path, state);
+        } else {
+            this.history.push(path);
+        }
     }
-    replace(path: string) {
+    replace(path: string, state?: unknown) {
         this._pendingNavigationType = "replace";
         // 触发 navigation-start 事件
         this.host.dispatchEvent(
@@ -182,7 +194,11 @@ export class KylinRouter extends Mixin(
                 bubbles: true,
             })
         );
-        this.history.replace(path);
+        if (state !== undefined) {
+            this.history.replace(path, state);
+        } else {
+            this.history.replace(path);
+        }
     }
     back() {
         this._pendingNavigationType = "pop";
