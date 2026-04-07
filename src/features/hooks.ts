@@ -327,4 +327,42 @@ export class Hooks {
             }
         });
     }
+
+    /**
+     * 运行带重试机制的 renderEach 钩子函数
+     * 遵循 D-29: 混合错误处理模式
+     * 遵循 D-30: 自动错误日志
+     * @param hook - renderEach 钩子函数
+     * @param to - 目标路由
+     * @param from - 来源路由
+     * @param router - 路由器实例
+     * @param maxRetries - 最大重试次数（默认 1）
+     * @returns Promise<RouteData | undefined> - 钩子返回的预加载数据
+     */
+    protected async runRenderEachHookWithRetry(
+        this: KylinRouter,
+        hook: RenderEachHook,
+        to: RouteItem,
+        from: RouteItem,
+        router: any,
+        maxRetries: number = 1
+    ): Promise<RouteData | undefined> {
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+            try {
+                return await this.runRenderEachHook(hook, to, from, router);
+            } catch (error) {
+                if (attempt === maxRetries) {
+                    console.error(`[Router] renderEach hook failed after ${maxRetries + 1} attempts:`, {
+                        route: to.name,
+                        error
+                    });
+                    throw error;
+                }
+                console.warn(`[Router] renderEach hook retry ${attempt + 1}/${maxRetries}`);
+                // 延迟重试，避免立即重试导致相同错误
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+        }
+        return undefined;
+    }
 }
