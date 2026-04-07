@@ -223,7 +223,22 @@ export class KylinRouter extends Mixin(
             }
         }
 
-        // TODO: 在组件渲染前执行 renderEach 钩子（Phase 3 实现）
+        // 执行 renderEach 钩子（数据预加载）
+        // 遵循 D-18: 在组件加载后、渲染前执行
+        // 遵循 D-19: 失败时继续渲染组件
+        if (this.current.route) {
+            const renderData = await this.executeRenderEach(
+                this.current.route,
+                fromRoute,
+                this
+            );
+
+            // 将预加载的数据存储到 route.data
+            // 遵循 D-20: 通过 route.data 传递给组件
+            if (renderData) {
+                (this.current.route as any).data = renderData;
+            }
+        }
 
         // 触发 route-change 事件（用于后续的组件渲染）
         this.host.dispatchEvent(
