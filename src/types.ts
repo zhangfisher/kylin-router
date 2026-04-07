@@ -7,6 +7,16 @@ export interface RouteItem {
      */
     name: string;
     /**
+     * 路由路径，支持以下语法：
+     * - 静态路径：/user、/about
+     * - 动态参数：/user/:id、/user/<id>
+     * - 正则约束：/user/:id(\d+)
+     * - 通配符：* 匹配任意路径
+     *
+     * 子路由不以 / 开头时为相对路径，自动继承父路由路径
+     */
+    path: string;
+    /**
      * 路由标题，通常用于显示在导航菜单或标签页上
      */
     title?: string;
@@ -15,13 +25,22 @@ export interface RouteItem {
      */
     query?: Record<string, any>;
     /**
+     * 调用url加载HTML时传递的路由参数
+     */
+    params?: Record<string, any>;
+    /**
      * 路由图标，通常用于显示在导航菜单上
      */
     icon?: string;
     /**
-     * 从此路径加载HTML内容，支持相对路径和绝对路径
+     * 
+     * 路由显示组件
+     * 
+     * - string:  从此路径加载HTML内容，支持相对路径和绝对路径
+     * - HTMLElement:  使用指定的HTMLElement元素作为路由显示组件
+     * 
      */
-    url?: string;
+    component?: string | HTMLElement;
     /**
      * 是否缓存此路由对应的组件实例，默认为 false
      *
@@ -43,6 +62,9 @@ export interface RouteItem {
     redirect?: string;
     children?: RouteItem[];
     meta?: Record<string, any>;
+    onBeforeEnter?:(to: RouteItem, from: RouteItem) => boolean | Promise<boolean>;
+    onBeforeUpdate?:(to: RouteItem, from: RouteItem) => void;
+    onBeforeLeave?:(to: RouteItem, from: RouteItem) => void;
 }
 
 export type KylinRoutes = RouteItem[] | RouteItem;
@@ -50,4 +72,7 @@ export type KylinRoutes = RouteItem[] | RouteItem;
 export type KylinRouterOptiopns = {
     mode?: "hash" | "history";
     routes: KylinRoutes;
+    onBeforeResolve?: (to: RouteItem, from: RouteItem) => boolean | Promise<boolean>;
+    onBeforeEach?: (to: RouteItem, from: RouteItem) => boolean | Promise<boolean>;
+    onAfterEach?: (to: RouteItem, from: RouteItem) => void | Promise<void>;    
 };
