@@ -18,6 +18,32 @@ import {
 import { createHashHistoryFromLib } from "@/utils/hashUtils";
 
 /**
+ * 类型守卫：检查对象是否为 RouteItem
+ */
+function isRouteItem(obj: unknown): obj is RouteItem {
+    if (typeof obj !== 'object' || obj === null) {
+        return false;
+    }
+    const route = obj as Record<string, unknown>;
+    return (
+        typeof route.name === 'string' &&
+        typeof route.path === 'string'
+    );
+}
+
+/**
+ * 类型守卫：检查对象是否为完整的 KylinRouterOptiopns
+ */
+function isKylinRouterOptions(obj: unknown): obj is KylinRouterOptiopns {
+    if (typeof obj !== 'object' || obj === null) {
+        return false;
+    }
+    const options = obj as Record<string, unknown>;
+    // 检查是否有 routes 属性
+    return 'routes' in options;
+}
+
+/**
  * 定义 Routes mixin 提供的接口
  * 这让 TypeScript 知道混合后的类会有这些方法
  */
@@ -81,18 +107,32 @@ export class KylinRouter
         super();
 
         // 规范化 options 参数（D-17: 支持多种路由配置格式）
-        const resolvedOptions: KylinRouterOptiopns =
-            Array.isArray(options) || ("path" in options && "name" in options)
-                ? { routes: options as KylinRoutes }
-                : (options as KylinRouterOptiopns);
+        let resolvedOptions: KylinRouterOptiopns;
+
+        if (Array.isArray(options)) {
+            // 情况1: 数组格式的路由配置
+            resolvedOptions = { routes: options };
+        } else if (typeof options === 'string') {
+            // 情况2: 字符串格式的路由配置（URL路径）
+            resolvedOptions = { routes: options };
+        } else if (typeof options === 'function') {
+            // 情况3: 函数格式的路由配置（异步加载）
+            resolvedOptions = { routes: options };
+        } else if (isRouteItem(options)) {
+            // 情况4: 单个 RouteItem 对象
+            resolvedOptions = { routes: options };
+        } else if (isKylinRouterOptions(options)) {
+            // 情况5: 完整的 KylinRouterOptiopns 对象
+            resolvedOptions = options;
+        } else {
+            // 情况6: 其他情况，作为空路由配置处理
+            resolvedOptions = { routes: [] };
+        }
 
         // 根据 mode 创建对应的 History 实例（D-29 到 D-32）
         const mode = resolvedOptions.mode || "history";
         const base = resolvedOptions.base;
-        this.history =
-            mode === "hash"
-                ? createHashHistoryFromLib(base)
-                : createBrowserHistory({ basename: base || "" });
+        this.history = mode === "hash" ? createHashHistoryFromLib(base) : createBrowserHistory();
 
         // 设置 host 元素
         this.host = typeof host === "string" ? (document.querySelector(host) as HTMLElement) : host;
