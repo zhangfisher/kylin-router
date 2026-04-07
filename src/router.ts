@@ -151,8 +151,9 @@ export class KylinRouter extends Mixin(
         const pathname = location.location.pathname;
         const search = location.location.search;
 
-        // 保存当前路由状态（用于 from 参数）
+        // 保存当前路由状态（用于 from 参数和 afterLeave 守卫）
         const fromRoute = this.current.route || { name: '', path: '', params: {}, query: {} };
+        this.previousRoute = this.current.route || undefined;
 
         // 先执行路由匹配，获取目标路由信息
         this._matchAndUpdateState(pathname, search);
@@ -248,6 +249,21 @@ export class KylinRouter extends Mixin(
         } catch (error) {
             console.error('Error in afterEach hooks:', error);
             // afterEach 钩子出错不影响导航流程
+        }
+
+        // 执行 afterLeave 守卫（异步执行，不阻塞导航）
+        if (this.previousRoute) {
+            const previousMatched = [{ route: this.previousRoute, params: {}, remainingPath: '' }];
+            this.executeRouteGuards(
+                this.getOrderedMatchedRoutes(previousMatched),
+                toRoute,
+                this.previousRoute,
+                this,
+                'afterLeave'
+            ).catch(error => {
+                console.error('Error in afterLeave guards:', error);
+                // afterLeave 出错不影响导航流程
+            });
         }
 
         // 触发 navigation-end 事件
