@@ -67,6 +67,82 @@ describe("KylinRouter core routing", () => {
         }
     });
 
+    describe("构造函数参数处理", () => {
+        it("应该接受完整配置对象", async () => {
+            router = await createRouter(host, {
+                routes,
+                mode: "history",
+                notFound: { name: "404", path: "*" },
+                defaultRoute: "/home"
+            });
+
+            expect(router.routes).toEqual(routes);
+            expect(router.notFound).toBeDefined();
+            expect(router.defaultRoute).toBe("/home");
+        });
+
+        it("应该接受数组格式的路由配置", async () => {
+            router = await createRouter(host, routes);
+
+            expect(router.routes).toEqual(routes);
+            expect(router.routes.length).toBe(4);
+        });
+
+        it("应该接受单个 RouteItem 对象", async () => {
+            const singleRoute = { name: "home", path: "/" };
+            router = await createRouter(host, singleRoute);
+
+            expect(router.routes).toBeDefined();
+            expect(router.routes.length).toBe(1);
+            expect(router.routes[0]).toEqual(singleRoute);
+        });
+
+        it("应该接受字符串格式的路由配置", async () => {
+            const routeString = "/home";
+            router = await createRouter(host, routeString);
+
+            expect(router.routes).toBeDefined();
+        });
+
+        it("应该接受函数格式的路由配置", async () => {
+            const routeFunction = () => routes;
+            router = await createRouter(host, routeFunction);
+
+            expect(router.routes).toBeDefined();
+        });
+
+        it("应该接受空配置对象", async () => {
+            router = await createRouter(host, {});
+
+            expect(router.routes).toBeDefined();
+            expect(router.routes.length).toBe(0);
+        });
+
+        it("应该正确处理 hash 模式配置", async () => {
+            router = await createRouter(host, {
+                routes,
+                mode: "hash",
+                base: "/app"
+            });
+
+            expect(router.routes).toEqual(routes);
+        });
+
+        it("应该处理包含 undefined 和 null 的配置", async () => {
+            const configWithUndefined = {
+                routes,
+                notFound: undefined,
+                defaultRoute: undefined
+            };
+
+            router = await createRouter(host, configWithUndefined);
+
+            expect(router.routes).toEqual(routes);
+            expect(router.notFound).toBeUndefined();
+            expect(router.defaultRoute).toBeUndefined();
+        });
+    });
+
     describe("路由匹配集成", () => {
         it("onRouteUpdate 在 URL 变化时被调用并匹配路由", async () => {
             router = await createRouter(host, { routes });
