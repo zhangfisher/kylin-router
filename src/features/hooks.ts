@@ -5,7 +5,8 @@
  */
 
 import type { KylinRouter } from "@/router";
-import type { HookFunction, HookType, RouteItem } from "@/types";
+import type { HookFunction, RouteItem, RouteData, RenderEachHook } from "@/types";
+import { HookType } from "@/types";
 
 export class Hooks {
     /**
@@ -215,5 +216,115 @@ export class Hooks {
         // Phase 1 的路由匹配返回从内到外的顺序
         // 守卫执行需要从外到内（父 → 子）
         return [...matchedRoutes].reverse();
+    }
+
+    /**
+     * 执行 renderEach 钩子进行数据预加载
+     * 遵循 D-18: 在组件加载后执行
+     * 遵循 D-19: 失败时继续渲染
+     * 遵循 D-20: 通过 route.data 传递
+     * @param to - 目标路由
+     * @param from - 来源路由
+     * @param router - 路由器实例
+     * @returns Promise<RouteData | undefined> - 合并后的预加载数据
+     */
+    protected async executeRenderEach(
+        this: KylinRouter,
+        to: RouteItem,
+        from: RouteItem,
+        router: any
+    ): Promise<RouteData | undefined> {
+        // 收集全局 renderEach 钩子
+        const globalHooks = this.hooks[HookType.RENDER_EACH] as RenderEachHook[];
+        // 收集路由级 renderEach 钩子
+        const routeHooks = to.renderEach
+            ? Array.isArray(to.renderEach)
+                ? to.renderEach
+                : [to.renderEach]
+            : [];
+
+        const allHooks = [...globalHooks, ...routeHooks];
+        if (allHooks.length === 0) return undefined;
+
+        let combinedData: RouteData = {};
+        let errorCount = 0;
+        const errors: Array<{ hook: RenderEachHook; error: Error }> = [];
+
+        // 串行执行所有 renderEach 钩子
+        for (const hook of allHooks) {
+            try {
+                const result = await this.runRenderEachHook(hook, to, from, router);
+                if (result) {
+                    combinedData = { ...combinedData, ...result };
+                }
+            } catch (error) {
+                errorCount++;
+                errors.push({ hook, error: error as Error });
+                console.error('[Router] renderEach hook failed:', {
+                    route: to.name,
+                    error
+                });
+                // 继续执行下一个钩子（D-19）
+            }
+        }
+
+        // 记录错误统计
+        if (errorCount > 0) {
+            console.warn(`[Router] ${errorCount} renderEach hooks failed, continuing navigation`);
+        }
+
+        return combinedData;
+    }
+
+    /**
+     * 运行单个 renderEach 钩子函数
+     * @param hook - renderEach 钩子函数
+     * @param to - 目标路由
+     * @param from - 来源路由
+     * @param router - 路由器实例
+     * @returns Promise<RouteData | undefined> - 钩子返回的预加载数据
+     */
+    protected async runRenderEachHook(
+        this: KylinRouter,
+        hook: RenderEachHook,
+        to: RouteItem,
+        from: RouteItem,
+        router: any
+    ): Promise<RouteData | undefined> {
+        return new Promise((resolve) => {
+            const timeout = setTimeout(() => {
+                console.error('[Router] renderEach hook timeout after 30000ms');
+                resolve(undefined); // 超时返回 undefined，不阻塞导航
+            }, 30000);
+
+            const next = (data?: RouteData) => {
+                clearTimeout(timeout);
+                resolve(data);
+            };
+
+            try {
+                const result = hook(to, from, next, router);
+
+                // 支持直接返回数据
+                if (result instanceof Promise) {
+                    result.then(data => {
+                        clearTimeout(timeout);
+                        resolve(data || undefined);
+                    }).catch(error => {
+                        clearTimeout(timeout);
+                        console.error('[Router] renderEach hook execution error:', error);
+                        resolve(undefined);
+                    });
+                } else if (result !== undefined) {
+                    clearTimeout(timeout);
+                    resolve(result);
+                }
+                // 如果调用 next()，由 next 回调处理
+            } catch (error) {
+                clearTimeout(timeout);
+                console.error('[Router] renderEach hook sync error:', error);
+                resolve(undefined);
+            }
+        });
     }
 }
