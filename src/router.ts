@@ -1,12 +1,20 @@
-
 import type { OutletRefs } from "@/utils/traverseOutlet";
 import { createBrowserHistory } from "history";
 import type { Update } from "history";
 import type { KylinRouterOptiopns, MatchedRoute, KylinRoutes, RouteItem } from "./types";
 import { Mixin } from "ts-mixer";
-import { Context,Hooks,KeepAlive,Transition ,Preload,Render,DataLoader,Model,Redirect,Routes} from "./features";
-import { matchRoute } from "@/utils/matchRoute";
-import { extractQueryParams } from "@/utils/parseParams";
+import {
+    Context,
+    Hooks,
+    KeepAlive,
+    Transition,
+    Preload,
+    Render,
+    DataLoader,
+    Model,
+    Redirect,
+    Routes,
+} from "./features";
 import { createHashHistoryFromLib } from "@/utils/hashUtils";
 
 /**
@@ -16,31 +24,35 @@ import { createHashHistoryFromLib } from "@/utils/hashUtils";
 interface RoutesMixin {
     addRoute(route: RouteItem): void;
     removeRoute(name: string): void;
-    loadRemoteRoutes(source: RouteItem[] | RouteItem | (() => KylinRoutes | Promise<KylinRoutes>)): Promise<void>;
+    loadRemoteRoutes(
+        source: RouteItem[] | RouteItem | (() => KylinRoutes | Promise<KylinRoutes>),
+    ): Promise<void>;
 }
 
-
 /**
- * 
- * 
+ *
+ *
  *  const router = new KylinRouter("aa", {})
- * 
+ *
  *  <
- * 
- * 
+ *
+ *
  */
-export class KylinRouter extends Mixin(
-    Context,
-    Hooks,
-    KeepAlive,
-    Transition,
-    DataLoader,
-    Preload,
-    Render,
-    Model,
-    Redirect,
-    Routes
-) implements RoutesMixin {
+export class KylinRouter
+    extends Mixin(
+        Context,
+        Hooks,
+        KeepAlive,
+        Transition,
+        DataLoader,
+        Preload,
+        Render,
+        Model,
+        Redirect,
+        Routes,
+    )
+    implements RoutesMixin
+{
     // 用于存储一需要清理的副作用函数，比如 history.listen 返回的取消监听函数
     protected _cleanups: Array<() => void> = [];
     host: HTMLElement;
@@ -52,9 +64,6 @@ export class KylinRouter extends Mixin(
     public routes!: RouteItem[];
     public notFound?: RouteItem;
     public defaultRoute?: string;
-    public currentRoute: { route: RouteItem; params: Record<string, string>; remainingPath: string } | null = null;
-    public params: Record<string, string> = {};
-    public query: Record<string, string> = {};
     public _redirectCount: number = 0;
 
     /** 是否正在导航 */
@@ -65,28 +74,32 @@ export class KylinRouter extends Mixin(
      * @param host 元素或选择器字符串，指定 KylinRouter 的宿主元素
      * @param options
      */
-    constructor(host: HTMLElement | string, options: KylinRouterOptiopns | KylinRouterOptiopns["routes"]) {
+    constructor(
+        host: HTMLElement | string,
+        options: KylinRouterOptiopns | KylinRouterOptiopns["routes"],
+    ) {
         super();
 
         // 规范化 options 参数（D-17: 支持多种路由配置格式）
         const resolvedOptions: KylinRouterOptiopns =
             Array.isArray(options) || ("path" in options && "name" in options)
                 ? { routes: options as KylinRoutes }
-                : options as KylinRouterOptiopns;
+                : (options as KylinRouterOptiopns);
 
         // 根据 mode 创建对应的 History 实例（D-29 到 D-32）
         const mode = resolvedOptions.mode || "history";
         const base = resolvedOptions.base;
-        this.history = mode === "hash"
-            ? createHashHistoryFromLib(base)
-            : createBrowserHistory({ basename: base || "" });
+        this.history =
+            mode === "hash"
+                ? createHashHistoryFromLib(base)
+                : createBrowserHistory({ basename: base || "" });
 
         // 设置 host 元素
-        this.host = typeof(host) ==='string' ? document.querySelector(host) as HTMLElement : host;
+        this.host = typeof host === "string" ? (document.querySelector(host) as HTMLElement) : host;
         if (host instanceof HTMLElement) {
             // 做个标识用于获取 router 实例
             this.host.setAttribute("data-kylin-router", "");
-            (this.host as any).router= this;
+            (this.host as any).router = this;
             this.attach();
         } else {
             throw new Error("KylinRouter must be initialized with an HTMLElement as host");
@@ -96,7 +109,7 @@ export class KylinRouter extends Mixin(
         this.initRoutes(
             resolvedOptions.routes,
             resolvedOptions.notFound,
-            resolvedOptions.defaultRoute
+            resolvedOptions.defaultRoute,
         );
 
         // 执行初始路由匹配（初始化时 history.listen 不会触发回调）
@@ -115,40 +128,22 @@ export class KylinRouter extends Mixin(
         this.isNavigating = true;
 
         const pathname = location.location.pathname;
+        const search = location.location.search;
 
         // 执行路由匹配
-        const matched = matchRoute(pathname, this.routes);
-
-        if (matched) {
-            this.currentRoute = matched;
-            this.params = matched.params;
-        } else if (this.notFound) {
-            // 未匹配时使用 404 配置（D-33: 通配符路由优先，notFound 作为后备）
-            this.currentRoute = {
-                route: this.notFound,
-                params: {},
-                remainingPath: pathname,
-            };
-            this.params = {};
-        } else {
-            this.currentRoute = null;
-            this.params = {};
-        }
-
-        // 提取查询参数
-        this.query = extractQueryParams(location.location.search);
+        this._matchAndUpdateState(pathname, search);
 
         // 触发 route-change 事件（用于后续的组件渲染）
         this.host.dispatchEvent(
             new CustomEvent("route-change", {
                 detail: {
-                    route: this.currentRoute,
-                    params: this.params,
-                    query: this.query,
+                    route: this.current.route,
+                    params: this.current.params,
+                    query: this.current.query,
                     location: location,
                 },
                 bubbles: true,
-            })
+            }),
         );
 
         // 触发 navigation-end 事件
@@ -159,7 +154,7 @@ export class KylinRouter extends Mixin(
                     navigationType: this._pendingNavigationType || "pop",
                 },
                 bubbles: true,
-            })
+            }),
         );
 
         // 重置导航状态
@@ -184,7 +179,7 @@ export class KylinRouter extends Mixin(
                     navigationType: "push",
                 },
                 bubbles: true,
-            })
+            }),
         );
         if (state !== undefined) {
             this.history.push(path, state);
@@ -202,7 +197,7 @@ export class KylinRouter extends Mixin(
                     navigationType: "replace",
                 },
                 bubbles: true,
-            })
+            }),
         );
         if (state !== undefined) {
             this.history.replace(path, state);
@@ -220,7 +215,7 @@ export class KylinRouter extends Mixin(
                     navigationType: "pop",
                 },
                 bubbles: true,
-            })
+            }),
         );
         this.history.back();
     }
@@ -234,7 +229,7 @@ export class KylinRouter extends Mixin(
                     navigationType: "pop",
                 },
                 bubbles: true,
-            })
+            }),
         );
         this.history.forward();
     }
@@ -248,7 +243,7 @@ export class KylinRouter extends Mixin(
                     navigationType: "pop",
                 },
                 bubbles: true,
-            })
+            }),
         );
         this.history.go(delta);
     }

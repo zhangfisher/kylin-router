@@ -27,14 +27,18 @@ export class Routes {
     /** 默认路径重定向 */
     public defaultRoute?: string;
 
-    /** 当前匹配的路由 */
-    public currentRoute: { route: RouteItem; params: Record<string, string>; remainingPath: string } | null = null;
-
-    /** 当前路径参数 */
-    public params: Record<string, string> = {};
-
-    /** 当前查询参数 */
-    public query: Record<string, string> = {};
+    /** 当前路由状态 */
+    public current: {
+        route: RouteItem | null;
+        params: Record<string, string>;
+        query: Record<string, string>;
+        remainingPath: string;
+    } = {
+        route: null,
+        params: {},
+        query: {},
+        remainingPath: "",
+    };
 
     /** 当前会话的重定向次数（用于循环检测） */
     public _redirectCount: number = 0;
@@ -97,7 +101,7 @@ export class Routes {
         const removed = removeRouteByName(this.routes, name);
 
         // 如果删除了路由且当前正在访问该路由，触发重定向
-        if (removed && this.currentRoute && this.currentRoute.route.name === name) {
+        if (removed && this.current.route && this.current.route.name === name) {
             this._redirectToDefaultOrNotFound();
         }
     }
@@ -143,22 +147,21 @@ export class Routes {
         const matched = matchRoute(pathname, this.routes);
 
         if (matched) {
-            this.currentRoute = matched;
-            this.params = matched.params;
+            this.current.route = matched.route;
+            this.current.params = matched.params;
+            this.current.remainingPath = matched.remainingPath;
         } else if (this.notFound) {
-            this.currentRoute = {
-                route: this.notFound,
-                params: {},
-                remainingPath: pathname,
-            };
-            this.params = {};
+            this.current.route = this.notFound;
+            this.current.params = {};
+            this.current.remainingPath = pathname;
         } else {
-            this.currentRoute = null;
-            this.params = {};
+            this.current.route = null;
+            this.current.params = {};
+            this.current.remainingPath = pathname;
         }
 
         // 提取查询参数
-        this.query = extractQueryParams(search);
+        this.current.query = extractQueryParams(search);
 
         // 重置导航状态
         (this as any).isNavigating = false;
@@ -175,22 +178,21 @@ export class Routes {
         const matched = matchRoute(pathname, this.routes);
 
         if (matched) {
-            this.currentRoute = matched;
-            this.params = matched.params;
+            this.current.route = matched.route;
+            this.current.params = matched.params;
+            this.current.remainingPath = matched.remainingPath;
         } else if (this.notFound) {
-            this.currentRoute = {
-                route: this.notFound,
-                params: {},
-                remainingPath: pathname,
-            };
-            this.params = {};
+            this.current.route = this.notFound;
+            this.current.params = {};
+            this.current.remainingPath = pathname;
         } else {
-            this.currentRoute = null;
-            this.params = {};
+            this.current.route = null;
+            this.current.params = {};
+            this.current.remainingPath = pathname;
         }
 
         // 提取查询参数
-        this.query = extractQueryParams(search);
+        this.current.query = extractQueryParams(search);
     }
 
     /**
@@ -236,12 +238,9 @@ export class Routes {
         if (this.defaultRoute) {
             (this as any).push(this.defaultRoute);
         } else if (this.notFound) {
-            this.currentRoute = {
-                route: this.notFound,
-                params: {},
-                remainingPath: (this as any).history.location.pathname,
-            };
-            this.params = {};
+            this.current.route = this.notFound;
+            this.current.params = {};
+            this.current.remainingPath = (this as any).history.location.pathname;
         }
     }
 }
