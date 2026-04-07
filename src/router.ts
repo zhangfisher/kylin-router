@@ -140,6 +140,11 @@ export class KylinRouter extends Mixin(
         // 设置导航状态
         this.isNavigating = true;
 
+        // 在导航开始时重置重定向计数（仅针对非重定向触发的导航）
+        if (this._pendingNavigationType !== 'replace') {
+            this._redirectCount = 0;
+        }
+
         const pathname = location.location.pathname;
         const search = location.location.search;
 
@@ -169,6 +174,13 @@ export class KylinRouter extends Mixin(
 
             if (typeof beforeEachResult === 'string') {
                 // 重定向
+                this._redirectCount++;
+                if (this._redirectCount > 10) {
+                    console.error('Maximum redirect limit reached. Possible infinite loop.');
+                    this.isNavigating = false;
+                    this._redirectCount = 0;
+                    return;
+                }
                 this.replace(beforeEachResult);
                 return;
             }
