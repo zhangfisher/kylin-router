@@ -59,6 +59,12 @@ export class KylinRouter extends Mixin(
     /** 是否正在导航 */
     isNavigating: boolean = false;
 
+    /** 当前会话的重定向次数（用于循环检测） */
+    private _redirectCount: number = 0;
+
+    /** 最大重定向次数，防止循环重定向 */
+    private static readonly MAX_REDIRECTS: number = 10;
+
     /**
      *
      * @param host 元素或选择器字符串，指定 KylinRouter 的宿主元素
@@ -92,6 +98,9 @@ export class KylinRouter extends Mixin(
             this.host.setAttribute("data-kylin-router", "");
             (this.host as any).router= this;
             this.attach();
+
+            // 执行初始路由匹配（初始化时 history.listen 不会触发回调）
+            this._matchCurrentLocation();
         } else {
             throw new Error("KylinRouter must be initialized with an HTMLElement as host");
         }
@@ -159,6 +168,85 @@ export class KylinRouter extends Mixin(
         // 重置导航状态
         this.isNavigating = false;
         this._pendingNavigationType = undefined;
+
+        // 默认路径重定向检测（D-41 到 D-44）
+        // 当前路径为根路径且配置了 defaultRoute 时，自动重定向
+        this._checkDefaultRedirect(pathname);
+    }
+
+    /**
+     * 检查是否需要执行默认路径重定向
+     * 当访问根路径（/ 或 hash 模式的 #/）且配置了 defaultRoute 时触发
+     * 按照 D-42: 重定向触发完整导航流程、D-43: 循环重定向检测
+     */
+    private _checkDefaultRedirect(pathname: string): void {
+        if (!this.defaultRoute) return;
+
+        // 规范化路径用于比较
+        const normalizedPath = pathname === "" ? "/" : pathname.replace(/\/+$/, "") || "/";
+
+        // 只在根路径时触发重定向
+        if (normalizedPath !== "/") {
+            // 非 root 路径正常导航，重置重定向计数
+            this._redirectCount = 0;
+            return;
+        }
+
+        // 已经在 defaultRoute 路径上，不需要重定向
+        const targetPath = this.defaultRoute.replace(/\/+$/, "") || "/";
+        if (targetPath === "/") {
+            this._redirectCount = 0;
+            return;
+        }
+
+        // 循环重定向检测
+        this._redirectCount++;
+        if (this._redirectCount > KylinRouter.MAX_REDIRECTS) {
+            this._redirectCount = 0;
+            throw new Error(`检测到循环重定向，已超过最大重定向次数 (${KylinRouter.MAX_REDIRECTS})`);
+        }
+
+        // 执行重定向
+        this.push(this.defaultRoute);
+    }
+
+    /**
+     * 执行初始路由匹配
+     * 在构造函数中调用，匹配当前 URL 的路由
+     */
+    private _matchCurrentLocation(): void {
+        const pathname = this.history.location.pathname;
+        const search = this.history.location.search;
+
+        // 设置导航状态
+        this.isNavigating = true;
+
+        // 执行路由匹配
+        const matched = matchRoute(pathname, this.routes);
+
+        if (matched) {
+            this.currentRoute = matched;
+            this.params = matched.params;
+        } else if (this.notFound) {
+            this.currentRoute = {
+                route: this.notFound,
+                params: {},
+                remainingPath: pathname,
+            };
+            this.params = {};
+        } else {
+            this.currentRoute = null;
+            this.params = {};
+        }
+
+        // 提取查询参数
+        this.query = extractQueryParams(search);
+
+        // 重置导航状态
+        this.isNavigating = false;
+
+        // 检查默认路径重定向
+        this._checkDefaultRedirect(pathname);
     }
 
     /** 待处理的导航类型，用于在 onRouteUpdate 中判断导航来源 */
