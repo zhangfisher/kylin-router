@@ -127,4 +127,89 @@ export class Hooks {
             }
         });
     }
+
+    /**
+     * 执行路由级守卫（父优先顺序）
+     * @param matchedRoutes - 匹配的路由链（从外到内排序）
+     * @param to - 目标路由
+     * @param from - 来源路由
+     * @param router - 路由器实例
+     * @param guardType - 守卫类型
+     * @returns Promise<boolean | string> - 返回 false 表示取消导航，返回字符串表示重定向路径，返回 true 表示继续
+     */
+    protected async executeRouteGuards(
+        this: KylinRouter,
+        matchedRoutes: any[],
+        to: RouteItem,
+        from: RouteItem,
+        router: any,
+        guardType: 'beforeEnter' | 'afterLeave'
+    ): Promise<boolean | string> {
+        // 从外到内执行父 → 子
+        for (const matched of matchedRoutes) {
+            const route = matched.route;
+            const guard = guardType === 'beforeEnter' ? route.beforeEnter : route.afterLeave;
+
+            if (guard) {
+                try {
+                    const result = await this.runRouteGuard(route, guard, to, from);
+                    if (result === false) return false;
+                    if (typeof result === 'string') return result;
+                } catch (error) {
+                    console.error(`[Router] Route ${guardType} guard error:`, {
+                        route: route.name,
+                        guardType,
+                        error,
+                        to: to.path,
+                        from: from.path
+                    });
+                    return false; // 守卫失败，取消导航
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 运行单个路由守卫函数
+     * @param route - 路由配置
+     * @param guard - 守卫函数
+     * @param to - 目标路由
+     * @param from - 来源路由
+     * @returns Promise<boolean | string> - 守卫执行结果
+     */
+    protected async runRouteGuard(
+        this: KylinRouter,
+        route: RouteItem,
+        guard: (to: RouteItem, from: RouteItem) => any,
+        to: RouteItem,
+        from: RouteItem
+    ): Promise<boolean | string> {
+        return new Promise<boolean | string>((resolve) => {
+            const timeout = setTimeout(() => {
+                console.error(`[Router] Route guard timeout after 30000ms in ${route.name}`);
+                resolve(false); // 超时视为守卫失败
+            }, 30000);
+
+            guard(to, from).then((result: boolean | string) => {
+                clearTimeout(timeout);
+                resolve(result);
+            }).catch((error: unknown) => {
+                clearTimeout(timeout);
+                console.error(`[Router] Route guard execution error in ${route.name}:`, error);
+                resolve(false);
+            });
+        });
+    }
+
+    /**
+     * 获取排序后的匹配路由（从外到内，父优先）
+     * @param matchedRoutes - 匹配的路由链
+     * @returns MatchedRoute[] - 从外到内排序的路由链
+     */
+    protected getOrderedMatchedRoutes(this: KylinRouter, matchedRoutes: any[]): any[] {
+        // Phase 1 的路由匹配返回从内到外的顺序
+        // 守卫执行需要从外到内（父 → 子）
+        return [...matchedRoutes].reverse();
+    }
 }
