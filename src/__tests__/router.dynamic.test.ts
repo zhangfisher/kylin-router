@@ -73,8 +73,8 @@ describe("Dynamic route registration API", () => {
         // 导航到新添加的路由
         router.push("/settings");
 
-        expect(router.currentRoute).not.toBeNull();
-        expect(router.currentRoute!.route.name).toBe("settings");
+        expect(router.current.route).not.toBeNull();
+        expect(router.current.route!.name).toBe("settings");
     });
 
     it("动态添加的路由与静态路由使用统一的优先级规则", async () => {
@@ -87,8 +87,8 @@ describe("Dynamic route registration API", () => {
         router.push("/user/profile");
 
         // 静态路由应该优先
-        expect(router.currentRoute).not.toBeNull();
-        expect(router.currentRoute!.route.name).toBe("user-profile");
+        expect(router.current.route).not.toBeNull();
+        expect(router.current.route!.name).toBe("user-profile");
     });
 
     it("removeRoute(name) 应该删除指定名称的路由", async () => {
@@ -97,14 +97,14 @@ describe("Dynamic route registration API", () => {
         // 添加一个路由
         router.addRoute({ name: "settings", path: "/settings" });
         router.push("/settings");
-        expect(router.currentRoute!.route.name).toBe("settings");
+        expect(router.current.route!.name).toBe("settings");
 
         // 删除路由
         router.removeRoute("settings");
 
         // 导航到已删除的路由应该匹配通配符
         router.push("/settings");
-        expect(router.currentRoute!.route.name).toBe("not-found");
+        expect(router.current.route!.name).toBe("not-found");
     });
 
     it("删除当前正在访问的路由时应该自动重定向到默认路由", async () => {
@@ -115,13 +115,13 @@ describe("Dynamic route registration API", () => {
 
         router.addRoute({ name: "settings", path: "/settings" });
         router.push("/settings");
-        expect(router.currentRoute!.route.name).toBe("settings");
+        expect(router.current.route!.name).toBe("settings");
 
         // 删除当前访问的路由
         router.removeRoute("settings");
 
         // 应该重定向到默认路由
-        expect(router.currentRoute!.route.name).toBe("home");
+        expect(router.current.route!.name).toBe("home");
     });
 
     it("删除不存在的路由应该静默处理（不抛出错误）", async () => {
@@ -137,12 +137,12 @@ describe("Dynamic route registration API", () => {
         // 添加路由
         router.addRoute({ name: "settings", path: "/settings" });
         router.push("/settings");
-        expect(router.currentRoute!.route.name).toBe("settings");
+        expect(router.current.route!.name).toBe("settings");
 
         // 覆盖同名路由到不同路径
         router.addRoute({ name: "settings", path: "/config" });
         router.push("/config");
-        expect(router.currentRoute!.route.name).toBe("settings");
+        expect(router.current.route!.name).toBe("settings");
         expect(router.location.pathname).toBe("/config");
     });
 });

@@ -72,7 +72,7 @@ describe("KylinRouter core routing", () => {
             router = await createRouter(host, { routes });
 
             // 初始状态 - 应该匹配根路径
-            expect(router.currentRoute).toBeDefined();
+            expect(router.current.route).toBeDefined();
         });
 
         it("路由匹配结果存储在 currentRoute 属性中", async () => {
@@ -81,9 +81,9 @@ describe("KylinRouter core routing", () => {
             // 推送到 /user 路径
             router.push("/user");
 
-            // currentRoute 应该存储匹配的路由
-            expect(router.currentRoute).not.toBeNull();
-            expect(router.currentRoute!.route.name).toBe("user");
+            // current 应该存储匹配的路由
+            expect(router.current.route).not.toBeNull();
+            expect(router.current.route!.name).toBe("user");
         });
 
         it("404 路由未匹配时使用通配符匹配", async () => {
@@ -93,8 +93,8 @@ describe("KylinRouter core routing", () => {
             router.push("/nonexistent/path");
 
             // 应该匹配通配符路由
-            expect(router.currentRoute).not.toBeNull();
-            expect(router.currentRoute!.route.name).toBe("not-found");
+            expect(router.current.route).not.toBeNull();
+            expect(router.current.route!.name).toBe("not-found");
         });
 
         it("路径参数解析后存储在 params 属性中", async () => {
@@ -103,8 +103,8 @@ describe("KylinRouter core routing", () => {
             // 推送到带参数的路径
             router.push("/user/123");
 
-            expect(router.currentRoute).not.toBeNull();
-            expect(router.params).toEqual({ id: "123" });
+            expect(router.current.route).not.toBeNull();
+            expect(router.current.params).toEqual({ id: "123" });
         });
 
         it("查询参数解析后存储在 query 属性中", async () => {
@@ -113,7 +113,7 @@ describe("KylinRouter core routing", () => {
             // 推送到带查询参数的路径
             router.push("/user?name=test&page=1");
 
-            expect(router.query).toEqual({ name: "test", page: "1" });
+            expect(router.current.query).toEqual({ name: "test", page: "1" });
         });
     });
 });

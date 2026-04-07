@@ -142,8 +142,8 @@ describe("KylinLinkElement", () => {
             const clickEvent = new Event("click", { cancelable: true });
             simulateHandleClick("/user", false, router, clickEvent);
 
-            expect(router.currentRoute).not.toBeNull();
-            expect(router.currentRoute!.route.name).toBe("user");
+            expect(router.current.route).not.toBeNull();
+            expect(router.current.route!.name).toBe("user");
         });
 
         it("点击 <kylin-link to=\"/user\" replace> 应该调用 router.replace('/user')", async () => {
@@ -162,7 +162,7 @@ describe("KylinLinkElement", () => {
             simulateHandleClick("/user", true, router, clickEvent);
 
             expect(navType).toBe("replace");
-            expect(router.currentRoute!.route.name).toBe("user");
+            expect(router.current.route!.name).toBe("user");
         });
 
         it("内部路由应该阻止默认的链接跳转行为", async () => {
@@ -180,12 +180,12 @@ describe("KylinLinkElement", () => {
             router = await createRouter(host, { routes });
 
             router.push("/settings");
-            const routeBefore = router.currentRoute!.route.name;
+            const routeBefore = router.current.route!.name;
 
             const clickEvent = new Event("click", { cancelable: true });
             simulateHandleClick("https://external.com", false, router, clickEvent);
 
-            expect(router.currentRoute!.route.name).toBe(routeBefore);
+            expect(router.current.route!.name).toBe(routeBefore);
             expect(clickEvent.defaultPrevented).toBe(false);
         });
 
@@ -193,12 +193,12 @@ describe("KylinLinkElement", () => {
             router = await createRouter(host, { routes });
 
             router.push("/user");
-            const routeBefore = router.currentRoute!.route.name;
+            const routeBefore = router.current.route!.name;
 
             const clickEvent = new Event("click", { cancelable: true });
             simulateHandleClick("http://example.com", false, router, clickEvent);
 
-            expect(router.currentRoute!.route.name).toBe(routeBefore);
+            expect(router.current.route!.name).toBe(routeBefore);
             expect(clickEvent.defaultPrevented).toBe(false);
         });
     });
@@ -218,12 +218,12 @@ describe("KylinLinkElement", () => {
             router = await createRouter(host, { routes });
 
             router.push("/user");
-            const routeBefore = router.currentRoute!.route.name;
+            const routeBefore = router.current.route!.name;
 
             const clickEvent = new Event("click", { cancelable: true });
             simulateHandleClick("javascript:alert('xss')", false, router, clickEvent);
 
-            expect(router.currentRoute!.route.name).toBe(routeBefore);
+            expect(router.current.route!.name).toBe(routeBefore);
             expect(clickEvent.defaultPrevented).toBe(true);
         });
 
@@ -231,12 +231,12 @@ describe("KylinLinkElement", () => {
             router = await createRouter(host, { routes });
 
             router.push("/settings");
-            const routeBefore = router.currentRoute!.route.name;
+            const routeBefore = router.current.route!.name;
 
             const clickEvent = new Event("click", { cancelable: true });
             simulateHandleClick("data:text/html,<h1>test</h1>", false, router, clickEvent);
 
-            expect(router.currentRoute!.route.name).toBe(routeBefore);
+            expect(router.current.route!.name).toBe(routeBefore);
             expect(clickEvent.defaultPrevented).toBe(true);
         });
     });

@@ -87,8 +87,8 @@ describe("Hash mode routing", () => {
 
         router.push("/user");
 
-        expect(router.currentRoute).not.toBeNull();
-        expect(router.currentRoute!.route.name).toBe("user");
+        expect(router.current.route).not.toBeNull();
+        expect(router.current.route!.name).toBe("user");
         expect(router.location.pathname).toBe("/user");
     });
 
@@ -97,19 +97,19 @@ describe("Hash mode routing", () => {
 
         // push
         router.push("/user");
-        expect(router.currentRoute!.route.name).toBe("user");
+        expect(router.current.route!.name).toBe("user");
 
         // replace
         router.replace("/settings");
-        expect(router.currentRoute!.route.name).toBe("settings");
+        expect(router.current.route!.name).toBe("settings");
 
         // params
         router.push("/user/42");
-        expect(router.params).toEqual({ id: "42" });
+        expect(router.current.params).toEqual({ id: "42" });
 
         // query
         router.push("/user?tab=profile");
-        expect(router.query).toEqual({ tab: "profile" });
+        expect(router.current.query).toEqual({ tab: "profile" });
     });
 
     it("Hash 模式下导航事件正确触发", async () => {
@@ -139,16 +139,16 @@ describe("Hash mode routing", () => {
 
         // 应该正常工作（BrowserHistory 模式）
         router.push("/user");
-        expect(router.currentRoute!.route.name).toBe("user");
+        expect(router.current.route!.name).toBe("user");
     });
 
     it("push/replace 支持 state 参数", async () => {
         router = await createRouter(host, { routes });
 
         router.push("/user", { from: "home" });
-        expect(router.currentRoute!.route.name).toBe("user");
+        expect(router.current.route!.name).toBe("user");
 
         router.replace("/settings", { reason: "redirect" });
-        expect(router.currentRoute!.route.name).toBe("settings");
+        expect(router.current.route!.name).toBe("settings");
     });
 });

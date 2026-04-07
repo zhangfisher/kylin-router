@@ -69,13 +69,13 @@ describe("KylinRouter navigation API", () => {
     });
 
     describe("编程式导航方法", () => {
-        it("push('/user') 应该导航到 /user 并更新 currentRoute", async () => {
+        it("push('/user') 应该导航到 /user 并更新 current", async () => {
             router = await createRouter(host, { routes });
 
             router.push("/user");
 
-            expect(router.currentRoute).not.toBeNull();
-            expect(router.currentRoute!.route.name).toBe("user");
+            expect(router.current.route).not.toBeNull();
+            expect(router.current.route!.name).toBe("user");
             expect(router.location.pathname).toBe("/user");
         });
 
@@ -84,13 +84,13 @@ describe("KylinRouter navigation API", () => {
 
             // 先 push 到一个路径
             router.push("/user");
-            expect(router.currentRoute!.route.name).toBe("user");
+            expect(router.current.route!.name).toBe("user");
 
             // replace 到另一个路径
             router.replace("/settings");
 
-            expect(router.currentRoute).not.toBeNull();
-            expect(router.currentRoute!.route.name).toBe("settings");
+            expect(router.current.route).not.toBeNull();
+            expect(router.current.route!.name).toBe("settings");
             expect(router.location.pathname).toBe("/settings");
         });
 
@@ -99,16 +99,16 @@ describe("KylinRouter navigation API", () => {
 
             // 先导航到某个路径
             router.push("/user");
-            expect(router.currentRoute!.route.name).toBe("user");
+            expect(router.current.route!.name).toBe("user");
 
             // 再导航到另一个路径
             router.push("/settings");
-            expect(router.currentRoute!.route.name).toBe("settings");
+            expect(router.current.route!.name).toBe("settings");
 
             // back 应该返回到 /user
             router.back();
 
-            expect(router.currentRoute!.route.name).toBe("user");
+            expect(router.current.route!.name).toBe("user");
         });
 
         it("forward() 应该前进到下一页", async () => {
@@ -120,12 +120,12 @@ describe("KylinRouter navigation API", () => {
 
             // 回退到 /user
             router.back();
-            expect(router.currentRoute!.route.name).toBe("user");
+            expect(router.current.route!.name).toBe("user");
 
             // forward 应该前进到 /settings
             router.forward();
 
-            expect(router.currentRoute!.route.name).toBe("settings");
+            expect(router.current.route!.name).toBe("settings");
         });
 
         it("go(-1) 应该返回上一页（等价于 back）", async () => {
@@ -135,12 +135,12 @@ describe("KylinRouter navigation API", () => {
             router.push("/user");
             router.push("/settings");
 
-            expect(router.currentRoute!.route.name).toBe("settings");
+            expect(router.current.route!.name).toBe("settings");
 
             // go(-1) 应该返回到 /user
             router.go(-1);
 
-            expect(router.currentRoute!.route.name).toBe("user");
+            expect(router.current.route!.name).toBe("user");
         });
 
         it("go(1) 应该前进一页（等价于 forward）", async () => {
@@ -150,12 +150,12 @@ describe("KylinRouter navigation API", () => {
             router.push("/settings");
             router.back();
 
-            expect(router.currentRoute!.route.name).toBe("user");
+            expect(router.current.route!.name).toBe("user");
 
             // go(1) 应该前进到 /settings
             router.go(1);
 
-            expect(router.currentRoute!.route.name).toBe("settings");
+            expect(router.current.route!.name).toBe("settings");
         });
 
         it("导航方法应该触发 onRouteUpdate 回调", async () => {
@@ -174,15 +174,15 @@ describe("KylinRouter navigation API", () => {
             expect(routeChanges[routeChanges.length - 1].route.route.name).toBe("user");
         });
 
-        it("导航方法应该更新 currentRoute、params、query 属性", async () => {
+        it("导航方法应该更新 current.route、current.params、current.query 属性", async () => {
             router = await createRouter(host, { routes });
 
             router.push("/user/42?tab=profile");
 
-            expect(router.currentRoute).not.toBeNull();
-            expect(router.currentRoute!.route.name).toBe("user-detail");
-            expect(router.params).toEqual({ id: "42" });
-            expect(router.query).toEqual({ tab: "profile" });
+            expect(router.current.route).not.toBeNull();
+            expect(router.current.route!.name).toBe("user-detail");
+            expect(router.current.params).toEqual({ id: "42" });
+            expect(router.current.query).toEqual({ tab: "profile" });
         });
     });
 
