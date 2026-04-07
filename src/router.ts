@@ -68,6 +68,9 @@ export class KylinRouter extends Mixin(
     /** 是否正在导航 */
     isNavigating: boolean = false;
 
+    /** 是否启用调试模式 */
+    debug: boolean = false;
+
     /** 上一个路由，用于 afterLeave 守卫 */
     protected previousRoute?: RouteItem;
 
@@ -128,9 +131,24 @@ export class KylinRouter extends Mixin(
             resolvedOptions.defaultRoute,
         );
 
+        // 设置调试模式
+        this.debug = resolvedOptions.debug || false;
+
         // 执行初始路由匹配（初始化时 history.listen 不会触发回调）
         this._matchCurrentLocation();
     }
+
+    /**
+     * 调试日志输出方法
+     * @param message - 日志消息
+     * @param data - 附加数据（可选）
+     */
+    private debugLog(message: string, data?: any): void {
+        if (this.debug) {
+            console.log(`[Router Debug] ${message}`, data || '');
+        }
+    }
+
     get location() {
         return this.history.location;
     }
