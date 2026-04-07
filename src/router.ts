@@ -87,7 +87,39 @@ export class KylinRouter extends Mixin(
             : createBrowserHistory({ basename: base || "" });
 
         // 初始化路由表（统一转换为 RouteItem[]）
-        this.routes = normalizeRoutes(resolvedOptions.routes);
+        // 支持 RouteItem[]、RouteItem、string、函数格式
+        const rawRoutes = resolvedOptions.routes;
+        if (typeof rawRoutes === "function") {
+            const result = rawRoutes();
+            if (result instanceof Promise) {
+                // 异步加载：先设空路由表，异步加载完成后更新
+                this.routes = [];
+                this.notFound = resolvedOptions.notFound;
+                this.defaultRoute = resolvedOptions.defaultRoute;
+
+                this.host = typeof host === "string" ? document.querySelector(host) as HTMLElement : host;
+                if (host instanceof HTMLElement) {
+                    this.host.setAttribute("data-kylin-router", "");
+                    (this.host as any).router = this;
+                    this.attach();
+                } else {
+                    throw new Error("KylinRouter must be initialized with an HTMLElement as host");
+                }
+
+                // 异步加载完成后更新路由表并执行初始匹配
+                result.then((loaded) => {
+                    this.routes = normalizeRoutes(loaded);
+                    this._matchCurrentLocation();
+                });
+                return;
+            }
+            this.routes = normalizeRoutes(result);
+        } else if (typeof rawRoutes === "string") {
+            // URL 字符串：先设空路由表，后续通过 loadRemoteRoutes 加载
+            this.routes = [];
+        } else {
+            this.routes = normalizeRoutes(rawRoutes);
+        }
 
         this.notFound = resolvedOptions.notFound;
         this.defaultRoute = resolvedOptions.defaultRoute;
@@ -358,6 +390,33 @@ export class KylinRouter extends Mixin(
         if (removed && this.currentRoute && this.currentRoute.route.name === name) {
             this._redirectToDefaultOrNotFound();
         }
+    }
+
+    /**
+     * 动态加载远程路由表并合并到现有路由表
+     * 支持 RouteItem[]、函数、异步函数格式
+     * 按照 D-17: 统一格式转换
+     */
+    async loadRemoteRoutes(source: RouteItem[] | RouteItem | (() => KylinRoutes | Promise<KylinRoutes>)): Promise<void> {
+        let loaded: KylinRoutes;
+
+        if (typeof source === "function") {
+            loaded = source();
+            if (loaded instanceof Promise) {
+                loaded = await loaded;
+            }
+        } else {
+            loaded = source;
+        }
+
+        // 验证格式
+        if (loaded === null || loaded === undefined) {
+            throw new Error("远程路由表加载失败：返回的数据为空");
+        }
+
+        // 规范化并合并到路由表
+        const newRoutes = normalizeRoutes(loaded);
+        this.routes.push(...newRoutes);
     }
 
     /**

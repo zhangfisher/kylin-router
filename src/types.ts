@@ -67,7 +67,7 @@ export interface RouteItem {
     onBeforeLeave?:(to: RouteItem, from: RouteItem) => void;
 }
 
-export type KylinRoutes = RouteItem[] | RouteItem;
+export type KylinRoutes = RouteItem[] | RouteItem | string | (() => KylinRoutes | Promise<KylinRoutes>);
 
 /**
  * 路由匹配结果
