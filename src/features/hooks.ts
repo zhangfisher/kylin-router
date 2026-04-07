@@ -153,6 +153,10 @@ export class Hooks {
             if (guard) {
                 try {
                     const result = await this.runRouteGuard(route, guard, to, from);
+                    // 处理守卫返回 undefined 的情况（视为继续导航）
+                    if (result === undefined || result === true) {
+                        continue; // 继续执行下一个守卫
+                    }
                     if (result === false) return false;
                     if (typeof result === 'string') return result;
                 } catch (error) {
