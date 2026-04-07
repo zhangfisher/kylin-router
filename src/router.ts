@@ -62,56 +62,26 @@ export class KylinRouter extends Mixin(
             ? createHashHistoryFromLib(base)
             : createBrowserHistory({ basename: base || "" });
 
-        // 初始化路由表（统一转换为 RouteItem[]）
-        // 支持 RouteItem[]、RouteItem、string、函数格式
-        const rawRoutes = resolvedOptions.routes;
-        if (typeof rawRoutes === "function") {
-            const result = rawRoutes();
-            if (result instanceof Promise) {
-                // 异步加载：先设空路由表，异步加载完成后更新
-                this.routes = [];
-                this.notFound = resolvedOptions.notFound;
-                this.defaultRoute = resolvedOptions.defaultRoute;
-
-                this.host = typeof host === "string" ? document.querySelector(host) as HTMLElement : host;
-                if (host instanceof HTMLElement) {
-                    this.host.setAttribute("data-kylin-router", "");
-                    (this.host as any).router = this;
-                    this.attach();
-                } else {
-                    throw new Error("KylinRouter must be initialized with an HTMLElement as host");
-                }
-
-                // 异步加载完成后更新路由表并执行初始匹配
-                result.then((loaded) => {
-                    this.routes = normalizeRoutes(loaded);
-                    this._matchCurrentLocation();
-                });
-                return;
-            }
-            this.routes = normalizeRoutes(result);
-        } else if (typeof rawRoutes === "string") {
-            // URL 字符串：先设空路由表，后续通过 loadRemoteRoutes 加载
-            this.routes = [];
-        } else {
-            this.routes = normalizeRoutes(rawRoutes);
-        }
-
-        this.notFound = resolvedOptions.notFound;
-        this.defaultRoute = resolvedOptions.defaultRoute;
-
+        // 设置 host 元素
         this.host = typeof(host) ==='string' ? document.querySelector(host) as HTMLElement : host;
         if (host instanceof HTMLElement) {
             // 做个标识用于获取 router 实例
             this.host.setAttribute("data-kylin-router", "");
             (this.host as any).router= this;
             this.attach();
-
-            // 执行初始路由匹配（初始化时 history.listen 不会触发回调）
-            this._matchCurrentLocation();
         } else {
             throw new Error("KylinRouter must be initialized with an HTMLElement as host");
         }
+
+        // 初始化路由表（委托给 Routes mixin 的 initRoutes 方法）
+        this.initRoutes(
+            resolvedOptions.routes,
+            resolvedOptions.notFound,
+            resolvedOptions.defaultRoute
+        );
+
+        // 执行初始路由匹配（初始化时 history.listen 不会触发回调）
+        this._matchCurrentLocation();
     }
     get location() {
         return this.history.location;
