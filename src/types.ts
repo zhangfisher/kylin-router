@@ -65,6 +65,26 @@ export interface RouteItem {
     onBeforeEnter?:(to: RouteItem, from: RouteItem) => boolean | Promise<boolean>;
     onBeforeUpdate?:(to: RouteItem, from: RouteItem) => void;
     onBeforeLeave?:(to: RouteItem, from: RouteItem) => void;
+    /**
+     * 路由级守卫：在进入该路由前执行
+     * @param to - 目标路由
+     * @param from - 来源路由
+     * @returns boolean | Promise<boolean> - true 继续导航，false 取消导航
+     * @returns string - 重定向路径
+     */
+    beforeEnter?: (
+        to: RouteItem,
+        from: RouteItem
+    ) => boolean | string | Promise<boolean | string>;
+    /**
+     * 路由级守卫：在离开该路由后执行
+     * @param to - 目标路由
+     * @param from - 来源路由（当前路由）
+     */
+    afterLeave?: (
+        to: RouteItem,
+        from: RouteItem
+    ) => void | Promise<void>;
 }
 
 export type KylinRoutes = RouteItem[] | RouteItem | string | (() => KylinRoutes | Promise<KylinRoutes>);
