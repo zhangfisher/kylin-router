@@ -5,7 +5,7 @@
  */
 
 import type { KylinRouter } from "@/router";
-import type { HookFunction, HookType } from "@/types";
+import type { HookFunction, HookType, RouteItem } from "@/types";
 
 export class Hooks {
     /**
@@ -60,5 +60,71 @@ export class Hooks {
                 this.hooks[key] = [];
             });
         }
+    }
+
+    /**
+     * 执行指定类型的所有钩子函数
+     * @param type - 钩子类型
+     * @param to - 目标路由
+     * @param from - 来源路由
+     * @param router - 路由器实例
+     * @returns Promise<boolean | string> - 返回 false 表示取消导航，返回字符串表示重定向路径，返回 true 表示继续
+     */
+    protected async executeHooks(
+        this: KylinRouter,
+        type: HookType,
+        to: RouteItem,
+        from: RouteItem,
+        router: any
+    ): Promise<boolean | string> {
+        const hooks = this.hooks[type];
+        if (hooks.length === 0) return true;
+
+        for (const hook of hooks) {
+            const result = await this.runHook(hook, to, from, router);
+            if (result === false) return false;
+            if (typeof result === 'string') return result; // 重定向路径
+        }
+        return true;
+    }
+
+    /**
+     * 运行单个钩子函数
+     * @param hook - 钩子函数
+     * @param to - 目标路由
+     * @param from - 来源路由
+     * @param router - 路由器实例
+     * @returns Promise<boolean | string> - 钩子执行结果
+     */
+    protected async runHook(
+        this: KylinRouter,
+        hook: HookFunction,
+        to: RouteItem,
+        from: RouteItem,
+        router: any
+    ): Promise<boolean | string> {
+        return new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                reject(new Error(`Hook timeout after 30000ms`));
+            }, 30000);
+
+            const next = (result?: boolean | string) => {
+                clearTimeout(timeout);
+                resolve(result !== undefined ? result : true);
+            };
+
+            try {
+                const result = hook(to, from, next, router);
+                if (result instanceof Promise) {
+                    result.then(() => clearTimeout(timeout)).catch(err => {
+                        clearTimeout(timeout);
+                        reject(err);
+                    });
+                }
+            } catch (error) {
+                clearTimeout(timeout);
+                reject(error);
+            }
+        });
     }
 }
