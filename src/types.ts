@@ -7,6 +7,11 @@ export interface RouteItem {
      */
     name: string;
     /**
+     * 预加载的数据，由 renderEach 钩子填充
+     * 组件可以通过 route.data 访问这些数据
+     */
+    data?: RouteData;
+    /**
      * 路由路径，支持以下语法：
      * - 静态路径：/user、/about
      * - 动态参数：/user/:id、/user/<id>
@@ -85,6 +90,15 @@ export interface RouteItem {
         to: RouteItem,
         from: RouteItem
     ) => void | Promise<void>;
+    /**
+     * 路由级 renderEach 钩子，用于数据预加载
+     * 在组件加载后、渲染前执行
+     * @param to - 目标路由
+     * @param from - 来源路由
+     * @param next - 控制钩子流程的回调函数，可以传递预加载的数据
+     * @param router - 路由器实例
+     */
+    renderEach?: RenderEachHook | RenderEachHook[];
 }
 
 export type KylinRoutes = RouteItem[] | RouteItem | string | (() => KylinRoutes | Promise<KylinRoutes>);
@@ -131,6 +145,28 @@ export const HookType = {
 
 export type HookType = typeof HookType[keyof typeof HookType];
 
+/**
+ * 预加载的数据类型
+ * 由 renderEach 钩子填充，组件可以通过 route.data 访问这些数据
+ */
+export type RouteData = Record<string, any>;
+
+/**
+ * renderEach 钩子函数类型
+ * 在组件加载后、渲染前执行，用于数据预取
+ * @param to - 目标路由
+ * @param from - 来源路由
+ * @param next - 控制钩子流程的回调函数，可以传递预加载的数据
+ * @param router - 路由器实例
+ * @returns 可以返回 void、Promise<void>、RouteData 或 Promise<RouteData>
+ */
+export type RenderEachHook = (
+    to: RouteItem,
+    from: RouteItem,
+    next: (data?: RouteData) => void,
+    router: any
+) => void | Promise<void> | RouteData | Promise<RouteData>;
+
 export type KylinRouterOptiopns = {
     /** 路由模式：'history' 使用 BrowserHistory，'hash' 使用 HashHistory（默认 'history'） */
     mode?: "hash" | "history";
@@ -144,4 +180,6 @@ export type KylinRouterOptiopns = {
     onBeforeResolve?: (to: RouteItem, from: RouteItem) => boolean | Promise<boolean>;
     onBeforeEach?: (to: RouteItem, from: RouteItem) => boolean | Promise<boolean>;
     onAfterEach?: (to: RouteItem, from: RouteItem) => void | Promise<void>;
+    /** 全局 renderEach 钩子，用于数据预加载 */
+    renderEach?: RenderEachHook | RenderEachHook[];
 };
