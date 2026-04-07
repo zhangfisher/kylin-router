@@ -128,20 +128,34 @@ describe("KylinRouter navigation API", () => {
             expect(router.currentRoute!.route.name).toBe("settings");
         });
 
-        it("go(-2) 应该返回两页", async () => {
+        it("go(-1) 应该返回上一页（等价于 back）", async () => {
             router = await createRouter(host, { routes });
 
-            // 导航到三个不同的路径
+            // 导航到不同路径
             router.push("/user");
             router.push("/settings");
-            router.push("/user/123");
 
-            expect(router.currentRoute!.route.name).toBe("user-detail");
+            expect(router.currentRoute!.route.name).toBe("settings");
 
-            // go(-2) 应该返回到首页
-            router.go(-2);
+            // go(-1) 应该返回到 /user
+            router.go(-1);
 
-            expect(router.currentRoute!.route.name).toBe("home");
+            expect(router.currentRoute!.route.name).toBe("user");
+        });
+
+        it("go(1) 应该前进一页（等价于 forward）", async () => {
+            router = await createRouter(host, { routes });
+
+            router.push("/user");
+            router.push("/settings");
+            router.back();
+
+            expect(router.currentRoute!.route.name).toBe("user");
+
+            // go(1) 应该前进到 /settings
+            router.go(1);
+
+            expect(router.currentRoute!.route.name).toBe("settings");
         });
 
         it("导航方法应该触发 onRouteUpdate 回调", async () => {

@@ -55,6 +55,9 @@ export class KylinRouter extends Mixin(
     /** 当前查询参数 */
     query: Record<string, string> = {};
 
+    /** 是否正在导航 */
+    isNavigating: boolean = false;
+
     /**
      *
      * @param host 元素或选择器字符串，指定 KylinRouter 的宿主元素
@@ -94,6 +97,9 @@ export class KylinRouter extends Mixin(
      * 执行路由匹配和参数提取
      */
     onRouteUpdate(location: Update) {
+        // 设置导航状态
+        this.isNavigating = true;
+
         const pathname = location.location.pathname;
 
         // 执行路由匹配
@@ -130,21 +136,94 @@ export class KylinRouter extends Mixin(
                 bubbles: true,
             })
         );
+
+        // 触发 navigation-end 事件
+        this.host.dispatchEvent(
+            new CustomEvent("navigation-end", {
+                detail: {
+                    location: location,
+                    navigationType: this._pendingNavigationType || "pop",
+                },
+                bubbles: true,
+            })
+        );
+
+        // 重置导航状态
+        this.isNavigating = false;
+        this._pendingNavigationType = undefined;
     }
 
+    /** 待处理的导航类型，用于在 onRouteUpdate 中判断导航来源 */
+    private _pendingNavigationType?: "push" | "replace" | "pop";
+
     push(path: string) {
+        this._pendingNavigationType = "push";
+        // 触发 navigation-start 事件
+        this.host.dispatchEvent(
+            new CustomEvent("navigation-start", {
+                detail: {
+                    path,
+                    navigationType: "push",
+                },
+                bubbles: true,
+            })
+        );
         this.history.push(path);
     }
     replace(path: string) {
+        this._pendingNavigationType = "replace";
+        // 触发 navigation-start 事件
+        this.host.dispatchEvent(
+            new CustomEvent("navigation-start", {
+                detail: {
+                    path,
+                    navigationType: "replace",
+                },
+                bubbles: true,
+            })
+        );
         this.history.replace(path);
     }
     back() {
+        this._pendingNavigationType = "pop";
+        // 触发 navigation-start 事件
+        this.host.dispatchEvent(
+            new CustomEvent("navigation-start", {
+                detail: {
+                    path: undefined,
+                    navigationType: "pop",
+                },
+                bubbles: true,
+            })
+        );
         this.history.back();
     }
     forward() {
+        this._pendingNavigationType = "pop";
+        // 触发 navigation-start 事件
+        this.host.dispatchEvent(
+            new CustomEvent("navigation-start", {
+                detail: {
+                    path: undefined,
+                    navigationType: "pop",
+                },
+                bubbles: true,
+            })
+        );
         this.history.forward();
     }
     go(delta: number) {
+        this._pendingNavigationType = "pop";
+        // 触发 navigation-start 事件
+        this.host.dispatchEvent(
+            new CustomEvent("navigation-start", {
+                detail: {
+                    path: undefined,
+                    navigationType: "pop",
+                },
+                bubbles: true,
+            })
+        );
         this.history.go(delta);
     }
     detach() {
