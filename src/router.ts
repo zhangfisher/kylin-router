@@ -194,6 +194,7 @@ export class KylinRouter extends Mixin(
         const toRoute = this.current.route || { name: '', path: pathname, params: {}, query: {} };
 
         // 执行 beforeEach 钩子
+        this.debugLog('钩子执行: beforeEach');
         try {
             const beforeEachResult = await this.executeHooks(
                 HookType.BEFORE_EACH,
@@ -204,12 +205,14 @@ export class KylinRouter extends Mixin(
 
             if (beforeEachResult === false) {
                 // 取消导航
+                this.debugLog('钩子结果: beforeEach 取消导航');
                 this.isNavigating = false;
                 return;
             }
 
             if (typeof beforeEachResult === 'string') {
                 // 重定向
+                this.debugLog(`钩子结果: beforeEach 重定向到 ${beforeEachResult}`);
                 this._redirectCount++;
                 if (this._redirectCount > 10) {
                     console.error('Maximum redirect limit reached. Possible infinite loop.');
@@ -222,6 +225,7 @@ export class KylinRouter extends Mixin(
             }
         } catch (error) {
             console.error('Error in beforeEach hooks:', error);
+            this.debugLog('钩子错误: beforeEach 执行出错', error);
             // 钩子出错时取消导航
             this.isNavigating = false;
             return;
@@ -259,6 +263,7 @@ export class KylinRouter extends Mixin(
         // 遵循 D-18: 在组件加载后、渲染前执行
         // 遵循 D-19: 失败时继续渲染组件
         if (this.current.route) {
+            this.debugLog('钩子执行: renderEach');
             const renderData = await this.executeRenderEach(
                 this.current.route,
                 fromRoute,
@@ -268,6 +273,7 @@ export class KylinRouter extends Mixin(
             // 将预加载的数据存储到 route.data
             // 遵循 D-20: 通过 route.data 传递给组件
             if (renderData) {
+                this.debugLog('钩子结果: renderEach 返回数据', renderData);
                 (this.current.route as any).data = renderData;
             }
         }
@@ -286,6 +292,7 @@ export class KylinRouter extends Mixin(
         );
 
         // 执行 afterEach 钩子
+        this.debugLog('钩子执行: afterEach');
         try {
             await this.executeHooks(
                 HookType.AFTER_EACH,
@@ -295,6 +302,7 @@ export class KylinRouter extends Mixin(
             );
         } catch (error) {
             console.error('Error in afterEach hooks:', error);
+            this.debugLog('钩子错误: afterEach 执行出错', error);
             // afterEach 钩子出错不影响导航流程
         }
 
