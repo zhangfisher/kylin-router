@@ -8,7 +8,7 @@
 
 import type { KylinRouter } from "@/router";
 
-export class RouterContext {
+export class Context {
     private _onContextRequest?: (this: KylinRouter, event: Event) => void;
     /**
      * 监听 context-request 事件，提供 router 实例
@@ -28,7 +28,7 @@ export class RouterContext {
      * 处理 context-request 事件
      * 当请求的 context 匹配 routerContext 时，提供当前 router 实例
      */
-    onContextRequest(this: KylinRouter, event: Event): void {
+    protected onContextRequest(this: KylinRouter, event: Event): void {
         const contextRequestEvent = event as unknown as {
             context: "KylinRouter";
             callback: (value: KylinRouter) => void;

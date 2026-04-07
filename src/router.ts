@@ -4,7 +4,7 @@ import { createBrowserHistory } from "history";
 import type { Update } from "history";
 import type { KylinRouterOptiopns, MatchedRoute, KylinRoutes, RouteItem } from "./types";
 import { Mixin } from "ts-mixer";
-import { Context,Hooks,ComponentLoader,KeepAlive,Transition ,Preload,Render,DataLoader,Model,Redirect} from "./features";
+import { Context,Hooks,KeepAlive,Transition ,Preload,Render,DataLoader,Model,Redirect,Routes} from "./features";
 import { matchRoute } from "@/utils/matchRoute";
 import { extractQueryParams } from "@/utils/parseParams";
 import { createHashHistoryFromLib } from "@/utils/hashUtils";
@@ -22,14 +22,14 @@ import { createHashHistoryFromLib } from "@/utils/hashUtils";
 export class KylinRouter extends Mixin(
     Context,
     Hooks,
-    ComponentLoader,
     KeepAlive,
     Transition,
     DataLoader,
     Preload,
     Render,
     Model,
-    Redirect
+    Redirect,
+    Routes
 ) {
     // 用于存储一需要清理的副作用函数，比如 history.listen 返回的取消监听函数
     protected _cleanups: Array<() => void> = [];

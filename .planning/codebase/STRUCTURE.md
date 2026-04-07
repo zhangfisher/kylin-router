@@ -33,6 +33,10 @@ kylin-router/
 │   │   ├── loader.ts       # 组件加载器
 │   │   ├── keepAlive.ts    # 组件缓存
 │   │   ├── transition.ts   # 路由过渡
+│   │   ├── model.ts        # 路由到模态窗口
+│   │   ├── data.ts         # 数据加载器
+│   │   ├── render.ts       # 将组件渲染到outlet
+│   │   ├── transition.ts   # 路由过渡
 │   │   └── preload.ts      # 预加载功能
 │   ├── utils/              # 工具函数目录
 │   │   ├── index.ts        # 工具导出
