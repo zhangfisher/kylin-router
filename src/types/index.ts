@@ -14,3 +14,11 @@ export * from "./hooks";
 // 路由器配置相关类型
 export * from "./config";
 export * from "./events";
+
+// 渲染系统相关类型（从 routes.ts 导出）
+export type {
+    RenderMode,
+    TemplateData,
+    RenderContext,
+    RenderOptions
+} from "./routes";
