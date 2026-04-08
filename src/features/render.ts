@@ -5,23 +5,11 @@
  *
  */
 
-import { html, render } from 'lit';
+import { html, render } from "lit";
 import type { KylinRouter } from "@/router";
-import type {
-    LoadResult,
-    RenderContext,
-    RenderMode,
-    RenderOptions,
-    RouteItem
-} from "@/types";
+import type { LoadResult, RenderContext, RenderMode, RenderOptions, RouteItem } from "@/types";
 
 export class Render {
-    /**
-     * 初始化 Render 类
-     * @param router - KylinRouter 实例
-     */
-    constructor(private router: KylinRouter) {}
-
     /**
      * 主渲染方法 - 根据 LoadResult 渲染到 outlet（公共方法）
      * @param loadResult - 组件加载结果
@@ -29,9 +17,10 @@ export class Render {
      * @param options - 渲染选项
      */
     async renderToOutlet(
+        this: KylinRouter,
         loadResult: LoadResult,
         outlet: HTMLElement,
-        options?: RenderOptions
+        options?: RenderOptions,
     ): Promise<void> {
         // 检查加载结果
         if (!loadResult.success) {
@@ -42,14 +31,14 @@ export class Render {
         // 获取渲染内容
         const content = loadResult.content;
         if (!content) {
-            this.renderError(outlet, new Error('No content to render'));
+            this.renderError(outlet, new Error("No content to render"));
             return;
         }
 
         // 获取当前路由
         const route = this.router.routes.current.route;
         if (!route) {
-            this.renderError(outlet, new Error('No current route'));
+            this.renderError(outlet, new Error("No current route"));
             return;
         }
 
@@ -57,7 +46,7 @@ export class Render {
         const mode = this.determineRenderMode(outlet, route, options);
 
         // 根据内容类型分发
-        if (typeof content === 'string') {
+        if (typeof content === "string") {
             // HTML 字符串：可能是元素名或远程 HTML
             if (this.isHtmlElementName(content)) {
                 this.renderElement(content, outlet, mode);
@@ -82,14 +71,15 @@ export class Render {
      * @param mode - 渲染模式
      */
     private renderTemplate(
+        this: KylinRouter,
         template: any,
         _context: RenderContext,
         outlet: HTMLElement,
-        mode: RenderMode
+        mode: RenderMode,
     ): void {
         // 替换模式：清空 outlet
-        if (mode === 'replace') {
-            outlet.innerHTML = '';
+        if (mode === "replace") {
+            outlet.innerHTML = "";
         }
 
         // 使用 lit 的 render 函数渲染
@@ -104,16 +94,16 @@ export class Render {
      * @param route - 当前路由对象
      * @returns 渲染上下文
      */
-    createRenderContext(route: RouteItem): RenderContext {
+    createRenderContext(this: KylinRouter, route: RouteItem): RenderContext {
         // 创建基础上下文
         const context: RenderContext = {
             router: this.router,
             route: {
                 ...route,
-                data: route.data || {}
+                data: route.data || {},
             },
             // 展开 route.data 的所有字段为局部变量（D-04）
-            ...(route.data || {})
+            ...(route.data || {}),
         };
 
         return context;
@@ -125,7 +115,7 @@ export class Render {
      * @param _context - 渲染上下文（未使用，使用增强上下文）
      * @returns lit 模板
      */
-    private compileTemplate(htmlString: string, _context: RenderContext): any {
+    private compileTemplate(this: KylinRouter, htmlString: string, _context: RenderContext): any {
         // 创建增强的渲染上下文（包含快捷变量）
         const route = this.router.routes.current.route;
         if (!route) {
@@ -146,9 +136,10 @@ export class Render {
      * @returns 渲染模式
      */
     private determineRenderMode(
+        this: KylinRouter,
         outlet: HTMLElement,
         route: RouteItem,
-        options?: RenderOptions
+        options?: RenderOptions,
     ): RenderMode {
         // 优先级：options.mode > route.renderMode > data-outlet-append 属性 > 默认 replace
         if (options?.mode) {
@@ -161,11 +152,11 @@ export class Render {
         }
 
         // 检查 data-outlet-append 属性（D-08）
-        if (outlet.hasAttribute('data-outlet-append')) {
-            return 'append';
+        if (outlet.hasAttribute("data-outlet-append")) {
+            return "append";
         }
 
-        return 'replace'; // 默认替换模式（D-07）
+        return "replace"; // 默认替换模式（D-07）
     }
 
     /**
@@ -175,14 +166,15 @@ export class Render {
      * @param mode - 渲染模式
      */
     private renderElement(
+        this: KylinRouter,
         elementName: string,
         outlet: HTMLElement,
-        mode: RenderMode
+        mode: RenderMode,
     ): void {
         const element = document.createElement(elementName);
 
-        if (mode === 'replace') {
-            outlet.innerHTML = '';
+        if (mode === "replace") {
+            outlet.innerHTML = "";
             outlet.appendChild(element);
         } else {
             outlet.appendChild(element);
@@ -197,8 +189,8 @@ export class Render {
      * @param outlet - 目标 outlet
      * @param error - 错误对象
      */
-    private renderError(outlet: HTMLElement, error: Error | null): void {
-        const errorMessage = error?.message || 'Unknown error';
+    private renderError(this: KylinRouter, outlet: HTMLElement, error: Error | null): void {
+        const errorMessage = error?.message || "Unknown error";
         const errorHtml = html`
             <div class="kylin-render-error">
                 <h3>渲染错误</h3>
@@ -222,19 +214,19 @@ export class Render {
      * 触发子 outlet 渲染（并行渲染策略 D-05）
      * @param outlet - 父 outlet 元素
      */
-    private triggerChildOutletRender(outlet: HTMLElement): void {
+    private triggerChildOutletRender(this: KylinRouter, outlet: HTMLElement): void {
         // 查找子 outlet 元素
-        const childOutlets = outlet.querySelectorAll('kylin-outlet');
+        const childOutlets = outlet.querySelectorAll("kylin-outlet");
 
         // 触发子 outlet 的路由变化事件
-        childOutlets.forEach(childOutlet => {
-            const event = new CustomEvent('route-change', {
+        childOutlets.forEach((childOutlet) => {
+            const event = new CustomEvent("route-change", {
                 detail: {
                     route: this.router.routes.current.route,
                     params: this.router.routes.current.params,
-                    query: this.router.routes.current.query
+                    query: this.router.routes.current.query,
                 },
-                bubbles: true
+                bubbles: true,
             });
             childOutlet.dispatchEvent(event);
         });
@@ -247,7 +239,11 @@ export class Render {
      * @param context - 渲染上下文
      * @returns lit 模板
      */
-    private interpolateTemplate(templateString: string, context: RenderContext): any {
+    private interpolateTemplate(
+        this: KylinRouter,
+        templateString: string,
+        context: RenderContext,
+    ): any {
         // 使用正则表达式匹配 ${} 占位符
         const pattern = /\$\{([^}]+)\}/g;
 
@@ -267,7 +263,7 @@ export class Render {
             const value = this.getVariableFromContext(context, variablePath);
 
             // 将值转换为字符串（lit 会自动转义）
-            parts.push(String(value ?? ''));
+            parts.push(String(value ?? ""));
 
             lastIndex = match.index + match[0].length;
         }
@@ -276,7 +272,7 @@ export class Render {
         parts.push(templateString.slice(lastIndex));
 
         // 返回组合后的 HTML 字符串
-        return html`${parts.join('')}`;
+        return html`${parts.join("")}`;
     }
 
     /**
@@ -286,23 +282,23 @@ export class Render {
      * @param path - 变量路径
      * @returns 变量值
      */
-    private getVariableFromContext(context: RenderContext, path: string): any {
+    private getVariableFromContext(this: KylinRouter, context: RenderContext, path: string): any {
         // 特殊变量快捷方式
-        if (path === 'params') {
+        if (path === "params") {
             return context.route.params || {};
         }
-        if (path === 'query') {
+        if (path === "query") {
             return context.route.query || {};
         }
-        if (path === 'router') {
+        if (path === "router") {
             return context.router;
         }
-        if (path === 'route') {
+        if (path === "route") {
             return context.route;
         }
 
         // 支持嵌套路径：route.data.userId
-        const parts = path.split('.');
+        const parts = path.split(".");
         let value: any = context;
 
         for (const part of parts) {
@@ -321,14 +317,14 @@ export class Render {
      * @param route - 当前路由对象
      * @returns 增强的渲染上下文
      */
-    private createEnhancedContext(route: RouteItem): RenderContext {
+    private createEnhancedContext(this: KylinRouter, route: RouteItem): RenderContext {
         const baseContext = this.createRenderContext(route);
 
         // 添加快捷变量
         return {
             ...baseContext,
             params: route.params || {},
-            query: route.query || {}
+            query: route.query || {},
         };
     }
 }

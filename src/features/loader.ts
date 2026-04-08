@@ -7,19 +7,13 @@
  * @module features/loader
  */
 
-import type { KylinRouter } from "@/router";
 import type { LoadResult, RemoteLoadOptions } from "@/types/routes";
 
 /**
  * Loader 类 - 负责组件加载逻辑
  */
 export class Loader {
-    private router: KylinRouter;
     private abortController?: AbortController;
-
-    constructor(router: KylinRouter) {
-        this.router = router;
-    }
 
     /**
      * 主加载方法 - 根据 view 类型分发到不同加载策略
@@ -27,9 +21,9 @@ export class Loader {
      * @param options - 远程加载选项（可选）
      * @returns 加载结果的 Promise
      */
-    async loadComponent(
+    async loadView(
         view: string | (() => Promise<any>),
-        options?: RemoteLoadOptions
+        options?: RemoteLoadOptions,
     ): Promise<LoadResult> {
         // 取消之前的加载请求
         if (this.abortController) {
@@ -143,10 +137,7 @@ export class Loader {
      * @param options - 加载选项
      * @returns 加载结果的 Promise
      */
-    private async loadRemoteHTML(
-        url: string,
-        options?: RemoteLoadOptions
-    ): Promise<LoadResult> {
+    private async loadRemoteHTML(url: string, options?: RemoteLoadOptions): Promise<LoadResult> {
         const timeout = options?.timeout || 5000;
         const allowUnsafe = options?.allowUnsafeHTML || false;
 
@@ -157,7 +148,7 @@ export class Loader {
                     signal: this.abortController?.signal,
                 }),
                 new Promise<Response>((_, reject) =>
-                    setTimeout(() => reject(new Error("Load timeout")), timeout)
+                    setTimeout(() => reject(new Error("Load timeout")), timeout),
                 ),
             ]);
 
@@ -280,33 +271,4 @@ export class Loader {
             this.abortController = undefined;
         }
     }
-}
-
-/**
- * Loader Mixin 特性
- * 为 KylinRouter 提供组件加载能力
- */
-export function LoaderMixin<T extends new (...args: any[]) => any>(Base: T) {
-    return class extends Base {
-        private _loader?: Loader;
-
-        /**
-         * 获取 Loader 实例
-         */
-        get loader(): Loader {
-            if (!this._loader) {
-                this._loader = new Loader(this as unknown as KylinRouter);
-            }
-            return this._loader;
-        }
-
-        /**
-         * 清理 Loader 资源
-         */
-        cleanupLoader() {
-            if (this._loader) {
-                this._loader.cleanup();
-            }
-        }
-    };
 }

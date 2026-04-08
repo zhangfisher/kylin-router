@@ -12,14 +12,15 @@ import {
     Render,
     DataLoader,
     Model,
+    Loader,
+    Emitter,
     Redirect,
 } from "./features";
+import { createHashHistoryFromLib } from "@/utils/hashUtils";
+
 import { HookManager } from "./features/hooks";
 import { RouteRegistry } from "./features/routes";
-import { createHashHistoryFromLib } from "@/utils/hashUtils";
 import { isRouteItem } from "./utils/isRouteItem";
-import { Emitter } from "./features/emitter";
-import { Loader } from "./features/loader";
 
 /**
  * 类型守卫：检查对象是否为完整的 KylinRouterOptiopns
@@ -324,9 +325,9 @@ export class KylinRouter extends Mixin(
             // 处理不同类型的 view
             if (typeof view === "string" || typeof view === "function") {
                 // string 或 function 类型，使用 Loader 加载
-                const loadResult = await this.loader.loadComponent(
+                const loadResult = await this.loader.loadView(
                     view,
-                    (this.routes.current.route as any).remoteOptions
+                    (this.routes.current.route as any).remoteOptions,
                 );
 
                 if (loadResult.success) {
@@ -345,13 +346,17 @@ export class KylinRouter extends Mixin(
                     if (this.options.notFound) {
                         this.log("组件加载: 使用 notFound 组件作为回退");
                         const notFoundView = this.options.notFound.view;
-                        if (notFoundView && (typeof notFoundView === "string" || typeof notFoundView === "function")) {
-                            const notFoundResult = await this.loader.loadComponent(
+                        if (
+                            notFoundView &&
+                            (typeof notFoundView === "string" || typeof notFoundView === "function")
+                        ) {
+                            const notFoundResult = await this.loader.loadView(
                                 notFoundView,
-                                (this.options.notFound as any).remoteOptions
+                                (this.options.notFound as any).remoteOptions,
                             );
                             if (notFoundResult.success) {
-                                (this.routes.current.route as any).componentContent = notFoundResult.content;
+                                (this.routes.current.route as any).componentContent =
+                                    notFoundResult.content;
                             }
                         }
                     }
@@ -580,7 +585,7 @@ export class KylinRouter extends Mixin(
                 // 使用 Render 类渲染组件
                 await this.renderToOutlet(loadResult, outlet, route);
             } catch (error) {
-                console.error(`渲染 outlet [${outlet.path || 'default'}] 失败:`, error);
+                console.error(`渲染 outlet [${outlet.path || "default"}] 失败:`, error);
             }
         });
 
@@ -593,7 +598,7 @@ export class KylinRouter extends Mixin(
      */
     private _outletMatchesRoute(outlet: any, route: RouteItem): boolean {
         if (!outlet.path) return true;
-        return route.path === outlet.path || route.path.startsWith(outlet.path + '/');
+        return route.path === outlet.path || route.path.startsWith(outlet.path + "/");
     }
 
     /**
@@ -603,7 +608,7 @@ export class KylinRouter extends Mixin(
         // 调用 Render 类的 renderToOutlet 方法（Render 是通过 Mixin 继承的）
         // 使用类型断言访问 mixin 方法
         await (this as any).renderToOutlet(loadResult, outlet, {
-            mode: (route as any).renderMode
+            mode: (route as any).renderMode,
         });
     }
 
@@ -611,7 +616,7 @@ export class KylinRouter extends Mixin(
      * 查找所有 outlet 元素
      */
     findOutlets(): any[] {
-        return Array.from(this.host.querySelectorAll('kylin-outlet'));
+        return Array.from(this.host.querySelectorAll("kylin-outlet"));
     }
 
     /**

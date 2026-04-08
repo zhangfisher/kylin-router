@@ -71,7 +71,7 @@ describe("Loader - 组件加载系统", () => {
 
     describe("本地组件加载测试", () => {
         it("应该成功加载 HTML 元素名", async () => {
-            const result = await loader.loadComponent("div");
+            const result = await loader.loadView("div");
 
             expect(result.success).toBe(true);
             expect(result.content).toBe("div");
@@ -79,7 +79,7 @@ describe("Loader - 组件加载系统", () => {
         });
 
         it("应该成功加载自定义元素名", async () => {
-            const result = await loader.loadComponent("my-component");
+            const result = await loader.loadView("my-component");
 
             expect(result.success).toBe(true);
             expect(result.content).toBe("my-component");
@@ -87,7 +87,7 @@ describe("Loader - 组件加载系统", () => {
         });
 
         it("应该拒绝空字符串", async () => {
-            const result = await loader.loadComponent("");
+            const result = await loader.loadView("");
 
             expect(result.success).toBe(false);
             expect(result.content).toBeNull();
@@ -101,7 +101,7 @@ describe("Loader - 组件加载系统", () => {
             // 创建一个模拟的动态导入函数
             const mockImportFn = () => Promise.resolve({ default: class MockComponent {} });
 
-            const result = await loader.loadComponent(mockImportFn);
+            const result = await loader.loadView(mockImportFn);
 
             expect(result.success).toBe(true);
             expect(result.content).toBeDefined();
@@ -112,7 +112,7 @@ describe("Loader - 组件加载系统", () => {
             // 创建一个会抛出错误的导入函数
             const mockImportFn = () => Promise.reject(new Error("Module not found"));
 
-            const result = await loader.loadComponent(mockImportFn);
+            const result = await loader.loadView(mockImportFn);
 
             expect(result.success).toBe(false);
             expect(result.content).toBeNull();
@@ -124,7 +124,7 @@ describe("Loader - 组件加载系统", () => {
             // 创建一个没有默认导出的模拟模块
             const mockImportFn = () => Promise.resolve({ namedExport: "value" });
 
-            const result = await loader.loadComponent(mockImportFn);
+            const result = await loader.loadView(mockImportFn);
 
             expect(result.success).toBe(true);
             expect(result.content).toBeDefined();
@@ -221,7 +221,7 @@ describe("Loader - 组件加载系统", () => {
         });
 
         it("应该成功加载远程 HTML", async () => {
-            const result = await loader.loadComponent("http://example.com/success.html");
+            const result = await loader.loadView("http://example.com/success.html");
 
             expect(result.success).toBe(true);
             expect(result.content).toBe("<div>Content</div>");
@@ -229,7 +229,7 @@ describe("Loader - 组件加载系统", () => {
         });
 
         it("应该提取 body 内容", async () => {
-            const result = await loader.loadComponent("http://example.com/body.html");
+            const result = await loader.loadView("http://example.com/body.html");
 
             if (!result.success) {
                 console.log("Body extract failed:", result.error);
@@ -239,14 +239,14 @@ describe("Loader - 组件加载系统", () => {
         });
 
         it("应该提取 data-outlet 元素内容", async () => {
-            const result = await loader.loadComponent("http://example.com/outlet.html");
+            const result = await loader.loadView("http://example.com/outlet.html");
 
             expect(result.success).toBe(true);
             expect(result.content).toBe("Outlet Content");
         });
 
         it("应该移除 script 标签（安全检查）", async () => {
-            const result = await loader.loadComponent("http://example.com/script.html");
+            const result = await loader.loadView("http://example.com/script.html");
 
             expect(result.success).toBe(true);
             expect(result.content).not.toContain("<script>");
@@ -257,14 +257,14 @@ describe("Loader - 组件加载系统", () => {
             const options: RemoteLoadOptions = {
                 allowUnsafeHTML: true,
             };
-            const result = await loader.loadComponent("http://example.com/script.html", options);
+            const result = await loader.loadView("http://example.com/script.html", options);
 
             expect(result.success).toBe(true);
             expect(result.content).toContain("<script>");
         });
 
         it("应该处理 HTTP 错误", async () => {
-            const result = await loader.loadComponent("http://example.com/error.html");
+            const result = await loader.loadView("http://example.com/error.html");
 
             expect(result.success).toBe(false);
             expect(result.content).toBeNull();
@@ -273,7 +273,7 @@ describe("Loader - 组件加载系统", () => {
         });
 
         it("应该处理超时", async () => {
-            const result = await loader.loadComponent("http://example.com/timeout.html");
+            const result = await loader.loadView("http://example.com/timeout.html");
 
             expect(result.success).toBe(false);
             expect(result.content).toBeNull();
@@ -282,7 +282,7 @@ describe("Loader - 组件加载系统", () => {
         }, 10000); // 增加测试超时时间到 10 秒
 
         it("应该拒绝过大的响应", async () => {
-            const result = await loader.loadComponent("http://example.com/large.html");
+            const result = await loader.loadView("http://example.com/large.html");
 
             expect(result.success).toBe(false);
             expect(result.content).toBeNull();
@@ -294,7 +294,7 @@ describe("Loader - 组件加载系统", () => {
             const options: RemoteLoadOptions = {
                 timeout: 1000, // 1 秒超时
             };
-            const result = await loader.loadComponent("http://example.com/timeout.html", options);
+            const result = await loader.loadView("http://example.com/timeout.html", options);
 
             expect(result.success).toBe(false);
             expect(result.error?.message).toBe("Load timeout");
@@ -304,7 +304,7 @@ describe("Loader - 组件加载系统", () => {
     describe("错误处理测试", () => {
         it("应该拒绝无效的组件类型", async () => {
             // @ts-ignore - 测试无效类型
-            const result = await loader.loadComponent(123);
+            const result = await loader.loadView(123);
 
             expect(result.success).toBe(false);
             expect(result.content).toBeNull();
@@ -314,7 +314,7 @@ describe("Loader - 组件加载系统", () => {
 
         it("应该拒绝 null 组件", async () => {
             // @ts-ignore - 测试 null
-            const result = await loader.loadComponent(null);
+            const result = await loader.loadView(null);
 
             expect(result.success).toBe(false);
             expect(result.content).toBeNull();
@@ -324,19 +324,19 @@ describe("Loader - 组件加载系统", () => {
 
     describe("URL 检测测试", () => {
         it("应该正确识别 http URL", async () => {
-            const result = await loader.loadComponent("http://example.com/test.html");
+            const result = await loader.loadView("http://example.com/test.html");
             // 只要不会抛出错误就可以
             expect(result).toBeDefined();
         });
 
         it("应该正确识别 https URL", async () => {
-            const result = await loader.loadComponent("https://example.com/test.html");
+            const result = await loader.loadView("https://example.com/test.html");
             // 只要不会抛出错误就可以
             expect(result).toBeDefined();
         });
 
         it("应该将非 URL 字符串视为元素名", async () => {
-            const result = await loader.loadComponent("my-element");
+            const result = await loader.loadView("my-element");
             expect(result.success).toBe(true);
             expect(result.content).toBe("my-element");
         });
@@ -361,10 +361,10 @@ describe("Loader - 组件加载系统", () => {
             };
 
             // 启动第一个加载请求
-            const firstLoad = loader.loadComponent("http://example.com/first.html");
+            const firstLoad = loader.loadView("http://example.com/first.html");
 
             // 立即启动第二个加载请求（应该取消第一个）
-            const secondLoad = loader.loadComponent("http://example.com/second.html");
+            const secondLoad = loader.loadView("http://example.com/second.html");
 
             const secondResult = await secondLoad;
             expect(secondResult.success).toBe(true);
@@ -391,7 +391,7 @@ describe("Loader - 组件加载系统", () => {
             const options: RemoteLoadOptions = {
                 extractSelector: "#target",
             };
-            const result = await loader.loadComponent("http://example.com/custom.html", options);
+            const result = await loader.loadView("http://example.com/custom.html", options);
 
             expect(result.success).toBe(true);
             expect(result.content).toBe("Target Content");
@@ -401,7 +401,7 @@ describe("Loader - 组件加载系统", () => {
             const options: RemoteLoadOptions = {
                 extractSelector: "#nonexistent",
             };
-            const result = await loader.loadComponent("http://example.com/custom.html", options);
+            const result = await loader.loadView("http://example.com/custom.html", options);
 
             expect(result.success).toBe(true);
             expect(result.content).toContain('<div class="wrapper">');
