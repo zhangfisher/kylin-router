@@ -6,6 +6,7 @@
  */
 
 import { html, render } from "lit";
+import { triggerEvent } from "@/utils/triggerEvent";
 import type { KylinRouter } from "@/router";
 import type { LoadResult, RenderContext, RenderMode, RenderOptions, RouteItem } from "@/types";
 
@@ -220,15 +221,11 @@ export class Render {
 
         // 触发子 outlet 的路由变化事件
         childOutlets.forEach((childOutlet) => {
-            const event = new CustomEvent("route-change", {
-                detail: {
-                    route: this.routes.current.route,
-                    params: this.routes.current.params,
-                    query: this.routes.current.query,
-                },
-                bubbles: true,
+            triggerEvent(childOutlet, "route-change", {
+                route: this.routes.current.route,
+                params: this.routes.current.params,
+                query: this.routes.current.query,
             });
-            childOutlet.dispatchEvent(event);
         });
     }
 
