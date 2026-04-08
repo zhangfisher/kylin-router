@@ -13,7 +13,8 @@ import type { LoadResult, RemoteLoadOptions } from "@/types/routes";
  * Loader 类 - 负责组件加载逻辑
  */
 export class Loader {
-    private abortController?: AbortController;
+    /** AbortController 用于取消加载请求 */
+    protected abortController?: AbortController;
 
     /**
      * 主加载方法 - 根据 view 类型分发到不同加载策略

@@ -36,7 +36,7 @@ export class Render {
         }
 
         // 获取当前路由
-        const route = this.router.routes.current.route;
+        const route = this.routes.current.route;
         if (!route) {
             this.renderError(outlet, new Error("No current route"));
             return;
@@ -97,7 +97,7 @@ export class Render {
     createRenderContext(this: KylinRouter, route: RouteItem): RenderContext {
         // 创建基础上下文
         const context: RenderContext = {
-            router: this.router,
+            router: this,
             route: {
                 ...route,
                 data: route.data || {},
@@ -117,7 +117,7 @@ export class Render {
      */
     private compileTemplate(this: KylinRouter, htmlString: string, _context: RenderContext): any {
         // 创建增强的渲染上下文（包含快捷变量）
-        const route = this.router.routes.current.route;
+        const route = this.routes.current.route;
         if (!route) {
             return html`${htmlString}`;
         }
@@ -222,9 +222,9 @@ export class Render {
         childOutlets.forEach((childOutlet) => {
             const event = new CustomEvent("route-change", {
                 detail: {
-                    route: this.router.routes.current.route,
-                    params: this.router.routes.current.params,
-                    query: this.router.routes.current.query,
+                    route: this.routes.current.route,
+                    params: this.routes.current.params,
+                    query: this.routes.current.query,
                 },
                 bubbles: true,
             });
