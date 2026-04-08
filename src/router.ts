@@ -2,8 +2,7 @@ import type { OutletRefs } from "@/utils/traverseOutlet";
 import { createBrowserHistory } from "history";
 import type { Update } from "history";
 import type { KylinRouterOptiopns, RouteItem } from "./types/index";
-import { HookTypeValues } from "./types/index";
-import type { HookType } from "./types/index";
+import { HookTypeValues, type HookType } from "./types/index";
 import { Mixin } from "ts-mixer";
 import {
     Context,

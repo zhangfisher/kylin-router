@@ -20,14 +20,14 @@ export class HookManager {
     /**
      * 路由器实例
      */
-    private router: KylinRouter;
+    private _router: KylinRouter;
 
     /**
      * 构造函数
      * @param router - KylinRouter 实例
      */
     constructor(router: KylinRouter) {
-        this.router = router;
+        this._router = router;
         this.hooks = {
             beforeEach: [],
             renderEach: [],
@@ -40,8 +40,8 @@ export class HookManager {
      * @param type - 钩子类型
      * @param hook - 钩子函数
      */
-    add(type: HookType, hook: HookFunction): void {
-        this.hooks[type].push(hook);
+    add(type: HookType, hook: HookFunction | RenderEachHook): void {
+        this.hooks[type].push(hook as HookFunction);
     }
 
     /**
@@ -49,8 +49,8 @@ export class HookManager {
      * @param type - 钩子类型
      * @param hook - 要移除的钩子函数
      */
-    remove(type: HookType, hook: HookFunction): void {
-        const index = this.hooks[type].indexOf(hook);
+    remove(type: HookType, hook: HookFunction | RenderEachHook): void {
+        const index = this.hooks[type].indexOf(hook as HookFunction);
         if (index > -1) {
             this.hooks[type].splice(index, 1);
         }
@@ -139,7 +139,7 @@ export class HookManager {
             }, 30000);
 
             try {
-                const result = hook(to, from, () => {}, this.router); // afterEach 不需要 next 回调
+                const result = hook(to, from, () => {}, this._router); // afterEach 不需要 next 回调
 
                 if (result instanceof Promise) {
                     result.then(() => {
@@ -183,7 +183,7 @@ export class HookManager {
             };
 
             try {
-                const result = hook(to, from, next, this.router);
+                const result = hook(to, from, next, this._router);
                 if (result instanceof Promise) {
                     result.then(() => clearTimeout(timeout)).catch(err => {
                         clearTimeout(timeout);
@@ -361,7 +361,7 @@ export class HookManager {
             };
 
             try {
-                const result = hook(to, from, next, this.router);
+                const result = hook(to, from, next, this._router);
 
                 // 支持直接返回数据
                 if (result instanceof Promise) {
