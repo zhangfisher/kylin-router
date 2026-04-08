@@ -78,7 +78,7 @@ describe("KylinRouter 路由级守卫系统", () => {
             // 等待导航完成
             await new Promise(resolve => setTimeout(resolve, 100));
 
-            expect(router.current.route!.name).toBe("protected");
+            expect(router.routes.current.route!.name).toBe("protected");
         });
 
         it("应该在 beforeEnter 返回 false 时取消导航", async () => {
@@ -101,7 +101,7 @@ describe("KylinRouter 路由级守卫系统", () => {
             await new Promise(resolve => setTimeout(resolve, 100));
 
             // 导航应该被取消，保持在根路径
-            expect(router.current.route!.path).not.toBe("/protected");
+            expect(router.routes.current.route!.path).not.toBe("/protected");
         });
 
         it("应该在 beforeEnter 返回路径字符串时重定向", async () => {
@@ -123,7 +123,7 @@ describe("KylinRouter 路由级守卫系统", () => {
             // 等待导航完成
             await new Promise(resolve => setTimeout(resolve, 100));
 
-            expect(router.current.route!.path).toBe("/target");
+            expect(router.routes.current.route!.path).toBe("/target");
         });
 
         it("应该支持异步 beforeEnter 守卫", async () => {
@@ -148,7 +148,7 @@ describe("KylinRouter 路由级守卫系统", () => {
             await new Promise(resolve => setTimeout(resolve, 100));
 
             expect(guardExecuted).toBe(true);
-            expect(router.current.route!.name).toBe("async");
+            expect(router.routes.current.route!.name).toBe("async");
         });
 
         it("应该正确传递 to 和 from 参数给 beforeEnter", async () => {
@@ -197,7 +197,7 @@ describe("KylinRouter 路由级守卫系统", () => {
             await new Promise(resolve => setTimeout(resolve, 100));
 
             // 导航应该被取消
-            expect(router.current.route!.path).not.toBe("/error");
+            expect(router.routes.current.route!.path).not.toBe("/error");
         });
     });
 
@@ -257,7 +257,7 @@ describe("KylinRouter 路由级守卫系统", () => {
             await new Promise(resolve => setTimeout(resolve, 100));
 
             // 应该回退到父路由
-            expect(router.current.route!.path).toBe("/parent");
+            expect(router.routes.current.route!.path).toBe("/parent");
         });
 
         it("应该在多层嵌套路由中正确执行守卫", async () => {
@@ -402,7 +402,7 @@ describe("KylinRouter 路由级守卫系统", () => {
             await new Promise(resolve => setTimeout(resolve, 100));
 
             expect(guardExecuted).toBe(true);
-            expect(router.current.route!.name).toBe("target");
+            expect(router.routes.current.route!.name).toBe("target");
         });
 
         it("应该支持异步 afterLeave 守卫", async () => {
@@ -498,7 +498,7 @@ describe("KylinRouter 路由级守卫系统", () => {
             await new Promise(resolve => setTimeout(resolve, 100));
 
             // 导航应该继续完成，即使 afterLeave 失败
-            expect(router.current.route!.name).toBe("target");
+            expect(router.routes.current.route!.name).toBe("target");
         });
     });
 
@@ -611,7 +611,7 @@ describe("KylinRouter 路由级守卫系统", () => {
             await new Promise(resolve => setTimeout(resolve, 100));
 
             // 导航应该被取消
-            expect(router.current.route!.path).not.toBe("/timeout");
+            expect(router.routes.current.route!.path).not.toBe("/timeout");
         });
 
         it("应该在守卫抛出错误时取消导航并记录错误", async () => {
@@ -643,7 +643,7 @@ describe("KylinRouter 路由级守卫系统", () => {
             // 等待导航完成
             await new Promise(resolve => setTimeout(resolve, 100));
 
-            expect(router.current.route!.path).not.toBe("/error");
+            expect(router.routes.current.route!.path).not.toBe("/error");
             expect(errorLogged).toBe(true);
 
             console.error = consoleSpy.error;

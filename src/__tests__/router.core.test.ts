@@ -76,46 +76,46 @@ describe("KylinRouter core routing", () => {
                 defaultRoute: "/home"
             });
 
-            expect(router.routes).toEqual(routes);
-            expect(router.notFound).toBeDefined();
-            expect(router.defaultRoute).toBe("/home");
+            expect(router.routes.routes).toEqual(routes);
+            expect(router.routes.notFound).toBeDefined();
+            expect(router.routes.defaultRoute).toBe("/home");
         });
 
         it("应该接受数组格式的路由配置", async () => {
             router = await createRouter(host, routes);
 
-            expect(router.routes).toEqual(routes);
-            expect(router.routes.length).toBe(4);
+            expect(router.routes.routes).toEqual(routes);
+            expect(router.routes.routes.length).toBe(4);
         });
 
         it("应该接受单个 RouteItem 对象", async () => {
             const singleRoute = { name: "home", path: "/" };
             router = await createRouter(host, singleRoute);
 
-            expect(router.routes).toBeDefined();
-            expect(router.routes.length).toBe(1);
-            expect(router.routes[0]).toEqual(singleRoute);
+            expect(router.routes.routes).toBeDefined();
+            expect(router.routes.routes.length).toBe(1);
+            expect(router.routes.routes[0]).toEqual(singleRoute);
         });
 
         it("应该接受字符串格式的路由配置", async () => {
             const routeString = "/home";
             router = await createRouter(host, routeString);
 
-            expect(router.routes).toBeDefined();
+            expect(router.routes.routes).toBeDefined();
         });
 
         it("应该接受函数格式的路由配置", async () => {
             const routeFunction = () => routes;
             router = await createRouter(host, routeFunction);
 
-            expect(router.routes).toBeDefined();
+            expect(router.routes.routes).toBeDefined();
         });
 
         it("应该接受空配置对象", async () => {
             router = await createRouter(host, {});
 
-            expect(router.routes).toBeDefined();
-            expect(router.routes.length).toBe(0);
+            expect(router.routes.routes).toBeDefined();
+            expect(router.routes.routes.length).toBe(0);
         });
 
         it("应该正确处理 hash 模式配置", async () => {
@@ -125,7 +125,7 @@ describe("KylinRouter core routing", () => {
                 base: "/app"
             });
 
-            expect(router.routes).toEqual(routes);
+            expect(router.routes.routes).toEqual(routes);
         });
 
         it("应该处理包含 undefined 和 null 的配置", async () => {
@@ -137,9 +137,9 @@ describe("KylinRouter core routing", () => {
 
             router = await createRouter(host, configWithUndefined);
 
-            expect(router.routes).toEqual(routes);
-            expect(router.notFound).toBeUndefined();
-            expect(router.defaultRoute).toBeUndefined();
+            expect(router.routes.routes).toEqual(routes);
+            expect(router.routes.notFound).toBeUndefined();
+            expect(router.routes.defaultRoute).toBeUndefined();
         });
     });
 
@@ -148,7 +148,7 @@ describe("KylinRouter core routing", () => {
             router = await createRouter(host, { routes });
 
             // 初始状态 - 应该匹配根路径
-            expect(router.current.route).toBeDefined();
+            expect(router.routes.current.route).toBeDefined();
         });
 
         it("路由匹配结果存储在 currentRoute 属性中", async () => {
@@ -158,8 +158,8 @@ describe("KylinRouter core routing", () => {
             router.push("/user");
 
             // current 应该存储匹配的路由
-            expect(router.current.route).not.toBeNull();
-            expect(router.current.route!.name).toBe("user");
+            expect(router.routes.current.route).not.toBeNull();
+            expect(router.routes.current.route!.name).toBe("user");
         });
 
         it("404 路由未匹配时使用通配符匹配", async () => {
@@ -169,8 +169,8 @@ describe("KylinRouter core routing", () => {
             router.push("/nonexistent/path");
 
             // 应该匹配通配符路由
-            expect(router.current.route).not.toBeNull();
-            expect(router.current.route!.name).toBe("not-found");
+            expect(router.routes.current.route).not.toBeNull();
+            expect(router.routes.current.route!.name).toBe("not-found");
         });
 
         it("路径参数解析后存储在 params 属性中", async () => {
@@ -179,8 +179,8 @@ describe("KylinRouter core routing", () => {
             // 推送到带参数的路径
             router.push("/user/123");
 
-            expect(router.current.route).not.toBeNull();
-            expect(router.current.params).toEqual({ id: "123" });
+            expect(router.routes.current.route).not.toBeNull();
+            expect(router.routes.current.params).toEqual({ id: "123" });
         });
 
         it("查询参数解析后存储在 query 属性中", async () => {
@@ -189,7 +189,7 @@ describe("KylinRouter core routing", () => {
             // 推送到带查询参数的路径
             router.push("/user?name=test&page=1");
 
-            expect(router.current.query).toEqual({ name: "test", page: "1" });
+            expect(router.routes.current.query).toEqual({ name: "test", page: "1" });
         });
     });
 });

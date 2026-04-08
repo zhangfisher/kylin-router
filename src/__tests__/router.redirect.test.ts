@@ -70,8 +70,8 @@ describe("Default route redirect", () => {
         });
 
         // 初始化时 URL 为 /，应该自动重定向到 /home
-        expect(router.current.route).not.toBeNull();
-        expect(router.current.route!.name).toBe("home");
+        expect(router.routes.current.route).not.toBeNull();
+        expect(router.routes.current.route!.name).toBe("home");
     });
 
     it("defaultRoute 重定向触发完整的导航流程（route-change 事件）", async () => {
@@ -91,7 +91,7 @@ describe("Default route redirect", () => {
         // 应该触发 route-change 事件
         expect(routeChanges.length).toBeGreaterThan(0);
         // 最终路由应该是 /home
-        expect(router.current.route!.name).toBe("home");
+        expect(router.routes.current.route!.name).toBe("home");
     });
 
     it("检测循环重定向，超过阈值后抛出错误", async () => {
@@ -115,7 +115,7 @@ describe("Default route redirect", () => {
         }).not.toThrow();
 
         // 应该停在 /loop
-        expect(router.current.route!.name).toBe("loop");
+        expect(router.routes.current.route!.name).toBe("loop");
     });
 
     it("嵌套路由支持 defaultRoute 配置", async () => {
@@ -138,7 +138,7 @@ describe("Default route redirect", () => {
         router.push("/parent");
 
         // 路由匹配应该匹配到父路径
-        expect(router.current.route).not.toBeNull();
+        expect(router.routes.current.route).not.toBeNull();
     });
 
     it("未配置 defaultRoute 时正常显示根路径内容", async () => {
@@ -146,7 +146,7 @@ describe("Default route redirect", () => {
 
         // 没有 defaultRoute，根路径应该正常匹配
         router.push("/");
-        expect(router.current.route).not.toBeNull();
-        expect(router.current.route!.name).toBe("root");
+        expect(router.routes.current.route).not.toBeNull();
+        expect(router.routes.current.route!.name).toBe("root");
     });
 });

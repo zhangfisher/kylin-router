@@ -13,9 +13,9 @@ import {
     DataLoader,
     Model,
     Redirect,
-    Routes,
 } from "./features";
 import { HookManager } from "./features/hooks";
+import { RouteRegistry } from "./features/routes";
 import { createHashHistoryFromLib } from "@/utils/hashUtils";
 import { isRouteItem } from "./utils/isRouteItem";
 
@@ -50,7 +50,6 @@ export class KylinRouter extends Mixin(
     Render,
     Model,
     Redirect,
-    Routes,
 ) {
     // 用于存储一需要清理的副作用函数，比如 history.listen 返回的取消监听函数
     protected _cleanups: Array<() => void> = [];
@@ -59,11 +58,8 @@ export class KylinRouter extends Mixin(
 
     outlets?: OutletRefs;
 
-    // Routes mixin 提供的属性
-    public routes!: RouteItem[];
-    public notFound?: RouteItem;
-    public defaultRoute?: string;
-    public _redirectCount: number = 0;
+    /** 路由表注册器 */
+    public routes: RouteRegistry;
 
     /** 钩子管理器 */
     public hooks: HookManager;
@@ -127,8 +123,14 @@ export class KylinRouter extends Mixin(
             throw new Error("KylinRouter must be initialized with an HTMLElement as host");
         }
 
-        // 初始化路由表（委托给 Routes mixin 的 initRoutes 方法）
-        this.initRoutes(
+        // 初始化路由表注册器
+        this.routes = new RouteRegistry();
+        this.routes.setCallbacks({
+            push: this.push.bind(this),
+            getLocation: () => ({ pathname: this.history.location.pathname, search: this.history.location.search }),
+            setIsNavigating: (value) => { this.isNavigating = value; },
+        });
+        this.routes.initRoutes(
             resolvedOptions.routes,
             resolvedOptions.notFound,
             resolvedOptions.defaultRoute,
@@ -141,7 +143,7 @@ export class KylinRouter extends Mixin(
         this.debug = resolvedOptions.debug || false;
 
         // 执行初始路由匹配（初始化时 history.listen 不会触发回调）
-        this._matchCurrentLocation();
+        this.routes.matchCurrentLocation();
     }
 
     /**
@@ -169,27 +171,27 @@ export class KylinRouter extends Mixin(
 
         // 在导航开始时重置重定向计数（仅针对非重定向触发的导航）
         if (this._pendingNavigationType !== 'replace') {
-            this._redirectCount = 0;
+            this.routes._redirectCount = 0;
         }
 
         const pathname = location.location.pathname;
         const search = location.location.search;
 
         // 调试日志：导航开始
-        this.debugLog(`导航开始: from=${this.current.route?.name || '(initial)'} to=${pathname}`);
+        this.debugLog(`导航开始: from=${this.routes.current.route?.name || '(initial)'} to=${pathname}`);
 
         // 保存当前路由状态（用于 from 参数和 afterLeave 守卫）
-        const fromRoute = this.current.route || { name: '', path: '', params: {}, query: {} };
-        this.previousRoute = this.current.route || undefined;
+        const fromRoute = this.routes.current.route || { name: '', path: '', params: {}, query: {} };
+        this.previousRoute = this.routes.current.route || undefined;
 
         // 先执行路由匹配，获取目标路由信息
-        this._matchAndUpdateState(pathname, search);
+        this.routes.matchAndUpdateState(pathname, search);
 
         // 调试日志：路由匹配结果
-        this.debugLog(`路由匹配: name=${this.current.route?.name || '(not found)'} params=`, this.current.params);
+        this.debugLog(`路由匹配: name=${this.routes.current.route?.name || '(not found)'} params=`, this.routes.current.params);
 
         // 构造目标路由对象（用于 to 参数）
-        const toRoute = this.current.route || { name: '', path: pathname, params: {}, query: {} };
+        const toRoute = this.routes.current.route || { name: '', path: pathname, params: {}, query: {} };
 
         // 执行 beforeEach 钩子
         this.debugLog('钩子执行: beforeEach');
@@ -210,11 +212,11 @@ export class KylinRouter extends Mixin(
             if (typeof beforeEachResult === 'string') {
                 // 重定向
                 this.debugLog(`钩子结果: beforeEach 重定向到 ${beforeEachResult}`);
-                this._redirectCount++;
-                if (this._redirectCount > 10) {
+                this.routes._redirectCount++;
+                if (this.routes._redirectCount > 10) {
                     console.error('Maximum redirect limit reached. Possible infinite loop.');
                     this.isNavigating = false;
-                    this._redirectCount = 0;
+                    this.routes._redirectCount = 0;
                     return;
                 }
                 this.replace(beforeEachResult);
@@ -230,13 +232,13 @@ export class KylinRouter extends Mixin(
 
         // 获取匹配的路由链（包含嵌套路由）
         // 简化实现：对于单个路由，包装在数组中
-        const matchedRoutes = this.current.route ? [{ route: this.current.route, params: this.current.params, remainingPath: this.current.remainingPath }] : [];
+        const matchedRoutes = this.routes.current.route ? [{ route: this.routes.current.route, params: this.routes.current.params, remainingPath: this.routes.current.remainingPath }] : [];
 
         // 执行路由级 beforeEnter 守卫（父优先）
-        if (this.current.route && matchedRoutes.length > 0) {
+        if (this.routes.current.route && matchedRoutes.length > 0) {
             const beforeEnterResult = await this.hooks.executeRouteGuards(
                 this.hooks.getOrderedMatchedRoutes(matchedRoutes),
-                this.current.route,
+                this.routes.current.route,
                 fromRoute,
                 'beforeEnter'
             );
@@ -258,10 +260,10 @@ export class KylinRouter extends Mixin(
         // 执行 renderEach 钩子（数据预加载）
         // 遵循 D-18: 在组件加载后、渲染前执行
         // 遵循 D-19: 失败时继续渲染组件
-        if (this.current.route) {
+        if (this.routes.current.route) {
             this.debugLog('钩子执行: renderEach');
             const renderData = await this.hooks.executeRenderEach(
-                this.current.route,
+                this.routes.current.route,
                 fromRoute
             );
 
@@ -269,7 +271,7 @@ export class KylinRouter extends Mixin(
             // 遵循 D-20: 通过 route.data 传递给组件
             if (renderData) {
                 this.debugLog('钩子结果: renderEach 返回数据', renderData);
-                (this.current.route as any).data = renderData;
+                (this.routes.current.route as any).data = renderData;
             }
         }
 
@@ -277,9 +279,9 @@ export class KylinRouter extends Mixin(
         this.host.dispatchEvent(
             new CustomEvent("route-change", {
                 detail: {
-                    route: this.current.route,
-                    params: this.current.params,
-                    query: this.current.query,
+                    route: this.routes.current.route,
+                    params: this.routes.current.params,
+                    query: this.routes.current.query,
                     location: location,
                 },
                 bubbles: true,
@@ -330,11 +332,11 @@ export class KylinRouter extends Mixin(
         this._pendingNavigationType = undefined;
 
         // 调试日志：导航完成
-        this.debugLog(`导航完成: route=${this.current.route?.name || '(not found)'} path=${pathname}`);
+        this.debugLog(`导航完成: route=${this.routes.current.route?.name || '(not found)'} path=${pathname}`);
 
         // 默认路径重定向检测（D-41 到 D-44）
         // 当前路径为根路径且配置了 defaultRoute 时，自动重定向
-        this._checkDefaultRedirect(pathname);
+        this.routes.checkDefaultRedirect(pathname);
     }
 
     /** 待处理的导航类型，用于在 onRouteUpdate 中判断导航来源 */
@@ -351,7 +353,7 @@ export class KylinRouter extends Mixin(
             this.replace(parentRoute.path);
         } else {
             // 无父路由，回退到默认路由或根路径
-            const fallback = this.defaultRoute || '/';
+            const fallback = this.routes.defaultRoute || '/';
             this.replace(fallback);
         }
     }

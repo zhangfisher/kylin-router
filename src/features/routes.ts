@@ -9,7 +9,6 @@
  * - 默认路径重定向
  */
 
-import type { KylinRouter } from "@/router";
 import type { KylinRoutes, RouteItem } from "@/types";
 import { matchRoute } from "@/utils/matchRoute";
 import { extractQueryParams } from "@/utils/parseParams";
@@ -17,7 +16,14 @@ import { extractQueryParams } from "@/utils/parseParams";
 /** 最大重定向次数，防止循环重定向 */
 const MAX_REDIRECTS = 10;
 
-export class Routes {
+/** 导航回调函数类型 */
+export interface NavigationCallbacks {
+    push: (path: string) => void;
+    getLocation: () => { pathname: string; search: string };
+    setIsNavigating: (value: boolean) => void;
+}
+
+export class RouteRegistry {
     /** 路由表配置 */
     public routes!: RouteItem[];
 
@@ -43,13 +49,23 @@ export class Routes {
     /** 当前会话的重定向次数（用于循环检测） */
     public _redirectCount: number = 0;
 
+    /** 导航回调函数 */
+    private _callbacks?: NavigationCallbacks;
+
+    /**
+     * 设置导航回调函数
+     */
+    public setCallbacks(callbacks: NavigationCallbacks): void {
+        this._callbacks = callbacks;
+    }
+
     /**
      * 初始化路由表
      *
      * 支持 RouteItem[]、单个 RouteItem、string（URL）、函数（同步/异步）格式
      * 按照 D-17: 支持多种路由配置格式
      */
-    protected initRoutes(
+    public initRoutes(
         rawRoutes: KylinRoutes,
         notFound?: RouteItem,
         defaultRoute?: string,
@@ -64,7 +80,7 @@ export class Routes {
                 this.routes = [];
                 result.then((loaded) => {
                     this.routes = normalizeRoutes(loaded);
-                    this._matchCurrentLocation();
+                    this.matchCurrentLocation();
                 });
                 return;
             }
@@ -102,7 +118,7 @@ export class Routes {
 
         // 如果删除了路由且当前正在访问该路由，触发重定向
         if (removed && this.current.route && this.current.route.name === name) {
-            this._redirectToDefaultOrNotFound();
+            this.redirectToDefaultOrNotFound();
         }
     }
 
@@ -136,12 +152,17 @@ export class Routes {
      * 执行初始路由匹配
      * 在构造函数中调用，匹配当前 URL 的路由
      */
-    protected _matchCurrentLocation(): void {
-        const pathname = (this as any).history.location.pathname;
-        const search = (this as any).history.location.search;
+    public matchCurrentLocation(): void {
+        if (!this._callbacks) {
+            throw new Error("RouteRegistry: callbacks not set. Call setCallbacks() first.");
+        }
+
+        const location = this._callbacks.getLocation();
+        const pathname = location.pathname;
+        const search = location.search;
 
         // 设置导航状态
-        (this as any).isNavigating = true;
+        this._callbacks.setIsNavigating(true);
 
         // 执行路由匹配
         const matched = matchRoute(pathname, this.routes);
@@ -164,17 +185,17 @@ export class Routes {
         this.current.query = extractQueryParams(search);
 
         // 重置导航状态
-        (this as any).isNavigating = false;
+        this._callbacks.setIsNavigating(false);
 
         // 检查默认路径重定向
-        this._checkDefaultRedirect(pathname);
+        this.checkDefaultRedirect(pathname);
     }
 
     /**
      * 匹配路由并更新状态
      * 在 onRouteUpdate 中调用
      */
-    protected _matchAndUpdateState(pathname: string, search: string): void {
+    public matchAndUpdateState(pathname: string, search: string): void {
         const matched = matchRoute(pathname, this.routes);
 
         if (matched) {
@@ -200,7 +221,7 @@ export class Routes {
      * 当访问根路径（/ 或 hash 模式的 #/）且配置了 defaultRoute 时触发
      * 按照 D-42: 重定向触发完整导航流程、D-43: 循环重定向检测
      */
-    protected _checkDefaultRedirect(pathname: string): void {
+    public checkDefaultRedirect(pathname: string): void {
         if (!this.defaultRoute) return;
 
         // 规范化路径用于比较
@@ -228,19 +249,26 @@ export class Routes {
         }
 
         // 执行重定向
-        (this as any).push(this.defaultRoute);
+        if (this._callbacks) {
+            this._callbacks.push(this.defaultRoute);
+        }
     }
 
     /**
      * 当当前路由被删除或不可访问时，重定向到默认路由或 404
      */
-    private _redirectToDefaultOrNotFound(): void {
+    public redirectToDefaultOrNotFound(): void {
         if (this.defaultRoute) {
-            (this as any).push(this.defaultRoute);
+            if (this._callbacks) {
+                this._callbacks.push(this.defaultRoute);
+            }
         } else if (this.notFound) {
             this.current.route = this.notFound;
             this.current.params = {};
-            this.current.remainingPath = (this as any).history.location.pathname;
+            if (this._callbacks) {
+                const location = this._callbacks.getLocation();
+                this.current.remainingPath = location.pathname;
+            }
         }
     }
 }

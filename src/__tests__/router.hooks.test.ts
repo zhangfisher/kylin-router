@@ -120,7 +120,7 @@ describe("KylinRouter 全局钩子系统", () => {
             await new Promise(resolve => setTimeout(resolve, 100));
 
             // 导航应该被取消，保持在当前路径
-            expect(router.current.route!.path).not.toBe("/protected");
+            expect(router.routes.current.route!.path).not.toBe("/protected");
         });
 
         it("应该在调用 next('/path') 时重定向", async () => {
@@ -141,7 +141,7 @@ describe("KylinRouter 全局钩子系统", () => {
             await new Promise(resolve => setTimeout(resolve, 100));
 
             // 应该重定向到 /profile
-            expect(router.current.route!.path).toBe("/profile");
+            expect(router.routes.current.route!.path).toBe("/profile");
         });
 
         it("应该支持异步 beforeEach 钩子", async () => {
@@ -161,7 +161,7 @@ describe("KylinRouter 全局钩子系统", () => {
             await new Promise(resolve => setTimeout(resolve, 100));
 
             expect(executed).toBe(true);
-            expect(router.current.route!.path).toBe("/async");
+            expect(router.routes.current.route!.path).toBe("/async");
         });
 
         it("应该在第一个钩子取消导航后停止执行后续钩子", async () => {
@@ -210,7 +210,7 @@ describe("KylinRouter 全局钩子系统", () => {
             await new Promise(resolve => setTimeout(resolve, 100));
 
             expect(order).toEqual([1]);
-            expect(router.current.route!.path).toBe("/redirect-target");
+            expect(router.routes.current.route!.path).toBe("/redirect-target");
         });
 
         it("应该正确传递 to 和 from 参数", async () => {
@@ -284,7 +284,7 @@ describe("KylinRouter 全局钩子系统", () => {
             await new Promise(resolve => setTimeout(resolve, 100));
 
             // 数据应该被传递到当前路由
-            expect(router.current.route!.data).toEqual(testData);
+            expect(router.routes.current.route!.data).toEqual(testData);
         });
 
         it("应该合并来自多个 renderEach 钩子的数据", async () => {
@@ -308,7 +308,7 @@ describe("KylinRouter 全局钩子系统", () => {
             // 等待导航完成
             await new Promise(resolve => setTimeout(resolve, 100));
 
-            expect(router.current.route!.data).toEqual({
+            expect(router.routes.current.route!.data).toEqual({
                 key1: "value1",
                 key2: "value2",
                 key3: "value3"
@@ -332,7 +332,7 @@ describe("KylinRouter 全局钩子系统", () => {
             await new Promise(resolve => setTimeout(resolve, 100));
 
             expect(executed).toBe(true);
-            expect(router.current.route!.data).toEqual({ asyncData: "loaded" });
+            expect(router.routes.current.route!.data).toEqual({ asyncData: "loaded" });
         });
 
         it("应该在 renderEach 钩子失败时继续渲染", async () => {
@@ -354,7 +354,7 @@ describe("KylinRouter 全局钩子系统", () => {
             await new Promise(resolve => setTimeout(resolve, 100));
 
             // 导航应该继续，后续钩子的数据应该被传递
-            expect(router.current.route!.data).toEqual({ key: "value" });
+            expect(router.routes.current.route!.data).toEqual({ key: "value" });
         });
 
         it("应该支持直接返回数据而不调用 next", async () => {
@@ -370,7 +370,7 @@ describe("KylinRouter 全局钩子系统", () => {
             // 等待导航完成
             await new Promise(resolve => setTimeout(resolve, 100));
 
-            expect(router.current.route!.data).toEqual({ directData: "value" });
+            expect(router.routes.current.route!.data).toEqual({ directData: "value" });
         });
 
         it("应该支持异步直接返回数据", async () => {
@@ -387,7 +387,7 @@ describe("KylinRouter 全局钩子系统", () => {
             // 等待导航完成
             await new Promise(resolve => setTimeout(resolve, 100));
 
-            expect(router.current.route!.data).toEqual({ asyncDirectData: "value" });
+            expect(router.routes.current.route!.data).toEqual({ asyncDirectData: "value" });
         });
 
         it("应该在 renderEach 钩子中提供正确的 to 和 from 参数", async () => {
@@ -431,7 +431,7 @@ describe("KylinRouter 全局钩子系统", () => {
             await new Promise(resolve => setTimeout(resolve, 100));
 
             // 应该只包含第二个钩子的数据
-            expect(router.current.route!.data).toEqual({ key: "value" });
+            expect(router.routes.current.route!.data).toEqual({ key: "value" });
         });
 
         it("应该支持同时使用 next 和直接返回", async () => {
@@ -453,7 +453,7 @@ describe("KylinRouter 全局钩子系统", () => {
             await new Promise(resolve => setTimeout(resolve, 100));
 
             // next 的调用应该优先
-            expect(router.current.route!.data).toEqual({
+            expect(router.routes.current.route!.data).toEqual({
                 nextData: "value",
                 returnData: "value"
             });
@@ -529,7 +529,7 @@ describe("KylinRouter 全局钩子系统", () => {
 
             // afterEach 应该在最终路由（/profile）上执行
             expect(executed).toBe(true);
-            expect(router.current.route!.path).toBe("/profile");
+            expect(router.routes.current.route!.path).toBe("/profile");
         });
 
         it("应该按照注册顺序执行多个 afterEach 钩子", async () => {
@@ -609,7 +609,7 @@ describe("KylinRouter 全局钩子系统", () => {
             await new Promise(resolve => setTimeout(resolve, 100));
 
             // 导航应该完成，即使有钩子失败
-            expect(router.current.route!.path).toBe("/user");
+            expect(router.routes.current.route!.path).toBe("/user");
         });
     });
 
