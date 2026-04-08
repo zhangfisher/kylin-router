@@ -100,33 +100,33 @@ export type HookFunction = (
  * 使用对象字面量替代 enum，以符合 erasableSyntaxOnly 配置
  *
  * @remarks
- * 这些常量与 KylinRouterHookType 类型互补：
- * - KylinRouterHookType 是 TypeScript 类型，用于类型检查
- * - HookType 是运行时常量对象，用于实际值访问
+ * 这些常量与 HookType 类型互补：
+ * - HookType 是 TypeScript 类型，用于类型检查
+ * - HookTypeValues 是运行时常量对象，用于实际值访问
  *
  * @example
  * ```ts
  * // 使用类型
- * const hookType: KylinRouterHookType = 'beforeEach';
+ * const hookType: HookType = 'beforeEach';
  *
  * // 使用常量
- * const hookTypeValue = HookType.BEFORE_EACH; // 'beforeEach'
+ * const hookTypeValue = HookTypeValues.BEFORE_EACH; // 'beforeEach'
  * ```
  */
-export const HookType = {
+export const HookTypeValues = {
     /** 导航前执行，可以取消导航或重定向 */
     BEFORE_EACH: 'beforeEach',
     /** 渲染前执行，用于数据预取 */
     RENDER_EACH: 'renderEach',
     /** 导航完成后执行 */
     AFTER_EACH: 'afterEach'
-} as const;
+};
 
 /**
  * 钩子类型的值类型
- * 从 HookType 常量对象提取的所有可能值的联合类型
+ * 所有可能的钩子类型值的联合类型
  */
-export type HookType = typeof HookType[keyof typeof HookType];
+export type HookType = 'beforeEach' | 'renderEach' | 'afterEach';
 
 /**
  * 预加载的数据类型

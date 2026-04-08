@@ -79,17 +79,17 @@ describe("KylinRouter 全局钩子系统", () => {
             const order: number[] = [];
 
             // @ts-ignore - 测试内部 hooks 属性
-            router.hooks.beforeEach.push((to, from, next) => {
+            router.hooks.add("beforeEach", (to, from, next) => {
                 order.push(1);
                 next();
             });
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => {
+            router.hooks.add("beforeEach", (to, from, next) => {
                 order.push(2);
                 next();
             });
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => {
+            router.hooks.add("beforeEach", (to, from, next) => {
                 order.push(3);
                 next();
             });
@@ -106,7 +106,7 @@ describe("KylinRouter 全局钩子系统", () => {
             router = await createRouter(host, { routes });
 
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => {
+            router.hooks.add("beforeEach", (to, from, next) => {
                 if (to.path === "/protected") {
                     next(false);
                 } else {
@@ -127,7 +127,7 @@ describe("KylinRouter 全局钩子系统", () => {
             router = await createRouter(host, { routes });
 
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => {
+            router.hooks.add("beforeEach", (to, from, next) => {
                 if (to.path === "/user") {
                     next("/profile");
                 } else {
@@ -149,7 +149,7 @@ describe("KylinRouter 全局钩子系统", () => {
             let executed = false;
 
             // @ts-ignore
-            router.hooks.beforeEach.push(async (to, from, next) => {
+            router.hooks.add("beforeEach", async (to, from, next) => {
                 await new Promise(resolve => setTimeout(resolve, 50));
                 executed = true;
                 next();
@@ -169,13 +169,13 @@ describe("KylinRouter 全局钩子系统", () => {
             const order: number[] = [];
 
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => {
+            router.hooks.add("beforeEach", (to, from, next) => {
                 order.push(1);
                 next(false);
             });
 
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => {
+            router.hooks.add("beforeEach", (to, from, next) => {
                 order.push(2);
                 next();
             });
@@ -193,13 +193,13 @@ describe("KylinRouter 全局钩子系统", () => {
             const order: number[] = [];
 
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => {
+            router.hooks.add("beforeEach", (to, from, next) => {
                 order.push(1);
                 next("/redirect-target");
             });
 
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => {
+            router.hooks.add("beforeEach", (to, from, next) => {
                 order.push(2);
                 next();
             });
@@ -220,7 +220,7 @@ describe("KylinRouter 全局钩子系统", () => {
             let capturedFrom: any;
 
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => {
+            router.hooks.add("beforeEach", (to, from, next) => {
                 capturedTo = to;
                 capturedFrom = from;
                 next();
@@ -240,20 +240,20 @@ describe("KylinRouter 全局钩子系统", () => {
             const order: number[] = [];
 
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => {
+            router.hooks.add("beforeEach", (to, from, next) => {
                 order.push(1);
                 next();
             });
 
             // @ts-ignore
-            router.hooks.beforeEach.push(async (to, from, next) => {
+            router.hooks.add("beforeEach", async (to, from, next) => {
                 await new Promise(resolve => setTimeout(resolve, 30));
                 order.push(2);
                 next();
             });
 
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => {
+            router.hooks.add("beforeEach", (to, from, next) => {
                 order.push(3);
                 next();
             });
@@ -274,7 +274,7 @@ describe("KylinRouter 全局钩子系统", () => {
             const testData = { userId: "123", userName: "Test" };
 
             // @ts-ignore
-            router.hooks.renderEach.push((to, from, next) => {
+            router.hooks.add("renderEach", (to, from, next) => {
                 next(testData);
             });
 
@@ -291,15 +291,15 @@ describe("KylinRouter 全局钩子系统", () => {
             router = await createRouter(host, { routes });
 
             // @ts-ignore
-            router.hooks.renderEach.push((to, from, next) => {
+            router.hooks.add("renderEach", (to, from, next) => {
                 next({ key1: "value1" });
             });
             // @ts-ignore
-            router.hooks.renderEach.push((to, from, next) => {
+            router.hooks.add("renderEach", (to, from, next) => {
                 next({ key2: "value2" });
             });
             // @ts-ignore
-            router.hooks.renderEach.push((to, from, next) => {
+            router.hooks.add("renderEach", (to, from, next) => {
                 next({ key3: "value3" });
             });
 
@@ -320,7 +320,7 @@ describe("KylinRouter 全局钩子系统", () => {
             let executed = false;
 
             // @ts-ignore
-            router.hooks.renderEach.push(async (to, from, next) => {
+            router.hooks.add("renderEach", async (to, from, next) => {
                 await new Promise(resolve => setTimeout(resolve, 50));
                 executed = true;
                 next({ asyncData: "loaded" });
@@ -339,12 +339,12 @@ describe("KylinRouter 全局钩子系统", () => {
             router = await createRouter(host, { routes });
 
             // @ts-ignore
-            router.hooks.renderEach.push(() => {
+            router.hooks.add("renderEach", () => {
                 throw new Error("Hook error");
             });
 
             // @ts-ignore
-            router.hooks.renderEach.push((to, from, next) => {
+            router.hooks.add("renderEach", (to, from, next) => {
                 next({ key: "value" });
             });
 
@@ -361,7 +361,7 @@ describe("KylinRouter 全局钩子系统", () => {
             router = await createRouter(host, { routes });
 
             // @ts-ignore
-            router.hooks.renderEach.push((to, from, next) => {
+            router.hooks.add("renderEach", (to, from, next) => {
                 return { directData: "value" };
             });
 
@@ -377,7 +377,7 @@ describe("KylinRouter 全局钩子系统", () => {
             router = await createRouter(host, { routes });
 
             // @ts-ignore
-            router.hooks.renderEach.push(async (to, from, next) => {
+            router.hooks.add("renderEach", async (to, from, next) => {
                 await new Promise(resolve => setTimeout(resolve, 30));
                 return { asyncDirectData: "value" };
             });
@@ -397,7 +397,7 @@ describe("KylinRouter 全局钩子系统", () => {
             let capturedFrom: any;
 
             // @ts-ignore
-            router.hooks.renderEach.push((to, from, next) => {
+            router.hooks.add("renderEach", (to, from, next) => {
                 capturedTo = to;
                 capturedFrom = from;
                 next();
@@ -416,12 +416,12 @@ describe("KylinRouter 全局钩子系统", () => {
             router = await createRouter(host, { routes });
 
             // @ts-ignore
-            router.hooks.renderEach.push((to, from, next) => {
+            router.hooks.add("renderEach", (to, from, next) => {
                 return undefined;
             });
 
             // @ts-ignore
-            router.hooks.renderEach.push((to, from, next) => {
+            router.hooks.add("renderEach", (to, from, next) => {
                 next({ key: "value" });
             });
 
@@ -438,12 +438,12 @@ describe("KylinRouter 全局钩子系统", () => {
             router = await createRouter(host, { routes });
 
             // @ts-ignore
-            router.hooks.renderEach.push((to, from, next) => {
+            router.hooks.add("renderEach", (to, from, next) => {
                 next({ nextData: "value" });
             });
 
             // @ts-ignore
-            router.hooks.renderEach.push((to, from, next) => {
+            router.hooks.add("renderEach", (to, from, next) => {
                 return { returnData: "value" };
             });
 
@@ -466,7 +466,7 @@ describe("KylinRouter 全局钩子系统", () => {
             let executed = false;
 
             // @ts-ignore
-            router.hooks.afterEach.push((to, from) => {
+            router.hooks.add("afterEach", (to, from) => {
                 executed = true;
             });
 
@@ -483,7 +483,7 @@ describe("KylinRouter 全局钩子系统", () => {
             let executed = false;
 
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => {
+            router.hooks.add("beforeEach", (to, from, next) => {
                 if (to.path === "/protected") {
                     next(false);
                 } else {
@@ -492,7 +492,7 @@ describe("KylinRouter 全局钩子系统", () => {
             });
 
             // @ts-ignore
-            router.hooks.afterEach.push((to, from) => {
+            router.hooks.add("afterEach", (to, from) => {
                 executed = true;
             });
 
@@ -509,7 +509,7 @@ describe("KylinRouter 全局钩子系统", () => {
             let executed = false;
 
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => {
+            router.hooks.add("beforeEach", (to, from, next) => {
                 if (to.path === "/user") {
                     next("/profile");
                 } else {
@@ -518,7 +518,7 @@ describe("KylinRouter 全局钩子系统", () => {
             });
 
             // @ts-ignore
-            router.hooks.afterEach.push((to, from) => {
+            router.hooks.add("afterEach", (to, from) => {
                 executed = true;
             });
 
@@ -537,11 +537,11 @@ describe("KylinRouter 全局钩子系统", () => {
             const order: number[] = [];
 
             // @ts-ignore
-            router.hooks.afterEach.push((to, from) => { order.push(1); });
+            router.hooks.add("afterEach", (to, from) => { order.push(1); });
             // @ts-ignore
-            router.hooks.afterEach.push((to, from) => { order.push(2); });
+            router.hooks.add("afterEach", (to, from) => { order.push(2); });
             // @ts-ignore
-            router.hooks.afterEach.push((to, from) => { order.push(3); });
+            router.hooks.add("afterEach", (to, from) => { order.push(3); });
 
             router.push("/user");
 
@@ -556,7 +556,7 @@ describe("KylinRouter 全局钩子系统", () => {
             let executed = false;
 
             // @ts-ignore
-            router.hooks.afterEach.push(async (to, from) => {
+            router.hooks.add("afterEach", async (to, from) => {
                 await new Promise(resolve => setTimeout(resolve, 50));
                 executed = true;
             });
@@ -576,7 +576,7 @@ describe("KylinRouter 全局钩子系统", () => {
             let capturedFrom: any;
 
             // @ts-ignore
-            router.hooks.afterEach.push((to, from) => {
+            router.hooks.add("afterEach", (to, from) => {
                 capturedTo = to;
                 capturedFrom = from;
             });
@@ -594,12 +594,12 @@ describe("KylinRouter 全局钩子系统", () => {
             router = await createRouter(host, { routes });
 
             // @ts-ignore
-            router.hooks.afterEach.push((to, from) => {
+            router.hooks.add("afterEach", (to, from) => {
                 throw new Error("Hook error");
             });
 
             // @ts-ignore
-            router.hooks.afterEach.push((to, from) => {
+            router.hooks.add("afterEach", (to, from) => {
                 // 这个钩子应该仍然执行
             });
 
@@ -619,11 +619,11 @@ describe("KylinRouter 全局钩子系统", () => {
             const order: string[] = [];
 
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => { order.push("beforeEach"); next(); });
+            router.hooks.add("beforeEach", (to, from, next) => { order.push("beforeEach"); next(); });
             // @ts-ignore
-            router.hooks.renderEach.push((to, from, next) => { order.push("renderEach"); next(); });
+            router.hooks.add("renderEach", (to, from, next) => { order.push("renderEach"); next(); });
             // @ts-ignore
-            router.hooks.afterEach.push((to, from) => { order.push("afterEach"); });
+            router.hooks.add("afterEach", (to, from) => { order.push("afterEach"); });
 
             router.push("/user");
 
@@ -642,17 +642,17 @@ describe("KylinRouter 全局钩子系统", () => {
             const order: string[] = [];
 
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => { order.push("beforeEach-1"); next(); });
+            router.hooks.add("beforeEach", (to, from, next) => { order.push("beforeEach-1"); next(); });
             // @ts-ignore
-            router.hooks.renderEach.push((to, from, next) => { order.push("renderEach-1"); next(); });
+            router.hooks.add("renderEach", (to, from, next) => { order.push("renderEach-1"); next(); });
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => { order.push("beforeEach-2"); next(); });
+            router.hooks.add("beforeEach", (to, from, next) => { order.push("beforeEach-2"); next(); });
             // @ts-ignore
-            router.hooks.afterEach.push((to, from) => { order.push("afterEach-1"); });
+            router.hooks.add("afterEach", (to, from) => { order.push("afterEach-1"); });
             // @ts-ignore
-            router.hooks.renderEach.push((to, from, next) => { order.push("renderEach-2"); next(); });
+            router.hooks.add("renderEach", (to, from, next) => { order.push("renderEach-2"); next(); });
             // @ts-ignore
-            router.hooks.afterEach.push((to, from) => { order.push("afterEach-2"); });
+            router.hooks.add("afterEach", (to, from) => { order.push("afterEach-2"); });
 
             router.push("/user");
 
@@ -674,18 +674,18 @@ describe("KylinRouter 全局钩子系统", () => {
             const order: string[] = [];
 
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => {
+            router.hooks.add("beforeEach", (to, from, next) => {
                 order.push("beforeEach");
                 next();
             });
 
             // @ts-ignore
-            router.hooks.renderEach.push(() => {
+            router.hooks.add("renderEach", () => {
                 throw new Error("RenderEach error");
             });
 
             // @ts-ignore
-            router.hooks.afterEach.push((to, from) => {
+            router.hooks.add("afterEach", (to, from) => {
                 order.push("afterEach");
             });
 
@@ -704,7 +704,7 @@ describe("KylinRouter 全局钩子系统", () => {
             let count = 0;
 
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => {
+            router.hooks.add("beforeEach", (to, from, next) => {
                 if (count < 15) {
                     count++;
                     next("/loop");
@@ -729,7 +729,7 @@ describe("KylinRouter 全局钩子系统", () => {
             let redirectCount = 0;
 
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => {
+            router.hooks.add("beforeEach", (to, from, next) => {
                 if (to.path !== "/end") {
                     redirectCount++;
                     next("/user"); // 重定向到 /user
@@ -769,9 +769,9 @@ describe("KylinRouter 全局钩子系统", () => {
             const hook = (to: any, from: any, next: any) => {};
 
             // @ts-ignore
-            router.hooks.beforeEach.push(hook);
+            router.hooks.add("beforeEach", hook);
             // @ts-ignore
-            router.removeHook("beforeEach", hook);
+            router.hooks.remove("beforeEach", hook);
 
             // @ts-ignore
             expect(router.hooks.beforeEach).not.toContain(hook);
@@ -781,12 +781,12 @@ describe("KylinRouter 全局钩子系统", () => {
             router = await createRouter(host, { routes });
 
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => {});
+            router.hooks.add("beforeEach", (to, from, next) => {});
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => {});
+            router.hooks.add("beforeEach", (to, from, next) => {});
 
             // @ts-ignore
-            router.clearHooks("beforeEach");
+            router.hooks.clear("beforeEach");
 
             // @ts-ignore
             expect(router.hooks.beforeEach.length).toBe(0);
@@ -796,14 +796,14 @@ describe("KylinRouter 全局钩子系统", () => {
             router = await createRouter(host, { routes });
 
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => {});
+            router.hooks.add("beforeEach", (to, from, next) => {});
             // @ts-ignore
-            router.hooks.renderEach.push((to, from, next) => {});
+            router.hooks.add("renderEach", (to, from, next) => {});
             // @ts-ignore
-            router.hooks.afterEach.push((to, from) => {});
+            router.hooks.add("afterEach", (to, from) => {});
 
             // @ts-ignore
-            router.clearHooks();
+            router.hooks.clear();
 
             // @ts-ignore
             expect(router.hooks.beforeEach.length).toBe(0);
@@ -817,16 +817,16 @@ describe("KylinRouter 全局钩子系统", () => {
             router = await createRouter(host, { routes });
 
             // @ts-ignore
-            router.hooks.beforeEach.push((to, from, next) => {});
+            router.hooks.add("beforeEach", (to, from, next) => {});
             // @ts-ignore
-            router.hooks.renderEach.push((to, from, next) => {});
+            router.hooks.add("renderEach", (to, from, next) => {});
             // @ts-ignore
-            router.hooks.afterEach.push((to, from) => {});
+            router.hooks.add("afterEach", (to, from) => {});
 
             // @ts-ignore
-            router.clearHooks("beforeEach");
+            router.hooks.clear("beforeEach");
             // @ts-ignore
-            router.clearHooks("afterEach");
+            router.hooks.clear("afterEach");
 
             // @ts-ignore
             expect(router.hooks.beforeEach.length).toBe(0);

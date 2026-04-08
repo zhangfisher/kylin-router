@@ -6,7 +6,8 @@
 
 import type { KylinRouter } from "@/router";
 import type { HookFunction, RouteItem, RouteData, RenderEachHook } from "@/types";
-import { HookType } from "@/types";
+import { HookTypeValues } from "@/types";
+import type { HookType } from "@/types";
 
 export class HookManager {
     /**
@@ -17,10 +18,16 @@ export class HookManager {
     public hooks: Record<HookType, HookFunction[]>;
 
     /**
+     * 路由器实例
+     */
+    private router: KylinRouter;
+
+    /**
      * 构造函数
      * @param router - KylinRouter 实例
      */
-    constructor(private router: KylinRouter) {
+    constructor(router: KylinRouter) {
+        this.router = router;
         this.hooks = {
             beforeEach: [],
             renderEach: [],
@@ -79,7 +86,7 @@ export class HookManager {
         if (hooks.length === 0) return true;
 
         // afterEach 钩子使用特殊的执行逻辑，不抛出错误
-        if (type === HookType.AFTER_EACH) {
+        if (type === HookTypeValues.AFTER_EACH) {
             return this.executeAfterEachHooks(hooks, to, from);
         }
 
@@ -289,7 +296,7 @@ export class HookManager {
         from: RouteItem
     ): Promise<RouteData | undefined> {
         // 收集全局 renderEach 钩子
-        const globalHooks = this.hooks[HookType.RENDER_EACH] as RenderEachHook[];
+        const globalHooks = this.hooks[HookTypeValues.RENDER_EACH as HookType] as RenderEachHook[];
         // 收集路由级 renderEach 钩子
         const routeHooks = to.renderEach
             ? Array.isArray(to.renderEach)

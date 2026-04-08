@@ -2,7 +2,8 @@ import type { OutletRefs } from "@/utils/traverseOutlet";
 import { createBrowserHistory } from "history";
 import type { Update } from "history";
 import type { KylinRouterOptiopns, RouteItem } from "./types/index";
-import { HookType } from "./types/index";
+import { HookTypeValues } from "./types/index";
+import type { HookType } from "./types/index";
 import { Mixin } from "ts-mixer";
 import {
     Context,
@@ -195,7 +196,7 @@ export class KylinRouter extends Mixin(
         this.debugLog('钩子执行: beforeEach');
         try {
             const beforeEachResult = await this.hooks.executeHooks(
-                HookType.BEFORE_EACH,
+                HookTypeValues.BEFORE_EACH as HookType,
                 toRoute,
                 fromRoute
             );
@@ -290,7 +291,7 @@ export class KylinRouter extends Mixin(
         this.debugLog('钩子执行: afterEach');
         try {
             await this.hooks.executeHooks(
-                HookType.AFTER_EACH,
+                HookTypeValues.AFTER_EACH as HookType,
                 toRoute,
                 fromRoute
             );
