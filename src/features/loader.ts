@@ -22,13 +22,13 @@ export class Loader {
     }
 
     /**
-     * 主加载方法 - 根据 component 类型分发到不同加载策略
-     * @param component - 组件配置（字符串、函数或 URL）
+     * 主加载方法 - 根据 view 类型分发到不同加载策略
+     * @param view - 视图配置（字符串、函数或 URL）
      * @param options - 远程加载选项（可选）
      * @returns 加载结果的 Promise
      */
     async loadComponent(
-        component: string | (() => Promise<any>),
+        view: string | (() => Promise<any>),
         options?: RemoteLoadOptions
     ): Promise<LoadResult> {
         // 取消之前的加载请求
@@ -38,21 +38,21 @@ export class Loader {
         this.abortController = new AbortController();
 
         try {
-            // 检测 component 类型
-            if (typeof component === "string") {
+            // 检测 view 类型
+            if (typeof view === "string") {
                 // 判断是否为 URL
-                if (this.isURL(component)) {
-                    return await this.loadRemoteHTML(component, options);
+                if (this.isURL(view)) {
+                    return await this.loadRemoteHTML(view, options);
                 } else {
-                    return this.loadLocalComponent(component);
+                    return this.loadLocalComponent(view);
                 }
-            } else if (typeof component === "function") {
-                return await this.loadDynamicImport(component);
+            } else if (typeof view === "function") {
+                return await this.loadDynamicImport(view);
             } else {
                 return {
                     success: false,
                     content: null,
-                    error: new Error(`Invalid component type: ${typeof component}`),
+                    error: new Error(`Invalid view type: ${typeof view}`),
                 };
             }
         } catch (error) {
@@ -66,23 +66,23 @@ export class Loader {
 
     /**
      * 本地组件加载 - 处理 HTML 元素名
-     * @param component - HTML 元素名（如 'div'、'my-component'）
+     * @param view - HTML 元素名（如 'div'、'my-component'）
      * @returns 加载结果
      */
-    private loadLocalComponent(component: string): LoadResult {
+    private loadLocalComponent(view: string): LoadResult {
         // 验证元素名格式
-        if (!component || typeof component !== "string") {
+        if (!view || typeof view !== "string") {
             return {
                 success: false,
                 content: null,
-                error: new Error("Invalid component name"),
+                error: new Error("Invalid view name"),
             };
         }
 
         // 返回元素名，由 Render 类负责实际渲染
         return {
             success: true,
-            content: component,
+            content: view,
             error: null,
         };
     }

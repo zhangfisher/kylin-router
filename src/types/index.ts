@@ -6,10 +6,11 @@
  */
 
 // 路由配置相关类型
-export * from './routes';
+export * from "./routes";
 
 // 钩子系统相关类型
-export * from './hooks';
+export * from "./hooks";
 
 // 路由器配置相关类型
-export * from './config';
+export * from "./config";
+export * from "./events";

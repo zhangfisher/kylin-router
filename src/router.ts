@@ -317,15 +317,15 @@ export class KylinRouter extends Mixin(
 
         // 组件加载步骤（在 renderEach 钩子前执行）
         // 遵循导航流程：路由匹配 → 守卫执行 → 组件加载 → renderEach → 渲染
-        if (this.routes.current.route?.component) {
+        if (this.routes.current.route?.view) {
             this.log("组件加载: 开始加载组件");
-            const component = this.routes.current.route.component;
+            const view = this.routes.current.route.view;
 
-            // 处理不同类型的 component
-            if (typeof component === "string" || typeof component === "function") {
+            // 处理不同类型的 view
+            if (typeof view === "string" || typeof view === "function") {
                 // string 或 function 类型，使用 Loader 加载
                 const loadResult = await this.loader.loadComponent(
-                    component,
+                    view,
                     (this.routes.current.route as any).remoteOptions
                 );
 
@@ -344,10 +344,10 @@ export class KylinRouter extends Mixin(
                     // 使用 notFound 组件作为回退
                     if (this.options.notFound) {
                         this.log("组件加载: 使用 notFound 组件作为回退");
-                        const notFoundComponent = this.options.notFound.component;
-                        if (notFoundComponent && (typeof notFoundComponent === "string" || typeof notFoundComponent === "function")) {
+                        const notFoundView = this.options.notFound.view;
+                        if (notFoundView && (typeof notFoundView === "string" || typeof notFoundView === "function")) {
                             const notFoundResult = await this.loader.loadComponent(
-                                notFoundComponent,
+                                notFoundView,
                                 (this.options.notFound as any).remoteOptions
                             );
                             if (notFoundResult.success) {
@@ -359,7 +359,7 @@ export class KylinRouter extends Mixin(
             } else {
                 // HTMLElement 类型，直接存储
                 this.log("组件加载: HTMLElement 类型，直接使用");
-                (this.routes.current.route as any).componentContent = component;
+                (this.routes.current.route as any).componentContent = view;
             }
         }
 

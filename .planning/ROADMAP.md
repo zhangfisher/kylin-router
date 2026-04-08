@@ -93,7 +93,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   8. 模态路由可以与普通路由共存，支持多层模态
   9. 路由器实现全局错误边界，捕获组件渲染错误
   10. 路由器在导航竞态条件时丢弃旧响应，避免状态混乱
-**Plans**: TBD
+**Plans**: 5 plans
+**Plan List:**
+- [ ] 03-01-PLAN.md — 实现组件加载系统（本地组件、动态导入、远程 HTML）
+- [ ] 03-02-PLAN.md — 实现组件渲染系统（lit 模板、变量插值、嵌套 outlet）
+- [ ] 03-03-PLAN.md — 实现错误处理和重试机制（错误边界、重试策略、导航竞态控制）
+- [ ] 03-04-PLAN.md — 实现模态路由系统（模态容器、模态栈、背景遮罩）
+- [ ] 03-05-PLAN.md — 创建使用示例和集成测试
 
 ### Phase 4: KeepAlive + Preload（性能优化）
 **Goal**: 实现路由缓存和智能预加载机制，提升应用性能和用户体验
@@ -122,7 +128,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 **Execution Order:**
 Phases execute in numeric order: 1 → 1.1 → 2 → 3 → 4 → 5
-
+| 3. Loader+Render+Data（组件加载系统） | 0/5 | Not started | - |
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Context（上下文传播） | 3/3 | ✅ Completed | 2026-04-07 |

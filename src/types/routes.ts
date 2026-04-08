@@ -15,11 +15,11 @@ export type { RouteData };
 /**
  * 组件加载器函数类型
  * 用于加载本地组件或远程 HTML 内容
- * @param component - 组件配置，可以是字符串（URL 或元素名）或函数（动态导入）
+ * @param view - 视图配置，可以是字符串（URL 或元素名）或函数（动态导入）
  * @returns 加载结果的 Promise
  */
 export type ComponentLoader = (
-    component: string | (() => Promise<any>)
+    view: string | (() => Promise<any>)
 ) => Promise<LoadResult>;
 
 /**
@@ -124,7 +124,7 @@ export interface RouteItem {
      * - string:  从此路径加载HTML内容，支持相对路径和绝对路径
      * - HTMLElement:  使用指定的HTMLElement元素作为路由显示组件
      */
-    component?: string | HTMLElement;
+    view?: string | HTMLElement;
 
     /**
      * 是否缓存此路由对应的组件实例，默认为 false
@@ -188,7 +188,7 @@ export interface RouteItem {
 
     /**
      * 远程 HTML 加载配置选项
-     * 当 component 是 URL 时生效
+     * 当 view 是 URL 时生效
      */
     remoteOptions?: RemoteLoadOptions;
 

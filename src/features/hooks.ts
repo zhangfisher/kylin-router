@@ -6,8 +6,8 @@
 
 import type { KylinRouter } from "@/router";
 import type { HookFunction, RouteItem, RouteData, RenderEachHook } from "@/types";
-import { HookTypeValues } from "@/types";
 import type { HookType } from "@/types";
+import { HookTypeValues } from "@/types/hooks";
 
 export class HookManager {
     /**
@@ -31,7 +31,7 @@ export class HookManager {
         this.hooks = {
             beforeEach: [],
             renderEach: [],
-            afterEach: []
+            afterEach: [],
         };
     }
 
@@ -64,7 +64,7 @@ export class HookManager {
         if (type) {
             this.hooks[type] = [];
         } else {
-            (Object.keys(this.hooks) as HookType[]).forEach(key => {
+            (Object.keys(this.hooks) as HookType[]).forEach((key) => {
                 this.hooks[key] = [];
             });
         }
@@ -77,11 +77,7 @@ export class HookManager {
      * @param from - 来源路由
      * @returns Promise<boolean | string> - 返回 false 表示取消导航，返回字符串表示重定向路径，返回 true 表示继续
      */
-    async executeHooks(
-        type: HookType,
-        to: RouteItem,
-        from: RouteItem
-    ): Promise<boolean | string> {
+    async executeHooks(type: HookType, to: RouteItem, from: RouteItem): Promise<boolean | string> {
         const hooks = this.hooks[type];
         if (hooks.length === 0) return true;
 
@@ -93,7 +89,7 @@ export class HookManager {
         for (const hook of hooks) {
             const result = await this.runHook(hook, to, from);
             if (result === false) return false;
-            if (typeof result === 'string') return result; // 重定向路径
+            if (typeof result === "string") return result; // 重定向路径
         }
         return true;
     }
@@ -108,14 +104,14 @@ export class HookManager {
     async executeAfterEachHooks(
         hooks: HookFunction[],
         to: RouteItem,
-        from: RouteItem
+        from: RouteItem,
     ): Promise<boolean> {
         for (const hook of hooks) {
             try {
                 await this.runAfterEachHook(hook, to, from);
             } catch (error) {
                 // afterEach 钩子出错不影响导航流程，只记录错误
-                console.error('[Router] afterEach hook error:', error);
+                console.error("[Router] afterEach hook error:", error);
             }
         }
         return true;
@@ -127,14 +123,10 @@ export class HookManager {
      * @param to - 目标路由
      * @param from - 来源路由
      */
-    async runAfterEachHook(
-        hook: HookFunction,
-        to: RouteItem,
-        from: RouteItem
-    ): Promise<void> {
+    async runAfterEachHook(hook: HookFunction, to: RouteItem, from: RouteItem): Promise<void> {
         return new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
-                console.error('[Router] afterEach hook timeout after 30000ms');
+                console.error("[Router] afterEach hook timeout after 30000ms");
                 resolve(); // 超时不阻塞
             }, 30000);
 
@@ -142,13 +134,15 @@ export class HookManager {
                 const result = hook(to, from, () => {}, this._router); // afterEach 不需要 next 回调
 
                 if (result instanceof Promise) {
-                    result.then(() => {
-                        clearTimeout(timeout);
-                        resolve();
-                    }).catch(error => {
-                        clearTimeout(timeout);
-                        reject(error);
-                    });
+                    result
+                        .then(() => {
+                            clearTimeout(timeout);
+                            resolve();
+                        })
+                        .catch((error) => {
+                            clearTimeout(timeout);
+                            reject(error);
+                        });
                 } else {
                     clearTimeout(timeout);
                     resolve();
@@ -167,11 +161,7 @@ export class HookManager {
      * @param from - 来源路由
      * @returns Promise<boolean | string> - 钩子执行结果
      */
-    async runHook(
-        hook: HookFunction,
-        to: RouteItem,
-        from: RouteItem
-    ): Promise<boolean | string> {
+    async runHook(hook: HookFunction, to: RouteItem, from: RouteItem): Promise<boolean | string> {
         return new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
                 reject(new Error(`Hook timeout after 30000ms`));
@@ -185,10 +175,12 @@ export class HookManager {
             try {
                 const result = hook(to, from, next, this._router);
                 if (result instanceof Promise) {
-                    result.then(() => clearTimeout(timeout)).catch(err => {
-                        clearTimeout(timeout);
-                        reject(err);
-                    });
+                    result
+                        .then(() => clearTimeout(timeout))
+                        .catch((err) => {
+                            clearTimeout(timeout);
+                            reject(err);
+                        });
                 }
             } catch (error) {
                 clearTimeout(timeout);
@@ -209,12 +201,12 @@ export class HookManager {
         matchedRoutes: any[],
         to: RouteItem,
         from: RouteItem,
-        guardType: 'beforeEnter' | 'afterLeave'
+        guardType: "beforeEnter" | "afterLeave",
     ): Promise<boolean | string> {
         // 从外到内执行父 → 子
         for (const matched of matchedRoutes) {
             const route = matched.route;
-            const guard = guardType === 'beforeEnter' ? route.beforeEnter : route.afterLeave;
+            const guard = guardType === "beforeEnter" ? route.beforeEnter : route.afterLeave;
 
             if (guard) {
                 try {
@@ -224,14 +216,14 @@ export class HookManager {
                         continue; // 继续执行下一个守卫
                     }
                     if (result === false) return false;
-                    if (typeof result === 'string') return result;
+                    if (typeof result === "string") return result;
                 } catch (error) {
                     console.error(`[Router] Route ${guardType} guard error:`, {
                         route: route.name,
                         guardType,
                         error,
                         to: to.path,
-                        from: from.path
+                        from: from.path,
                     });
                     return false; // 守卫失败，取消导航
                 }
@@ -252,7 +244,7 @@ export class HookManager {
         route: RouteItem,
         guard: (to: RouteItem, from: RouteItem) => any,
         to: RouteItem,
-        from: RouteItem
+        from: RouteItem,
     ): Promise<boolean | string> {
         return new Promise<boolean | string>((resolve) => {
             const timeout = setTimeout(() => {
@@ -270,25 +262,30 @@ export class HookManager {
                 } else if (result === false) {
                     clearTimeout(timeout);
                     resolve(false);
-                } else if (typeof result === 'string') {
+                } else if (typeof result === "string") {
                     clearTimeout(timeout);
                     resolve(result);
                 } else if (result instanceof Promise) {
                     // 处理异步返回值
-                    result.then((promiseResult: boolean | string) => {
-                        clearTimeout(timeout);
-                        if (promiseResult === undefined || promiseResult === true) {
-                            resolve(true);
-                        } else if (promiseResult === false) {
+                    result
+                        .then((promiseResult: boolean | string) => {
+                            clearTimeout(timeout);
+                            if (promiseResult === undefined || promiseResult === true) {
+                                resolve(true);
+                            } else if (promiseResult === false) {
+                                resolve(false);
+                            } else {
+                                resolve(promiseResult);
+                            }
+                        })
+                        .catch((error: unknown) => {
+                            clearTimeout(timeout);
+                            console.error(
+                                `[Router] Route guard execution error in ${route.name}:`,
+                                error,
+                            );
                             resolve(false);
-                        } else {
-                            resolve(promiseResult);
-                        }
-                    }).catch((error: unknown) => {
-                        clearTimeout(timeout);
-                        console.error(`[Router] Route guard execution error in ${route.name}:`, error);
-                        resolve(false);
-                    });
+                        });
                 } else {
                     clearTimeout(timeout);
                     resolve(true);
@@ -321,10 +318,7 @@ export class HookManager {
      * @param from - 来源路由
      * @returns Promise<RouteData | undefined> - 合并后的预加载数据
      */
-    async executeRenderEach(
-        to: RouteItem,
-        from: RouteItem
-    ): Promise<RouteData | undefined> {
+    async executeRenderEach(to: RouteItem, from: RouteItem): Promise<RouteData | undefined> {
         // 收集全局 renderEach 钩子
         const globalHooks = this.hooks[HookTypeValues.RENDER_EACH as HookType] as RenderEachHook[];
         // 收集路由级 renderEach 钩子
@@ -351,9 +345,9 @@ export class HookManager {
             } catch (error) {
                 errorCount++;
                 errors.push({ hook, error: error as Error });
-                console.error('[Router] renderEach hook failed:', {
+                console.error("[Router] renderEach hook failed:", {
                     route: to.name,
-                    error
+                    error,
                 });
                 // 继续执行下一个钩子（D-19）
             }
@@ -377,11 +371,11 @@ export class HookManager {
     async runRenderEachHook(
         hook: RenderEachHook,
         to: RouteItem,
-        from: RouteItem
+        from: RouteItem,
     ): Promise<RouteData | undefined> {
         return new Promise((resolve) => {
             const timeout = setTimeout(() => {
-                console.error('[Router] renderEach hook timeout after 30000ms');
+                console.error("[Router] renderEach hook timeout after 30000ms");
                 resolve(undefined); // 超时返回 undefined，不阻塞导航
             }, 30000);
 
@@ -395,14 +389,16 @@ export class HookManager {
 
                 // 支持直接返回数据
                 if (result instanceof Promise) {
-                    result.then(data => {
-                        clearTimeout(timeout);
-                        resolve(data || undefined);
-                    }).catch(error => {
-                        clearTimeout(timeout);
-                        console.error('[Router] renderEach hook execution error:', error);
-                        resolve(undefined);
-                    });
+                    result
+                        .then((data) => {
+                            clearTimeout(timeout);
+                            resolve(data || undefined);
+                        })
+                        .catch((error) => {
+                            clearTimeout(timeout);
+                            console.error("[Router] renderEach hook execution error:", error);
+                            resolve(undefined);
+                        });
                 } else if (result !== undefined) {
                     clearTimeout(timeout);
                     resolve(result);
@@ -410,7 +406,7 @@ export class HookManager {
                 // 如果调用 next()，由 next 回调处理
             } catch (error) {
                 clearTimeout(timeout);
-                console.error('[Router] renderEach hook sync error:', error);
+                console.error("[Router] renderEach hook sync error:", error);
                 resolve(undefined);
             }
         });
@@ -430,22 +426,25 @@ export class HookManager {
         hook: RenderEachHook,
         to: RouteItem,
         from: RouteItem,
-        maxRetries: number = 1
+        maxRetries: number = 1,
     ): Promise<RouteData | undefined> {
         for (let attempt = 0; attempt <= maxRetries; attempt++) {
             try {
                 return await this.runRenderEachHook(hook, to, from);
             } catch (error) {
                 if (attempt === maxRetries) {
-                    console.error(`[Router] renderEach hook failed after ${maxRetries + 1} attempts:`, {
-                        route: to.name,
-                        error
-                    });
+                    console.error(
+                        `[Router] renderEach hook failed after ${maxRetries + 1} attempts:`,
+                        {
+                            route: to.name,
+                            error,
+                        },
+                    );
                     throw error;
                 }
                 console.warn(`[Router] renderEach hook retry ${attempt + 1}/${maxRetries}`);
                 // 延迟重试，避免立即重试导致相同错误
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await new Promise((resolve) => setTimeout(resolve, 1000));
             }
         }
         return undefined;

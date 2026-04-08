@@ -92,7 +92,7 @@ describe("Loader - 组件加载系统", () => {
             expect(result.success).toBe(false);
             expect(result.content).toBeNull();
             expect(result.error).not.toBeNull();
-            expect(result.error?.message).toBe("Invalid component name");
+            expect(result.error?.message).toBe("Invalid view name");
         });
     });
 
@@ -309,7 +309,7 @@ describe("Loader - 组件加载系统", () => {
             expect(result.success).toBe(false);
             expect(result.content).toBeNull();
             expect(result.error).not.toBeNull();
-            expect(result.error?.message).toContain("Invalid component type");
+            expect(result.error?.message).toContain("Invalid view type");
         });
 
         it("应该拒绝 null 组件", async () => {
