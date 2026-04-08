@@ -118,12 +118,20 @@ export class Render {
     /**
      * 编译模板字符串为 lit 模板
      * @param htmlString - HTML 字符串
-     * @param context - 渲染上下文
+     * @param _context - 渲染上下文（未使用，使用增强上下文）
      * @returns lit 模板
      */
-    private compileTemplate(htmlString: string, context: RenderContext): any {
+    private compileTemplate(htmlString: string, _context: RenderContext): any {
+        // 创建增强的渲染上下文（包含快捷变量）
+        const route = this.router.routes.current.route;
+        if (!route) {
+            return html`${htmlString}`;
+        }
+
+        const enhancedContext = this.createEnhancedContext(route);
+
         // 使用模板变量插值系统
-        return this.interpolateTemplate(htmlString, context);
+        return this.interpolateTemplate(htmlString, enhancedContext);
     }
 
     /**
@@ -229,14 +237,94 @@ export class Render {
     }
 
     /**
-     * 模板变量插值（在 Task 3 中实现）
+     * 模板变量插值系统
+     * 支持 ${variable} 语法，自动从上下文中查找变量值
      * @param templateString - 模板字符串
-     * @param _context - 渲染上下文（未使用，保留用于未来扩展）
+     * @param context - 渲染上下文
      * @returns lit 模板
      */
-    private interpolateTemplate(templateString: string, _context: RenderContext): any {
-        // 简单实现：直接返回 HTML 字符串作为 unsafeHTML
-        // 在 Task 3 中将实现完整的插值系统
-        return html`${templateString}`;
+    private interpolateTemplate(templateString: string, context: RenderContext): any {
+        // 使用正则表达式匹配 ${} 占位符
+        const pattern = /\$\{([^}]+)\}/g;
+
+        // 替换所有占位符
+        let match;
+        const parts: string[] = [];
+        let lastIndex = 0;
+
+        while ((match = pattern.exec(templateString)) !== null) {
+            // 添加占位符前的文本
+            parts.push(templateString.slice(lastIndex, match.index));
+
+            // 获取变量路径
+            const variablePath = match[1].trim();
+
+            // 从上下文中获取变量值
+            const value = this.getVariableFromContext(context, variablePath);
+
+            // 将值转换为字符串（lit 会自动转义）
+            parts.push(String(value ?? ''));
+
+            lastIndex = match.index + match[0].length;
+        }
+
+        // 添加剩余文本
+        parts.push(templateString.slice(lastIndex));
+
+        // 返回组合后的 HTML 字符串
+        return html`${parts.join('')}`;
+    }
+
+    /**
+     * 从上下文中获取变量值
+     * 支持嵌套路径访问：user.name、route.data.userId
+     * @param context - 渲染上下文
+     * @param path - 变量路径
+     * @returns 变量值
+     */
+    private getVariableFromContext(context: RenderContext, path: string): any {
+        // 特殊变量快捷方式
+        if (path === 'params') {
+            return context.route.params || {};
+        }
+        if (path === 'query') {
+            return context.route.query || {};
+        }
+        if (path === 'router') {
+            return context.router;
+        }
+        if (path === 'route') {
+            return context.route;
+        }
+
+        // 支持嵌套路径：route.data.userId
+        const parts = path.split('.');
+        let value: any = context;
+
+        for (const part of parts) {
+            if (value == null) {
+                return undefined;
+            }
+            value = value[part];
+        }
+
+        return value;
+    }
+
+    /**
+     * 创建渲染上下文的辅助方法
+     * 提供特殊的快捷变量
+     * @param route - 当前路由对象
+     * @returns 增强的渲染上下文
+     */
+    private createEnhancedContext(route: RouteItem): RenderContext {
+        const baseContext = this.createRenderContext(route);
+
+        // 添加快捷变量
+        return {
+            ...baseContext,
+            params: route.params || {},
+            query: route.query || {}
+        };
     }
 }
