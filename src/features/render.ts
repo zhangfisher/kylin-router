@@ -8,7 +8,8 @@
 import { html, render } from "lit";
 import { triggerEvent } from "@/utils/triggerEvent";
 import type { KylinRouter } from "@/router";
-import type { LoadResult, RenderContext, RenderMode, RenderOptions, RouteItem } from "@/types";
+import type { RouteItem } from "@/types";
+import type { ViewLoadResult, RenderContext, RenderMode, RenderOptions } from "@/types/routes";
 
 export class Render {
     /**
@@ -19,7 +20,7 @@ export class Render {
      */
     async renderToOutlet(
         this: KylinRouter,
-        loadResult: LoadResult,
+        loadResult: ViewLoadResult,
         outlet: HTMLElement,
         options?: RenderOptions,
     ): Promise<void> {
@@ -53,13 +54,13 @@ export class Render {
                 this.renderElement(content, outlet, mode);
             } else {
                 // 远程 HTML 内容
-                const context = this.createRenderContext(route);
+                const context = this.createViewRenderContext(route);
                 const template = this.compileTemplate(content, context);
                 this.renderTemplate(template, context, outlet, mode);
             }
         } else {
             // TemplateResult：直接渲染
-            const context = this.createRenderContext(route);
+            const context = this.createViewRenderContext(route);
             this.renderTemplate(content, context, outlet, mode);
         }
     }
@@ -95,7 +96,7 @@ export class Render {
      * @param route - 当前路由对象
      * @returns 渲染上下文
      */
-    createRenderContext(this: KylinRouter, route: RouteItem): RenderContext {
+    protected createViewRenderContext(this: KylinRouter, route: RouteItem): RenderContext {
         // 创建基础上下文
         const context: RenderContext = {
             router: this,
@@ -315,7 +316,7 @@ export class Render {
      * @returns 增强的渲染上下文
      */
     private createEnhancedContext(this: KylinRouter, route: RouteItem): RenderContext {
-        const baseContext = this.createRenderContext(route);
+        const baseContext = this.createViewRenderContext(route);
 
         // 添加快捷变量
         return {

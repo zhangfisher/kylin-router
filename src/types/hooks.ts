@@ -2,7 +2,7 @@
  * 钩子系统相关类型定义
  */
 
-import type { RouteItem } from './routes';
+import type { RouteItem } from "./routes";
 
 // ============================================================================
 // 现有钩子类型（保留原有结构和功能）
@@ -21,7 +21,7 @@ export type BeforeEachHook = (
     to: RouteItem,
     from: RouteItem,
     next: (result?: boolean | string) => void,
-    router: any
+    router: any,
 ) => void | Promise<void>;
 
 /**
@@ -37,7 +37,7 @@ export type RenderEachHook = (
     to: RouteItem,
     from: RouteItem,
     next: (data?: RouteData) => void,
-    router: any
+    router: any,
 ) => void | Promise<void> | RouteData | Promise<RouteData>;
 
 /**
@@ -48,11 +48,7 @@ export type RenderEachHook = (
  * @param router - 路由器实例
  * @returns 可以返回 void 或 Promise<void>
  */
-export type AfterEachHook = (
-    to: RouteItem,
-    from: RouteItem,
-    router: any
-) => void | Promise<void>;
+export type AfterEachHook = (to: RouteItem, from: RouteItem, router: any) => void | Promise<void>;
 
 /**
  * 钩子集合对象类型
@@ -62,7 +58,7 @@ export type KylinRouterHooks = {
     beforeEach: BeforeEachHook[];
     renderEach: RenderEachHook[];
     afterEach: AfterEachHook[];
-}
+};
 
 /**
  * 钩子类型的键
@@ -92,7 +88,7 @@ export type HookFunction = (
     to: RouteItem,
     from: RouteItem,
     next: (result?: boolean | string) => void,
-    router: any
+    router: any,
 ) => void | Promise<void>;
 
 /**
@@ -115,18 +111,18 @@ export type HookFunction = (
  */
 export const HookTypeValues = {
     /** 导航前执行，可以取消导航或重定向 */
-    BEFORE_EACH: 'beforeEach',
+    BEFORE_EACH: "beforeEach",
     /** 渲染前执行，用于数据预取 */
-    RENDER_EACH: 'renderEach',
+    RENDER_EACH: "renderEach",
     /** 导航完成后执行 */
-    AFTER_EACH: 'afterEach'
+    AFTER_EACH: "afterEach",
 };
 
 /**
  * 钩子类型的值类型
  * 所有可能的钩子类型值的联合类型
  */
-export type HookType = 'beforeEach' | 'renderEach' | 'afterEach';
+export type HookType = "beforeEach" | "renderEach" | "afterEach";
 
 /**
  * 预加载的数据类型
@@ -136,4 +132,4 @@ export type HookType = 'beforeEach' | 'renderEach' | 'afterEach';
  * 这是一个灵活的数据类型，允许存储任意结构的数据。
  * 建议在具体应用中定义更精确的数据类型以获得更好的类型安全性。
  */
-export type RouteData = Record<string, any>;
+export type RouteData = Record<string, any> | (() => Promise<Record<string, any>>);

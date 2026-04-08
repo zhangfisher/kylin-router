@@ -268,7 +268,6 @@ export interface RouteItem {
      * 覆盖默认的超时配置
      */
     loaderTimeout?: number;
-
     /**
      * 渲染模式（可选）
      * 覆盖默认的渲染模式

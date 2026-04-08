@@ -7,14 +7,19 @@
  * @module features/loader
  */
 
-import type { LoadResult, RemoteLoadOptions } from "@/types/routes";
+import type { KylinRouter } from "@/router";
+import type { ViewLoadResult, RemoteLoadOptions } from "@/types/routes";
 
 /**
  * Loader 类 - 负责组件加载逻辑
  */
-export class Loader {
+export class ViewLoader {
     /** AbortController 用于取消加载请求 */
     protected abortController?: AbortController;
+    router: KylinRouter;
+    constructor(router: KylinRouter) {
+        this.router = router;
+    }
 
     /**
      * 主加载方法 - 根据 view 类型分发到不同加载策略
@@ -25,7 +30,7 @@ export class Loader {
     async loadView(
         view: string | (() => Promise<any>),
         options?: RemoteLoadOptions,
-    ): Promise<LoadResult> {
+    ): Promise<ViewLoadResult> {
         // 取消之前的加载请求
         if (this.abortController) {
             this.abortController.abort();
@@ -37,9 +42,9 @@ export class Loader {
             if (typeof view === "string") {
                 // 判断是否为 URL
                 if (this.isURL(view)) {
-                    return await this.loadRemoteHTML(view, options);
+                    return await this.loadRemoteView(view, options);
                 } else {
-                    return this.loadLocalComponent(view);
+                    return this.loadLocalView(view);
                 }
             } else if (typeof view === "function") {
                 return await this.loadDynamicImport(view);
@@ -64,7 +69,7 @@ export class Loader {
      * @param view - HTML 元素名（如 'div'、'my-component'）
      * @returns 加载结果
      */
-    private loadLocalComponent(view: string): LoadResult {
+    private loadLocalView(view: string): ViewLoadResult {
         // 验证元素名格式
         if (!view || typeof view !== "string") {
             return {
@@ -87,7 +92,7 @@ export class Loader {
      * @param importFn - 动态导入函数（如 () => import('./MyComponent.js')）
      * @returns 加载结果的 Promise
      */
-    private async loadDynamicImport(importFn: () => Promise<any>): Promise<LoadResult> {
+    private async loadDynamicImport(importFn: () => Promise<any>): Promise<ViewLoadResult> {
         try {
             // 调用动态导入函数
             const module = await importFn();
@@ -138,7 +143,10 @@ export class Loader {
      * @param options - 加载选项
      * @returns 加载结果的 Promise
      */
-    private async loadRemoteHTML(url: string, options?: RemoteLoadOptions): Promise<LoadResult> {
+    private async loadRemoteView(
+        url: string,
+        options?: RemoteLoadOptions,
+    ): Promise<ViewLoadResult> {
         const timeout = options?.timeout || 5000;
         const allowUnsafe = options?.allowUnsafeHTML || false;
 

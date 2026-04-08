@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
-import { Loader } from "@/features/loader";
-import type { LoadResult, RemoteLoadOptions } from "@/types/routes";
+import { ViewLoader } from "@/features/loader";
+import type { ViewLoadResult, RemoteLoadOptions } from "@/types/routes";
 
 /**
  * 创建测试用的 DOM 环境
@@ -56,13 +56,13 @@ function createMockRouter(): any {
 
 describe("Loader - 组件加载系统", () => {
     let host: HTMLElement;
-    let loader: Loader;
+    let loader: ViewLoader;
     let mockRouter: any;
 
     beforeEach(() => {
         host = createTestDOM();
         mockRouter = createMockRouter();
-        loader = new Loader(mockRouter);
+        loader = new ViewLoader(mockRouter);
     });
 
     afterEach(() => {
@@ -162,7 +162,7 @@ describe("Loader - 组件加载系统", () => {
                         headers: {
                             get: (name: string) => null,
                         },
-                        text: async () => '<div data-outlet>Outlet Content</div>',
+                        text: async () => "<div data-outlet>Outlet Content</div>",
                     } as Response;
                 } else if (url === "http://example.com/script.html") {
                     return {

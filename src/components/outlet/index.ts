@@ -71,7 +71,7 @@ export class KylinOutletElement extends KylinRouterElementBase {
         }
 
         // 获取组件加载结果
-        const loadResult = (this.router.routes.current.route as any).componentContent;
+        const loadResult = (this.router.routes.current.route as any).viewContent;
         if (!loadResult) {
             this._renderLoading();
             return;

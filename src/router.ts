@@ -47,7 +47,6 @@ export class KylinRouter extends Mixin(
     Context,
     KeepAlive,
     Transition,
-    DataLoader,
     Preload,
     Render,
     Model,
@@ -70,6 +69,9 @@ export class KylinRouter extends Mixin(
 
     /** 组件加载器 */
     private viewLoader: ViewLoader;
+
+    /** 数据加载器 */
+    private dataLoader: DataLoader;
 
     /** 是否正在导航 */
     isNavigating: boolean = false;
@@ -171,6 +173,9 @@ export class KylinRouter extends Mixin(
         // 初始化组件加载器
         this.viewLoader = new ViewLoader(this);
 
+        // 初始化数据加载器
+        this.dataLoader = new DataLoader(this);
+
         // 设置调试模式
         this.debug = this.options.debug || false;
     }
@@ -202,9 +207,6 @@ export class KylinRouter extends Mixin(
         // 取消旧请求，创建新的 AbortController（D-24）
         this.abortController.abort();
         this.abortController = new AbortController();
-
-        // 同步版本号到 DataLoader
-        (this as any).incrementNavVersion?.();
 
         // 设置导航状态
         this.isNavigating = true;
@@ -348,23 +350,17 @@ export class KylinRouter extends Mixin(
                 );
 
                 // 检查导航版本号（D-23）
-                if (!(this as any).checkNavVersion?.(currentVersion)) {
+                if (currentVersion !== this.currentNavVersion) {
                     this.log("组件加载: 导航版本号已变更，丢弃结果");
                     return;
                 }
 
                 if (loadResult.success) {
                     this.log("组件加载: 成功", loadResult.content);
-                    // 将加载的内容存储到 route.componentContent
-                    (this.routes.current.route as any).componentContent = loadResult.content;
+                    // 将加载的内容存储到 route.viewContent
+                    (this.routes.current.route as any).viewContent = loadResult.content;
                 } else {
                     this.log("组件加载: 失败", loadResult.error);
-
-                    // 使用 DataLoader 处理错误（Task 6）
-                    const targetOutlet = this.findOutletByPath(this.routes.current.route.path);
-                    if (targetOutlet && loadResult.error) {
-                        await (this as any).handleError(loadResult.error, this.routes.current.route, targetOutlet);
-                    }
 
                     // 组件加载失败，不继续后续流程
                     this.isNavigating = false;
@@ -373,7 +369,39 @@ export class KylinRouter extends Mixin(
             } else {
                 // HTMLElement 类型，直接存储
                 this.log("组件加载: HTMLElement 类型，直接使用");
-                (this.routes.current.route as any).componentContent = view;
+                (this.routes.current.route as any).viewContent = view;
+            }
+        }
+
+        // 数据加载步骤（在 renderEach 钩子前执行）
+        // 如果路由配置了 data，则加载数据到 route.data
+        if (this.routes.current.route?.data) {
+            this.log("数据加载: 开始加载路由数据");
+            try {
+                const dataResult = await this.dataLoader.loadData(
+                    this.routes.current.route,
+                    { signal: this.abortController.signal }
+                );
+
+                // 检查导航版本号（D-23）
+                if (currentVersion !== this.currentNavVersion) {
+                    this.log("数据加载: 导航版本号已变更，丢弃结果");
+                    return;
+                }
+
+                if (dataResult.success && dataResult.data) {
+                    this.log("数据加载: 成功", dataResult.data);
+                    // 将加载的数据存储到 route.data
+                    (this.routes.current.route as any).data = dataResult.data;
+                } else {
+                    this.log("数据加载: 失败", dataResult.error);
+                    // 数据加载失败不阻塞导航流程，继续使用空数据
+                    (this.routes.current.route as any).data = {};
+                }
+            } catch (error) {
+                console.error("数据加载异常:", error);
+                // 数据加载异常不阻塞导航流程
+                (this.routes.current.route as any).data = {};
             }
         }
 
@@ -388,16 +416,18 @@ export class KylinRouter extends Mixin(
             );
 
             // 检查导航版本号（D-23）
-            if (!(this as any).checkNavVersion?.(currentVersion)) {
+            if (currentVersion !== this.currentNavVersion) {
                 this.log("钩子执行: 导航版本号已变更，丢弃结果");
                 return;
             }
 
-            // 将预加载的数据存储到 route.data
+            // 将预加载的数据合并到 route.data
             // 遵循 D-20: 通过 route.data 传递给组件
             if (renderData) {
                 this.log("钩子结果: renderEach 返回数据", renderData);
-                (this.routes.current.route as any).data = renderData;
+                // 合并数据：route.data = loadDataResult ∪ renderData
+                const currentData = (this.routes.current.route as any).data || {};
+                (this.routes.current.route as any).data = { ...currentData, ...renderData };
             }
         }
 
@@ -583,7 +613,7 @@ export class KylinRouter extends Mixin(
         }
 
         // 获取组件加载结果
-        const loadResult = (route as any).componentContent;
+        const loadResult = (route as any).viewContent;
         if (!loadResult) {
             this.log("渲染流程: 无组件内容可渲染");
             return;
@@ -688,45 +718,6 @@ export class KylinRouter extends Mixin(
     }
 
     /**
-     * 手动重试加载（Task 6）
-     * @param route - 目标路由（可选，默认使用当前路由）
-     */
-    async retryLoad(route?: RouteItem): Promise<void> {
-        const targetRoute = route || this.routes.current.route;
-        if (!targetRoute) return;
-
-        const targetOutlet = this.findOutletByPath(targetRoute.path);
-        if (!targetOutlet) return;
-
-        // 获取重试配置
-        const retryConfig = (targetRoute as any).retry || { max: 3, delay: 1000, backoff: "linear" };
-
-        try {
-            // 调用 DataLoader 的重试方法
-            const result = await (this as any).retryLoad(targetRoute, targetOutlet, retryConfig);
-
-            if (result.success) {
-                // 重试成功，渲染组件
-                await (this as any).renderToOutlet(result, targetOutlet, { mode: "replace" });
-            }
-        } catch (error) {
-            console.error("重试加载失败:", error);
-        }
-    }
-
-    /**
-     * 获取错误边界配置（Task 6）
-     * @param route - 目标路由
-     * @returns 错误边界配置
-     */
-    getErrorConfig(route: RouteItem): any {
-        return (route as any).errorBoundary || {
-            component: this.options.defaultErrorComponent,
-            retry: true,
-        };
-    }
-
-    /**
      * 解除 router 与 host 的绑定并清理所有监听器
      */
     detach(): void {
@@ -740,6 +731,9 @@ export class KylinRouter extends Mixin(
 
         // 清理 Loader 资源
         this.viewLoader.cleanup();
+
+        // 清理 DataLoader 资源
+        this.dataLoader.cleanup();
 
         // 清理 AbortController
         this.abortController.abort();
