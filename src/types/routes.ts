@@ -4,9 +4,72 @@
 
 import type { RenderEachHook, RouteData } from './hooks';
 import type { TemplateResult } from 'lit';
+import type { KylinRouter } from '@/router';
 
 // 重新导出 RouteData 以保持向后兼容
 export type { RouteData };
+
+// ============================================================================
+// 渲染系统相关类型定义
+// ============================================================================
+
+/**
+ * 渲染模式枚举
+ * - replace: 替换模式，新内容替换 outlet 中的旧内容（默认）
+ * - append: 追加模式，新内容添加到现有内容之后
+ */
+export type RenderMode = 'replace' | 'append';
+
+/**
+ * 模板数据类型
+ * 用于存储模板变量和对应的值
+ */
+export type TemplateData = Record<string, any>;
+
+/**
+ * 渲染上下文接口
+ * 提供模板渲染时所需的上下文数据
+ */
+export interface RenderContext {
+    /**
+     * 路由器实例
+     */
+    router: KylinRouter;
+
+    /**
+     * 当前路由对象，包含预加载的数据
+     */
+    route: RouteItem & {
+        data?: RouteData;
+    };
+
+    /**
+     * route.data 的字段会被展开为局部变量
+     * 允许通过键值对访问其他上下文数据
+     */
+    [key: string]: any;
+}
+
+/**
+ * 渲染选项接口
+ * 配置组件渲染行为
+ */
+export interface RenderOptions {
+    /**
+     * 渲染模式（默认 replace）
+     */
+    mode?: RenderMode;
+
+    /**
+     * 目标 outlet 元素
+     */
+    outlet?: HTMLElement;
+
+    /**
+     * lit 模板（可选）
+     */
+    template?: TemplateResult;
+}
 
 // ============================================================================
 // 组件加载相关类型定义
@@ -197,6 +260,14 @@ export interface RouteItem {
      * 覆盖默认的超时配置
      */
     loaderTimeout?: number;
+
+    /**
+     * 渲染模式（可选）
+     * 覆盖默认的渲染模式
+     * - replace: 替换模式（默认）
+     * - append: 追加模式
+     */
+    renderMode?: RenderMode;
 }
 
 /**
