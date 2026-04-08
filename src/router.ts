@@ -6,7 +6,6 @@ import { HookType } from "./types/index";
 import { Mixin } from "ts-mixer";
 import {
     Context,
-    Hooks,
     KeepAlive,
     Transition,
     Preload,
@@ -16,6 +15,7 @@ import {
     Redirect,
     Routes,
 } from "./features";
+import { HookManager } from "./features/hooks";
 import { createHashHistoryFromLib } from "@/utils/hashUtils";
 import { isRouteItem } from "./utils/isRouteItem";
 
@@ -42,7 +42,7 @@ function isKylinRouterOptions(obj: unknown): obj is KylinRouterOptiopns {
  */
 export class KylinRouter extends Mixin(
     Context,
-    Hooks,
+    // Hooks,  // 移除 Hooks mixin
     KeepAlive,
     Transition,
     DataLoader,
@@ -64,6 +64,9 @@ export class KylinRouter extends Mixin(
     public notFound?: RouteItem;
     public defaultRoute?: string;
     public _redirectCount: number = 0;
+
+    /** 钩子管理器 */
+    public hooks: HookManager;
 
     /** 是否正在导航 */
     isNavigating: boolean = false;
@@ -131,6 +134,9 @@ export class KylinRouter extends Mixin(
             resolvedOptions.defaultRoute,
         );
 
+        // 初始化钩子管理器
+        this.hooks = new HookManager(this);
+
         // 设置调试模式
         this.debug = resolvedOptions.debug || false;
 
@@ -188,11 +194,10 @@ export class KylinRouter extends Mixin(
         // 执行 beforeEach 钩子
         this.debugLog('钩子执行: beforeEach');
         try {
-            const beforeEachResult = await this.executeHooks(
+            const beforeEachResult = await this.hooks.executeHooks(
                 HookType.BEFORE_EACH,
                 toRoute,
-                fromRoute,
-                this
+                fromRoute
             );
 
             if (beforeEachResult === false) {
@@ -229,11 +234,10 @@ export class KylinRouter extends Mixin(
 
         // 执行路由级 beforeEnter 守卫（父优先）
         if (this.current.route && matchedRoutes.length > 0) {
-            const beforeEnterResult = await this.executeRouteGuards(
-                this.getOrderedMatchedRoutes(matchedRoutes),
+            const beforeEnterResult = await this.hooks.executeRouteGuards(
+                this.hooks.getOrderedMatchedRoutes(matchedRoutes),
                 this.current.route,
                 fromRoute,
-                this,
                 'beforeEnter'
             );
 
@@ -256,10 +260,9 @@ export class KylinRouter extends Mixin(
         // 遵循 D-19: 失败时继续渲染组件
         if (this.current.route) {
             this.debugLog('钩子执行: renderEach');
-            const renderData = await this.executeRenderEach(
+            const renderData = await this.hooks.executeRenderEach(
                 this.current.route,
-                fromRoute,
-                this
+                fromRoute
             );
 
             // 将预加载的数据存储到 route.data
@@ -286,11 +289,10 @@ export class KylinRouter extends Mixin(
         // 执行 afterEach 钩子
         this.debugLog('钩子执行: afterEach');
         try {
-            await this.executeHooks(
+            await this.hooks.executeHooks(
                 HookType.AFTER_EACH,
                 toRoute,
-                fromRoute,
-                this
+                fromRoute
             );
         } catch (error) {
             console.error('Error in afterEach hooks:', error);
@@ -301,11 +303,10 @@ export class KylinRouter extends Mixin(
         // 执行 afterLeave 守卫（异步执行，不阻塞导航）
         if (this.previousRoute) {
             const previousMatched = [{ route: this.previousRoute, params: {}, remainingPath: '' }];
-            this.executeRouteGuards(
-                this.getOrderedMatchedRoutes(previousMatched),
+            this.hooks.executeRouteGuards(
+                this.hooks.getOrderedMatchedRoutes(previousMatched),
                 toRoute,
                 this.previousRoute,
-                this,
                 'afterLeave'
             ).catch(error => {
                 console.error('Error in afterLeave guards:', error);
