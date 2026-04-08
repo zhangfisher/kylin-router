@@ -197,4 +197,112 @@ describe("KylinRouter attach/detach 功能", () => {
             expect(() => router.attach(null as any)).toThrow();
         });
     });
+
+    describe("任务 3: detach() 方法和路由方法状态检查", () => {
+        it("测试 1: detach() 调用后 attached 应为 false", async () => {
+            router = await createRouter({ routes });
+            router.attach(host);
+
+            expect(router.attached).toBe(true);
+
+            router.detach();
+
+            expect(router.attached).toBe(false);
+        });
+
+        it("测试 2: detach() 应清理 history 监听器", async () => {
+            router = await createRouter({ routes });
+            router.attach(host);
+
+            expect(router["_cleanups"].length).toBeGreaterThan(0);
+
+            router.detach();
+
+            expect(router["_cleanups"].length).toBe(0);
+        });
+
+        it("测试 3: detach() 应移除 context provider", async () => {
+            router = await createRouter({ routes });
+            router.attach(host);
+
+            // Mock removeContextProvider 方法来验证调用
+            let removeContextCalled = false;
+            const originalRemoveContext = router.removeContextProvider.bind(router);
+            router.removeContextProvider = () => {
+                removeContextCalled = true;
+                originalRemoveContext();
+            };
+
+            router.detach();
+
+            expect(removeContextCalled).toBe(true);
+        });
+
+        it("测试 4: detach() 应清理 host 上的 router 引用", async () => {
+            router = await createRouter({ routes });
+            router.attach(host);
+
+            expect((host as any).router).toBe(router);
+
+            router.detach();
+
+            expect((host as any).router).toBeUndefined();
+            expect(host.hasAttribute("data-kylin-router")).toBe(false);
+        });
+
+        it("测试 5: 未 attached 时调用 push 应抛出错误", async () => {
+            router = await createRouter({ routes });
+
+            expect(() => router.push("/user")).toThrow("[KylinRouter] Cannot navigate: router is not attached");
+        });
+
+        it("测试 6: 未 attached 时调用 replace 应抛出错误", async () => {
+            router = await createRouter({ routes });
+
+            expect(() => router.replace("/user")).toThrow("[KylinRouter] Cannot navigate: router is not attached");
+        });
+
+        it("测试 7: 未 attached 时调用 back 应抛出错误", async () => {
+            router = await createRouter({ routes });
+
+            expect(() => router.back()).toThrow("[KylinRouter] Cannot navigate: router is not attached");
+        });
+
+        it("测试 8: 未 attached 时调用 forward 应抛出错误", async () => {
+            router = await createRouter({ routes });
+
+            expect(() => router.forward()).toThrow("[KylinRouter] Cannot navigate: router is not attached");
+        });
+
+        it("测试 9: 未 attached 时调用 go 应抛出错误", async () => {
+            router = await createRouter({ routes });
+
+            expect(() => router.go(1)).toThrow("[KylinRouter] Cannot navigate: router is not attached");
+        });
+
+        it("测试 10: detach() 后再 attach 应该正常工作", async () => {
+            router = await createRouter({ routes });
+
+            // 第一次 attach
+            router.attach(host);
+            expect(router.attached).toBe(true);
+
+            // detach
+            router.detach();
+            expect(router.attached).toBe(false);
+
+            // 第二次 attach（使用新的 host）
+            const newHost = document.createElement("div");
+            // @ts-ignore
+            document.body.appendChild(newHost);
+
+            router.attach(newHost);
+            expect(router.attached).toBe(true);
+            expect(router.host).toBe(newHost);
+
+            // 清理
+            // @ts-ignore
+            document.body.removeChild(newHost);
+        });
+    });
 });
