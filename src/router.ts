@@ -95,6 +95,11 @@ export class KylinRouter extends Mixin(
     constructor(host: HTMLElement, options: KylinRouterOptiopns | KylinRouterOptiopns["routes"] = []) {
         super();
 
+        // 验证 host 参数
+        if (!(host instanceof HTMLElement)) {
+            throw new Error("[KylinRouter] Host must be a valid HTMLElement");
+        }
+
         // 规范化 options 参数（D-17: 支持多种路由配置格式）
         let resolvedOptions: KylinRouterOptiopns;
 

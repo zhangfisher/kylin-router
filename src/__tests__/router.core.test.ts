@@ -39,8 +39,8 @@ function createTestDOM() {
  */
 async function createRouter(host: HTMLElement, options: any) {
     const { KylinRouter } = await import("@/router");
-    const router = new KylinRouter(options);
-    router.attach(host);
+    const router = new KylinRouter(host, options);
+    router.attach();
     return router;
 }
 

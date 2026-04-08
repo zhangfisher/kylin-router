@@ -1,3 +1,4 @@
+export * from "./emitter";
 export * from "./hashUtils";
 export * from "./joinPath";
 export * from "./matchRoute";

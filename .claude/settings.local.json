@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(ls -la \"c:/Work/Code/kylin-router/src/types\"*)"
+      "Bash(ls -la \"c:/Work/Code/kylin-router/src/types\"*)",
+      "Bash(bun node:*)",
+      "Bash(bun tsc:*)",
+      "Bash(sed -i 's/createRouter\\({ routes/createRouter\\(host, { routes/g' src/__tests__/router.attach.test.ts)",
+      "Bash(sed -i 's/createRouter\\({/createRouter\\(host, {/g' src/__tests__/router.attach.test.ts)",
+      "Bash(sed -i 's/router\\\\.attach\\(host\\);/router.attach\\(\\);/g' src/__tests__/router.attach.test.ts)",
+      "Bash(node .claude/get-shit-done/bin/gsd-tools.cjs state advance-plan)"
     ]
   }
 }
