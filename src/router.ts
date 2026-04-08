@@ -19,7 +19,7 @@ import { RouteRegistry } from "./features/routes";
 import { createHashHistoryFromLib } from "@/utils/hashUtils";
 import { isRouteItem } from "./utils/isRouteItem";
 import { Emitter } from "./features/emitter";
-import { triggerEvent } from "./utils/triggerEvent";
+import { Loader } from "./features/loader";
 
 /**
  * 类型守卫：检查对象是否为完整的 KylinRouterOptiopns
@@ -66,6 +66,9 @@ export class KylinRouter extends Mixin(
 
     /** 钩子管理器 */
     public hooks: HookManager;
+
+    /** 组件加载器 */
+    private loader: Loader;
 
     /** 是否正在导航 */
     isNavigating: boolean = false;
@@ -157,6 +160,9 @@ export class KylinRouter extends Mixin(
 
         // 初始化钩子管理器
         this.hooks = new HookManager(this);
+
+        // 初始化组件加载器
+        this.loader = new Loader(this);
 
         // 设置调试模式
         this.debug = this.options.debug || false;
@@ -309,6 +315,54 @@ export class KylinRouter extends Mixin(
             }
         }
 
+        // 组件加载步骤（在 renderEach 钩子前执行）
+        // 遵循导航流程：路由匹配 → 守卫执行 → 组件加载 → renderEach → 渲染
+        if (this.routes.current.route?.component) {
+            this.log("组件加载: 开始加载组件");
+            const component = this.routes.current.route.component;
+
+            // 处理不同类型的 component
+            if (typeof component === "string" || typeof component === "function") {
+                // string 或 function 类型，使用 Loader 加载
+                const loadResult = await this.loader.loadComponent(
+                    component,
+                    (this.routes.current.route as any).remoteOptions
+                );
+
+                if (loadResult.success) {
+                    this.log("组件加载: 成功", loadResult.content);
+                    // 将加载的内容存储到 route.componentContent
+                    (this.routes.current.route as any).componentContent = loadResult.content;
+                } else {
+                    this.log("组件加载: 失败", loadResult.error);
+                    // 触发组件加载错误事件
+                    this.emit("component-load-error" as any, {
+                        route: this.routes.current.route,
+                        error: loadResult.error,
+                    });
+
+                    // 使用 notFound 组件作为回退
+                    if (this.options.notFound) {
+                        this.log("组件加载: 使用 notFound 组件作为回退");
+                        const notFoundComponent = this.options.notFound.component;
+                        if (notFoundComponent && (typeof notFoundComponent === "string" || typeof notFoundComponent === "function")) {
+                            const notFoundResult = await this.loader.loadComponent(
+                                notFoundComponent,
+                                (this.options.notFound as any).remoteOptions
+                            );
+                            if (notFoundResult.success) {
+                                (this.routes.current.route as any).componentContent = notFoundResult.content;
+                            }
+                        }
+                    }
+                }
+            } else {
+                // HTMLElement 类型，直接存储
+                this.log("组件加载: HTMLElement 类型，直接使用");
+                (this.routes.current.route as any).componentContent = component;
+            }
+        }
+
         // 执行 renderEach 钩子（数据预加载）
         // 遵循 D-18: 在组件加载后、渲染前执行
         // 遵循 D-19: 失败时继续渲染组件
@@ -328,8 +382,8 @@ export class KylinRouter extends Mixin(
         }
 
         // 触发 route-change 事件（用于后续的组件渲染）
-        triggerEvent(this.host, "route-change", {
-            route: this.routes.current.route,
+        this.emit("route-change", {
+            route: this.routes.current.route || undefined,
             params: this.routes.current.params,
             query: this.routes.current.query,
             location: location,
@@ -365,7 +419,7 @@ export class KylinRouter extends Mixin(
         }
 
         // 触发 navigation-end 事件
-        triggerEvent(this.host, "navigation-end", {
+        this.emit("navigation-end", {
             location: location,
             navigationType: this._pendingNavigationType || "pop",
         });
@@ -420,7 +474,7 @@ export class KylinRouter extends Mixin(
         this._pendingNavigationType = "push";
         this.log(`导航方法: push(${path})`);
         // 触发 navigation-start 事件
-        triggerEvent(this.host, "navigation-start", {
+        this.emit("navigation-start", {
             path,
             navigationType: "push",
         });
@@ -429,14 +483,13 @@ export class KylinRouter extends Mixin(
         } else {
             this.history.push(path);
         }
-        this.emit("navigation-start", { path });
     }
     replace(path: string, state?: unknown) {
         this._ensureAttached();
         this._pendingNavigationType = "replace";
         this.log(`导航方法: replace(${path})`);
         // 触发 navigation-start 事件
-        triggerEvent(this.host, "navigation-start", {
+        this.emit("navigation-start", {
             path,
             navigationType: "replace",
         });
@@ -445,14 +498,13 @@ export class KylinRouter extends Mixin(
         } else {
             this.history.replace(path);
         }
-        this.emit("navigation-start", { path });
     }
     back() {
         this._ensureAttached();
         this._pendingNavigationType = "pop";
         this.log("导航方法: back()");
         // 触发 navigation-start 事件
-        triggerEvent(this.host, "navigation-start", {
+        this.emit("navigation-start", {
             path: undefined,
             navigationType: "pop",
         });
@@ -463,7 +515,7 @@ export class KylinRouter extends Mixin(
         this._pendingNavigationType = "pop";
         this.log("导航方法: forward()");
         // 触发 navigation-start 事件
-        triggerEvent(this.host, "navigation-start", {
+        this.emit("navigation-start", {
             path: undefined,
             navigationType: "pop",
         });
@@ -474,7 +526,7 @@ export class KylinRouter extends Mixin(
         this._pendingNavigationType = "pop";
         this.log(`导航方法: go(${delta})`);
         // 触发 navigation-start 事件
-        triggerEvent(this.host, "navigation-start", {
+        this.emit("navigation-start", {
             path: undefined,
             navigationType: "pop",
         });
@@ -492,6 +544,9 @@ export class KylinRouter extends Mixin(
         // 清理所有副作用
         this._cleanups.forEach((unsubscribe) => unsubscribe());
         this._cleanups = [];
+
+        // 清理 Loader 资源
+        this.loader.cleanup();
 
         // 移除 context provider
         this.removeContextProvider();
