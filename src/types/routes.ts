@@ -4,6 +4,9 @@
 
 import type { RenderEachHook, RouteData } from './hooks';
 
+// 重新导出 RouteData 以保持向后兼容
+export type { RouteData };
+
 /**
  * 路由配置项
  */
