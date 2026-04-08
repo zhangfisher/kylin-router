@@ -77,16 +77,11 @@ export class KylinOutletElement extends KylinRouterElementBase {
             return;
         }
 
-        // 渲染组件（Task 5 中会集成 Render 类）
+        // 渲染组件（Task 5：已集成 Render 类）
         try {
-            // TODO: 在 Task 5 中启用以下代码
-            // await this.router.render.renderToOutlet(loadResult, this, {
-            //     mode: this.renderMode || (route as any).renderMode,
-            //     outlet: this
-            // });
-
-            // 临时占位：显示加载的内容信息
-            this.innerHTML = `<div class="kylin-outlet-placeholder">Outlet: ${this.path || 'default'} - Route: ${route.name}</div>`;
+            await (this.router as any).renderToOutlet(loadResult, this, {
+                mode: this.renderMode || (route as any).renderMode
+            });
         } catch (error) {
             this._renderError(error instanceof Error ? error.message : 'Render failed');
         }

@@ -16,10 +16,14 @@ import type {
 } from "@/types";
 
 export class Render {
+    /**
+     * 初始化 Render 类
+     * @param router - KylinRouter 实例
+     */
     constructor(private router: KylinRouter) {}
 
     /**
-     * 主渲染方法 - 根据 LoadResult 渲染到 outlet
+     * 主渲染方法 - 根据 LoadResult 渲染到 outlet（公共方法）
      * @param loadResult - 组件加载结果
      * @param outlet - 目标 outlet 元素
      * @param options - 渲染选项
@@ -96,7 +100,7 @@ export class Render {
     }
 
     /**
-     * 创建渲染上下文
+     * 创建渲染上下文（公共方法）
      * @param route - 当前路由对象
      * @returns 渲染上下文
      */

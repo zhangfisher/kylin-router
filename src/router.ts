@@ -381,6 +381,20 @@ export class KylinRouter extends Mixin(
             }
         }
 
+        // 执行渲染步骤（Task 5：集成渲染流程）
+        // 导航流程：路由匹配 → 守卫执行 → 组件加载 → renderEach → 渲染 → 完成
+        if (this.routes.current.route) {
+            this.log("渲染流程: 开始渲染组件");
+            try {
+                await this.renderToOutlets();
+                this.log("渲染流程: 渲染完成");
+            } catch (error) {
+                console.error("渲染流程失败:", error);
+                this.log("渲染流程: 渲染失败", error);
+                // 渲染失败不阻塞导航流程
+            }
+        }
+
         // 触发 route-change 事件（用于后续的组件渲染）
         this.emit("route-change", {
             route: this.routes.current.route || undefined,
@@ -531,6 +545,90 @@ export class KylinRouter extends Mixin(
             navigationType: "pop",
         });
         this.history.go(delta);
+    }
+
+    /**
+     * 渲染到所有匹配的 outlet（Task 5：集成渲染流程）
+     * 支持并行渲染策略（D-05）
+     */
+    private async renderToOutlets(): Promise<void> {
+        const route = this.routes.current.route;
+        if (!route) return;
+
+        // 查找所有 outlet 元素
+        const outlets = this.findOutlets();
+        if (outlets.length === 0) {
+            this.log("渲染流程: 未找到 outlet 元素");
+            return;
+        }
+
+        // 获取组件加载结果
+        const loadResult = (route as any).componentContent;
+        if (!loadResult) {
+            this.log("渲染流程: 无组件内容可渲染");
+            return;
+        }
+
+        // 并行渲染到所有匹配的 outlet（D-05）
+        const renderPromises = outlets.map(async (outlet) => {
+            // 检查 outlet 是否匹配当前路由
+            if (outlet.path && !this._outletMatchesRoute(outlet, route)) {
+                return;
+            }
+
+            try {
+                // 使用 Render 类渲染组件
+                await this.renderToOutlet(loadResult, outlet, route);
+            } catch (error) {
+                console.error(`渲染 outlet [${outlet.path || 'default'}] 失败:`, error);
+            }
+        });
+
+        // 等待所有渲染完成（并行渲染）
+        await Promise.all(renderPromises);
+    }
+
+    /**
+     * 检查 outlet 是否匹配当前路由
+     */
+    private _outletMatchesRoute(outlet: any, route: RouteItem): boolean {
+        if (!outlet.path) return true;
+        return route.path === outlet.path || route.path.startsWith(outlet.path + '/');
+    }
+
+    /**
+     * 渲染组件到指定 outlet
+     */
+    private async renderToOutlet(loadResult: any, outlet: any, route: RouteItem): Promise<void> {
+        // 调用 Render 类的 renderToOutlet 方法（Render 是通过 Mixin 继承的）
+        // 使用类型断言访问 mixin 方法
+        await (this as any).renderToOutlet(loadResult, outlet, {
+            mode: (route as any).renderMode
+        });
+    }
+
+    /**
+     * 查找所有 outlet 元素
+     */
+    findOutlets(): any[] {
+        return Array.from(this.host.querySelectorAll('kylin-outlet'));
+    }
+
+    /**
+     * 查找指定路径的 outlet
+     */
+    findOutletByPath(path: string): any | null {
+        const outlets = this.findOutlets();
+        return outlets.find((outlet: any) => outlet.path === path) || null;
+    }
+
+    /**
+     * 获取当前渲染上下文（公共方法）
+     */
+    get renderContext(): any | null {
+        if (!this.routes.current.route) return null;
+        // 调用 Render 类的 createRenderContext 方法（Render 是通过 Mixin 继承的）
+        return (this as any).createRenderContext(this.routes.current.route);
     }
 
     /**
