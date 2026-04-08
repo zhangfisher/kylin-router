@@ -12,7 +12,7 @@ import {
     Render,
     DataLoader,
     Model,
-    Loader,
+    ViewLoader,
     Emitter,
     Redirect,
 } from "./features";
@@ -69,7 +69,7 @@ export class KylinRouter extends Mixin(
     public hooks: HookManager;
 
     /** 组件加载器 */
-    private loader: Loader;
+    private viewLoader: ViewLoader;
 
     /** 是否正在导航 */
     isNavigating: boolean = false;
@@ -93,6 +93,12 @@ export class KylinRouter extends Mixin(
 
     /** 是否已绑定到 DOM */
     public attached: boolean = false;
+
+    /** 当前导航版本号（D-23） */
+    public currentNavVersion: number = 0;
+
+    /** AbortController 用于取消进行中的请求（D-24） */
+    private abortController: AbortController = new AbortController();
 
     /**
      * 构造函数 - 仅负责配置初始化，不操作 DOM
@@ -163,7 +169,7 @@ export class KylinRouter extends Mixin(
         this.hooks = new HookManager(this);
 
         // 初始化组件加载器
-        this.loader = new Loader(this);
+        this.viewLoader = new ViewLoader(this);
 
         // 设置调试模式
         this.debug = this.options.debug || false;
@@ -189,6 +195,17 @@ export class KylinRouter extends Mixin(
      * 执行路由匹配和参数提取
      */
     async onRouteUpdate(location: Update) {
+        // 递增导航版本号（D-23）
+        this.currentNavVersion++;
+        const currentVersion = this.currentNavVersion;
+
+        // 取消旧请求，创建新的 AbortController（D-24）
+        this.abortController.abort();
+        this.abortController = new AbortController();
+
+        // 同步版本号到 DataLoader
+        (this as any).incrementNavVersion?.();
+
         // 设置导航状态
         this.isNavigating = true;
 
@@ -325,10 +342,16 @@ export class KylinRouter extends Mixin(
             // 处理不同类型的 view
             if (typeof view === "string" || typeof view === "function") {
                 // string 或 function 类型，使用 Loader 加载
-                const loadResult = await this.loader.loadView(
+                const loadResult = await this.viewLoader.loadView(
                     view,
                     (this.routes.current.route as any).remoteOptions,
                 );
+
+                // 检查导航版本号（D-23）
+                if (!(this as any).checkNavVersion?.(currentVersion)) {
+                    this.log("组件加载: 导航版本号已变更，丢弃结果");
+                    return;
+                }
 
                 if (loadResult.success) {
                     this.log("组件加载: 成功", loadResult.content);
@@ -350,7 +373,7 @@ export class KylinRouter extends Mixin(
                             notFoundView &&
                             (typeof notFoundView === "string" || typeof notFoundView === "function")
                         ) {
-                            const notFoundResult = await this.loader.loadView(
+                            const notFoundResult = await this.viewLoader.loadView(
                                 notFoundView,
                                 (this.options.notFound as any).remoteOptions,
                             );
@@ -377,6 +400,12 @@ export class KylinRouter extends Mixin(
                 this.routes.current.route,
                 fromRoute,
             );
+
+            // 检查导航版本号（D-23）
+            if (!(this as any).checkNavVersion?.(currentVersion)) {
+                this.log("钩子执行: 导航版本号已变更，丢弃结果");
+                return;
+            }
 
             // 将预加载的数据存储到 route.data
             // 遵循 D-20: 通过 route.data 传递给组件
@@ -606,7 +635,6 @@ export class KylinRouter extends Mixin(
      */
     private async renderToOutlet(loadResult: any, outlet: any, route: RouteItem): Promise<void> {
         // 调用 Render 类的 renderToOutlet 方法（Render 是通过 Mixin 继承的）
-        // 使用类型断言访问 mixin 方法
         await (this as any).renderToOutlet(loadResult, outlet, {
             mode: (route as any).renderMode,
         });
@@ -649,7 +677,10 @@ export class KylinRouter extends Mixin(
         this._cleanups = [];
 
         // 清理 Loader 资源
-        this.loader.cleanup();
+        this.viewLoader.cleanup();
+
+        // 清理 AbortController
+        this.abortController.abort();
 
         // 移除 context provider
         this.removeContextProvider();
