@@ -17,6 +17,11 @@ import type { ViewLoadResult } from "@/types/routes";
 import { html, render } from "lit";
 
 /**
+ * 导航版本号，用于竞态控制
+ */
+let currentNavVersion: NavigationVersion = 0;
+
+/**
  * 错误组件的属性接口
  */
 interface ErrorComponentProps {
@@ -194,6 +199,137 @@ export class DataLoader {
 
         if (this.router.debug) {
             console.error("错误堆栈:", error.stack);
+        }
+    }
+
+    /**
+     * 重试加载组件（D-14）
+     * @param route - 目标路由
+     * @param outlet - 目标 outlet 元素
+     * @param config - 重试配置
+     * @returns 加载结果
+     */
+    async retryLoad(route: RouteItem, outlet: HTMLElement, config: RetryConfig): Promise<ViewLoadResult> {
+        const maxRetries = config.max || 3;
+        const baseDelay = config.delay || 1000;
+        const backoff = config.backoff || "linear";
+
+        // 保存当前导航版本号
+        const startVersion = currentNavVersion;
+
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                // 检查导航版本号（D-23）
+                if (!this.checkNavVersion(startVersion)) {
+                    throw new Error("Navigation version changed, retry cancelled");
+                }
+
+                // 创建新的 AbortController（D-24）
+                if (this.abortController) {
+                    this.abortController.abort();
+                }
+                this.abortController = new AbortController();
+
+                // 加载组件
+                const view = route.view;
+                if (!view) {
+                    throw new Error("No view to load");
+                }
+
+                const result = await this.router.viewLoader.loadView(view, route.remoteOptions, {
+                    signal: this.abortController.signal,
+                });
+
+                if (result.success) {
+                    return result;
+                }
+
+                // 加载失败，检查是否需要重试
+                if (attempt === maxRetries) {
+                    return result;
+                }
+
+                // 触发重试回调
+                config.onRetry?.(attempt, result.error || new Error("Load failed"));
+
+                // 延迟后重试
+                await this.delay(baseDelay, attempt, backoff);
+            } catch (error) {
+                if (attempt === maxRetries) {
+                    return {
+                        success: false,
+                        content: null,
+                        error: error instanceof Error ? error : new Error(String(error)),
+                    };
+                }
+
+                // 触发重试回调
+                config.onRetry?.(attempt, error instanceof Error ? error : new Error(String(error)));
+
+                // 延迟后重试
+                await this.delay(baseDelay, attempt, backoff);
+            }
+        }
+
+        // 所有重试都失败
+        return {
+            success: false,
+            content: null,
+            error: new Error(`Failed after ${maxRetries} attempts`),
+        };
+    }
+
+    /**
+     * 延迟函数（D-14）
+     * @param baseDelay - 基础延迟时间（毫秒）
+     * @param attempt - 当前尝试次数
+     * @param backoff - 退避策略
+     * @returns Promise
+     */
+    private delay(baseDelay: number, attempt: number, backoff?: string): Promise<void> {
+        let delayTime: number;
+
+        if (backoff === "exponential") {
+            // 指数退避：delay * 2^(attempt-1)
+            delayTime = baseDelay * Math.pow(2, attempt - 1);
+        } else {
+            // 线性退避：delay * attempt
+            delayTime = baseDelay * attempt;
+        }
+
+        return new Promise((resolve) => setTimeout(resolve, delayTime));
+    }
+
+    /**
+     * 检查导航版本号（D-23）
+     * @param expectedVersion - 期望的版本号
+     * @returns 是否匹配
+     */
+    private checkNavVersion(expectedVersion: NavigationVersion): boolean {
+        return currentNavVersion === expectedVersion;
+    }
+
+    /**
+     * 递增导航版本号（D-23）
+     */
+    incrementNavVersion(): void {
+        currentNavVersion++;
+    }
+
+    /**
+     * 获取当前导航版本号
+     */
+    getNavVersion(): NavigationVersion {
+        return currentNavVersion;
+    }
+
+    /**
+     * 取消所有进行中的请求（D-24）
+     */
+    abortPendingRequests(): void {
+        if (this.abortController) {
+            this.abortController.abort();
+            this.abortController = new AbortController();
         }
     }
 
