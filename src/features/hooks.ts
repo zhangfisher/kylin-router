@@ -260,14 +260,44 @@ export class HookManager {
                 resolve(false); // 超时视为守卫失败
             }, 30000);
 
-            guard(to, from).then((result: boolean | string) => {
+            try {
+                const result = guard(to, from);
+
+                // 处理同步返回值
+                if (result === undefined || result === true) {
+                    clearTimeout(timeout);
+                    resolve(true);
+                } else if (result === false) {
+                    clearTimeout(timeout);
+                    resolve(false);
+                } else if (typeof result === 'string') {
+                    clearTimeout(timeout);
+                    resolve(result);
+                } else if (result instanceof Promise) {
+                    // 处理异步返回值
+                    result.then((promiseResult: boolean | string) => {
+                        clearTimeout(timeout);
+                        if (promiseResult === undefined || promiseResult === true) {
+                            resolve(true);
+                        } else if (promiseResult === false) {
+                            resolve(false);
+                        } else {
+                            resolve(promiseResult);
+                        }
+                    }).catch((error: unknown) => {
+                        clearTimeout(timeout);
+                        console.error(`[Router] Route guard execution error in ${route.name}:`, error);
+                        resolve(false);
+                    });
+                } else {
+                    clearTimeout(timeout);
+                    resolve(true);
+                }
+            } catch (error) {
                 clearTimeout(timeout);
-                resolve(result);
-            }).catch((error: unknown) => {
-                clearTimeout(timeout);
-                console.error(`[Router] Route guard execution error in ${route.name}:`, error);
+                console.error(`[Router] Route guard sync error in ${route.name}:`, error);
                 resolve(false);
-            });
+            }
         });
     }
 
