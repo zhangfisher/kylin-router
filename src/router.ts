@@ -52,7 +52,8 @@ export class KylinRouter extends Mixin(
 ) {
     // 用于存储一需要清理的副作用函数，比如 history.listen 返回的取消监听函数
     protected _cleanups: Array<() => void> = [];
-    host: HTMLElement;
+    /** 宿主元素，在 attach() 方法调用后设置 */
+    host!: HTMLElement;
     history: ReturnType<typeof createBrowserHistory>;
 
     outlets?: OutletRefs;
@@ -80,9 +81,10 @@ export class KylinRouter extends Mixin(
 
     /**
      * 构造函数 - 仅负责配置初始化，不操作 DOM
+     * @param host - 宿主元素
      * @param options - 路由配置选项
      */
-    constructor(options: KylinRouterOptiopns | KylinRouterOptiopns["routes"]) {
+    constructor(host: HTMLElement, options: KylinRouterOptiopns | KylinRouterOptiopns["routes"] = []) {
         super();
 
         // 规范化 options 参数（D-17: 支持多种路由配置格式）
@@ -90,22 +92,22 @@ export class KylinRouter extends Mixin(
 
         if (Array.isArray(options)) {
             // 情况1: 数组格式的路由配置
-            resolvedOptions = { routes: options };
+            resolvedOptions = { routes: options, host };
         } else if (typeof options === "string") {
             // 情况2: 字符串格式的路由配置（URL路径）
-            resolvedOptions = { routes: options };
+            resolvedOptions = { routes: options, host };
         } else if (typeof options === "function") {
             // 情况3: 函数格式的路由配置（异步加载）
-            resolvedOptions = { routes: options };
+            resolvedOptions = { routes: options, host };
         } else if (isRouteItem(options)) {
             // 情况4: 单个 RouteItem 对象
-            resolvedOptions = { routes: [options] };
+            resolvedOptions = { routes: [options], host };
         } else if (isKylinRouterOptions(options)) {
             // 情况5: 完整的 KylinRouterOptiopns 对象
-            resolvedOptions = options;
+            resolvedOptions = { ...options, host };
         } else {
             // 情况6: 其他情况，作为空路由配置处理
-            resolvedOptions = { routes: [] };
+            resolvedOptions = { routes: [], host };
         }
 
         // 存储解析后的最终配置
@@ -182,6 +184,15 @@ export class KylinRouter extends Mixin(
 
         // 构造目标路由对象（用于 to 参数）
         const toRoute = this.routes.current.route || { name: '', path: pathname, params: {}, query: {} };
+
+        // 将匹配的参数和查询参数合并到目标路由对象
+        if (toRoute !== this.routes.current.route && this.routes.current.route) {
+            toRoute.params = this.routes.current.params;
+            toRoute.query = this.routes.current.query;
+        } else if (this.routes.current.route) {
+            toRoute.params = this.routes.current.params || {};
+            toRoute.query = this.routes.current.query || {};
+        }
 
         // 执行 beforeEach 钩子
         this.log('钩子执行: beforeEach');
@@ -474,18 +485,25 @@ export class KylinRouter extends Mixin(
 
     /**
      * 将 router 绑定到 host 元素并开始监听路由变化
-     * @param host - 宿主元素或选择器字符串
      * @throws {Error} - 如果已 attached 或 host 无效
      */
-    attach(host: HTMLElement | string = this.options.host): void {
+    attach(): void {
         if (this.attached) {
             throw new Error("[KylinRouter] Already attached to a host element");
         }
 
+        // 从 options 中获取 host
+        const targetHost = this.options.host;
+
+        // 检查是否提供了有效的 host
+        if (!targetHost) {
+            throw new Error("[KylinRouter] Host element is required. Provide it in the constructor.");
+        }
+
         // 设置 host 元素
-        this.host = typeof host === "string"
-            ? (document.querySelector(host) as HTMLElement)
-            : host;
+        this.host = typeof targetHost === "string"
+            ? (document.querySelector(targetHost) as HTMLElement)
+            : targetHost;
 
         if (!(this.host instanceof HTMLElement)) {
             throw new Error("[KylinRouter] Host must be a valid HTMLElement");
