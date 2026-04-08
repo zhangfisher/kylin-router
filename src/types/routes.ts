@@ -3,9 +3,72 @@
  */
 
 import type { RenderEachHook, RouteData } from './hooks';
+import type { TemplateResult } from 'lit';
 
 // 重新导出 RouteData 以保持向后兼容
 export type { RouteData };
+
+// ============================================================================
+// 组件加载相关类型定义
+// ============================================================================
+
+/**
+ * 组件加载器函数类型
+ * 用于加载本地组件或远程 HTML 内容
+ * @param component - 组件配置，可以是字符串（URL 或元素名）或函数（动态导入）
+ * @returns 加载结果的 Promise
+ */
+export type ComponentLoader = (
+    component: string | (() => Promise<any>)
+) => Promise<LoadResult>;
+
+/**
+ * 远程 HTML 加载配置选项
+ */
+export interface RemoteLoadOptions {
+    /**
+     * 是否允许不安全的 HTML（如 script 标签）
+     * 默认为 false，会移除潜在的危险内容
+     */
+    allowUnsafeHTML?: boolean;
+
+    /**
+     * 加载超时时间（毫秒）
+     * 默认为 5000ms（5秒）
+     */
+    timeout?: number;
+
+    /**
+     * 自定义内容提取选择器
+     * 如果提供，将从加载的 HTML 中提取匹配该选择器的内容
+     */
+    extractSelector?: string;
+}
+
+/**
+ * 组件加载结果类型
+ * 表示组件加载操作的最终状态和结果
+ */
+export interface LoadResult {
+    /**
+     * 是否加载成功
+     */
+    success: boolean;
+
+    /**
+     * 加载的内容
+     * - TemplateResult: lit 模板结果
+     * - string: HTML 字符串或元素名
+     * - null: 加载失败时为 null
+     */
+    content: TemplateResult | string | null;
+
+    /**
+     * 加载错误信息
+     * 加载成功时为 null，失败时包含错误详情
+     */
+    error: Error | null;
+}
 
 /**
  * 路由配置项
@@ -122,6 +185,18 @@ export interface RouteItem {
      * @param router - 路由器实例
      */
     renderEach?: RenderEachHook | RenderEachHook[];
+
+    /**
+     * 远程 HTML 加载配置选项
+     * 当 component 是 URL 时生效
+     */
+    remoteOptions?: RemoteLoadOptions;
+
+    /**
+     * 加载器超时时间（毫秒）
+     * 覆盖默认的超时配置
+     */
+    loaderTimeout?: number;
 }
 
 /**
