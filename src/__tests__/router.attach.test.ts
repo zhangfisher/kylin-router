@@ -1,0 +1,133 @@
+import { describe, it, expect, beforeEach, afterEach } from "bun:test";
+import type { KylinRouter } from "@/router";
+
+/**
+ * 创建测试用的 DOM 环境
+ */
+function createTestDOM() {
+    const { Window } = require("happy-dom");
+    const win = new Window({ url: "http://localhost/" });
+
+    // 设置全局对象 - 每次测试重新设置，确保干净状态
+    // @ts-ignore
+    globalThis.window = win;
+    // @ts-ignore
+    globalThis.document = win.document;
+    // @ts-ignore
+    globalThis.history = win.history;
+    // @ts-ignore
+    globalThis.location = win.location;
+    // @ts-ignore
+    globalThis.Event = win.Event;
+    // @ts-ignore
+    globalThis.CustomEvent = win.CustomEvent;
+    // @ts-ignore
+    globalThis.HTMLElement = win.HTMLElement;
+    // @ts-ignore
+    globalThis.URLSearchParams = win.URLSearchParams;
+
+    // 创建 host 元素
+    // @ts-ignore
+    const host = document.createElement("div") as HTMLElement;
+    // @ts-ignore
+    document.body.appendChild(host);
+    return host;
+}
+
+/**
+ * 动态导入 KylinRouter 以避免加载时的依赖问题
+ */
+async function createRouter(options: any) {
+    const { KylinRouter } = await import("@/router");
+    return new KylinRouter(options);
+}
+
+describe("KylinRouter attach/detach 功能", () => {
+    let host: HTMLElement;
+    let router: KylinRouter;
+
+    const routes = [
+        { name: "home", path: "/" },
+        { name: "user", path: "/user" },
+        { name: "user-detail", path: "/user/:id" },
+    ];
+
+    beforeEach(async () => {
+        host = createTestDOM();
+    });
+
+    afterEach(() => {
+        if (router) {
+            try {
+                router.detach();
+            } catch (e) {
+                // 忽略 detach 错误
+            }
+        }
+        // 清理 DOM
+        if (host && host.parentElement) {
+            host.parentElement.removeChild(host);
+        }
+    });
+
+    describe("任务 1: options 和 attached 属性", () => {
+        it("测试 1: 构造函数接收配置后，options 属性应包含解析后的完整配置", async () => {
+            router = await createRouter({
+                routes,
+                mode: "history",
+                notFound: { name: "404", path: "*" },
+                defaultRoute: "/home"
+            });
+
+            // 验证 options 属性存在且包含完整配置
+            expect(router.options).toBeDefined();
+            expect(router.options.routes).toEqual(routes);
+            expect(router.options.mode).toBe("history");
+            expect(router.options.notFound).toEqual({ name: "404", path: "*" });
+            expect(router.options.defaultRoute).toBe("/home");
+        });
+
+        it("测试 2: 新创建的实例 attached 应为 false", async () => {
+            // 创建一个未 attached 的 router 实例
+            router = await createRouter({ routes });
+
+            // 这会在重构前失败（因为当前实现会自动 attach）
+            // 在重构后，我们应该能创建未 attached 的实例
+            expect(router.attached).toBe(false);
+        });
+
+        it("测试 3: 构造函数不应操作 DOM（不设置 host 属性、不调用 attach）", async () => {
+            const hostElement = document.createElement("div");
+            // @ts-ignore
+            document.body.appendChild(hostElement);
+
+            // 创建 router 但不期望它操作 DOM
+            router = await createRouter({ routes });
+
+            // 检查 host 元素是否未被修改
+            expect(hostElement.hasAttribute("data-kylin-router")).toBe(false);
+            expect((hostElement as any).router).toBeUndefined();
+
+            // 清理
+            // @ts-ignore
+            document.body.removeChild(hostElement);
+        });
+
+        it("测试 4: 构造函数应正确解析各种格式的 options（数组、字符串、对象等）", async () => {
+            // 测试数组格式
+            let router1 = await createRouter(routes);
+            expect(router1.options.routes).toEqual(routes);
+            expect(router1.options.routes.length).toBe(3);
+
+            // 测试字符串格式
+            let router2 = await createRouter("/home");
+            expect(router2.options.routes).toBeDefined();
+
+            // 测试单个 RouteItem 对象
+            const singleRoute = { name: "home", path: "/" };
+            let router3 = await createRouter(singleRoute);
+            expect(router3.options.routes).toBeDefined();
+            expect(router3.options.routes.length).toBe(1);
+        });
+    });
+});
