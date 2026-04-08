@@ -8,25 +8,24 @@ import type { KylinRouter } from "@/router";
 import type { HookFunction, RouteItem, RouteData, RenderEachHook } from "@/types";
 import { HookType } from "@/types";
 
-export class Hooks {
+export class HookManager {
     /**
      * 钩子存储结构
      * 按照 HookType 分组存储钩子函数，保持注册顺序（FIFO）
      * 公开访问，允许开发者直接注册钩子
      */
-    public hooks: Record<HookType, HookFunction[]> = {
-        beforeEach: [],
-        renderEach: [],
-        afterEach: []
-    };
+    public hooks: Record<HookType, HookFunction[]>;
 
     /**
-     * 初始化钩子系统
-     * 在路由器构造时调用
+     * 构造函数
+     * @param router - KylinRouter 实例
      */
-    protected initHooks(this: KylinRouter): void {
-        // 钩子存储已在属性声明时初始化
-        // 此方法保留用于未来扩展
+    constructor(private router: KylinRouter) {
+        this.hooks = {
+            beforeEach: [],
+            renderEach: [],
+            afterEach: []
+        };
     }
 
     /**
@@ -34,7 +33,7 @@ export class Hooks {
      * @param type - 钩子类型
      * @param hook - 钩子函数
      */
-    protected addHook(this: KylinRouter, type: HookType, hook: HookFunction): void {
+    add(type: HookType, hook: HookFunction): void {
         this.hooks[type].push(hook);
     }
 
@@ -43,7 +42,7 @@ export class Hooks {
      * @param type - 钩子类型
      * @param hook - 要移除的钩子函数
      */
-    protected removeHook(this: KylinRouter, type: HookType, hook: HookFunction): void {
+    remove(type: HookType, hook: HookFunction): void {
         const index = this.hooks[type].indexOf(hook);
         if (index > -1) {
             this.hooks[type].splice(index, 1);
@@ -54,7 +53,7 @@ export class Hooks {
      * 清空钩子
      * @param type - 可选，指定要清空的钩子类型。如果不指定，清空所有钩子
      */
-    protected clearHooks(this: KylinRouter, type?: HookType): void {
+    clear(type?: HookType): void {
         if (type) {
             this.hooks[type] = [];
         } else {
@@ -69,26 +68,23 @@ export class Hooks {
      * @param type - 钩子类型
      * @param to - 目标路由
      * @param from - 来源路由
-     * @param router - 路由器实例
      * @returns Promise<boolean | string> - 返回 false 表示取消导航，返回字符串表示重定向路径，返回 true 表示继续
      */
-    protected async executeHooks(
-        this: KylinRouter,
+    async executeHooks(
         type: HookType,
         to: RouteItem,
-        from: RouteItem,
-        router: any
+        from: RouteItem
     ): Promise<boolean | string> {
         const hooks = this.hooks[type];
         if (hooks.length === 0) return true;
 
         // afterEach 钩子使用特殊的执行逻辑，不抛出错误
         if (type === HookType.AFTER_EACH) {
-            return this.executeAfterEachHooks(hooks, to, from, router);
+            return this.executeAfterEachHooks(hooks, to, from);
         }
 
         for (const hook of hooks) {
-            const result = await this.runHook(hook, to, from, router);
+            const result = await this.runHook(hook, to, from);
             if (result === false) return false;
             if (typeof result === 'string') return result; // 重定向路径
         }
@@ -100,19 +96,16 @@ export class Hooks {
      * @param hooks - afterEach 钩子数组
      * @param to - 目标路由
      * @param from - 来源路由
-     * @param router - 路由器实例
      * @returns Promise<boolean> - 始终返回 true，afterEach 不影响导航流程
      */
-    protected async executeAfterEachHooks(
-        this: KylinRouter,
+    async executeAfterEachHooks(
         hooks: HookFunction[],
         to: RouteItem,
-        from: RouteItem,
-        router: any
+        from: RouteItem
     ): Promise<boolean> {
         for (const hook of hooks) {
             try {
-                await this.runAfterEachHook(hook, to, from, router);
+                await this.runAfterEachHook(hook, to, from);
             } catch (error) {
                 // afterEach 钩子出错不影响导航流程，只记录错误
                 console.error('[Router] afterEach hook error:', error);
@@ -126,14 +119,11 @@ export class Hooks {
      * @param hook - afterEach 钩子函数
      * @param to - 目标路由
      * @param from - 来源路由
-     * @param router - 路由器实例
      */
-    protected async runAfterEachHook(
-        this: KylinRouter,
+    async runAfterEachHook(
         hook: HookFunction,
         to: RouteItem,
-        from: RouteItem,
-        router: any
+        from: RouteItem
     ): Promise<void> {
         return new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
@@ -142,7 +132,7 @@ export class Hooks {
             }, 30000);
 
             try {
-                const result = hook(to, from, () => {}, router); // afterEach 不需要 next 回调
+                const result = hook(to, from, () => {}, this.router); // afterEach 不需要 next 回调
 
                 if (result instanceof Promise) {
                     result.then(() => {
@@ -168,15 +158,12 @@ export class Hooks {
      * @param hook - 钩子函数
      * @param to - 目标路由
      * @param from - 来源路由
-     * @param router - 路由器实例
      * @returns Promise<boolean | string> - 钩子执行结果
      */
-    protected async runHook(
-        this: KylinRouter,
+    async runHook(
         hook: HookFunction,
         to: RouteItem,
-        from: RouteItem,
-        router: any
+        from: RouteItem
     ): Promise<boolean | string> {
         return new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
@@ -189,7 +176,7 @@ export class Hooks {
             };
 
             try {
-                const result = hook(to, from, next, router);
+                const result = hook(to, from, next, this.router);
                 if (result instanceof Promise) {
                     result.then(() => clearTimeout(timeout)).catch(err => {
                         clearTimeout(timeout);
@@ -208,16 +195,13 @@ export class Hooks {
      * @param matchedRoutes - 匹配的路由链（从外到内排序）
      * @param to - 目标路由
      * @param from - 来源路由
-     * @param router - 路由器实例
      * @param guardType - 守卫类型
      * @returns Promise<boolean | string> - 返回 false 表示取消导航，返回字符串表示重定向路径，返回 true 表示继续
      */
-    protected async executeRouteGuards(
-        this: KylinRouter,
+    async executeRouteGuards(
         matchedRoutes: any[],
         to: RouteItem,
         from: RouteItem,
-        router: any,
         guardType: 'beforeEnter' | 'afterLeave'
     ): Promise<boolean | string> {
         // 从外到内执行父 → 子
@@ -257,8 +241,7 @@ export class Hooks {
      * @param from - 来源路由
      * @returns Promise<boolean | string> - 守卫执行结果
      */
-    protected async runRouteGuard(
-        this: KylinRouter,
+    async runRouteGuard(
         route: RouteItem,
         guard: (to: RouteItem, from: RouteItem) => any,
         to: RouteItem,
@@ -286,7 +269,7 @@ export class Hooks {
      * @param matchedRoutes - 匹配的路由链
      * @returns MatchedRoute[] - 从外到内排序的路由链
      */
-    protected getOrderedMatchedRoutes(this: KylinRouter, matchedRoutes: any[]): any[] {
+    getOrderedMatchedRoutes(matchedRoutes: any[]): any[] {
         // Phase 1 的路由匹配返回从内到外的顺序
         // 守卫执行需要从外到内（父 → 子）
         return [...matchedRoutes].reverse();
@@ -299,14 +282,11 @@ export class Hooks {
      * 遵循 D-20: 通过 route.data 传递
      * @param to - 目标路由
      * @param from - 来源路由
-     * @param router - 路由器实例
      * @returns Promise<RouteData | undefined> - 合并后的预加载数据
      */
-    protected async executeRenderEach(
-        this: KylinRouter,
+    async executeRenderEach(
         to: RouteItem,
-        from: RouteItem,
-        router: any
+        from: RouteItem
     ): Promise<RouteData | undefined> {
         // 收集全局 renderEach 钩子
         const globalHooks = this.hooks[HookType.RENDER_EACH] as RenderEachHook[];
@@ -327,7 +307,7 @@ export class Hooks {
         // 串行执行所有 renderEach 钩子
         for (const hook of allHooks) {
             try {
-                const result = await this.runRenderEachHook(hook, to, from, router);
+                const result = await this.runRenderEachHook(hook, to, from);
                 if (result) {
                     combinedData = { ...combinedData, ...result };
                 }
@@ -355,15 +335,12 @@ export class Hooks {
      * @param hook - renderEach 钩子函数
      * @param to - 目标路由
      * @param from - 来源路由
-     * @param router - 路由器实例
      * @returns Promise<RouteData | undefined> - 钩子返回的预加载数据
      */
-    protected async runRenderEachHook(
-        this: KylinRouter,
+    async runRenderEachHook(
         hook: RenderEachHook,
         to: RouteItem,
-        from: RouteItem,
-        router: any
+        from: RouteItem
     ): Promise<RouteData | undefined> {
         return new Promise((resolve) => {
             const timeout = setTimeout(() => {
@@ -377,7 +354,7 @@ export class Hooks {
             };
 
             try {
-                const result = hook(to, from, next, router);
+                const result = hook(to, from, next, this.router);
 
                 // 支持直接返回数据
                 if (result instanceof Promise) {
@@ -409,21 +386,18 @@ export class Hooks {
      * @param hook - renderEach 钩子函数
      * @param to - 目标路由
      * @param from - 来源路由
-     * @param router - 路由器实例
      * @param maxRetries - 最大重试次数（默认 1）
      * @returns Promise<RouteData | undefined> - 钩子返回的预加载数据
      */
-    protected async runRenderEachHookWithRetry(
-        this: KylinRouter,
+    async runRenderEachHookWithRetry(
         hook: RenderEachHook,
         to: RouteItem,
         from: RouteItem,
-        router: any,
         maxRetries: number = 1
     ): Promise<RouteData | undefined> {
         for (let attempt = 0; attempt <= maxRetries; attempt++) {
             try {
-                return await this.runRenderEachHook(hook, to, from, router);
+                return await this.runRenderEachHook(hook, to, from);
             } catch (error) {
                 if (attempt === maxRetries) {
                     console.error(`[Router] renderEach hook failed after ${maxRetries + 1} attempts:`, {
