@@ -39,7 +39,9 @@ function createTestDOM() {
  */
 async function createRouter(host: HTMLElement, options: any) {
     const { KylinRouter } = await import("@/router");
-    return new KylinRouter(host, options);
+    const router = new KylinRouter(options);
+    router.attach(host);
+    return router;
 }
 
 describe("KylinRouter 全局钩子系统", () => {
