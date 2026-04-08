@@ -307,9 +307,9 @@ export class HookManager {
      * @returns MatchedRoute[] - 从外到内排序的路由链
      */
     getOrderedMatchedRoutes(matchedRoutes: any[]): any[] {
-        // Phase 1 的路由匹配返回从内到外的顺序
-        // 守卫执行需要从外到内（父 → 子）
-        return [...matchedRoutes].reverse();
+        // matchRoute 现在已经返回从外到内的顺序（父 → 子）
+        // 所以不需要反转，直接返回
+        return matchedRoutes;
     }
 
     /**

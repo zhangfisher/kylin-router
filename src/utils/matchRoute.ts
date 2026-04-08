@@ -22,6 +22,12 @@ export interface MatchedRoute {
     params: Record<string, string>;
     /** 剩余未匹配的路径，用于嵌套路由 */
     remainingPath: string;
+    /** 匹配的路由链（从根到叶子节点，用于守卫执行） */
+    matchedRoutes: Array<{
+        route: RouteItem;
+        params: Record<string, string>;
+        remainingPath: string;
+    }>;
 }
 
 /**
@@ -237,12 +243,14 @@ export function createRouteMatcher(
  * @param pathname - 当前 URL 路径
  * @param routes - 路由表配置
  * @param basePath - 基础路径前缀（用于递归）
+ * @param parentMatched - 父路由链（用于递归）
  * @returns 匹配结果或 null
  */
 export function matchRoute(
     pathname: string,
     routes: RouteItem[],
-    basePath: string = ""
+    basePath: string = "",
+    parentMatched: Array<{ route: RouteItem; params: Record<string, string>; remainingPath: string }> = []
 ): MatchedRoute | null {
     const normalizedPathname = normalizePath(pathname);
 
@@ -251,6 +259,11 @@ export function matchRoute(
         params: Record<string, string>;
         remainingPath: string;
         priority: number;
+        matchedRoutes: Array<{
+            route: RouteItem;
+            params: Record<string, string>;
+            remainingPath: string;
+        }>;
     }
 
     const candidates: Candidate[] = [];
@@ -265,6 +278,7 @@ export function matchRoute(
                 params: {},
                 remainingPath: "",
                 priority: WILDCARD_PRIORITY,
+                matchedRoutes: [...parentMatched, { route, params: {}, remainingPath: "" }],
             });
             continue;
         }
@@ -286,6 +300,13 @@ export function matchRoute(
         const remainingIndex = paramNames.length + 1;
         const remainingPart = match[remainingIndex] || "";
 
+        // 当前路由的匹配信息
+        const currentMatched = {
+            route,
+            params,
+            remainingPath: remainingPart,
+        };
+
         // 完全匹配（叶子级别）
         if (!remainingPart) {
             candidates.push({
@@ -293,6 +314,7 @@ export function matchRoute(
                 params,
                 remainingPath: "",
                 priority: calculatePriority(route),
+                matchedRoutes: [...parentMatched, currentMatched],
             });
         }
 
@@ -301,7 +323,8 @@ export function matchRoute(
             const childResult = matchRoute(
                 "/" + remainingPart,
                 route.children,
-                ""
+                "",
+                [...parentMatched, currentMatched]
             );
 
             if (childResult) {
@@ -311,6 +334,7 @@ export function matchRoute(
                     params: mergedParams,
                     remainingPath: childResult.remainingPath,
                     priority: calculatePriority(childResult.route),
+                    matchedRoutes: childResult.matchedRoutes,
                 });
             }
         }
@@ -333,6 +357,7 @@ export function matchRoute(
         route: best.route,
         params: best.params,
         remainingPath: best.remainingPath,
+        matchedRoutes: best.matchedRoutes,
     };
 }
 

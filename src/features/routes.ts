@@ -39,11 +39,18 @@ export class RouteRegistry {
         params: Record<string, string>;
         query: Record<string, string>;
         remainingPath: string;
+        /** 匹配的路由链（从根到叶子节点） */
+        matchedRoutes: Array<{
+            route: RouteItem;
+            params: Record<string, string>;
+            remainingPath: string;
+        }>;
     } = {
         route: null,
         params: {},
         query: {},
         remainingPath: "",
+        matchedRoutes: [],
     };
 
     /** 当前会话的重定向次数（用于循环检测） */
@@ -171,14 +178,17 @@ export class RouteRegistry {
             this.current.route = matched.route;
             this.current.params = matched.params;
             this.current.remainingPath = matched.remainingPath;
+            this.current.matchedRoutes = matched.matchedRoutes || [];
         } else if (this.notFound) {
             this.current.route = this.notFound;
             this.current.params = {};
             this.current.remainingPath = pathname;
+            this.current.matchedRoutes = [];
         } else {
             this.current.route = null;
             this.current.params = {};
             this.current.remainingPath = pathname;
+            this.current.matchedRoutes = [];
         }
 
         // 提取查询参数
@@ -202,14 +212,17 @@ export class RouteRegistry {
             this.current.route = matched.route;
             this.current.params = matched.params;
             this.current.remainingPath = matched.remainingPath;
+            this.current.matchedRoutes = matched.matchedRoutes || [];
         } else if (this.notFound) {
             this.current.route = this.notFound;
             this.current.params = {};
             this.current.remainingPath = pathname;
+            this.current.matchedRoutes = [];
         } else {
             this.current.route = null;
             this.current.params = {};
             this.current.remainingPath = pathname;
+            this.current.matchedRoutes = [];
         }
 
         // 提取查询参数

@@ -71,7 +71,15 @@ export class KylinRouter extends Mixin(
     debug: boolean = false;
 
     /** 上一个路由，用于 afterLeave 守卫 */
-    protected previousRoute?: RouteItem;
+    protected previousRoute?: (RouteItem & {
+        matchedRoutes?: Array<{
+            route: RouteItem;
+            params: Record<string, string>;
+            remainingPath: string;
+        }>;
+        params?: Record<string, string>;
+        query?: Record<string, string>;
+    });
 
     /** 解析后的最终配置选项 */
     public options: KylinRouterOptiopns;
@@ -174,7 +182,13 @@ export class KylinRouter extends Mixin(
 
         // 保存当前路由状态（用于 from 参数和 afterLeave 守卫）
         const fromRoute = this.routes.current.route || { name: '', path: '', params: {}, query: {} };
-        this.previousRoute = this.routes.current.route || undefined;
+        // 保存完整的当前路由状态（包括 matchedRoutes）
+        this.previousRoute = this.routes.current.route ? {
+            ...this.routes.current.route,
+            matchedRoutes: [...this.routes.current.matchedRoutes],
+            params: { ...this.routes.current.params },
+            query: { ...this.routes.current.query }
+        } : undefined;
 
         // 先执行路由匹配，获取目标路由信息
         this.routes.matchAndUpdateState(pathname, search);
@@ -228,26 +242,32 @@ export class KylinRouter extends Mixin(
             this.log('钩子错误: beforeEach 执行出错', error);
             // 钩子出错时取消导航
             this.isNavigating = false;
+
+            // 回退到之前的路由或默认路由
+            const fallback = this.previousRoute?.path || this.routes.defaultRoute || '/';
+            if (this.location.pathname !== fallback) {
+                this.replace(fallback);
+            }
             return;
         }
 
         // 获取匹配的路由链（包含嵌套路由）
-        // 简化实现：对于单个路由，包装在数组中
-        const matchedRoutes = this.routes.current.route ? [{ route: this.routes.current.route, params: this.routes.current.params, remainingPath: this.routes.current.remainingPath }] : [];
+        const matchedRoutes = this.routes.current.matchedRoutes || [];
 
         // 执行路由级 beforeEnter 守卫（父优先）
         if (this.routes.current.route && matchedRoutes.length > 0) {
             const beforeEnterResult = await this.hooks.executeRouteGuards(
-                this.hooks.getOrderedMatchedRoutes(matchedRoutes),
+                matchedRoutes,
                 this.routes.current.route,
                 fromRoute,
                 'beforeEnter'
             );
 
             if (beforeEnterResult === false) {
-                // 取消导航，回退到父路由或默认路由
-                this.handleGuardFailure(matchedRoutes);
+                // 取消导航，不触发 afterEach
+                this.log('守卫结果: beforeEnter 取消导航');
                 this.isNavigating = false;
+                this._pendingNavigationType = undefined;
                 return;
             }
 
@@ -304,10 +324,9 @@ export class KylinRouter extends Mixin(
         }
 
         // 执行 afterLeave 守卫（异步执行，不阻塞导航）
-        if (this.previousRoute) {
-            const previousMatched = [{ route: this.previousRoute, params: {}, remainingPath: '' }];
+        if (this.previousRoute && this.previousRoute.matchedRoutes) {
             this.hooks.executeRouteGuards(
-                this.hooks.getOrderedMatchedRoutes(previousMatched),
+                this.previousRoute.matchedRoutes,
                 toRoute,
                 this.previousRoute,
                 'afterLeave'
