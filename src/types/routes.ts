@@ -2,9 +2,10 @@
  * 路由配置相关类型定义
  */
 
-import type { RenderEachHook, RouteData } from './hooks';
-import type { TemplateResult } from 'lit';
-import type { KylinRouter } from '@/router';
+import type { RenderEachHook, RouteData } from "./hooks";
+import type { TemplateResult } from "lit";
+import type { KylinRouter } from "@/router";
+import type { ErrorBoundaryConfig, LoadingConfig, RetryConfig } from "./config";
 
 // 重新导出 RouteData 以保持向后兼容
 export type { RouteData };
@@ -18,7 +19,7 @@ export type { RouteData };
  * - replace: 替换模式，新内容替换 outlet 中的旧内容（默认）
  * - append: 追加模式，新内容添加到现有内容之后
  */
-export type RenderMode = 'replace' | 'append';
+export type RenderMode = "replace" | "append";
 
 /**
  * 模板数据类型
@@ -81,9 +82,7 @@ export interface RenderOptions {
  * @param view - 视图配置，可以是字符串（URL 或元素名）或函数（动态导入）
  * @returns 加载结果的 Promise
  */
-export type ComponentLoader = (
-    view: string | (() => Promise<any>)
-) => Promise<LoadResult>;
+export type ComponentLoader = (view: string | (() => Promise<any>)) => Promise<ViewLoadResult>;
 
 /**
  * 远程 HTML 加载配置选项
@@ -112,7 +111,7 @@ export interface RemoteLoadOptions {
  * 组件加载结果类型
  * 表示组件加载操作的最终状态和结果
  */
-export interface LoadResult {
+export interface ViewLoadResult {
     /**
      * 是否加载成功
      */
@@ -224,20 +223,14 @@ export interface RouteItem {
      * @returns boolean | Promise<boolean> - true 继续导航，false 取消导航
      * @returns string - 重定向路径
      */
-    beforeEnter?: (
-        to: RouteItem,
-        from: RouteItem
-    ) => boolean | string | Promise<boolean | string>;
+    beforeEnter?: (to: RouteItem, from: RouteItem) => boolean | string | Promise<boolean | string>;
 
     /**
      * 路由级守卫：在离开该路由后执行
      * @param to - 目标路由
      * @param from - 来源路由（当前路由）
      */
-    afterLeave?: (
-        to: RouteItem,
-        from: RouteItem
-    ) => void | Promise<void>;
+    afterLeave?: (to: RouteItem, from: RouteItem) => void | Promise<void>;
 
     /**
      * 路由级 renderEach 钩子，用于数据预加载
@@ -248,6 +241,21 @@ export interface RouteItem {
      * @param router - 路由器实例
      */
     renderEach?: RenderEachHook | RenderEachHook[];
+
+    /**
+     * 错误边界配置
+     */
+    errorBoundary?: ErrorBoundaryConfig;
+
+    /**
+     * 加载状态配置
+     */
+    loadingConfig?: LoadingConfig;
+
+    /**
+     * 重试策略配置
+     */
+    retry?: RetryConfig;
 
     /**
      * 远程 HTML 加载配置选项
@@ -274,7 +282,11 @@ export interface RouteItem {
  * 路由配置类型
  * 支持多种配置形式
  */
-export type KylinRoutes = RouteItem[] | RouteItem | string | (() => KylinRoutes | Promise<KylinRoutes>);
+export type KylinRoutes =
+    | RouteItem[]
+    | RouteItem
+    | string
+    | (() => KylinRoutes | Promise<KylinRoutes>);
 
 /**
  * 路由匹配结果

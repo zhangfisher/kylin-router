@@ -4,6 +4,47 @@
 
 import type { KylinRoutes, RouteItem } from './routes';
 import type { BeforeEachHook, RenderEachHook } from './hooks';
+import type { TemplateResult } from 'lit';
+
+/**
+ * 重试策略配置
+ */
+export interface RetryConfig {
+    /** 最大重试次数（默认 3） */
+    max?: number;
+    /** 重试延迟，单位毫秒（默认 1000） */
+    delay?: number;
+    /** 退避策略：'linear' 线性增长，'exponential' 指数增长（默认 linear） */
+    backoff?: "linear" | "exponential";
+    /** 重试回调函数，每次重试时调用 */
+    onRetry?: (attempt: number, error: Error) => void;
+}
+
+/**
+ * 错误边界配置
+ */
+export interface ErrorBoundaryConfig {
+    /** 错误组件：字符串路径或动态导入函数 */
+    component?: string | (() => Promise<any>);
+    /** 回退 UI：错误时显示的 HTML 字符串 */
+    fallback?: string;
+    /** 错误回调函数 */
+    onError?: (error: Error, errorInfo: any) => void;
+    /** 是否重试：true 表示使用默认重试策略，对象表示自定义重试策略 */
+    retry?: boolean | RetryConfig;
+}
+
+/**
+ * 加载状态配置
+ */
+export interface LoadingConfig {
+    /** 自定义加载模板 */
+    template?: TemplateResult | string;
+    /** 加载超时时间，单位毫秒 */
+    timeout?: number;
+    /** 错误时是否显示加载状态（默认 false） */
+    showOnError?: boolean;
+}
 
 /**
  * 路由器配置选项
@@ -31,4 +72,8 @@ export type KylinRouterOptiopns = {
     debug?: boolean;
     /** 宿主元素或选择器字符串（可选，用于 attach 方法） */
     host?: HTMLElement | string;
+    /** 全局错误组件：字符串路径或动态导入函数 */
+    defaultErrorComponent?: string | (() => Promise<any>);
+    /** 全局加载模板 */
+    defaultLoadingTemplate?: TemplateResult | string;
 };
