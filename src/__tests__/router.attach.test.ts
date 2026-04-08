@@ -130,4 +130,71 @@ describe("KylinRouter attach/detach 功能", () => {
             expect(router3.options.routes.length).toBe(1);
         });
     });
+
+    describe("任务 2: attach() 方法完整绑定逻辑", () => {
+        it("测试 1: attach() 调用后 attached 应为 true", async () => {
+            router = await createRouter({ routes });
+            expect(router.attached).toBe(false);
+
+            router.attach(host);
+            expect(router.attached).toBe(true);
+        });
+
+        it("测试 2: attach() 应设置 host 属性并标记 data-kylin-router", async () => {
+            router = await createRouter({ routes });
+
+            router.attach(host);
+
+            expect(router.host).toBe(host);
+            expect(host.hasAttribute("data-kylin-router")).toBe(true);
+        });
+
+        it("测试 3: attach() 应在 host.router 上存储 router 实例", async () => {
+            router = await createRouter({ routes });
+
+            router.attach(host);
+
+            expect((host as any).router).toBe(router);
+        });
+
+        it("测试 4: attach() 应开始监听 history 变化", async () => {
+            router = await createRouter({ routes });
+
+            router.attach(host);
+
+            // 验证 _cleanups 数组不为空（说明已注册监听器）
+            expect(router["_cleanups"].length).toBeGreaterThan(0);
+        });
+
+        it("测试 5: attach() 应设置 context provider", async () => {
+            router = await createRouter({ routes });
+
+            // Mock attachContextProvider 方法来验证调用
+            let attachContextCalled = false;
+            const originalAttachContext = router.attachContextProvider.bind(router);
+            router.attachContextProvider = () => {
+                attachContextCalled = true;
+                originalAttachContext();
+            };
+
+            router.attach(host);
+
+            expect(attachContextCalled).toBe(true);
+        });
+
+        it("测试 6: 重复调用 attach() 应抛出错误", async () => {
+            router = await createRouter({ routes });
+
+            router.attach(host);
+
+            expect(() => router.attach(host)).toThrow("[KylinRouter] Already attached to a host element");
+        });
+
+        it("测试 7: attach() 使用无效 host 应抛出错误", async () => {
+            router = await createRouter({ routes });
+
+            // 传入 null 来模拟无效 host
+            expect(() => router.attach(null as any)).toThrow();
+        });
+    });
 });
