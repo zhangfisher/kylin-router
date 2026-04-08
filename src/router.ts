@@ -359,30 +359,16 @@ export class KylinRouter extends Mixin(
                     (this.routes.current.route as any).componentContent = loadResult.content;
                 } else {
                     this.log("组件加载: 失败", loadResult.error);
-                    // 触发组件加载错误事件
-                    this.emit("component-load-error" as any, {
-                        route: this.routes.current.route,
-                        error: loadResult.error,
-                    });
 
-                    // 使用 notFound 组件作为回退
-                    if (this.options.notFound) {
-                        this.log("组件加载: 使用 notFound 组件作为回退");
-                        const notFoundView = this.options.notFound.view;
-                        if (
-                            notFoundView &&
-                            (typeof notFoundView === "string" || typeof notFoundView === "function")
-                        ) {
-                            const notFoundResult = await this.viewLoader.loadView(
-                                notFoundView,
-                                (this.options.notFound as any).remoteOptions,
-                            );
-                            if (notFoundResult.success) {
-                                (this.routes.current.route as any).componentContent =
-                                    notFoundResult.content;
-                            }
-                        }
+                    // 使用 DataLoader 处理错误（Task 6）
+                    const targetOutlet = this.findOutletByPath(this.routes.current.route.path);
+                    if (targetOutlet && loadResult.error) {
+                        await (this as any).handleError(loadResult.error, this.routes.current.route, targetOutlet);
                     }
+
+                    // 组件加载失败，不继续后续流程
+                    this.isNavigating = false;
+                    return;
                 }
             } else {
                 // HTMLElement 类型，直接存储
@@ -662,6 +648,82 @@ export class KylinRouter extends Mixin(
         if (!this.routes.current.route) return null;
         // 调用 Render 类的 createRenderContext 方法（Render 是通过 Mixin 继承的）
         return (this as any).createRenderContext(this.routes.current.route);
+    }
+
+    /**
+     * 显示加载状态（D-10, D-11）
+     * @param outlet - 目标 outlet 元素
+     */
+    private showLoading(outlet: HTMLElement): void {
+        const route = this.routes.current.route;
+        if (!route) return;
+
+        // 获取加载配置：路由级 > 全局
+        const loadingConfig = (route as any).loadingConfig || this.options.defaultLoadingTemplate;
+
+        const loadingElement = document.createElement("kylin-loading");
+        if (loadingConfig?.template) {
+            loadingElement.template = loadingConfig.template;
+        }
+
+        outlet.innerHTML = "";
+        outlet.appendChild(loadingElement);
+
+        // 触发 loading-start 事件（使用 Emit mixin）
+        (this as any).emit?.("loading-start", { route, outlet });
+    }
+
+    /**
+     * 隐藏加载状态
+     * @param outlet - 目标 outlet 元素
+     */
+    private hideLoading(outlet: HTMLElement): void {
+        const loading = outlet.querySelector("kylin-loading");
+        if (loading) {
+            loading.remove();
+        }
+
+        // 触发 loading-end 事件（使用 Emit mixin）
+        (this as any).emit?.("loading-end", { outlet });
+    }
+
+    /**
+     * 手动重试加载（Task 6）
+     * @param route - 目标路由（可选，默认使用当前路由）
+     */
+    async retryLoad(route?: RouteItem): Promise<void> {
+        const targetRoute = route || this.routes.current.route;
+        if (!targetRoute) return;
+
+        const targetOutlet = this.findOutletByPath(targetRoute.path);
+        if (!targetOutlet) return;
+
+        // 获取重试配置
+        const retryConfig = (targetRoute as any).retry || { max: 3, delay: 1000, backoff: "linear" };
+
+        try {
+            // 调用 DataLoader 的重试方法
+            const result = await (this as any).retryLoad(targetRoute, targetOutlet, retryConfig);
+
+            if (result.success) {
+                // 重试成功，渲染组件
+                await (this as any).renderToOutlet(result, targetOutlet, { mode: "replace" });
+            }
+        } catch (error) {
+            console.error("重试加载失败:", error);
+        }
+    }
+
+    /**
+     * 获取错误边界配置（Task 6）
+     * @param route - 目标路由
+     * @returns 错误边界配置
+     */
+    getErrorConfig(route: RouteItem): any {
+        return (route as any).errorBoundary || {
+            component: this.options.defaultErrorComponent,
+            retry: true,
+        };
     }
 
     /**
