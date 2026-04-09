@@ -9,6 +9,14 @@ export class KylinOutletElement extends KylinRouterElementBase {
 
     @property({ type: String, reflect: true })
     path?: string;
+
+    /**
+     * 是否为模态 outlet
+     * 模态 outlet 用于渲染模态路由内容
+     */
+    @property({ type: Boolean, reflect: true })
+    isModal: boolean = false;
+
     /**
      * 路由加载超时时间，单位毫秒，默认 5000ms
      */
@@ -36,6 +44,11 @@ export class KylinOutletElement extends KylinRouterElementBase {
     connectedCallback() {
         super.connectedCallback();
         this._setupRouteListener();
+
+        // 如果是模态 outlet，设置特殊行为
+        if (this.isModal) {
+            this.setupModalBehavior();
+        }
     }
 
     disconnectedCallback() {
@@ -58,6 +71,19 @@ export class KylinOutletElement extends KylinRouterElementBase {
     private async _handleRouteChange(event: Event) {
         const customEvent = event as CustomEvent;
         const { route } = customEvent.detail;
+
+        // 检查是否为模态路由
+        const isModalRoute = (this.router as any).getModalConfig?.(route)?.modal;
+
+        if (isModalRoute && !this.isModal) {
+            // 模态路由但不是模态 outlet，不渲染
+            return;
+        }
+
+        if (!isModalRoute && this.isModal) {
+            // 普通路由但是模态 outlet，不渲染
+            return;
+        }
 
         // 检查是否匹配当前 outlet 的 path
         if (this.path && !this._matchesPath(route.path)) {
@@ -113,6 +139,29 @@ export class KylinOutletElement extends KylinRouterElementBase {
                 <p>${message}</p>
             </div>
         `;
+    }
+
+    /**
+     * 设置模态 outlet 的特殊行为
+     */
+    private setupModalBehavior() {
+        // 模态 outlet 的特殊样式和定位
+        this.style.position = 'relative';
+        this.style.zIndex = '1';
+
+        // 设置模态关闭监听
+        this._setupModalCloseListener();
+    }
+
+    /**
+     * 设置模态关闭监听器
+     */
+    private _setupModalCloseListener() {
+        this.addEventListener('close-modal', () => {
+            if (this.router) {
+                (this.router as any).closeModal();
+            }
+        });
     }
 
     render() {
