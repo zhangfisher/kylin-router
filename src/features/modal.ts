@@ -444,12 +444,12 @@ export class Modal {
                 overflow: auto;
             }
 
-            /* 左侧抽屉 */
+            /* 左侧抽屉 - 水平滑动，固定高度 */
             .kylin-modal-drawer.kylin-modal-left {
                 width: 300px;
                 top: 0;
                 left: 0;
-                height: 100%;
+                height: 100vh;
                 animation: kylin-slide-in-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
@@ -457,12 +457,12 @@ export class Modal {
                 animation: kylin-slide-out-left 0.2s ease-in forwards;
             }
 
-            /* 右侧抽屉 */
+            /* 右侧抽屉 - 水平滑动，固定高度 */
             .kylin-modal-drawer.kylin-modal-right {
                 width: 300px;
                 top: 0;
                 right: 0;
-                height: 100%;
+                height: 100vh;
                 animation: kylin-slide-in-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
@@ -470,7 +470,7 @@ export class Modal {
                 animation: kylin-slide-out-right 0.2s ease-in forwards;
             }
 
-            /* 顶部抽屉 */
+            /* 顶部抽屉 - 垂直滑动，固定宽度，使用 clip-path */
             .kylin-modal-drawer.kylin-modal-top {
                 height: 300px;
                 top: 0;
@@ -483,7 +483,7 @@ export class Modal {
                 animation: kylin-slide-out-top 0.2s ease-in forwards;
             }
 
-            /* 底部抽屉 */
+            /* 底部抽屉 - 垂直滑动，固定宽度，使用 clip-path */
             .kylin-modal-drawer.kylin-modal-bottom {
                 height: 300px;
                 bottom: 0;
@@ -729,23 +729,39 @@ export class Modal {
             }
 
             @keyframes kylin-slide-in-top {
-                from { transform: translateY(-100%); }
-                to { transform: translateY(0); }
+                from {
+                    clip-path: inset(0 0 100% 0);
+                }
+                to {
+                    clip-path: inset(0 0 0 0);
+                }
             }
 
             @keyframes kylin-slide-out-top {
-                from { transform: translateY(0); }
-                to { transform: translateY(-100%); }
+                from {
+                    clip-path: inset(0 0 0 0);
+                }
+                to {
+                    clip-path: inset(0 0 100% 0);
+                }
             }
 
             @keyframes kylin-slide-in-bottom {
-                from { transform: translateY(100%); }
-                to { transform: translateY(0); }
+                from {
+                    clip-path: inset(100% 0 0 0);
+                }
+                to {
+                    clip-path: inset(0 0 0 0);
+                }
             }
 
             @keyframes kylin-slide-out-bottom {
-                from { transform: translateY(0); }
-                to { transform: translateY(100%); }
+                from {
+                    clip-path: inset(0 0 0 0);
+                }
+                to {
+                    clip-path: inset(100% 0 0 0);
+                }
             }
 
             /* ==================== 自定义内容样式 ==================== */
