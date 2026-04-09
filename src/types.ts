@@ -103,6 +103,12 @@ export interface RouteItem {
      * 重试策略配置
      */
     retry?: RetryConfig;
+    /**
+     * 模态路由配置
+     * - boolean: true 表示为模态路由，使用默认配置
+     * - ModalConfig: 自定义模态配置
+     */
+    modal?: boolean | ModalConfig;
 }
 
 export type KylinRoutes =
@@ -241,4 +247,63 @@ export type KylinRouterOptiopns = {
     defaultErrorComponent?: string | (() => Promise<any>);
     /** 全局加载模板 */
     defaultLoadingTemplate?: any;
+    /** 模态容器选择器（默认 '.kylin-modals'） */
+    modalContainer?: string;
 };
+
+/**
+ * 模态路由配置接口
+ * 用于在路由配置中声明模态路由的行为和交互
+ */
+export interface ModalConfig {
+    /** 是否为模态路由 */
+    modal: boolean;
+    /** 是否显示背景遮罩（默认 true） */
+    backdrop?: boolean;
+    /** 点击遮罩是否关闭模态（默认 true） */
+    closeOnBackdropClick?: boolean;
+    /** 按 ESC 键是否关闭模态（默认 true） */
+    closeOnEsc?: boolean;
+    /** 是否支持多层模态堆叠（默认 true） */
+    stackable?: boolean;
+}
+
+/**
+ * 模态栈项接口
+ * 表示模态栈中的一个模态实例
+ */
+export interface ModalStackItem {
+    /** 模态路由配置对象 */
+    route: RouteItem;
+    /** 模态 DOM 元素 */
+    element: HTMLElement;
+    /** 背景遮罩元素（可选） */
+    backdrop?: HTMLElement;
+    /** 创建时间戳 */
+    timestamp: number;
+}
+
+/**
+ * 模态状态接口
+ * 管理当前打开的所有模态
+ */
+export type ModalState = {
+    /** 模态栈，存储所有打开的模态 */
+    stack: ModalStackItem[];
+    /** 当前活动的模态（栈顶） */
+    current: ModalStackItem | null;
+};
+
+/**
+ * 打开模态的选项接口
+ */
+export interface ModalOptions {
+    /** 路由路径或配置对象 */
+    route?: string | RouteItem;
+    /** 路由参数 */
+    params?: Record<string, string>;
+    /** 查询参数 */
+    query?: Record<string, string>;
+    /** 是否显示背景遮罩 */
+    backdrop?: boolean;
+}
