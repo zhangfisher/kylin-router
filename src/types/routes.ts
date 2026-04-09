@@ -320,7 +320,42 @@ export interface ModalConfig {
     modal: boolean;
 
     /**
+     * 模态显示类型（默认 'dialog'）
+     * - dialog: 对话框式模态，支持9种位置
+     * - drawer: 抽屉式模态，支持4种边缘位置
+     */
+    type?: 'dialog' | 'drawer';
+
+    /**
+     * 模态显示位置
+     * - dialog 支持: center, top, top-left, top-right, right, bottom-right, bottom, bottom-left, left
+     * - drawer 支持: left, right, top, bottom
+     * @default center
+     */
+    position?: 'center' | 'top' | 'top-left' | 'top-right' | 'right' | 'bottom-right' | 'bottom' | 'bottom-left' | 'left';
+
+    /**
+     * 在 position 基础上的额外偏移量（像素）
+     * @example [20, 10] 表示向右偏移20px，向下偏移10px
+     */
+    offset?: [number, number];
+
+    /**
+     * 自动关闭倒计时（毫秒）
+     * 设置后模态将在指定时间后自动关闭
+     * @example 3000 表示3秒后自动关闭
+     */
+    autoClose?: number;
+
+    /**
+     * 是否隐藏背景遮罩（默认 false）
+     * 设置为 true 时将不显示背景遮罩
+     */
+    hideMask?: boolean;
+
+    /**
      * 是否显示背景遮罩（默认 true）
+     * @deprecated 使用 hideMask 替代
      */
     backdrop?: boolean;
 

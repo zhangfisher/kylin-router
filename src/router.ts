@@ -553,6 +553,16 @@ export class KylinRouter extends Mixin(
         this._ensureAttached();
         this._pendingNavigationType = "push";
         this.log(`导航方法: push(${path})`);
+
+        // 检查是否为模态路由（! 前缀）
+        if (path.startsWith('!')) {
+            const modalPath = path.slice(1); // 移除 ! 前缀
+            this.log(`检测到模态路由: ${modalPath}`);
+            // 直接触发模态路由，不进入 history
+            this.openModal({ route: modalPath });
+            return;
+        }
+
         // 触发 navigation-start 事件
         this.emit("navigation-start", {
             path,
@@ -865,6 +875,28 @@ export class KylinRouter extends Mixin(
                 position: relative;
                 pointer-events: auto;
                 z-index: 1;
+                background: white;
+                padding: 20px;
+                border-radius: 4px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            }
+            /* Drawer 样式 */
+            .kylin-modal-drawer {
+                background: white;
+                box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            }
+            .kylin-modal-drawer.kylin-modal-left {
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            }
+            .kylin-modal-drawer.kylin-modal-top {
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+            .kylin-modal-drawer.kylin-modal-bottom {
+                box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            }
+            /* 默认内容样式 */
+            .kylin-modal-content .custom-modal-content {
+                padding: 0;
             }
         `;
         document.head.appendChild(style);
@@ -920,6 +952,16 @@ export class KylinRouter extends Mixin(
             route,
             stackItem
         });
+
+        // 自动关闭功能
+        if (modalConfig.autoClose && modalConfig.autoClose > 0) {
+            setTimeout(() => {
+                // 检查模态是否仍然是顶层模态
+                if (this.modalState.current === stackItem) {
+                    this.closeTopModal();
+                }
+            }, modalConfig.autoClose);
+        }
 
         // 更新 URL（不影响主页面的历史记录）
         this.updateModalURL(route);
@@ -1008,7 +1050,12 @@ export class KylinRouter extends Mixin(
     /**
      * 创建背景遮罩（D-18）
      */
-    private createBackdrop(config: ModalConfig): HTMLElement {
+    private createBackdrop(config: ModalConfig): HTMLElement | undefined {
+        // 检查是否隐藏遮罩
+        if (config.hideMask === true) {
+            return undefined;
+        }
+
         const backdrop = document.createElement('div');
         backdrop.className = 'kylin-modal-backdrop';
 
@@ -1028,13 +1075,111 @@ export class KylinRouter extends Mixin(
     private async renderModal(stackItem: ModalStackItem): Promise<void> {
         const container = this.modalContainer!;
 
+        // 获取模态配置
+        const modalConfig = this.getModalConfig(stackItem.route);
+
         // 添加背景遮罩
         if (stackItem.backdrop) {
             container.appendChild(stackItem.backdrop);
         }
 
+        // 应用模态样式（类型、位置、偏移）
+        this.applyModalStyles(stackItem.element, modalConfig);
+
         // 添加模态内容
         container.appendChild(stackItem.element);
+    }
+
+    /**
+     * 应用模态样式
+     */
+    private applyModalStyles(element: HTMLElement, config: ModalConfig | null): void {
+        if (!config) return;
+
+        const type = config.type || 'dialog';
+        const position = config.position || 'center';
+        const offset = config.offset || [0, 0];
+
+        // 设置类型样式类
+        element.classList.add(`kylin-modal-${type}`);
+        element.classList.add(`kylin-modal-${position}`);
+
+        // 应用位置样式
+        this.applyPositionStyles(element, type, position, offset);
+    }
+
+    /**
+     * 应用位置样式
+     */
+    private applyPositionStyles(
+        element: HTMLElement,
+        type: string,
+        position: string,
+        offset: [number, number]
+    ): void {
+        const style = element.style;
+
+        // 重置基本样式
+        style.position = 'fixed';
+        style.zIndex = '10000';
+
+        // 根据类型应用默认样式
+        if (type === 'dialog') {
+            // dialog 默认有固定的宽度和最大高度
+            style.maxWidth = '600px';
+            style.maxHeight = '80vh';
+            style.overflow = 'auto';
+        } else if (type === 'drawer') {
+            // drawer 默认宽度较小
+            style.width = '300px';
+            style.maxHeight = '100vh';
+            style.overflow = 'auto';
+        }
+
+        // 应用位置
+        switch (position) {
+            case 'center':
+                style.top = '50%';
+                style.left = '50%';
+                style.transform = `translate(calc(-50% + ${offset[0]}px), calc(-50% + ${offset[1]}px))`;
+                break;
+            case 'top':
+                style.top = `${offset[1]}px`;
+                style.left = '50%';
+                style.transform = `translateX(calc(-50% + ${offset[0]}px))`;
+                break;
+            case 'top-left':
+                style.top = `${offset[1]}px`;
+                style.left = `${offset[0]}px`;
+                break;
+            case 'top-right':
+                style.top = `${offset[1]}px`;
+                style.right = `${offset[0]}px`;
+                break;
+            case 'right':
+                style.top = '50%';
+                style.right = `${offset[0]}px`;
+                style.transform = `translateY(calc(-50% + ${offset[1]}px))`;
+                break;
+            case 'bottom-right':
+                style.bottom = `${offset[1]}px`;
+                style.right = `${offset[0]}px`;
+                break;
+            case 'bottom':
+                style.bottom = `${offset[1]}px`;
+                style.left = '50%';
+                style.transform = `translateX(calc(-50% + ${offset[0]}px))`;
+                break;
+            case 'bottom-left':
+                style.bottom = `${offset[1]}px`;
+                style.left = `${offset[0]}px`;
+                break;
+            case 'left':
+                style.top = '50%';
+                style.left = `${offset[0]}px`;
+                style.transform = `translateY(calc(-50% + ${offset[1]}px))`;
+                break;
+        }
     }
 
     /**
