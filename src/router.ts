@@ -903,4 +903,189 @@ export class KylinRouter extends Mixin(
         `;
         document.head.appendChild(style);
     }
+
+    /**
+     * 打开模态（D-16）
+     * @param options - 模态选项
+     */
+    async openModal(options: ModalOptions): Promise<void> {
+        // 解析路由配置
+        const route = this.resolveModalRoute(options);
+        if (!route) {
+            throw new Error('Invalid modal route');
+        }
+
+        // 检查模态配置
+        const modalConfig = this.getModalConfig(route);
+        if (!modalConfig?.modal) {
+            throw new Error('Route is not configured as modal');
+        }
+
+        // 检查模态栈限制
+        if (this.modalState.stack.length >= this.maxModals) {
+            console.warn('Maximum modal stack depth reached');
+            return;
+        }
+
+        // 创建模态元素
+        const modalElement = await this.createModalElement(route, modalConfig);
+
+        // 创建背景遮罩（D-18）
+        let backdropElement: HTMLElement | undefined;
+        if (modalConfig.backdrop !== false) {
+            backdropElement = this.createBackdrop(modalConfig);
+        }
+
+        // 添加到模态栈（D-19）
+        const stackItem: ModalStackItem = {
+            route,
+            element: modalElement,
+            backdrop: backdropElement,
+            timestamp: Date.now()
+        };
+        this.modalState.stack.push(stackItem);
+        this.modalState.current = stackItem;
+
+        // 渲染模态内容
+        await this.renderModal(stackItem);
+
+        // 触发事件
+        this.emit('modal-open', {
+            route,
+            stackItem
+        });
+
+        // 更新 URL（不影响主页面的历史记录）
+        this.updateModalURL(route);
+    }
+
+    /**
+     * 关闭顶层模态（D-20）
+     */
+    async closeTopModal(): Promise<void> {
+        if (this.modalState.stack.length === 0) {
+            return;
+        }
+
+        const stackItem = this.modalState.stack.pop();
+        if (!stackItem) return;
+
+        // 移除模态元素和遮罩
+        stackItem.element.remove();
+        stackItem.backdrop?.remove();
+
+        // 更新当前模态
+        this.modalState.current = this.modalState.stack[this.modalState.stack.length - 1] || null;
+
+        // 触发事件
+        this.emit('modal-close', {
+            route: stackItem.route,
+            stackItem
+        });
+
+        // 恢复 URL
+        this.restoreModalURL();
+    }
+
+    /**
+     * 关闭所有模态
+     */
+    async closeAllModals(): Promise<void> {
+        while (this.modalState.stack.length > 0) {
+            await this.closeTopModal();
+        }
+    }
+
+    /**
+     * 创建模态元素
+     */
+    private async createModalElement(route: RouteItem, config: ModalConfig): Promise<HTMLElement> {
+        const element = document.createElement('div');
+        element.className = 'kylin-modal-content';
+
+        // 加载组件
+        if (route.view) {
+            const loadResult = await this.viewLoader.loadView(
+                route.view,
+                (route as any).remoteOptions
+            );
+
+            if (loadResult.success && loadResult.content) {
+                // 渲染组件到模态元素
+                await this.render.renderToOutlet(loadResult.content, element, {
+                    mode: 'replace'
+                });
+            }
+        }
+
+        return element;
+    }
+
+    /**
+     * 创建背景遮罩（D-18）
+     */
+    private createBackdrop(config: ModalConfig): HTMLElement {
+        const backdrop = document.createElement('div');
+        backdrop.className = 'kylin-modal-backdrop';
+
+        // 点击遮罩关闭模态
+        if (config.closeOnBackdropClick !== false) {
+            backdrop.addEventListener('click', () => {
+                this.closeTopModal();
+            });
+        }
+
+        return backdrop;
+    }
+
+    /**
+     * 渲染模态
+     */
+    private async renderModal(stackItem: ModalStackItem): Promise<void> {
+        const container = this.modalContainer!;
+
+        // 添加背景遮罩
+        if (stackItem.backdrop) {
+            container.appendChild(stackItem.backdrop);
+        }
+
+        // 添加模态内容
+        container.appendChild(stackItem.element);
+    }
+
+    /**
+     * 解析模态路由
+     */
+    private resolveModalRoute(options: ModalOptions): RouteItem | null {
+        if (options.route) {
+            if (typeof options.route === 'string') {
+                // 通过路径查找路由
+                return this.routes.match(options.route)?.route || null;
+            } else {
+                // 直接使用路由配置
+                return options.route;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 更新模态 URL
+     */
+    private updateModalURL(route: RouteItem): void {
+        // 使用 replaceState 更新 URL，不影响历史记录
+        if (route.path) {
+            this.history.replace(route.path);
+        }
+    }
+
+    /**
+     * 恢复模态 URL
+     */
+    private restoreModalURL(): void {
+        // 恢复到主路由的 URL
+        if (this.routes.current.route?.path) {
+            this.history.replace(this.routes.current.route.path);
+        }
+    }
 }
