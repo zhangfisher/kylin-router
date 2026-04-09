@@ -275,6 +275,13 @@ export interface RouteItem {
      * - append: 追加模式
      */
     renderMode?: RenderMode;
+
+    /**
+     * 模态路由配置
+     * - boolean: true 表示为模态路由，使用默认配置
+     * - ModalConfig: 自定义模态配置
+     */
+    modal?: boolean | ModalConfig;
 }
 
 /**
@@ -297,4 +304,103 @@ export interface MatchedRoute {
     params: Record<string, string>;
     /** 剩余未匹配的路径，用于嵌套路由 */
     remainingPath: string;
+}
+
+// ============================================================================
+// 模态路由相关类型定义
+// ============================================================================
+
+/**
+ * 模态路由配置接口
+ */
+export interface ModalConfig {
+    /**
+     * 是否为模态路由
+     */
+    modal: boolean;
+
+    /**
+     * 是否显示背景遮罩（默认 true）
+     */
+    backdrop?: boolean;
+
+    /**
+     * 点击遮罩是否关闭（默认 true）
+     */
+    closeOnBackdropClick?: boolean;
+
+    /**
+     * 按 ESC 键是否关闭（默认 true）
+     */
+    closeOnEsc?: boolean;
+
+    /**
+     * 是否支持多层模态（默认 true）
+     */
+    stackable?: boolean;
+}
+
+/**
+ * 模态栈项接口
+ */
+export interface ModalStackItem {
+    /**
+     * 模态路由对象
+     */
+    route: RouteItem;
+
+    /**
+     * 模态元素
+     */
+    element: HTMLElement;
+
+    /**
+     * 背景遮罩元素（可选）
+     */
+    backdrop?: HTMLElement;
+
+    /**
+     * 创建时间戳
+     */
+    timestamp: number;
+}
+
+/**
+ * 模态状态类型
+ */
+export interface ModalState {
+    /**
+     * 模态栈
+     */
+    stack: ModalStackItem[];
+
+    /**
+     * 当前模态
+     */
+    current: ModalStackItem | null;
+}
+
+/**
+ * 打开模态的选项接口
+ */
+export interface ModalOptions {
+    /**
+     * 路由路径或配置
+     */
+    route?: string | RouteItem;
+
+    /**
+     * 路由参数
+     */
+    params?: Record<string, string>;
+
+    /**
+     * 查询参数
+     */
+    query?: Record<string, string>;
+
+    /**
+     * 是否显示背景遮罩
+     */
+    backdrop?: boolean;
 }

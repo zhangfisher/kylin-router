@@ -115,6 +115,15 @@ export class RouteRegistry {
     }
 
     /**
+     * 匹配路径并返回匹配结果
+     * @param pathname - 要匹配的路径
+     * @returns 匹配结果或 null
+     */
+    public match(pathname: string): ReturnType<typeof matchRoute> {
+        return matchRoute(pathname, this.routes) || null;
+    }
+
+    /**
      * 动态删除指定名称的路由
      * 支持递归删除嵌套路由
      * 如果删除的是当前访问的路由，自动重定向到默认路由或 404

@@ -662,8 +662,10 @@ export class KylinRouter extends Mixin(
             }
 
             try {
-                // 使用 Render 类渲染组件
-                await this.renderToOutlet(loadResult, outlet, route);
+                // 使用 Render 类渲染组件（Render 是通过 Mixin 继承的）
+                await super.renderToOutlet(loadResult, outlet, {
+                    mode: (route as any).renderMode,
+                });
             } catch (error) {
                 console.error(`渲染 outlet [${outlet.path || "default"}] 失败:`, error);
             }
@@ -679,16 +681,6 @@ export class KylinRouter extends Mixin(
     private _outletMatchesRoute(outlet: any, route: RouteItem): boolean {
         if (!outlet.path) return true;
         return route.path === outlet.path || route.path.startsWith(outlet.path + "/");
-    }
-
-    /**
-     * 渲染组件到指定 outlet
-     */
-    private async renderToOutlet(loadResult: any, outlet: any, route: RouteItem): Promise<void> {
-        // 调用 Render 类的 renderToOutlet 方法（Render 是通过 Mixin 继承的）
-        await (this as any).renderToOutlet(loadResult, outlet, {
-            mode: (route as any).renderMode,
-        });
     }
 
     /**
@@ -713,43 +705,6 @@ export class KylinRouter extends Mixin(
         if (!this.routes.current.route) return null;
         // 调用 Render 类的 createRenderContext 方法（Render 是通过 Mixin 继承的）
         return (this as any).createRenderContext(this.routes.current.route);
-    }
-
-    /**
-     * 显示加载状态（D-10, D-11）
-     * @param outlet - 目标 outlet 元素
-     */
-    private showLoading(outlet: HTMLElement): void {
-        const route = this.routes.current.route;
-        if (!route) return;
-
-        // 获取加载配置：路由级 > 全局
-        const loadingConfig = (route as any).loadingConfig || this.options.defaultLoadingTemplate;
-
-        const loadingElement = document.createElement("kylin-loading");
-        if (loadingConfig?.template) {
-            loadingElement.template = loadingConfig.template;
-        }
-
-        outlet.innerHTML = "";
-        outlet.appendChild(loadingElement);
-
-        // 触发 loading-start 事件（使用 Emit mixin）
-        (this as any).emit?.("loading-start", { route, outlet });
-    }
-
-    /**
-     * 隐藏加载状态
-     * @param outlet - 目标 outlet 元素
-     */
-    private hideLoading(outlet: HTMLElement): void {
-        const loading = outlet.querySelector("kylin-loading");
-        if (loading) {
-            loading.remove();
-        }
-
-        // 触发 loading-end 事件（使用 Emit mixin）
-        (this as any).emit?.("loading-end", { outlet });
     }
 
     /**
@@ -951,7 +906,7 @@ export class KylinRouter extends Mixin(
         }
 
         // 创建模态元素
-        const modalElement = await this.createModalElement(route, modalConfig);
+        const modalElement = await this.createModalElement(route);
 
         // 创建背景遮罩（D-18）
         let backdropElement: HTMLElement | undefined;
@@ -1022,22 +977,29 @@ export class KylinRouter extends Mixin(
     /**
      * 创建模态元素
      */
-    private async createModalElement(route: RouteItem, config: ModalConfig): Promise<HTMLElement> {
+    private async createModalElement(route: RouteItem): Promise<HTMLElement> {
         const element = document.createElement('div');
         element.className = 'kylin-modal-content';
 
         // 加载组件
         if (route.view) {
-            const loadResult = await this.viewLoader.loadView(
-                route.view,
-                (route as any).remoteOptions
-            );
+            // 处理不同类型的 view
+            if (typeof route.view === 'string') {
+                // 字符串类型：可能是 URL 或元素名
+                const loadResult = await this.viewLoader.loadView(
+                    route.view,
+                    (route as any).remoteOptions
+                );
 
-            if (loadResult.success && loadResult.content) {
-                // 渲染组件到模态元素
-                await this.render.renderToOutlet(loadResult.content, element, {
-                    mode: 'replace'
-                });
+                if (loadResult.success && loadResult.content) {
+                    // 使用 Render mixin 的 renderToOutlet 方法
+                    await this.renderToOutlet(loadResult, element, {
+                        mode: 'replace'
+                    });
+                }
+            } else if (route.view instanceof HTMLElement) {
+                // HTMLElement 类型：直接附加到模态元素
+                element.appendChild(route.view);
             }
         }
 
