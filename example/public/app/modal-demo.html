@@ -514,13 +514,13 @@
         };
 
         // 监听模态事件
-        router.addEventListener('modal-open', (event) => {
-            console.log('模态打开:', event.detail);
+        router.on('modal-open', (event) => {
+            console.log('模态打开:', event);
             updateModalStackInfo();
         });
 
-        router.addEventListener('modal-close', (event) => {
-            console.log('模态关闭:', event.detail);
+        router.on('modal-close', (event) => {
+            console.log('模态关闭:', event);
             updateModalStackInfo();
         });
 
