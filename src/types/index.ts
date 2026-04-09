@@ -15,6 +15,9 @@ export * from "./hooks";
 export * from "./config";
 export * from "./events";
 
+// 模态路由相关类型
+export * from "./modals";
+
 // 渲染系统相关类型（从 routes.ts 导出）
 export type {
     RenderMode,

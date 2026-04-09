@@ -6,9 +6,13 @@ import type { RenderEachHook, RouteData } from "./hooks";
 import type { TemplateResult } from "lit";
 import type { KylinRouter } from "@/router";
 import type { ErrorBoundaryConfig, LoadingConfig, RetryConfig } from "./config";
+import type { ModalConfig } from "./modals";
 
 // 重新导出 RouteData 以保持向后兼容
 export type { RouteData };
+
+// 重新导出模态相关类型以保持向后兼容
+export type { ModalConfig, ModalState, ModalStackItem, ModalOptions } from "./modals";
 
 // ============================================================================
 // 渲染系统相关类型定义
@@ -31,19 +35,19 @@ export type TemplateData = Record<string, any>;
  * 渲染上下文接口
  * 提供模板渲染时所需的上下文数据
  */
-export interface RenderContext {
-    /**
-     * 路由器实例
-     */
-    router: KylinRouter;
-
+export interface RenderContext { 
     /**
      * 当前路由对象，包含预加载的数据
      */
-    route: RouteItem & {
-        data?: RouteData;
-    };
-
+    $route: RouteItem;
+    /**
+     * 查询参数对象
+     */
+    $query: Record<string, string>;
+    /**
+     * 路由参数对象
+     */
+    $params: Record<string, string>;
     /**
      * route.data 的字段会被展开为局部变量
      * 允许通过键值对访问其他上下文数据
@@ -306,130 +310,3 @@ export interface MatchedRoute {
     remainingPath: string;
 }
 
-// ============================================================================
-// 模态路由相关类型定义
-// ============================================================================
-
-/**
- * 模态路由配置接口
- */
-export interface ModalConfig {
-    /**
-     * 是否为模态路由
-     */
-    modal: boolean;
-
-    /**
-     * 模态显示类型（默认 'dialog'）
-     * - dialog: 对话框式模态，支持9种位置
-     * - drawer: 抽屉式模态，支持4种边缘位置
-     */
-    type?: 'dialog' | 'drawer';
-
-    /**
-     * 模态显示位置
-     * - dialog 支持: center, top, top-left, top-right, right, bottom-right, bottom, bottom-left, left
-     * - drawer 支持: left, right, top, bottom
-     * @default center
-     */
-    position?: 'center' | 'top' | 'top-left' | 'top-right' | 'right' | 'bottom-right' | 'bottom' | 'bottom-left' | 'left';
-
-    /**
-     * 在 position 基础上的额外偏移量（像素）
-     * @example [20, 10] 表示向右偏移20px，向下偏移10px
-     */
-    offset?: [number, number];
-
-    /**
-     * 自动关闭倒计时（毫秒）
-     * 设置后模态将在指定时间后自动关闭
-     * @example 3000 表示3秒后自动关闭
-     */
-    autoClose?: number;
-
-    /**
-     * 是否显示背景遮罩（默认 true）
-     * 设置为 false 时不显示背景遮罩
-     */
-    backdrop?: boolean;
-
-    /**
-     * 点击遮罩是否关闭（默认 true）
-     */
-    closeOnBackdropClick?: boolean;
-
-    /**
-     * 按 ESC 键是否关闭（默认 true）
-     */
-    closeOnEsc?: boolean;
-
-    /**
-     * 是否支持多层模态（默认 true）
-     */
-    stackable?: boolean;
-}
-
-/**
- * 模态栈项接口
- */
-export interface ModalStackItem {
-    /**
-     * 模态路由对象
-     */
-    route: RouteItem;
-
-    /**
-     * 模态元素
-     */
-    element: HTMLElement;
-
-    /**
-     * 背景遮罩元素（可选）
-     */
-    backdrop?: HTMLElement;
-
-    /**
-     * 创建时间戳
-     */
-    timestamp: number;
-}
-
-/**
- * 模态状态类型
- */
-export interface ModalState {
-    /**
-     * 模态栈
-     */
-    stack: ModalStackItem[];
-
-    /**
-     * 当前模态
-     */
-    current: ModalStackItem | null;
-}
-
-/**
- * 打开模态的选项接口
- */
-export interface ModalOptions {
-    /**
-     * 路由路径或配置
-     */
-    route?: string | RouteItem;
-
-    /**
-     * 路由参数
-     */
-    params?: Record<string, string>;
-
-    /**
-     * 查询参数
-     */
-    query?: Record<string, string>;
-
-    /**
-     * 是否显示背景遮罩
-     */
-    backdrop?: boolean;
-}

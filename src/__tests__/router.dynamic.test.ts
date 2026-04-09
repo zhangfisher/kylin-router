@@ -70,7 +70,7 @@ describe("Dynamic route registration API", () => {
         router = await createRouter(host, { routes });
 
         // 添加新路由
-        router.routes.addRoute({ name: "settings", path: "/settings" });
+        router.routes.add({ name: "settings", path: "/settings" });
 
         // 导航到新添加的路由
         router.push("/settings");
@@ -83,8 +83,8 @@ describe("Dynamic route registration API", () => {
         router = await createRouter(host, { routes });
 
         // 先添加参数化路由，后添加静态路由 - 静态路由应优先匹配
-        router.routes.addRoute({ name: "user-detail", path: "/user/:id" });
-        router.routes.addRoute({ name: "user-profile", path: "/user/profile" });
+        router.routes.add({ name: "user-detail", path: "/user/:id" });
+        router.routes.add({ name: "user-profile", path: "/user/profile" });
 
         router.push("/user/profile");
 
@@ -97,12 +97,12 @@ describe("Dynamic route registration API", () => {
         router = await createRouter(host, { routes });
 
         // 添加一个路由
-        router.routes.addRoute({ name: "settings", path: "/settings" });
+        router.routes.add({ name: "settings", path: "/settings" });
         router.push("/settings");
         expect(router.routes.current.route!.name).toBe("settings");
 
         // 删除路由
-        router.routes.removeRoute("settings");
+        router.routes.remove("settings");
 
         // 导航到已删除的路由应该匹配通配符
         router.push("/settings");
@@ -115,12 +115,12 @@ describe("Dynamic route registration API", () => {
             defaultRoute: "/",
         });
 
-        router.routes.addRoute({ name: "settings", path: "/settings" });
+        router.routes.add({ name: "settings", path: "/settings" });
         router.push("/settings");
         expect(router.routes.current.route!.name).toBe("settings");
 
         // 删除当前访问的路由
-        router.routes.removeRoute("settings");
+        router.routes.remove("settings");
 
         // 应该重定向到默认路由
         expect(router.routes.current.route!.name).toBe("home");
@@ -130,19 +130,19 @@ describe("Dynamic route registration API", () => {
         router = await createRouter(host, { routes });
 
         // 删除不存在的路由不应抛错
-        expect(() => router.routes.removeRoute("nonexistent")).not.toThrow();
+        expect(() => router.routes.remove("nonexistent")).not.toThrow();
     });
 
     it("添加重复 name 的路由应该覆盖旧路由", async () => {
         router = await createRouter(host, { routes });
 
         // 添加路由
-        router.routes.addRoute({ name: "settings", path: "/settings" });
+        router.routes.add({ name: "settings", path: "/settings" });
         router.push("/settings");
         expect(router.routes.current.route!.name).toBe("settings");
 
         // 覆盖同名路由到不同路径
-        router.routes.addRoute({ name: "settings", path: "/config" });
+        router.routes.add({ name: "settings", path: "/config" });
         router.push("/config");
         expect(router.routes.current.route!.name).toBe("settings");
         expect(router.location.pathname).toBe("/config");

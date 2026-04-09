@@ -4,15 +4,15 @@ import type { ModalStackItem } from "./routes";
 
 export type KylinRouterEvents = {
     "navigation-start": { path?: string; navigationType?: "push" | "replace" | "pop" };
+    "navigation-end": {
+        location: Update;
+        navigationType: "push" | "replace" | "pop";
+    };
     "route-change": {
         route: RouteItem | undefined;
         params: Record<string, string>;
         query: Record<string, string>;
         location: Update;
-    };
-    "navigation-end": {
-        location: Update;
-        navigationType: "push" | "replace" | "pop";
     };
     "modal-open": {
         route: RouteItem;

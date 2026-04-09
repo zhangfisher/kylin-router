@@ -54,13 +54,13 @@ export class Render {
                 this.renderElement(content, outlet, mode);
             } else {
                 // 远程 HTML 内容
-                const context = this.createViewRenderContext(route);
+                const context = this._createViewRenderContext(route);
                 const template = this.compileTemplate(content, context);
                 this.renderTemplate(template, context, outlet, mode);
             }
         } else {
             // TemplateResult：直接渲染
-            const context = this.createViewRenderContext(route);
+            const context = this._createViewRenderContext(route);
             this.renderTemplate(content, context, outlet, mode);
         }
     }
@@ -96,19 +96,13 @@ export class Render {
      * @param route - 当前路由对象
      * @returns 渲染上下文
      */
-    protected createViewRenderContext(this: KylinRouter, route: RouteItem): RenderContext {
+    protected _createViewRenderContext(this: KylinRouter, route: RouteItem): RenderContext {
         // 创建基础上下文
-        const context: RenderContext = {
-            router: this,
-            route: {
-                ...route,
-                data: route.data || {},
-            },
-            // 展开 route.data 的所有字段为局部变量（D-04）
-            ...(route.data || {}),
-        };
-
-        return context;
+        const context:any = route.data || {}
+        context.$route = route;
+        context.$query = route.query || {}
+        context.$params = route.params || {}
+        return context as  RenderContext
     }
 
     /**
@@ -122,12 +116,9 @@ export class Render {
         const route = this.routes.current.route;
         if (!route) {
             return html`${htmlString}`;
-        }
-
-        const enhancedContext = this.createEnhancedContext(route);
-
+        } 
         // 使用模板变量插值系统
-        return this.interpolateTemplate(htmlString, enhancedContext);
+        return this.interpolateTemplate(htmlString, _context);
     }
 
     /**
@@ -307,22 +298,5 @@ export class Render {
         }
 
         return value;
-    }
-
-    /**
-     * 创建渲染上下文的辅助方法
-     * 提供特殊的快捷变量
-     * @param route - 当前路由对象
-     * @returns 增强的渲染上下文
-     */
-    private createEnhancedContext(this: KylinRouter, route: RouteItem): RenderContext {
-        const baseContext = this.createViewRenderContext(route);
-
-        // 添加快捷变量
-        return {
-            ...baseContext,
-            params: route.params || {},
-            query: route.query || {},
-        };
-    }
+    } 
 }

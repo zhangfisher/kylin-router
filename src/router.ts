@@ -13,26 +13,13 @@ import {
     DataLoader,
     ViewLoader,
     Emitter,
-    Redirect,
+    Redirect,Modal
 } from "./features";
 import { createHashHistoryFromLib } from "@/utils/hashUtils";
 
 import { HookManager } from "./features/hooks";
-import { RouteRegistry } from "./features/routes";
-import { isRouteItem } from "./utils/isRouteItem";
-
-/**
- * 类型守卫：检查对象是否为完整的 KylinRouterOptiopns
- */
-function isKylinRouterOptions(obj: unknown): obj is KylinRouterOptiopns {
-    if (typeof obj !== "object" || obj === null) {
-        return false;
-    }
-    const options = obj as Record<string, unknown>;
-    // 检查是否有 routes 属性
-    return "routes" in options;
-}
-
+import { RouteRegistry } from "./features/routes"; 
+ 
 /**
  *
  *
@@ -46,6 +33,7 @@ export class KylinRouter extends Mixin(
     Context,
     KeepAlive,
     Transition,
+    Modal,
     Preload,
     Render,
     Redirect,
@@ -55,27 +43,27 @@ export class KylinRouter extends Mixin(
     protected _cleanups: Array<() => void> = [];
     /** 宿主元素，在 attach() 方法调用后设置 */
     host!: HTMLElement;
-    history: ReturnType<typeof createBrowserHistory>;
+    history!: ReturnType<typeof createBrowserHistory>;
 
-    outlets?: OutletRefs;
-
+    outlets?: OutletRefs; 
     /** 路由表注册器 */
-    public routes: RouteRegistry;
+    public routes!: RouteRegistry;
 
     /** 钩子管理器 */
-    public hooks: HookManager;
+    public hooks!: HookManager;
 
     /** 组件加载器 */
-    private viewLoader: ViewLoader;
+    protected viewLoader!: ViewLoader;
 
     /** 数据加载器 */
-    private dataLoader: DataLoader;
+    protected dataLoader!: DataLoader;
 
     /** 是否正在导航 */
     isNavigating: boolean = false;
 
-    /** 是否启用调试模式 */
-    debug: boolean = false;
+
+    /** 待处理的导航类型，用于在 onRouteUpdate 中判断导航来源 */
+    private _pendingNavigationType?: "push" | "replace" | "pop";
 
     /** 上一个路由，用于 afterLeave 守卫 */
     protected previousRoute?: RouteItem & {
@@ -101,16 +89,16 @@ export class KylinRouter extends Mixin(
     private abortController: AbortController = new AbortController();
 
     /** 模态容器元素 */
-    private modalContainer: HTMLElement | null = null;
+    protected modalContainer: HTMLElement | null = null;
 
     /** 模态状态管理 */
-    private modalState: ModalState = {
+    protected modalState: ModalState = {
         stack: [],
         current: null
     };
 
     /** 最大模态层数，防止无限堆叠 */
-    private maxModals: number = 10;
+    protected maxModals: number = 10;
 
     /**
      * 构造函数 - 仅负责配置初始化，不操作 DOM
@@ -118,84 +106,56 @@ export class KylinRouter extends Mixin(
      * @param options - 路由配置选项
      */
     constructor(
-        host: HTMLElement,
+        host: HTMLElement | string,
         options: KylinRouterOptiopns | KylinRouterOptiopns["routes"] = [],
     ) {
         super();
-
-        // 验证 host 参数
-        if (!(host instanceof HTMLElement)) {
+        // 设置 host 元素
+        this.host = typeof host === "string"
+                ? (document.querySelector(host) as HTMLElement)
+                : host;
+        if (!(this.host instanceof HTMLElement)) {
             throw new Error("[KylinRouter] Host must be a valid HTMLElement");
-        }
-
-        // 规范化 options 参数（D-17: 支持多种路由配置格式）
-        let resolvedOptions: KylinRouterOptiopns;
-
-        if (Array.isArray(options)) {
-            // 情况1: 数组格式的路由配置
-            resolvedOptions = { routes: options, host };
-        } else if (typeof options === "string") {
-            // 情况2: 字符串格式的路由配置（URL路径）
-            resolvedOptions = { routes: options, host };
-        } else if (typeof options === "function") {
-            // 情况3: 函数格式的路由配置（异步加载）
-            resolvedOptions = { routes: options, host };
-        } else if (isRouteItem(options)) {
-            // 情况4: 单个 RouteItem 对象
-            resolvedOptions = { routes: [options], host };
-        } else if (isKylinRouterOptions(options)) {
-            // 情况5: 完整的 KylinRouterOptiopns 对象
-            resolvedOptions = { ...options, host };
-        } else {
-            // 情况6: 其他情况，作为空路由配置处理
-            resolvedOptions = { routes: [], host };
-        }
-
+        }        // 标记 host 元素
+        this.host.setAttribute("data-kylin-router", "");
+        (this.host as any).router = this;
+        
         // 存储解析后的最终配置
-        this.options = resolvedOptions;
-
-        // 根据 mode 创建对应的 History 实例（D-29 到 D-32）
-        const mode = this.options.mode || "history";
-        const base = this.options.base;
-        this.history = mode === "hash" ? createHashHistoryFromLib(base) : createBrowserHistory();
-
-        // 初始化路由表注册器
-        this.routes = new RouteRegistry();
-        this.routes.setCallbacks({
-            push: this.push.bind(this),
-            getLocation: () => ({
-                pathname: this.history.location.pathname,
-                search: this.history.location.search,
-            }),
-            setIsNavigating: (value) => {
-                this.isNavigating = value;
-            },
+        this.options = Object.assign({
+            mode: "history",
+            base: "",
+            debug: false,
+        },options && typeof(options)==='object' && 'routes' in options ? options :  {
+            routes: options            
         });
-        this.routes.initRoutes(
-            this.options.routes,
-            this.options.notFound,
-            this.options.defaultRoute,
-        );
-
-        // 初始化钩子管理器
-        this.hooks = new HookManager(this);
-
-        // 初始化组件加载器
-        this.viewLoader = new ViewLoader(this);
-
-        // 初始化数据加载器
-        this.dataLoader = new DataLoader(this);
-
-        // 设置调试模式
-        this.debug = this.options.debug || false;
+        
     }
-
+    /**
+     * 获取路由模式
+     * @returns 路由模式（history 或 hash）
+     */
+    get mode(){
+        return this.options.mode 
+    }
+    /**
+     * 获取基础路径
+     * @returns 基础路径（例如：/app）
+     */
+    get base(){
+        return this.options.base
+    }
+    /** 
+     * 是否启用调试模式 
+     * */
+    get debug(){
+        return this.options.debug
+    }
     /**
      * 调试日志输出方法
      * @param message - 日志消息
      * @param data - 附加数据（可选）
      */
-    private log(message: string, data?: any): void {
+    protected log(message: string, data?: any): void {
         if (this.debug) {
             console.log(`[KylinRouter] ${message}`, data || "");
         }
@@ -516,14 +476,11 @@ export class KylinRouter extends Mixin(
         this.routes.checkDefaultRedirect(pathname);
     }
 
-    /** 待处理的导航类型，用于在 onRouteUpdate 中判断导航来源 */
-    private _pendingNavigationType?: "push" | "replace" | "pop";
-
     /**
      * 确保 router 已 attached，否则抛出错误
      * @throws {Error} - 如果 router 未 attached
      */
-    private _ensureAttached(): void {
+    protected _ensureAttached(): void {
         if (!this.attached) {
             throw new Error(
                 "[KylinRouter] Cannot navigate: router is not attached to a host element. Call attach() first.",
@@ -694,15 +651,62 @@ export class KylinRouter extends Mixin(
         return outlets.find((outlet: any) => outlet.path === path) || null;
     }
 
-    /**
-     * 获取当前渲染上下文（公共方法）
-     */
-    get renderContext(): any | null {
-        if (!this.routes.current.route) return null;
-        // 调用 Render 类的 createRenderContext 方法（Render 是通过 Mixin 继承的）
-        return (this as any).createRenderContext(this.routes.current.route);
-    }
+    /** 
 
+
+    /**
+     * 将 router 绑定到 host 元素并开始监听路由变化
+     * @throws {Error} - 如果已 attached 或 host 无效
+     */
+    attach(): void {
+        if (this.attached) {
+            throw new Error("[KylinRouter] Already attached to a host element");
+        }
+
+        this.history = this.mode === "hash" ? createHashHistoryFromLib(this.base) : createBrowserHistory();
+
+        // 初始化路由表注册器
+        this.routes = new RouteRegistry();
+        this.routes.setCallbacks({
+            push: this.push.bind(this),
+            getLocation: () => ({
+                pathname: this.history.location.pathname,
+                search: this.history.location.search,
+            }),
+            setIsNavigating: (value) => {
+                this.isNavigating = value;
+            },
+        });
+        this.routes.initRoutes(
+            this.options.routes,
+            this.options.notFound,
+            this.options.defaultRoute,
+        );
+
+        // 初始化钩子管理器
+        this.hooks = new HookManager(this);
+
+        // 初始化组件加载器
+        this.viewLoader = new ViewLoader(this);
+
+        // 初始化数据加载器
+        this.dataLoader = new DataLoader(this);
+ 
+
+        // 开始监听路由变化
+        this._cleanups.push(this.history.listen(this.onRouteUpdate.bind(this)));
+
+        // 设置 context provider
+        this.attachContextProvider();
+
+        // 初始化模态容器
+        this._initModals();
+        // 执行初始路由匹配
+        this.routes.matchCurrentLocation();
+
+        // 标记为已绑定
+        this.attached = true;
+    }
     /**
      * 解除 router 与 host 的绑定并清理所有监听器
      */
@@ -735,534 +739,5 @@ export class KylinRouter extends Mixin(
 
         // 标记为未绑定
         this.attached = false;
-    }
-
-    /**
-     * 将 router 绑定到 host 元素并开始监听路由变化
-     * @throws {Error} - 如果已 attached 或 host 无效
-     */
-    attach(): void {
-        if (this.attached) {
-            throw new Error("[KylinRouter] Already attached to a host element");
-        }
-
-        // 从 options 中获取 host
-        const targetHost = this.options.host;
-
-        // 检查是否提供了有效的 host
-        if (!targetHost) {
-            throw new Error(
-                "[KylinRouter] Host element is required. Provide it in the constructor.",
-            );
-        }
-
-        // 设置 host 元素
-        this.host =
-            typeof targetHost === "string"
-                ? (document.querySelector(targetHost) as HTMLElement)
-                : targetHost;
-
-        if (!(this.host instanceof HTMLElement)) {
-            throw new Error("[KylinRouter] Host must be a valid HTMLElement");
-        }
-
-        // 标记 host 元素
-        this.host.setAttribute("data-kylin-router", "");
-        (this.host as any).router = this;
-
-        // 开始监听路由变化
-        this._cleanups.push(this.history.listen(this.onRouteUpdate.bind(this)));
-
-        // 设置 context provider
-        this.attachContextProvider();
-
-        // 标记为已绑定
-        this.attached = true;
-
-        // 执行初始路由匹配
-        this.routes.matchCurrentLocation();
-
-        // 初始化模态容器
-        this.initModals();
-    }
-
-    /**
-     * 初始化模态容器（D-17）
-     * 创建模态容器并设置事件监听
-     */
-    private initModals(): void {
-        this.createModalContainer();
-        this.setupModalEventListeners();
-        this.injectModalStyles();
-    }
-
-    /**
-     * 创建模态容器（D-17）
-     * 如果容器不存在则创建，并返回容器元素
-     */
-    private createModalContainer(): HTMLElement {
-        let container = this.host.querySelector('.kylin-modals') as HTMLElement;
-        if (!container) {
-            container = document.createElement('div');
-            container.className = 'kylin-modals';
-            this.host.appendChild(container);
-        }
-        this.modalContainer = container;
-        return container;
-    }
-
-    /**
-     * 设置模态事件监听
-     * 监听 ESC 键关闭模态
-     */
-    private setupModalEventListeners(): void {
-        // ESC 键关闭模态
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.modalState.current) {
-                const config = this.getModalConfig(this.modalState.current.route);
-                if (config?.closeOnEsc !== false) {
-                    this.closeTopModal();
-                }
-            }
-        });
-    }
-
-    /**
-     * 获取模态配置
-     * 从路由配置中提取模态配置
-     */
-    private getModalConfig(route: RouteItem): ModalConfig | null {
-        if (typeof route.modal === 'boolean') {
-            return route.modal ? { modal: true } : null;
-        }
-        return route.modal || null;
-    }
-
-    /**
-     * 注入模态样式
-     * 添加模态容器和背景遮罩的默认样式
-     */
-    private injectModalStyles(): void {
-        // 检查是否已注入样式
-        if (document.querySelector('#kylin-modal-styles')) {
-            return;
-        }
-
-        const style = document.createElement('style');
-        style.id = 'kylin-modal-styles';
-        style.textContent = `
-            .kylin-modals {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                z-index: 9999;
-                pointer-events: none;
-            }
-            .kylin-modal-backdrop {
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0, 0, 0, 0.5);
-                pointer-events: auto;
-            }
-            .kylin-modal-content {
-                position: relative;
-                pointer-events: auto;
-                z-index: 1;
-                background: white;
-                padding: 20px;
-                border-radius: 4px;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            }
-            /* Drawer 样式 */
-            .kylin-modal-drawer {
-                background: white;
-                box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
-            }
-            .kylin-modal-drawer.kylin-modal-left {
-                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-            }
-            .kylin-modal-drawer.kylin-modal-top {
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            }
-            .kylin-modal-drawer.kylin-modal-bottom {
-                box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-            }
-            /* 默认内容样式 */
-            .kylin-modal-content .custom-modal-content {
-                padding: 0;
-            }
-        `;
-        document.head.appendChild(style);
-    }
-
-    /**
-     * 打开模态（D-16）
-     * @param options - 模态选项
-     */
-    async openModal(options: ModalOptions): Promise<void> {
-        // 解析路由配置
-        const route = this.resolveModalRoute(options);
-        if (!route) {
-            throw new Error('Invalid modal route');
-        }
-
-        // 检查模态配置
-        const modalConfig = this.getModalConfig(route);
-        if (!modalConfig?.modal) {
-            throw new Error('Route is not configured as modal');
-        }
-
-        // 检查模态栈限制
-        if (this.modalState.stack.length >= this.maxModals) {
-            console.warn('Maximum modal stack depth reached');
-            return;
-        }
-
-        // 创建模态元素
-        const modalElement = await this.createModalElement(route);
-
-        // 创建背景遮罩（D-18）
-        let backdropElement: HTMLElement | undefined;
-        if (modalConfig.backdrop !== false) {
-            backdropElement = this.createBackdrop(modalConfig);
-        }
-
-        // 添加到模态栈（D-19）
-        const stackItem: ModalStackItem = {
-            route,
-            element: modalElement,
-            backdrop: backdropElement,
-            timestamp: Date.now()
-        };
-        this.modalState.stack.push(stackItem);
-        this.modalState.current = stackItem;
-
-        // 渲染模态内容
-        await this.renderModal(stackItem);
-
-        // 触发事件
-        this.emit('modal-open', {
-            route,
-            stackItem
-        });
-
-        // 自动关闭功能
-        if (modalConfig.autoClose && modalConfig.autoClose > 0) {
-            setTimeout(() => {
-                // 检查模态是否仍然是顶层模态
-                if (this.modalState.current === stackItem) {
-                    this.closeTopModal();
-                }
-            }, modalConfig.autoClose);
-        }
-
-        // 更新 URL（不影响主页面的历史记录）
-        this.updateModalURL(route);
-    }
-
-    /**
-     * 关闭顶层模态（D-20）
-     */
-    async closeTopModal(): Promise<void> {
-        if (this.modalState.stack.length === 0) {
-            return;
-        }
-
-        const stackItem = this.modalState.stack.pop();
-        if (!stackItem) return;
-
-        // 移除模态元素和遮罩
-        stackItem.element.remove();
-        stackItem.backdrop?.remove();
-
-        // 更新当前模态
-        this.modalState.current = this.modalState.stack[this.modalState.stack.length - 1] || null;
-
-        // 触发事件
-        this.emit('modal-close', {
-            route: stackItem.route,
-            stackItem
-        });
-
-        // 恢复 URL
-        this.restoreModalURL();
-    }
-
-    /**
-     * 关闭所有模态
-     */
-    async closeAllModals(): Promise<void> {
-        while (this.modalState.stack.length > 0) {
-            await this.closeTopModal();
-        }
-    }
-
-    /**
-     * 创建模态元素
-     */
-    private async createModalElement(route: RouteItem): Promise<HTMLElement> {
-        const element = document.createElement('div');
-        element.className = 'kylin-modal-content';
-
-        // 加载组件
-        if (route.view) {
-            // 处理不同类型的 view
-            if (typeof route.view === 'string') {
-                // 字符串类型：可能是 URL 或元素名
-                const loadResult = await this.viewLoader.loadView(
-                    route.view,
-                    (route as any).remoteOptions
-                );
-
-                if (loadResult.success && loadResult.content) {
-                    // 使用 Render mixin 的 renderToOutlet 方法
-                    await this.renderToOutlet(loadResult, element, {
-                        mode: 'replace'
-                    });
-                }
-            } else {
-                // HTMLElement 类型（包括 HTMLTemplateElement）
-                const viewElement = route.view as HTMLElement;
-
-                // 检查是否为 template 元素
-                if (viewElement.tagName === 'TEMPLATE') {
-                    // HTMLTemplateElement 类型：克隆模板内容并附加
-                    const templateElement = viewElement as HTMLTemplateElement;
-                    const clone = templateElement.content.cloneNode(true);
-                    element.appendChild(clone);
-                } else {
-                    // 普通 HTMLElement：直接附加到模态元素
-                    element.appendChild(viewElement);
-                }
-            }
-        }
-
-        return element;
-    }
-
-    /**
-     * 创建背景遮罩（D-18）
-     */
-    private createBackdrop(config: ModalConfig): HTMLElement | undefined {
-        // 检查是否隐藏遮罩（backdrop: false 表示不显示）
-        if (config.backdrop === false) {
-            return undefined;
-        }
-
-        const backdrop = document.createElement('div');
-        backdrop.className = 'kylin-modal-backdrop';
-
-        // 点击遮罩关闭模态
-        if (config.closeOnBackdropClick !== false) {
-            backdrop.addEventListener('click', () => {
-                this.closeTopModal();
-            });
-        }
-
-        return backdrop;
-    }
-
-    /**
-     * 渲染模态
-     */
-    private async renderModal(stackItem: ModalStackItem): Promise<void> {
-        const container = this.modalContainer!;
-
-        // 获取模态配置
-        const modalConfig = this.getModalConfig(stackItem.route);
-
-        // 添加背景遮罩
-        if (stackItem.backdrop) {
-            container.appendChild(stackItem.backdrop);
-        }
-
-        // 应用模态样式（类型、位置、偏移）
-        this.applyModalStyles(stackItem.element, modalConfig);
-
-        // 添加模态内容
-        container.appendChild(stackItem.element);
-    }
-
-    /**
-     * 应用模态样式
-     */
-    private applyModalStyles(element: HTMLElement, config: ModalConfig | null): void {
-        if (!config) return;
-
-        const type = config.type || 'dialog';
-        const position = config.position || 'center';
-        const offset = config.offset || [0, 0];
-
-        // 设置类型样式类
-        element.classList.add(`kylin-modal-${type}`);
-        element.classList.add(`kylin-modal-${position}`);
-
-        // 应用位置样式
-        this.applyPositionStyles(element, type, position, offset);
-    }
-
-    /**
-     * 应用位置样式
-     */
-    private applyPositionStyles(
-        element: HTMLElement,
-        type: string,
-        position: string,
-        offset: [number, number]
-    ): void {
-        const style = element.style;
-
-        // 重置基本样式
-        style.position = 'fixed';
-        style.zIndex = '10000';
-
-        // 根据类型应用默认样式
-        if (type === 'dialog') {
-            // dialog 默认有固定的宽度和最大高度
-            style.maxWidth = '600px';
-            style.maxHeight = '80vh';
-            style.overflow = 'auto';
-        } else if (type === 'drawer') {
-            // drawer 默认宽度较小
-            style.width = '300px';
-            style.maxHeight = '100vh';
-            style.overflow = 'auto';
-        }
-
-        // 应用位置
-        switch (position) {
-            case 'center':
-                style.top = '50%';
-                style.left = '50%';
-                style.transform = `translate(calc(-50% + ${offset[0]}px), calc(-50% + ${offset[1]}px))`;
-                break;
-            case 'top':
-                style.top = `${offset[1]}px`;
-                style.left = '50%';
-                style.transform = `translateX(calc(-50% + ${offset[0]}px))`;
-                break;
-            case 'top-left':
-                style.top = `${offset[1]}px`;
-                style.left = `${offset[0]}px`;
-                break;
-            case 'top-right':
-                style.top = `${offset[1]}px`;
-                style.right = `${offset[0]}px`;
-                break;
-            case 'right':
-                style.top = '50%';
-                style.right = `${offset[0]}px`;
-                style.transform = `translateY(calc(-50% + ${offset[1]}px))`;
-                break;
-            case 'bottom-right':
-                style.bottom = `${offset[1]}px`;
-                style.right = `${offset[0]}px`;
-                break;
-            case 'bottom':
-                style.bottom = `${offset[1]}px`;
-                style.left = '50%';
-                style.transform = `translateX(calc(-50% + ${offset[0]}px))`;
-                break;
-            case 'bottom-left':
-                style.bottom = `${offset[1]}px`;
-                style.left = `${offset[0]}px`;
-                break;
-            case 'left':
-                style.top = '50%';
-                style.left = `${offset[0]}px`;
-                style.transform = `translateY(calc(-50% + ${offset[1]}px))`;
-                break;
-        }
-    }
-
-    /**
-     * 解析模态路由
-     */
-    private resolveModalRoute(options: ModalOptions): RouteItem | null {
-        if (options.route) {
-            if (typeof options.route === 'string') {
-                // 通过路径查找路由
-                return this.routes.match(options.route)?.route || null;
-            } else {
-                // 直接使用路由配置
-                return options.route;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * 更新模态 URL（不改变 URL，模态路由与普通路由共存）
-     * 模态路由通过内部状态管理，不改变浏览器 URL
-     */
-    private updateModalURL(_route: RouteItem): void {
-        // 模态路由不改变 URL，保持当前 URL 不变
-        // 这样模态路由可以与普通路由共存
-    }
-
-    /**
-     * 恢复模态 URL（不需要恢复，因为 URL 从未改变）
-     */
-    private restoreModalURL(): void {
-        // 不需要恢复，因为模态路由不改变 URL
-    }
-
-    /**
-     * 关闭模态（D-20）
-     * @param route - 可选，指定要关闭的模态路由
-     */
-    async closeModal(route?: RouteItem | string): Promise<void> {
-        if (route) {
-            // 关闭指定模态
-            let targetRoute: RouteItem | null;
-            if (typeof route === 'string') {
-                // 通过路径查找路由
-                const matched = this.routes.match(route);
-                targetRoute = matched?.route || null;
-            } else {
-                targetRoute = route;
-            }
-
-            if (!targetRoute) return;
-
-            const index = this.modalState.stack.findIndex(
-                item => item.route === targetRoute
-            );
-            if (index !== -1) {
-                // 关闭该模态及上面的所有模态
-                while (this.modalState.stack.length > index) {
-                    await this.closeTopModal();
-                }
-            }
-        } else {
-            // 关闭顶层模态
-            await this.closeTopModal();
-        }
-    }
-
-    /**
-     * 检查是否有打开的模态
-     */
-    get hasOpenModals(): boolean {
-        return this.modalState.stack.length > 0;
-    }
-
-    /**
-     * 获取当前打开的模态数量
-     */
-    get modalCount(): number {
-        return this.modalState.stack.length;
-    }
-
-    /**
-     * 获取当前活动的模态
-     */
-    get currentModal(): ModalStackItem | null {
-        return this.modalState.current;
     }
 }

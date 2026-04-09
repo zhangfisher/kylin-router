@@ -340,6 +340,47 @@
                 </div>
             </div>
         </div>
+
+        <!-- 新功能演示：模态类型和位置 -->
+        <div class="demo-section">
+            <h2>6. 模态类型和位置</h2>
+            <div class="info-box">
+                <h4>功能说明</h4>
+                <p>演示不同的模态类型（dialog/drawer）和不同的显示位置。</p>
+                <p><strong>抽屉类型</strong>：left/right 为满高抽屉，top/bottom 为满宽抽屉。</p>
+            </div>
+            <div class="button-group">
+                <button class="primary" onclick="openDialogAt('center')">居中对话框</button>
+                <button class="secondary" onclick="openDialogAt('top-right')">右上对话框</button>
+                <button class="secondary" onclick="openDrawer('left')">左侧抽屉</button>
+                <button class="secondary" onclick="openDrawer('right')">右侧抽屉</button>
+                <button class="secondary" onclick="openDrawer('top')">顶部抽屉</button>
+                <button class="secondary" onclick="openDrawer('bottom')">底部抽屉</button>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>7. 自动关闭和遮罩控制</h2>
+            <div class="info-box">
+                <h4>功能说明</h4>
+                <p>演示自动关闭功能和隐藏遮罩功能。</p>
+            </div>
+            <div class="button-group">
+                <button class="secondary" onclick="openAutoCloseModal()">3秒自动关闭</button>
+                <button class="secondary" onclick="openModalNoMask()">无遮罩模态</button>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>8. 使用 ! 前缀路径</h2>
+            <div class="info-box">
+                <h4>功能说明</h4>
+                <p>使用 router.push("!/path") 可以直接打开模态，不进入 history 栈。</p>
+            </div>
+            <div class="button-group">
+                <button class="primary" onclick="openModalWithPrefix()">使用 ! 前缀打开模态</button>
+            </div>
+        </div>
     </div>
 
     <script type="module">
@@ -382,6 +423,91 @@
                     view: createCloseTestModalView(),
                     modal: true,
                     title: '关闭测试模态'
+                },
+                {
+                    name: 'dialog-center',
+                    path: '/modal/dialog-center',
+                    view: createDialogModalView('center'),
+                    modal: {
+                        type: 'dialog',
+                        position: 'center'
+                    },
+                    title: '居中对话框'
+                },
+                {
+                    name: 'dialog-top-right',
+                    path: '/modal/dialog-top-right',
+                    view: createDialogModalView('top-right'),
+                    modal: {
+                        type: 'dialog',
+                        position: 'top-right'
+                    },
+                    title: '右上对话框'
+                },
+                {
+                    name: 'drawer-left',
+                    path: '/modal/drawer-left',
+                    view: createDrawerModalView('left'),
+                    modal: {
+                        type: 'drawer',
+                        position: 'left'
+                    },
+                    title: '左侧抽屉'
+                },
+                {
+                    name: 'drawer-right',
+                    path: '/modal/drawer-right',
+                    view: createDrawerModalView('right'),
+                    modal: {
+                        type: 'drawer',
+                        position: 'right'
+                    },
+                    title: '右侧抽屉'
+                },
+                {
+                    name: 'drawer-top',
+                    path: '/modal/drawer-top',
+                    view: createDrawerModalView('top'),
+                    modal: {
+                        type: 'drawer',
+                        position: 'top'
+                    },
+                    title: '顶部抽屉'
+                },
+                {
+                    name: 'drawer-bottom',
+                    path: '/modal/drawer-bottom',
+                    view: createDrawerModalView('bottom'),
+                    modal: {
+                        type: 'drawer',
+                        position: 'bottom'
+                    },
+                    title: '底部抽屉'
+                },
+                {
+                    name: 'auto-close-modal',
+                    path: '/modal/auto-close',
+                    view: createAutoCloseModalView(),
+                    modal: {
+                        autoClose: 3000
+                    },
+                    title: '自动关闭模态'
+                },
+                {
+                    name: 'no-mask-modal',
+                    path: '/modal/no-mask',
+                    view: createNoMaskModalView(),
+                    modal: {
+                        backdrop: false
+                    },
+                    title: '无遮罩模态'
+                },
+                {
+                    name: 'prefix-modal',
+                    path: '/modal/prefix',
+                    view: createPrefixModalView(),
+                    modal: true,
+                    title: '!前缀模态'
                 }
             ],
             debug: true
@@ -462,6 +588,107 @@
             return template;
         }
 
+        function createDialogModalView(position) {
+            const positionText = {
+                'center': '居中',
+                'top': '顶部',
+                'top-left': '左上',
+                'top-right': '右上',
+                'right': '右侧',
+                'bottom-right': '右下',
+                'bottom': '底部',
+                'bottom-left': '左下',
+                'left': '左侧'
+            }[position] || position;
+
+            const template = document.createElement('template');
+            template.innerHTML = `
+                <div class="custom-modal-content">
+                    <h2>${positionText}对话框</h2>
+                    <p>这是一个显示在${positionText}的对话框模态。</p>
+                    <p>模态类型：<strong>dialog</strong></p>
+                    <p>显示位置：<strong>${position}</strong></p>
+                    <div class="modal-actions">
+                        <button onclick="window.closeModal()">关闭模态</button>
+                    </div>
+                </div>
+            `;
+            return template;
+        }
+
+        function createDrawerModalView(side) {
+            const sideText = {
+                'left': '左侧',
+                'right': '右侧',
+                'top': '顶部',
+                'bottom': '底部'
+            }[side] || side;
+
+            const template = document.createElement('template');
+            template.innerHTML = `
+                <div class="custom-modal-content">
+                    <h2>${sideText}抽屉</h2>
+                    <p>这是一个从${sideText}滑出的抽屉式模态。</p>
+                    <p>模态类型：<strong>drawer</strong></p>
+                    <p>显示位置：<strong>${side}</strong></p>
+                    <div class="modal-actions">
+                        <button onclick="window.closeModal()">关闭抽屉</button>
+                    </div>
+                </div>
+            `;
+            return template;
+        }
+
+        function createAutoCloseModalView() {
+            const template = document.createElement('template');
+            template.innerHTML = `
+                <div class="custom-modal-content">
+                    <h2>自动关闭模态</h2>
+                    <p>这个模态将在 3 秒后自动关闭。</p>
+                    <p>倒计时：<strong id="auto-close-countdown">3</strong> 秒</p>
+                    <p style="color: #f56565;">注意：配置了 <code>autoClose: 3000</code></p>
+                </div>
+            `;
+            return template;
+        }
+
+        function createNoMaskModalView() {
+            const template = document.createElement('template');
+            template.innerHTML = `
+                <div class="custom-modal-content" style="border: 2px solid #667eea;">
+                    <h2>无遮罩模态</h2>
+                    <p>这个模态没有背景遮罩。</p>
+                    <p>注意：你可以看到背景内容，并且点击背景不会关闭模态。</p>
+                    <p style="color: #f56565;">注意：配置了 <code>backdrop: false</code></p>
+                    <div class="modal-actions">
+                        <button onclick="window.closeModal()">关闭模态</button>
+                    </div>
+                </div>
+            `;
+            return template;
+        }
+
+        function createPrefixModalView() {
+            const template = document.createElement('template');
+            template.innerHTML = `
+                <div class="custom-modal-content">
+                    <h2>! 前缀路径模态</h2>
+                    <p>这个模态是通过 <code>router.push("!/modal/prefix")</code> 打开的。</p>
+                    <p>使用 <code>!</code> 前缀的路径会直接打开模态，不会进入 history 栈。</p>
+                    <p>这意味着：</p>
+                    <ul>
+                        <li>URL 不会改变</li>
+                        <li>浏览器的后退按钮不会关闭模态</li>
+                        <li>模态独立于普通路由系统</li>
+                    </ul>
+                    <div class="modal-actions">
+                        <button onclick="window.closeModal()">关闭模态</button>
+                    </div>
+                </div>
+            `;
+            return template;
+        }
+
         // 全局函数 - 使用 openModal API 而不是 push
         window.openBasicModal = function() {
             router.openModal({ route: '/modal/basic' });
@@ -511,6 +738,56 @@
                     updateTestStatus('test7-status', 'pass');
                 }
             }, 500);
+        };
+
+        // 新功能全局函数
+        window.openDialogAt = function(position) {
+            const routeMap = {
+                'center': '/modal/dialog-center',
+                'top-right': '/modal/dialog-top-right'
+            };
+            const route = routeMap[position];
+            if (route) {
+                router.openModal({ route });
+            }
+        };
+
+        window.openDrawer = function(side) {
+            const routeMap = {
+                'left': '/modal/drawer-left',
+                'right': '/modal/drawer-right'
+            };
+            const route = routeMap[side];
+            if (route) {
+                router.openModal({ route });
+            }
+        };
+
+        window.openAutoCloseModal = function() {
+            router.openModal({ route: '/modal/auto-close' });
+
+            // 添加倒计时效果
+            let countdown = 3;
+            const countdownElement = document.getElementById('auto-close-countdown');
+            if (countdownElement) {
+                const interval = setInterval(() => {
+                    countdown--;
+                    if (countdown > 0) {
+                        countdownElement.textContent = countdown;
+                    } else {
+                        clearInterval(interval);
+                    }
+                }, 1000);
+            }
+        };
+
+        window.openModalNoMask = function() {
+            router.openModal({ route: '/modal/no-mask' });
+        };
+
+        window.openModalWithPrefix = function() {
+            // 使用 ! 前缀路径打开模态
+            router.push('!/modal/prefix');
         };
 
         // 监听模态事件

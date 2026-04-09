@@ -62,7 +62,7 @@ export class RouteRegistry {
     /**
      * 设置导航回调函数
      */
-    public setCallbacks(callbacks: NavigationCallbacks): void {
+    setCallbacks(callbacks: NavigationCallbacks): void {
         this._callbacks = callbacks;
     }
 
@@ -72,7 +72,7 @@ export class RouteRegistry {
      * 支持 RouteItem[]、单个 RouteItem、string（URL）、函数（同步/异步）格式
      * 按照 D-17: 支持多种路由配置格式
      */
-    public initRoutes(
+    initRoutes(
         rawRoutes: KylinRoutes,
         notFound?: RouteItem,
         defaultRoute?: string,
@@ -86,17 +86,17 @@ export class RouteRegistry {
                 // 异步加载：先设空路由表，异步加载完成后更新
                 this.routes = [];
                 result.then((loaded) => {
-                    this.routes = normalizeRoutes(loaded);
+                    this.routes = this._normalizeRoutes(loaded);
                     this.matchCurrentLocation();
                 });
                 return;
             }
-            this.routes = normalizeRoutes(result);
+            this.routes = this._normalizeRoutes(result);
         } else if (typeof rawRoutes === "string") {
             // URL 字符串：先设空路由表，后续通过 loadRemoteRoutes 加载
             this.routes = [];
         } else {
-            this.routes = normalizeRoutes(rawRoutes);
+            this.routes = this._normalizeRoutes(rawRoutes);
         }
     }
 
@@ -105,7 +105,7 @@ export class RouteRegistry {
      * 如果 name 已存在则覆盖旧路由（后者覆盖策略）
      * 按照 D-11: 后者覆盖策略、D-38: 统一优先级规则
      */
-    public addRoute(route: RouteItem): void {
+    public add(route: RouteItem): void {
         const existingIndex = this.routes.findIndex((r) => r.name === route.name);
         if (existingIndex !== -1) {
             this.routes[existingIndex] = route;
@@ -129,9 +129,22 @@ export class RouteRegistry {
      * 如果删除的是当前访问的路由，自动重定向到默认路由或 404
      * 按照 D-10: 静默处理不存在的路由、D-39: 当前路由删除后重定向
      */
-    public removeRoute(name: string): void {
+    public remove(name: string): void { 
+        function removeRouteByName(routes: RouteItem[], name: string): boolean {
+            for (let i = 0; i < routes.length; i++) {
+                if (routes[i].name === name) {
+                    routes.splice(i, 1);
+                    return true;
+                }
+                // 递归检查子路由
+                if (routes[i].children) {
+                    const removed = removeRouteByName(routes[i].children!, name);
+                    if (removed) return true;
+                }
+            }
+            return false;
+        }
         const removed = removeRouteByName(this.routes, name);
-
         // 如果删除了路由且当前正在访问该路由，触发重定向
         if (removed && this.current.route && this.current.route.name === name) {
             this.redirectToDefaultOrNotFound();
@@ -143,7 +156,7 @@ export class RouteRegistry {
      * 支持 RouteItem[]、函数、异步函数格式
      * 按照 D-17: 统一格式转换
      */
-    public async loadRemoteRoutes(
+    protected async loadRemoteRoutes(
         source: RouteItem[] | RouteItem | (() => KylinRoutes | Promise<KylinRoutes>),
     ): Promise<void> {
         let loaded: KylinRoutes;
@@ -160,7 +173,7 @@ export class RouteRegistry {
         }
 
         // 规范化并合并到路由表
-        const newRoutes = normalizeRoutes(loaded);
+        const newRoutes = this._normalizeRoutes(loaded);
         this.routes.push(...newRoutes);
     }
 
@@ -168,7 +181,7 @@ export class RouteRegistry {
      * 执行初始路由匹配
      * 在构造函数中调用，匹配当前 URL 的路由
      */
-    public matchCurrentLocation(): void {
+    matchCurrentLocation(): void {
         if (!this._callbacks) {
             throw new Error("RouteRegistry: callbacks not set. Call setCallbacks() first.");
         }
@@ -214,7 +227,7 @@ export class RouteRegistry {
      * 匹配路由并更新状态
      * 在 onRouteUpdate 中调用
      */
-    public matchAndUpdateState(pathname: string, search: string): void {
+    matchAndUpdateState(pathname: string, search: string): void {
         const matched = matchRoute(pathname, this.routes);
 
         if (matched) {
@@ -243,7 +256,7 @@ export class RouteRegistry {
      * 当访问根路径（/ 或 hash 模式的 #/）且配置了 defaultRoute 时触发
      * 按照 D-42: 重定向触发完整导航流程、D-43: 循环重定向检测
      */
-    public checkDefaultRedirect(pathname: string): void {
+     checkDefaultRedirect(pathname: string): void {
         if (!this.defaultRoute) return;
 
         // 规范化路径用于比较
@@ -279,7 +292,7 @@ export class RouteRegistry {
     /**
      * 当当前路由被删除或不可访问时，重定向到默认路由或 404
      */
-    public redirectToDefaultOrNotFound(): void {
+    protected redirectToDefaultOrNotFound(): void {
         if (this.defaultRoute) {
             if (this._callbacks) {
                 this._callbacks.push(this.defaultRoute);
@@ -293,34 +306,18 @@ export class RouteRegistry {
             }
         }
     }
+    /**
+     * 将路由配置规范化为 RouteItem[]
+     * 按照 D-17: 支持多种路由配置格式（对象数组、单个对象）
+     */
+    private _normalizeRoutes(routes: KylinRoutes): RouteItem[] {
+        if (Array.isArray(routes)) {
+            return routes;
+        }
+        // 单个路由对象包装为数组
+        return [routes as RouteItem];
+    }
+
+
 }
 
-/**
- * 将路由配置规范化为 RouteItem[]
- * 按照 D-17: 支持多种路由配置格式（对象数组、单个对象）
- */
-function normalizeRoutes(routes: KylinRoutes): RouteItem[] {
-    if (Array.isArray(routes)) {
-        return routes;
-    }
-    // 单个路由对象包装为数组
-    return [routes as RouteItem];
-}
-
-/**
- * 从路由表中递归删除指定名称的路由
- */
-function removeRouteByName(routes: RouteItem[], name: string): boolean {
-    for (let i = 0; i < routes.length; i++) {
-        if (routes[i].name === name) {
-            routes.splice(i, 1);
-            return true;
-        }
-        // 递归检查子路由
-        if (routes[i].children) {
-            const removed = removeRouteByName(routes[i].children!, name);
-            if (removed) return true;
-        }
-    }
-    return false;
-}
