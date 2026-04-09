@@ -11,7 +11,11 @@
       "Skill(gsd:plan-phase)",
       "Skill(gsd:plan-phase:*)",
       "Skill(gsd:execute-phase)",
-      "Skill(gsd:execute-phase:*)"
+      "Skill(gsd:execute-phase:*)",
+      "Skill(gsd:code-review)",
+      "Skill(gsd:code-review:*)",
+      "Bash(node \"C:/Work/Code/kylin-router/.claude/get-shit-done/bin/gsd-tools.cjs\" phase complete \"03\")",
+      "Bash(node \"C:/Work/Code/kylin-router/.claude/get-shit-done/bin/gsd-tools.cjs\" commit \"docs\\(03\\): complete Phase 03 execution\" --files \".planning/ROADMAP.md .planning/STATE.md\")"
     ]
   }
 }

@@ -334,12 +334,13 @@ export class Modal {
                 max-width: 600px;
                 max-height: 80vh;
                 overflow: auto;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
             }
 
             /* 居中对话框 */
             .kylin-modal-dialog.kylin-modal-center {
-                top: 50%;
-                left: 50%;
                 animation: kylin-dialog-center-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
@@ -470,28 +471,50 @@ export class Modal {
                 animation: kylin-slide-out-right 0.2s ease-in forwards;
             }
 
-            /* 顶部抽屉 - 从顶部滑入 */
+            /* 顶部抽屉 - 从顶部滑入，满宽 */
             .kylin-modal-drawer.kylin-modal-top {
-                height: 300px;
+                position: fixed;
                 top: 0;
                 left: 0;
                 right: 0;
-                transform: translateY(-100%);
+                width: 100vw;
+                max-width: 100vw;
+                height: 300px;
+                box-sizing: border-box;
+                padding: 0;
+                border-radius: 0;
                 animation: kylin-slide-in-top 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            }
+
+            /* 顶部抽屉内容满宽 */
+            .kylin-modal-drawer.kylin-modal-top .custom-modal-content {
+                max-width: none;
+                width: auto;
             }
 
             .kylin-modal-drawer.kylin-modal-top.closing {
                 animation: kylin-slide-out-top 0.2s ease-in forwards;
             }
 
-            /* 底部抽屉 - 从底部滑入 */
+            /* 底部抽屉 - 从底部滑入，满宽 */
             .kylin-modal-drawer.kylin-modal-bottom {
-                height: 300px;
+                position: fixed;
                 bottom: 0;
                 left: 0;
                 right: 0;
-                transform: translateY(100%);
+                width: 100vw;
+                max-width: 100vw;
+                height: 300px;
+                box-sizing: border-box;
+                padding: 0;
+                border-radius: 0;
                 animation: kylin-slide-in-bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            }
+
+            /* 底部抽屉内容满宽 */
+            .kylin-modal-drawer.kylin-modal-bottom .custom-modal-content {
+                max-width: none;
+                width: auto;
             }
 
             .kylin-modal-drawer.kylin-modal-bottom.closing {
@@ -998,7 +1021,7 @@ export class Modal {
         element.classList.add(`kylin-modal-${position}`);
 
         // 应用位置样式
-        this._applyPositionStyles(element, type, position, offset);
+        (this as any)._applyPositionStyles(element, type, position, offset);
     }
 
     /**
@@ -1025,13 +1048,27 @@ export class Modal {
             style.maxHeight = '80vh';
             style.overflow = 'auto';
         } else if (type === 'drawer') {
-            // drawer 默认宽度较小
-            style.width = '300px';
-            style.maxHeight = '100vh';
-            style.overflow = 'auto';
+            // drawer 根据位置设置不同的默认样式
+            if (position === 'left' || position === 'right') {
+                // 左右抽屉：固定宽度 300px
+                style.width = '300px';
+                style.maxHeight = '100vh';
+                style.overflow = 'auto';
+            } else {
+                // 上下抽屉：宽度由 CSS 控制（100%），高度 300px
+                style.maxHeight = '100vh';
+                style.overflow = 'auto';
+            }
         }
 
         // 应用位置
+        // 注意：drawer 类型的位置由 CSS 类控制，不需要内联样式（除了可能的偏移）
+        if (type === 'drawer') {
+            // drawer 的位置样式已在 CSS 中定义，这里只需处理偏移
+            // 但为了保持灵活性，仍为非标准位置提供基本定位
+            return;
+        }
+
         switch (position) {
             case 'center':
                 style.top = '50%';
