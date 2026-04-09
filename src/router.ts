@@ -260,6 +260,22 @@ export class KylinRouter extends Mixin(
             this.routes.current.params,
         );
 
+        // 检查是否为模态路由（D-16）
+        const matchedRoute = this.routes.current.route;
+        if (matchedRoute) {
+            const modalConfig = this.getModalConfig(matchedRoute);
+            if (modalConfig?.modal) {
+                // 模态路由：使用模态容器渲染
+                await this.openModal({
+                    route: matchedRoute,
+                    backdrop: modalConfig.backdrop
+                });
+                // 模态路由不继续执行普通导航流程
+                this.isNavigating = false;
+                return;
+            }
+        }
+
         // 构造目标路由对象（用于 to 参数）
         const toRoute = this.routes.current.route || {
             name: "",
@@ -579,6 +595,13 @@ export class KylinRouter extends Mixin(
         this._ensureAttached();
         this._pendingNavigationType = "pop";
         this.log("导航方法: back()");
+
+        // 如果有打开的模态，先关闭模态（D-20）
+        if (this.modalState.stack.length > 0) {
+            this.closeTopModal();
+            return;
+        }
+
         // 触发 navigation-start 事件
         this.emit("navigation-start", {
             path: undefined,
@@ -1087,5 +1110,59 @@ export class KylinRouter extends Mixin(
         if (this.routes.current.route?.path) {
             this.history.replace(this.routes.current.route.path);
         }
+    }
+
+    /**
+     * 关闭模态（D-20）
+     * @param route - 可选，指定要关闭的模态路由
+     */
+    async closeModal(route?: RouteItem | string): Promise<void> {
+        if (route) {
+            // 关闭指定模态
+            let targetRoute: RouteItem | null;
+            if (typeof route === 'string') {
+                // 通过路径查找路由
+                const matched = this.routes.match(route);
+                targetRoute = matched?.route || null;
+            } else {
+                targetRoute = route;
+            }
+
+            if (!targetRoute) return;
+
+            const index = this.modalState.stack.findIndex(
+                item => item.route === targetRoute
+            );
+            if (index !== -1) {
+                // 关闭该模态及上面的所有模态
+                while (this.modalState.stack.length > index) {
+                    await this.closeTopModal();
+                }
+            }
+        } else {
+            // 关闭顶层模态
+            await this.closeTopModal();
+        }
+    }
+
+    /**
+     * 检查是否有打开的模态
+     */
+    get hasOpenModals(): boolean {
+        return this.modalState.stack.length > 0;
+    }
+
+    /**
+     * 获取当前打开的模态数量
+     */
+    get modalCount(): number {
+        return this.modalState.stack.length;
+    }
+
+    /**
+     * 获取当前活动的模态
+     */
+    get currentModal(): ModalStackItem | null {
+        return this.modalState.current;
     }
 }
