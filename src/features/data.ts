@@ -30,8 +30,10 @@ interface DataLoadOptions {
 export class DataLoader {
     /** AbortController 用于取消进行中的请求 */
     private abortController?: AbortController;
-
-    constructor(private router: KylinRouter) {}
+    private router: KylinRouter;
+    constructor(router: KylinRouter) {
+        this.router = router;
+    }
 
     /**
      * 主加载方法 - 根据 route.data 类型加载数据
@@ -60,7 +62,10 @@ export class DataLoader {
             // 检查 data 类型
             if (typeof data === "function") {
                 // 远程数据加载：data 是返回 Promise 的函数
-                return await this.loadRemoteData(data as () => Promise<Record<string, any>>, options);
+                return await this.loadRemoteData(
+                    data as () => Promise<Record<string, any>>,
+                    options,
+                );
             } else {
                 // 静态数据：data 已经是 Record<string, any>
                 return {

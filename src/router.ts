@@ -1,7 +1,14 @@
 import type { OutletRefs } from "@/utils/traverseOutlet";
 import { createBrowserHistory } from "history";
 import type { Update } from "history";
-import type { KylinRouterOptiopns, RouteItem, ModalConfig, ModalState, ModalStackItem, ModalOptions } from "./types/index";
+import type {
+    KylinRouterOptiopns,
+    RouteItem,
+    ModalConfig,
+    ModalState,
+    ModalStackItem,
+    ModalOptions,
+} from "./types/index";
 import { HookTypeValues, type HookType } from "./types/index";
 import { Mixin } from "ts-mixer";
 import {
@@ -13,13 +20,14 @@ import {
     DataLoader,
     ViewLoader,
     Emitter,
-    Redirect,Modal
+    Redirect,
+    Modal,
 } from "./features";
 import { createHashHistoryFromLib } from "@/utils/hashUtils";
 
 import { HookManager } from "./features/hooks";
-import { RouteRegistry } from "./features/routes"; 
- 
+import { RouteRegistry } from "./features/routes";
+
 /**
  *
  *
@@ -45,7 +53,7 @@ export class KylinRouter extends Mixin(
     host!: HTMLElement;
     history!: ReturnType<typeof createBrowserHistory>;
 
-    outlets?: OutletRefs; 
+    outlets?: OutletRefs;
     /** 路由表注册器 */
     public routes!: RouteRegistry;
 
@@ -60,7 +68,6 @@ export class KylinRouter extends Mixin(
 
     /** 是否正在导航 */
     isNavigating: boolean = false;
-
 
     /** 待处理的导航类型，用于在 onRouteUpdate 中判断导航来源 */
     private _pendingNavigationType?: "push" | "replace" | "pop";
@@ -94,7 +101,7 @@ export class KylinRouter extends Mixin(
     /** 模态状态管理 */
     protected modalState: ModalState = {
         stack: [],
-        current: null
+        current: null,
     };
 
     /** 最大模态层数，防止无限堆叠 */
@@ -111,44 +118,56 @@ export class KylinRouter extends Mixin(
     ) {
         super();
         // 设置 host 元素
-        this.host = typeof host === "string"
-                ? (document.querySelector(host) as HTMLElement)
-                : host;
+        this.host = typeof host === "string" ? (document.querySelector(host) as HTMLElement) : host;
         if (!(this.host instanceof HTMLElement)) {
             throw new Error("[KylinRouter] Host must be a valid HTMLElement");
-        }        // 标记 host 元素
+        } // 标记 host 元素
         this.host.setAttribute("data-kylin-router", "");
         (this.host as any).router = this;
-        
-        // 存储解析后的最终配置
-        this.options = Object.assign({
-            mode: "history",
-            base: "",
-            debug: false,
-        },options && typeof(options)==='object' && 'routes' in options ? options :  {
-            routes: options            
+
+        console.log("[KylinRouter] Router 初始化:", {
+            host: this.host,
+            hasAttribute: this.host.hasAttribute("data-kylin-router"),
+            hasRouter: !!(this.host as any).router,
+            tagName: this.host.tagName,
+            id: this.host.id,
         });
-        
+
+        // 存储解析后的最终配置
+        this.options = Object.assign(
+            {
+                mode: "history",
+                base: "",
+                debug: false,
+            },
+            options && typeof options === "object" && "routes" in options
+                ? options
+                : {
+                      routes: options,
+                  },
+        );
+
+        this.attach();
     }
     /**
      * 获取路由模式
      * @returns 路由模式（history 或 hash）
      */
-    get mode(){
-        return this.options.mode 
+    get mode() {
+        return this.options.mode;
     }
     /**
      * 获取基础路径
      * @returns 基础路径（例如：/app）
      */
-    get base(){
-        return this.options.base
+    get base() {
+        return this.options.base;
     }
-    /** 
-     * 是否启用调试模式 
+    /**
+     * 是否启用调试模式
      * */
-    get debug(){
-        return this.options.debug
+    get debug() {
+        return this.options.debug;
     }
     /**
      * 调试日志输出方法
@@ -352,10 +371,9 @@ export class KylinRouter extends Mixin(
         if (this.routes.current.route?.data) {
             this.log("数据加载: 开始加载路由数据");
             try {
-                const dataResult = await this.dataLoader.loadData(
-                    this.routes.current.route,
-                    { signal: this.abortController.signal }
-                );
+                const dataResult = await this.dataLoader.loadData(this.routes.current.route, {
+                    signal: this.abortController.signal,
+                });
 
                 // 检查导航版本号（D-23）
                 if (currentVersion !== this.currentNavVersion) {
@@ -510,7 +528,7 @@ export class KylinRouter extends Mixin(
         this.log(`导航方法: push(${path})`);
 
         // 检查是否为模态路由（! 前缀）
-        if (path.startsWith('!')) {
+        if (path.startsWith("!")) {
             const modalPath = path.slice(1); // 移除 ! 前缀
             this.log(`检测到模态路由: ${modalPath}`);
             // 直接触发模态路由，不进入 history
@@ -651,19 +669,59 @@ export class KylinRouter extends Mixin(
         return outlets.find((outlet: any) => outlet.path === path) || null;
     }
 
-    /** 
+    /**
 
 
     /**
      * 将 router 绑定到 host 元素并开始监听路由变化
      * @throws {Error} - 如果已 attached 或 host 无效
      */
+    /**
+     * 主动为已存在的子组件注入 router 实例
+     * 解决组件在 router 初始化之前就已连接的问题
+     */
+    private _injectRouterToExistingComponents(): void {
+        // 查找所有可能需要 router 实例的 Kylin 自定义元素
+        const kylinSelectors = [
+            "kylin-link",
+            "kylin-outlet",
+            "kylin-loading",
+        ].join(",");
+
+        const kylinElements = this.host.querySelectorAll(kylinSelectors);
+        let injectedCount = 0;
+
+        kylinElements.forEach((element) => {
+            // 检查元素是否有 router 属性但值为 undefined
+            if ("router" in element && !(element as any).router) {
+                // 注入 router 实例
+                (element as any).router = this;
+
+                // 触发组件更新
+                if ("requestUpdate" in element && typeof (element as any).requestUpdate === "function") {
+                    (element as any).requestUpdate();
+                }
+
+                injectedCount++;
+                console.log("[KylinRouter] 为组件注入 router 实例:", {
+                    tagName: element.tagName.toLowerCase(),
+                    element,
+                });
+            }
+        });
+
+        if (injectedCount > 0) {
+            console.log("[KylinRouter] 已为", injectedCount, "个组件注入 router 实例");
+        }
+    }
+
     attach(): void {
         if (this.attached) {
             throw new Error("[KylinRouter] Already attached to a host element");
         }
 
-        this.history = this.mode === "hash" ? createHashHistoryFromLib(this.base) : createBrowserHistory();
+        this.history =
+            this.mode === "hash" ? createHashHistoryFromLib(this.base) : createBrowserHistory();
 
         // 初始化路由表注册器
         this.routes = new RouteRegistry();
@@ -691,7 +749,6 @@ export class KylinRouter extends Mixin(
 
         // 初始化数据加载器
         this.dataLoader = new DataLoader(this);
- 
 
         // 开始监听路由变化
         this._cleanups.push(this.history.listen(this.onRouteUpdate.bind(this)));
@@ -701,11 +758,16 @@ export class KylinRouter extends Mixin(
 
         // 初始化模态容器
         this._initModals();
-        // 执行初始路由匹配
-        this.routes.matchCurrentLocation();
 
         // 标记为已绑定
         this.attached = true;
+
+        // 主动为已存在的子组件注入 router 实例
+        // 解决组件在 router 初始化之前就已连接的问题
+        this._injectRouterToExistingComponents();
+
+        // 执行初始路由匹配
+        this.routes.matchCurrentLocation();
     }
     /**
      * 解除 router 与 host 的绑定并清理所有监听器

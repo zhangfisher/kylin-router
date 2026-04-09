@@ -9,7 +9,7 @@ import { html, render } from "lit";
 import { triggerEvent } from "@/utils/triggerEvent";
 import type { KylinRouter } from "@/router";
 import type { RouteItem } from "@/types";
-import type { ViewLoadResult, RenderContext, RenderMode, RenderOptions } from "@/types/routes";
+import type { ViewLoadResult, RouteViewContext, RenderMode, RenderOptions } from "@/types/routes";
 
 export class Render {
     /**
@@ -75,7 +75,7 @@ export class Render {
     private renderTemplate(
         this: KylinRouter,
         template: any,
-        _context: RenderContext,
+        _context: RouteViewContext,
         outlet: HTMLElement,
         mode: RenderMode,
     ): void {
@@ -96,13 +96,13 @@ export class Render {
      * @param route - 当前路由对象
      * @returns 渲染上下文
      */
-    protected _createViewRenderContext(this: KylinRouter, route: RouteItem): RenderContext {
+    protected _createViewRenderContext(this: KylinRouter, route: RouteItem): RouteViewContext {
         // 创建基础上下文
-        const context:any = route.data || {}
+        const context: any = route.data || {};
         context.$route = route;
-        context.$query = route.query || {}
-        context.$params = route.params || {}
-        return context as  RenderContext
+        context.$query = route.query || {};
+        context.$params = route.params || {};
+        return context as RouteViewContext;
     }
 
     /**
@@ -111,12 +111,16 @@ export class Render {
      * @param _context - 渲染上下文（未使用，使用增强上下文）
      * @returns lit 模板
      */
-    private compileTemplate(this: KylinRouter, htmlString: string, _context: RenderContext): any {
+    private compileTemplate(
+        this: KylinRouter,
+        htmlString: string,
+        _context: RouteViewContext,
+    ): any {
         // 创建增强的渲染上下文（包含快捷变量）
         const route = this.routes.current.route;
         if (!route) {
             return html`${htmlString}`;
-        } 
+        }
         // 使用模板变量插值系统
         return this.interpolateTemplate(htmlString, _context);
     }
@@ -231,7 +235,7 @@ export class Render {
     private interpolateTemplate(
         this: KylinRouter,
         templateString: string,
-        context: RenderContext,
+        context: RouteViewContext,
     ): any {
         // 使用正则表达式匹配 ${} 占位符
         const pattern = /\$\{([^}]+)\}/g;
@@ -271,7 +275,11 @@ export class Render {
      * @param path - 变量路径
      * @returns 变量值
      */
-    private getVariableFromContext(this: KylinRouter, context: RenderContext, path: string): any {
+    private getVariableFromContext(
+        this: KylinRouter,
+        context: RouteViewContext,
+        path: string,
+    ): any {
         // 特殊变量快捷方式
         if (path === "params") {
             return context.route.params || {};
@@ -298,5 +306,5 @@ export class Render {
         }
 
         return value;
-    } 
+    }
 }

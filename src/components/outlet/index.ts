@@ -34,12 +34,21 @@ export class KylinOutletElement extends KylinRouterElementBase {
      * 渲染模式，覆盖默认的渲染模式
      */
     @property({ type: String, reflect: true })
-    renderMode?: 'replace' | 'append';
+    renderMode?: "replace" | "append";
 
     /**
      * 子 Outlet 列表，供 Router 组件使用
      */
     outlets?: KylinOutletElement[];
+
+    /**
+     *  重写 createRenderRoot，使组件不使用 Shadow DOM，以便样式和事件能够穿透到组件内部
+     * 这对于路由组件来说很重要，因为它们需要与外部的路由状态和事件进行交互。
+     * @returns
+     */
+    createRenderRoot() {
+        return this;
+    }
 
     connectedCallback() {
         super.connectedCallback();
@@ -54,7 +63,7 @@ export class KylinOutletElement extends KylinRouterElementBase {
     disconnectedCallback() {
         super.disconnectedCallback();
         // 清理路由监听器
-        this.removeEventListener('route-change', this._handleRouteChange.bind(this));
+        this.removeEventListener("route-change", this._handleRouteChange.bind(this));
     }
 
     /**
@@ -62,7 +71,7 @@ export class KylinOutletElement extends KylinRouterElementBase {
      */
     private _setupRouteListener() {
         // 监听 route-change 事件
-        this.addEventListener('route-change', this._handleRouteChange.bind(this));
+        this.addEventListener("route-change", this._handleRouteChange.bind(this));
     }
 
     /**
@@ -92,7 +101,7 @@ export class KylinOutletElement extends KylinRouterElementBase {
 
         // 检查 router 实例是否可用
         if (!this.router) {
-            this._renderError('Router not available');
+            this._renderError("Router not available");
             return;
         }
 
@@ -106,10 +115,10 @@ export class KylinOutletElement extends KylinRouterElementBase {
         // 渲染组件（Task 5：已集成 Render 类）
         try {
             await (this.router as any).renderToOutlet(loadResult, this, {
-                mode: this.renderMode || (route as any).renderMode
+                mode: this.renderMode || (route as any).renderMode,
             });
         } catch (error) {
-            this._renderError(error instanceof Error ? error.message : 'Render failed');
+            this._renderError(error instanceof Error ? error.message : "Render failed");
         }
     }
 
@@ -119,14 +128,14 @@ export class KylinOutletElement extends KylinRouterElementBase {
     private _matchesPath(routePath: string): boolean {
         if (!this.path) return true;
         // 支持精确匹配和前缀匹配
-        return routePath === this.path || routePath.startsWith(this.path + '/');
+        return routePath === this.path || routePath.startsWith(this.path + "/");
     }
 
     /**
      * 渲染加载状态
      */
     private _renderLoading() {
-        this.innerHTML = '<kylin-loading></kylin-loading>';
+        this.innerHTML = "<kylin-loading></kylin-loading>";
     }
 
     /**
@@ -146,8 +155,8 @@ export class KylinOutletElement extends KylinRouterElementBase {
      */
     private setupModalBehavior() {
         // 模态 outlet 的特殊样式和定位
-        this.style.position = 'relative';
-        this.style.zIndex = '1';
+        this.style.position = "relative";
+        this.style.zIndex = "1";
 
         // 设置模态关闭监听
         this._setupModalCloseListener();
@@ -157,7 +166,7 @@ export class KylinOutletElement extends KylinRouterElementBase {
      * 设置模态关闭监听器
      */
     private _setupModalCloseListener() {
-        this.addEventListener('close-modal', () => {
+        this.addEventListener("close-modal", () => {
             if (this.router) {
                 (this.router as any).closeModal();
             }

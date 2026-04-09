@@ -1,6 +1,7 @@
-import { html } from "lit";
+import { html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { KylinRouterElementBase } from "../base";
+import type { KylinRouter } from "@/router";
 
 /**
  * 判断目标路径是否为内部路由
@@ -29,8 +30,25 @@ export class KylinLinkElement extends KylinRouterElementBase {
     @property({ type: Boolean })
     replace = false;
 
-    createRenderRoot() {
-        return this;
+    @property({ type: String })
+    target = "";
+
+    @property({ type: String })
+    rel = "";
+
+    /**
+     * 计算最终的 rel 属性
+     * - 如果用户已设置 rel，使用用户设置的值
+     * - 如果 target="_blank"，自动添加 noopener noreferrer 防止安全漏洞
+     */
+    private _getComputedRel(): string {
+        if (this.rel) {
+            return this.rel;
+        }
+        if (this.target === "_blank") {
+            return "noopener noreferrer";
+        }
+        return "";
     }
 
     /**
@@ -54,26 +72,33 @@ export class KylinLinkElement extends KylinRouterElementBase {
             // 外部链接 - 不阻止默认行为，允许浏览器直接跳转
             return;
         }
-
-        // 内部路由处理
-        if (!this.router) {
-            // 没有 router 实例，降级为普通 <a> 标签（不阻止默认行为）
-            return;
-        }
+        super.getRouter(() => {
+            // 内部路由处理
+            if (!this.router) {
+                // 没有 router 实例，降级为普通 <a> 标签（不阻止默认行为）
+                return;
+            }
+            // 根据 replace 属性选择导航方式
+            if (this.replace) {
+                this.router.replace(target);
+            } else {
+                this.router.push(target);
+            }
+        });
 
         // 阻止默认的链接跳转行为
         event.preventDefault();
-
-        // 根据 replace 属性选择导航方式
-        if (this.replace) {
-            this.router.replace(target);
-        } else {
-            this.router.push(target);
-        }
     }
 
     render() {
-        return html`<a href="${this.to}" @click=${this.handleClick}><slot></slot></a>`;
+        const computedRel = this._getComputedRel();
+        return html`<a
+            href="${this.to}"
+            target="${this.target || nothing}"
+            rel="${computedRel || nothing}"
+            @click=${this.handleClick}
+            ><slot></slot
+        ></a>`;
     }
 }
 

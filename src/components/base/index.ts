@@ -1,4 +1,5 @@
 import type { KylinRouter } from "@/router";
+import { triggerEvent } from "@/utils/triggerEvent";
 import { LitElement, html } from "lit";
 /**
  * Context 回调函数类型
@@ -39,7 +40,7 @@ export class KylinRouterElementBase extends LitElement {
                 this.requestUpdate();
             } else {
                 // 同步获取失败，使用异步方式
-                this._requestRouterContext();
+                this.getRouter();
             }
             this._contextRequested = true;
         }
@@ -60,13 +61,34 @@ export class KylinRouterElementBase extends LitElement {
     private _getRouterSync(): KylinRouter | undefined {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         let currentElement: Element | null = this;
+        const walk: string[] = [];
+
         while (currentElement) {
+            // 记录遍历路径用于调试
+            walk.push(
+                currentElement instanceof HTMLElement
+                    ? `${currentElement.tagName.toLowerCase()}${currentElement.id ? "#" + currentElement.id : ""}${currentElement.className ? "." + currentElement.className : ""}`
+                    : currentElement.tagName,
+            );
+
             // 优先查找 router 宿主元素（data-kylin-router 属性）
-            if (currentElement instanceof HTMLElement && currentElement.hasAttribute("data-kylin-router")) {
+            if (
+                currentElement instanceof HTMLElement &&
+                currentElement.hasAttribute("data-kylin-router")
+            ) {
+                console.log("[KylinRouterElementBase] 找到 router 宿主元素:", {
+                    element: currentElement,
+                    hasRouter: !!(currentElement as any).router,
+                    walk,
+                });
                 return (currentElement as any).router;
             }
             // 检查是否是 KylinRouterElementBase 且具有有效的 router 实例
             if (currentElement instanceof KylinRouterElementBase && currentElement.router) {
+                console.log("[KylinRouterElementBase] 找到父级 router 实例:", {
+                    element: currentElement,
+                    walk,
+                });
                 return currentElement.router;
             }
             currentElement = currentElement.parentElement;
@@ -78,14 +100,21 @@ export class KylinRouterElementBase extends LitElement {
      * 分发 context-request 事件来请求 router 实例
      * 与 src/features/context.ts 的 onContextRequest 逻辑匹配
      */
-    private _requestRouterContext() {
+    protected getRouter(callback: ContextCallback<KylinRouter> = this._contextCallback) {
+        if (this.router) {
+            // 已经有 router 实例，直接调用回调
+            callback(this.router);
+            return;
+        }
         // 使用 ContextRequestEvent 确保事件格式与 onContextRequest 期望的一致
-        const contextRequestEvent = new CustomEvent("context-request", {
+        triggerEvent(this, "context-request", {
             context: "KylinRouter",
             contextTarget: this,
-            callback: this._contextCallback,
-        } as any);
-        this.dispatchEvent(contextRequestEvent);
+            callback: (router: KylinRouter) => {
+                this.router = router;
+                callback(router);
+            },
+        });
     }
 
     /**
@@ -100,15 +129,6 @@ export class KylinRouterElementBase extends LitElement {
         // 触发组件更新
         this.requestUpdate();
     };
-    /**
-     *  重写 createRenderRoot，使组件不使用 Shadow DOM，以便样式和事件能够穿透到组件内部
-     * 这对于路由组件来说很重要，因为它们需要与外部的路由状态和事件进行交互。
-     * @returns
-     */
-    createRenderRoot() {
-        return this;
-    }
-
     render() {
         return html`<slot></slot>`;
     }

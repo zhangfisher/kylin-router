@@ -29,14 +29,14 @@ export class Context {
      * 当请求的 context 匹配 routerContext 时，提供当前 router 实例
      */
     protected onContextRequest(this: KylinRouter, event: Event): void {
-        const contextRequestEvent = event as unknown as {
+        const contextRequestEvent = (event as any).detail as unknown as {
             context: "KylinRouter";
             callback: (value: KylinRouter) => void;
             contextTarget?: Element;
             stopPropagation: () => void;
         };
         if (contextRequestEvent.context === "KylinRouter") {
-            contextRequestEvent.stopPropagation();
+            event.stopPropagation();
             // 提供 router 实例
             contextRequestEvent.callback(this);
         }

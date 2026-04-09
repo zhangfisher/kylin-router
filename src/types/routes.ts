@@ -35,7 +35,7 @@ export type TemplateData = Record<string, any>;
  * 渲染上下文接口
  * 提供模板渲染时所需的上下文数据
  */
-export interface RenderContext { 
+export interface RouteViewContext {
     /**
      * 当前路由对象，包含预加载的数据
      */
@@ -309,4 +309,3 @@ export interface MatchedRoute {
     /** 剩余未匹配的路径，用于嵌套路由 */
     remainingPath: string;
 }
-

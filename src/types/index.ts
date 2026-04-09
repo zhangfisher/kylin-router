@@ -22,6 +22,6 @@ export * from "./modals";
 export type {
     RenderMode,
     TemplateData,
-    RenderContext,
-    RenderOptions
+    RouteViewContext as RenderContext,
+    RenderOptions,
 } from "./routes";
