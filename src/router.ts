@@ -1,7 +1,7 @@
 import type { OutletRefs } from "@/utils/traverseOutlet";
 import { createBrowserHistory } from "history";
 import type { Update } from "history";
-import type { KylinRouterOptiopns, RouteItem } from "./types/index";
+import type { KylinRouterOptiopns, RouteItem, ModalConfig, ModalState, ModalStackItem, ModalOptions } from "./types/index";
 import { HookTypeValues, type HookType } from "./types/index";
 import { Mixin } from "ts-mixer";
 import {
@@ -101,6 +101,18 @@ export class KylinRouter extends Mixin(
 
     /** AbortController 用于取消进行中的请求（D-24） */
     private abortController: AbortController = new AbortController();
+
+    /** 模态容器元素 */
+    private modalContainer: HTMLElement | null = null;
+
+    /** 模态状态管理 */
+    private modalState: ModalState = {
+        stack: [],
+        current: null
+    };
+
+    /** 最大模态层数，防止无限堆叠 */
+    private maxModals: number = 10;
 
     /**
      * 构造函数 - 仅负责配置初始化，不操作 DOM
@@ -795,5 +807,100 @@ export class KylinRouter extends Mixin(
 
         // 执行初始路由匹配
         this.routes.matchCurrentLocation();
+
+        // 初始化模态容器
+        this.initModals();
+    }
+
+    /**
+     * 初始化模态容器（D-17）
+     * 创建模态容器并设置事件监听
+     */
+    private initModals(): void {
+        this.createModalContainer();
+        this.setupModalEventListeners();
+        this.injectModalStyles();
+    }
+
+    /**
+     * 创建模态容器（D-17）
+     * 如果容器不存在则创建，并返回容器元素
+     */
+    private createModalContainer(): HTMLElement {
+        let container = this.host.querySelector('.kylin-modals') as HTMLElement;
+        if (!container) {
+            container = document.createElement('div');
+            container.className = 'kylin-modals';
+            this.host.appendChild(container);
+        }
+        this.modalContainer = container;
+        return container;
+    }
+
+    /**
+     * 设置模态事件监听
+     * 监听 ESC 键关闭模态
+     */
+    private setupModalEventListeners(): void {
+        // ESC 键关闭模态
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.modalState.current) {
+                const config = this.getModalConfig(this.modalState.current.route);
+                if (config?.closeOnEsc !== false) {
+                    this.closeTopModal();
+                }
+            }
+        });
+    }
+
+    /**
+     * 获取模态配置
+     * 从路由配置中提取模态配置
+     */
+    private getModalConfig(route: RouteItem): ModalConfig | null {
+        if (typeof route.modal === 'boolean') {
+            return route.modal ? { modal: true } : null;
+        }
+        return route.modal || null;
+    }
+
+    /**
+     * 注入模态样式
+     * 添加模态容器和背景遮罩的默认样式
+     */
+    private injectModalStyles(): void {
+        // 检查是否已注入样式
+        if (document.querySelector('#kylin-modal-styles')) {
+            return;
+        }
+
+        const style = document.createElement('style');
+        style.id = 'kylin-modal-styles';
+        style.textContent = `
+            .kylin-modals {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 9999;
+                pointer-events: none;
+            }
+            .kylin-modal-backdrop {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                pointer-events: auto;
+            }
+            .kylin-modal-content {
+                position: relative;
+                pointer-events: auto;
+                z-index: 1;
+            }
+        `;
+        document.head.appendChild(style);
     }
 }
