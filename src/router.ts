@@ -1055,23 +1055,19 @@ export class KylinRouter extends Mixin(
     }
 
     /**
-     * 更新模态 URL
+     * 更新模态 URL（不改变 URL，模态路由与普通路由共存）
+     * 模态路由通过内部状态管理，不改变浏览器 URL
      */
-    private updateModalURL(route: RouteItem): void {
-        // 使用 replaceState 更新 URL，不影响历史记录
-        if (route.path) {
-            this.history.replace(route.path);
-        }
+    private updateModalURL(_route: RouteItem): void {
+        // 模态路由不改变 URL，保持当前 URL 不变
+        // 这样模态路由可以与普通路由共存
     }
 
     /**
-     * 恢复模态 URL
+     * 恢复模态 URL（不需要恢复，因为 URL 从未改变）
      */
     private restoreModalURL(): void {
-        // 恢复到主路由的 URL
-        if (this.routes.current.route?.path) {
-            this.history.replace(this.routes.current.route.path);
-        }
+        // 不需要恢复，因为模态路由不改变 URL
     }
 
     /**
