@@ -71,9 +71,34 @@ class MockRouter {
 
     // 模拟 routes.match 方法
     routes = {
-        match: (_path: string) => {
-            // 路由匹配逻辑由各个测试用例处理
-            return { route: null };
+        match: (path: string) => {
+            const routes: Record<string, RouteItem> = {
+                '/modal/basic': {
+                    name: 'basic-modal',
+                    path: '/modal/basic',
+                    view: document.createElement('div'),
+                    modal: true
+                },
+                '/modal/configured': {
+                    name: 'configured-modal',
+                    path: '/modal/configured',
+                    view: document.createElement('div'),
+                    modal: {
+                        backdrop: true,
+                        closeOnBackdropClick: true,
+                        closeOnEsc: true
+                    }
+                },
+                '/modal/no-backdrop': {
+                    name: 'no-backdrop-modal',
+                    path: '/modal/no-backdrop',
+                    view: document.createElement('div'),
+                    modal: {
+                        backdrop: false
+                    }
+                }
+            };
+            return { route: routes[path] || null };
         }
     };
 
