@@ -985,9 +985,20 @@ export class KylinRouter extends Mixin(
                         mode: 'replace'
                     });
                 }
-            } else if (route.view instanceof HTMLElement) {
-                // HTMLElement 类型：直接附加到模态元素
-                element.appendChild(route.view);
+            } else {
+                // HTMLElement 类型（包括 HTMLTemplateElement）
+                const viewElement = route.view as HTMLElement;
+
+                // 检查是否为 template 元素
+                if (viewElement.tagName === 'TEMPLATE') {
+                    // HTMLTemplateElement 类型：克隆模板内容并附加
+                    const templateElement = viewElement as HTMLTemplateElement;
+                    const clone = templateElement.content.cloneNode(true);
+                    element.appendChild(clone);
+                } else {
+                    // 普通 HTMLElement：直接附加到模态元素
+                    element.appendChild(viewElement);
+                }
             }
         }
 
