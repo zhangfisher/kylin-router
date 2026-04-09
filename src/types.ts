@@ -1,3 +1,10 @@
+// 导入钩子类型
+import type { RenderEachHook } from './types/hooks';
+
+// 重新导出配置相关类型
+export type { RetryConfig, ErrorBoundaryConfig, LoadingConfig, KylinRouterOptiopns } from './types/config';
+export type { ModalConfig, ModalStackItem, ModalState, ModalOptions } from './types/routes';
+
 export interface RouteItem {
     /**
      * 路由名称，必须同级唯一，
@@ -166,144 +173,6 @@ export type HookType = (typeof HookType)[keyof typeof HookType];
 export type RouteData = Record<string, any>;
 
 /**
- * renderEach 钩子函数类型
- * 在组件加载后、渲染前执行，用于数据预取
- * @param to - 目标路由
- * @param from - 来源路由
- * @param next - 控制钩子流程的回调函数，可以传递预加载的数据
- * @param router - 路由器实例
- * @returns 可以返回 void、Promise<void>、RouteData 或 Promise<RouteData>
- */
-export type RenderEachHook = (
-    to: RouteItem,
-    from: RouteItem,
-    next: (data?: RouteData) => void,
-    router: any,
-) => void | Promise<void> | RouteData | Promise<RouteData>;
-
-/**
- * 重试策略配置
- */
-export interface RetryConfig {
-    /** 最大重试次数（默认 3） */
-    max?: number;
-    /** 重试延迟，单位毫秒（默认 1000） */
-    delay?: number;
-    /** 退避策略：'linear' 线性增长，'exponential' 指数增长（默认 linear） */
-    backoff?: "linear" | "exponential";
-    /** 重试回调函数，每次重试时调用 */
-    onRetry?: (attempt: number, error: Error) => void;
-}
-
-/**
- * 错误边界配置
- */
-export interface ErrorBoundaryConfig {
-    /** 错误组件：字符串路径或动态导入函数 */
-    component?: string | (() => Promise<any>);
-    /** 回退 UI：错误时显示的 HTML 字符串 */
-    fallback?: string;
-    /** 错误回调函数 */
-    onError?: (error: Error, errorInfo: any) => void;
-    /** 是否重试：true 表示使用默认重试策略，对象表示自定义重试策略 */
-    retry?: boolean | RetryConfig;
-}
-
-/**
- * 加载状态配置
- */
-export interface LoadingConfig {
-    /** 自定义加载模板 */
-    template?: any;
-    /** 加载超时时间，单位毫秒 */
-    timeout?: number;
-    /** 错误时是否显示加载状态（默认 false） */
-    showOnError?: boolean;
-}
-
-/**
  * 导航版本号类型
  */
 export type NavigationVersion = number;
-
-export type KylinRouterOptiopns = {
-    /** 路由模式：'history' 使用 BrowserHistory，'hash' 使用 HashHistory（默认 'history'） */
-    mode?: "hash" | "history";
-    /** 基础路径，用于 Hash 模式（默认 ''） */
-    base?: string;
-    routes: KylinRoutes;
-    /** 未匹配路由时的 404 路由配置 */
-    notFound?: RouteItem;
-    /** 默认路径重定向 */
-    defaultRoute?: string;
-    onBeforeResolve?: (to: RouteItem, from: RouteItem) => boolean | Promise<boolean>;
-    onBeforeEach?: (to: RouteItem, from: RouteItem) => boolean | Promise<boolean>;
-    onAfterEach?: (to: RouteItem, from: RouteItem) => void | Promise<void>;
-    /** 全局 renderEach 钩子，用于数据预加载 */
-    renderEach?: RenderEachHook | RenderEachHook[];
-    /** 是否启用调试模式，启用后会输出详细的导航日志（默认 false） */
-    debug?: boolean;
-    /** 全局错误组件：字符串路径或动态导入函数 */
-    defaultErrorComponent?: string | (() => Promise<any>);
-    /** 全局加载模板 */
-    defaultLoadingTemplate?: any;
-    /** 模态容器选择器（默认 '.kylin-modals'） */
-    modalContainer?: string;
-};
-
-/**
- * 模态路由配置接口
- * 用于在路由配置中声明模态路由的行为和交互
- */
-export interface ModalConfig {
-    /** 是否为模态路由 */
-    modal: boolean;
-    /** 是否显示背景遮罩（默认 true） */
-    backdrop?: boolean;
-    /** 点击遮罩是否关闭模态（默认 true） */
-    closeOnBackdropClick?: boolean;
-    /** 按 ESC 键是否关闭模态（默认 true） */
-    closeOnEsc?: boolean;
-    /** 是否支持多层模态堆叠（默认 true） */
-    stackable?: boolean;
-}
-
-/**
- * 模态栈项接口
- * 表示模态栈中的一个模态实例
- */
-export interface ModalStackItem {
-    /** 模态路由配置对象 */
-    route: RouteItem;
-    /** 模态 DOM 元素 */
-    element: HTMLElement;
-    /** 背景遮罩元素（可选） */
-    backdrop?: HTMLElement;
-    /** 创建时间戳 */
-    timestamp: number;
-}
-
-/**
- * 模态状态接口
- * 管理当前打开的所有模态
- */
-export type ModalState = {
-    /** 模态栈，存储所有打开的模态 */
-    stack: ModalStackItem[];
-    /** 当前活动的模态（栈顶） */
-    current: ModalStackItem | null;
-};
-
-/**
- * 打开模态的选项接口
- */
-export interface ModalOptions {
-    /** 路由路径或配置对象 */
-    route?: string | RouteItem;
-    /** 路由参数 */
-    params?: Record<string, string>;
-    /** 查询参数 */
-    query?: Record<string, string>;
-    /** 是否显示背景遮罩 */
-    backdrop?: boolean;
-}
