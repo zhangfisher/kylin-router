@@ -462,26 +462,26 @@
             return template;
         }
 
-        // 全局函数
+        // 全局函数 - 使用 openModal API 而不是 push
         window.openBasicModal = function() {
-            router.push('/modal/basic');
+            router.openModal({ route: '/modal/basic' });
             updateTestStatus('test1-status', 'pass');
             updateTestStatus('test2-status', 'pass');
         };
 
         window.openFirstModal = function() {
-            router.push('/modal/first');
+            router.openModal({ route: '/modal/first' });
             updateModalStackInfo();
         };
 
         window.openSecondModal = function() {
-            router.push('/modal/second');
+            router.openModal({ route: '/modal/second' });
             updateTestStatus('test6-status', 'pass');
             updateModalStackInfo();
         };
 
         window.openModalForCloseTest = function() {
-            router.push('/modal/close-test');
+            router.openModal({ route: '/modal/close-test' });
         };
 
         window.closeModal = function() {

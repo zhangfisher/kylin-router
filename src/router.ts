@@ -260,21 +260,9 @@ export class KylinRouter extends Mixin(
             this.routes.current.params,
         );
 
-        // 检查是否为模态路由（D-16）
-        const matchedRoute = this.routes.current.route;
-        if (matchedRoute) {
-            const modalConfig = this.getModalConfig(matchedRoute);
-            if (modalConfig?.modal) {
-                // 模态路由：使用模态容器渲染
-                await this.openModal({
-                    route: matchedRoute,
-                    backdrop: modalConfig.backdrop
-                });
-                // 模态路由不继续执行普通导航流程
-                this.isNavigating = false;
-                return;
-            }
-        }
+        // 注意：模态路由不应该通过 router.push() 调用
+        // 模态路由不进入 history 栈，必须通过 openModal API 打开
+        // 如果需要打开模态，请使用: router.openModal({ route: '/modal/path' })
 
         // 构造目标路由对象（用于 to 参数）
         const toRoute = this.routes.current.route || {
