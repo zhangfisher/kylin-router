@@ -4,6 +4,6 @@
 
 import type { KylinRouter } from "@/router";
 
-export class Model {
+export class Modal {
     
 }

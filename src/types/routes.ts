@@ -348,14 +348,8 @@ export interface ModalConfig {
     autoClose?: number;
 
     /**
-     * 是否隐藏背景遮罩（默认 false）
-     * 设置为 true 时将不显示背景遮罩
-     */
-    hideMask?: boolean;
-
-    /**
      * 是否显示背景遮罩（默认 true）
-     * @deprecated 使用 hideMask 替代
+     * 设置为 false 时不显示背景遮罩
      */
     backdrop?: boolean;
 

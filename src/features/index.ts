@@ -5,7 +5,7 @@ export * from "./keepAlive";
 export * from "./transition";
 export * from "./preload";
 export * from "./render";
-export * from "./model";
+export * from "./modal";
 export * from "./redirect";
 export * from "./routes";
 export * from "./emitter";

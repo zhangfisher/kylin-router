@@ -11,7 +11,6 @@ import {
     Preload,
     Render,
     DataLoader,
-    Model,
     ViewLoader,
     Emitter,
     Redirect,
@@ -49,7 +48,6 @@ export class KylinRouter extends Mixin(
     Transition,
     Preload,
     Render,
-    Model,
     Redirect,
     Emitter,
 ) {
@@ -1051,8 +1049,8 @@ export class KylinRouter extends Mixin(
      * 创建背景遮罩（D-18）
      */
     private createBackdrop(config: ModalConfig): HTMLElement | undefined {
-        // 检查是否隐藏遮罩
-        if (config.hideMask === true) {
+        // 检查是否隐藏遮罩（backdrop: false 表示不显示）
+        if (config.backdrop === false) {
             return undefined;
         }
 
