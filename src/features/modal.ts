@@ -470,26 +470,28 @@ export class Modal {
                 animation: kylin-slide-out-right 0.2s ease-in forwards;
             }
 
-            /* 顶部抽屉 - 垂直滑动，固定宽度，使用 clip-path */
+            /* 顶部抽屉 - 从顶部滑入 */
             .kylin-modal-drawer.kylin-modal-top {
                 height: 300px;
                 top: 0;
                 left: 0;
                 right: 0;
-                animation: kylin-slide-in-top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                transform: translateY(-100%);
+                animation: kylin-slide-in-top 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
             }
 
             .kylin-modal-drawer.kylin-modal-top.closing {
                 animation: kylin-slide-out-top 0.2s ease-in forwards;
             }
 
-            /* 底部抽屉 - 垂直滑动，固定宽度，使用 clip-path */
+            /* 底部抽屉 - 从底部滑入 */
             .kylin-modal-drawer.kylin-modal-bottom {
                 height: 300px;
                 bottom: 0;
                 left: 0;
                 right: 0;
-                animation: kylin-slide-in-bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                transform: translateY(100%);
+                animation: kylin-slide-in-bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
             }
 
             .kylin-modal-drawer.kylin-modal-bottom.closing {
@@ -730,37 +732,37 @@ export class Modal {
 
             @keyframes kylin-slide-in-top {
                 from {
-                    clip-path: inset(0 0 100% 0);
+                    transform: translateY(-100%);
                 }
                 to {
-                    clip-path: inset(0 0 0 0);
+                    transform: translateY(0);
                 }
             }
 
             @keyframes kylin-slide-out-top {
                 from {
-                    clip-path: inset(0 0 0 0);
+                    transform: translateY(0);
                 }
                 to {
-                    clip-path: inset(0 0 100% 0);
+                    transform: translateY(-100%);
                 }
             }
 
             @keyframes kylin-slide-in-bottom {
                 from {
-                    clip-path: inset(100% 0 0 0);
+                    transform: translateY(100%);
                 }
                 to {
-                    clip-path: inset(0 0 0 0);
+                    transform: translateY(0);
                 }
             }
 
             @keyframes kylin-slide-out-bottom {
                 from {
-                    clip-path: inset(0 0 0 0);
+                    transform: translateY(0);
                 }
                 to {
-                    clip-path: inset(100% 0 0 0);
+                    transform: translateY(100%);
                 }
             }
 
