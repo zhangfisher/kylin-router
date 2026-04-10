@@ -33,6 +33,7 @@ function isViewOptions(view: RouteViewSource | RouteViewOptions): view is RouteV
 
 import { HookManager } from "./features/hooks";
 import { RouteRegistry } from "./features/routes";
+import { AlpineManager } from "./features/alpine";
 
 /**
  *
@@ -113,6 +114,9 @@ export class KylinRouter extends Mixin(
     /** 最大模态层数，防止无限堆叠 */
     protected maxModals: number = 10;
 
+    /** Alpine.js 管理器 */
+    protected alpineManager?: AlpineManager;
+
     /**
      * 构造函数 - 仅负责配置初始化，不操作 DOM
      * @param host - 宿主元素
@@ -145,6 +149,7 @@ export class KylinRouter extends Mixin(
                 mode: "history",
                 base: "",
                 debug: false,
+                data: {}, // Alpine.js store 初始数据
             },
             options && typeof options === "object" && "routes" in options
                 ? options
@@ -934,6 +939,11 @@ export class KylinRouter extends Mixin(
         // 初始化模态容器
         this._initModals();
 
+        // 初始化 Alpine.js
+        this.alpineManager = new AlpineManager(this);
+        this.alpineManager.initStore(this.options.data);
+        this.alpineManager.bindHostData(this.host);
+
         // 标记为已绑定
         this.attached = true;
 
@@ -961,6 +971,11 @@ export class KylinRouter extends Mixin(
 
         // 清理 DataLoader 资源
         this.dataLoader.cleanup();
+
+        // 清理 Alpine.js
+        if (this.alpineManager) {
+            this.alpineManager.cleanup();
+        }
 
         // 清理 AbortController
         this.abortController.abort();

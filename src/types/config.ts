@@ -82,4 +82,6 @@ export type KylinRouterOptiopns = {
     viewOptions?: Omit<RouteViewOptions, 'form'>;
     /** 全局数据加载配置 */
     dataOptions?: Omit<RouteDataOptions, 'from'>;
+    /** Alpine.js 全局 store 初始数据 */
+    data?: Record<string, any>;
 };
