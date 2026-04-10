@@ -5,8 +5,8 @@ milestone_name: milestone
 current_phase: 4
 status: Ready to plan
 stopped_at: Completed 03-05 - 使用示例和集成测试
-last_updated: "2026-04-09T10:02:15.662Z"
-last_activity: 2026-04-09
+last_updated: "2026-04-10T02:12:41.666Z"
+last_activity: 2026-04-10
 progress:
   total_phases: 6
   completed_phases: 4
@@ -100,6 +100,7 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 260408-te8 | 使用triggerEvent代替host.dispatchEvent | 2026-04-08 | 240500e | [260408-te8-triggerevent-host-dispatchevent](./quick/260408-te8-triggerevent-host-dispatchevent/) |
 | 260410-d3x | 给KylinRouter增加事件 data/loading, data/loaded, view/loading, view/loaded | 2026-04-10 | 046369e | [260410-d3x-kylinrouter-data-loading-data-loaded-vie](./quick/260410-d3x-kylinrouter-data-loading-data-loaded-vie/) |
+| 260410-e6k | 将RemoteLoadOptions更名为ViewOptions并统一view类型 | 2026-04-10 | a31a160 | [260410-e6k-remoteloadoptions-viewoptions-view-views](./quick/260410-e6k-remoteloadoptions-viewoptions-view-views/) |
 
 ## Quick Tasks
 
