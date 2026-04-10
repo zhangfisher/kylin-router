@@ -4,9 +4,9 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 4
 status: Ready to plan
-stopped_at: "Completed quick task 260410-auto-home: 路由器初始化时自动导航到 home 路径"
-last_updated: "2026-04-10T10:30:00.000Z"
-last_activity: "2026-04-10 - Completed quick task 260410-auto-home: 路由器初始化时自动导航到 home 路径"
+stopped_at: "Completed quick task 260410-auto-home: 路由器初始化时自动导航到 home 路径（移除 defaultRoute）"
+last_updated: "2026-04-10T11:00:00.000Z"
+last_activity: "2026-04-10 - Completed quick task 260410-auto-home: 移除 defaultRoute，统一使用 home"
 progress:
   total_phases: 6
   completed_phases: 4
@@ -107,7 +107,7 @@ None yet.
 | 260410-l6l | 路由 data 加载机制重构 | 2026-04-10 | ef1883c | [260410-l6l-data](./quick/260410-l6l-data/) |
 | 260410-mqa | 引入alpinejs，使用alpine-js技能 | 2026-04-10 | 0b9c6db | [260410-mqa-alpinejs-alpine-js](./quick/260410-mqa-alpinejs-alpine-js/) |
 | 260410-o45 | 重构路由视图的渲染逻辑，使用Alpine.js | 2026-04-10 | 4642ea2 | [260410-o45-alpine-js](./quick/260410-o45-alpine-js/) |
-| 260410-auto-home | 路由器初始化时自动导航到 home 路径 | 2026-04-10 | 66583ab | [260410-auto-home](./quick/260410-auto-home/) |
+| 260410-auto-home | 路由器初始化时自动导航到 home 路径（移除 defaultRoute） | 2026-04-10 | 8919a6c | [260410-auto-home](./quick/260410-auto-home/) |
 
 ## Quick Tasks
 
@@ -130,9 +130,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-10T10:30:00.000Z
-Stopped at: Completed quick task 260410-auto-home: 路由器初始化时自动导航到 home 路径
+Last session: 2026-04-10T11:00:00.000Z
+Stopped at: Completed quick task 260410-auto-home: 移除 defaultRoute，统一使用 home
 Previous phase: Phase 02 (hooks) completed successfully - 4/4 plans done
 Current phase: 4
 Next plan: 03-04 模态路由系统 (依赖：03-02, 03-03)
-Last activity: 2026-04-10 - Completed quick task 260410-auto-home: 路由器初始化时自动导航到 home 路径
+Last activity: 2026-04-10 - Completed quick task 260410-auto-home: 移除 defaultRoute，统一使用 home
