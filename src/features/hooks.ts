@@ -5,7 +5,7 @@
  */
 
 import type { KylinRouter } from "@/router";
-import type { HookFunction, RouteItem, RouteData, RenderEachHook } from "@/types";
+import type { HookFunction, RouteItem, RouteDataSource, RenderEachHook } from "@/types";
 import type { HookType } from "@/types";
 import { HookTypeValues } from "@/types/hooks";
 
@@ -310,15 +310,15 @@ export class HookManager {
     }
 
     /**
-     * 执行 renderEach 钩子进行数据预加载
+     * 执行 renderEach 钩子
      * 遵循 D-18: 在组件加载后执行
      * 遵循 D-19: 失败时继续渲染
-     * 遵循 D-20: 通过 route.data 传递
+     * 不再负责数据加载和合并，数据加载由 DataLoader 统一处理
      * @param to - 目标路由
      * @param from - 来源路由
-     * @returns Promise<RouteData | undefined> - 合并后的预加载数据
+     * @returns Promise<void>
      */
-    async executeRenderEach(to: RouteItem, from: RouteItem): Promise<RouteData | undefined> {
+    async executeRenderEach(to: RouteItem, from: RouteItem): Promise<void> {
         // 收集全局 renderEach 钩子
         const globalHooks = this.hooks[HookTypeValues.RENDER_EACH as HookType] as RenderEachHook[];
         // 收集路由级 renderEach 钩子
@@ -329,22 +329,16 @@ export class HookManager {
             : [];
 
         const allHooks = [...globalHooks, ...routeHooks];
-        if (allHooks.length === 0) return undefined;
+        if (allHooks.length === 0) return;
 
-        let combinedData: RouteData = {};
         let errorCount = 0;
-        const errors: Array<{ hook: RenderEachHook; error: Error }> = [];
 
         // 串行执行所有 renderEach 钩子
         for (const hook of allHooks) {
             try {
-                const result = await this.runRenderEachHook(hook, to, from);
-                if (result) {
-                    combinedData = { ...combinedData, ...result };
-                }
+                await this.runRenderEachHook(hook, to, from);
             } catch (error) {
                 errorCount++;
-                errors.push({ hook, error: error as Error });
                 console.error("[Router] renderEach hook failed:", {
                     route: to.name,
                     error,
@@ -357,8 +351,6 @@ export class HookManager {
         if (errorCount > 0) {
             console.warn(`[Router] ${errorCount} renderEach hooks failed, continuing navigation`);
         }
-
-        return combinedData;
     }
 
     /**
@@ -366,48 +358,49 @@ export class HookManager {
      * @param hook - renderEach 钩子函数
      * @param to - 目标路由
      * @param from - 来源路由
-     * @returns Promise<RouteData | undefined> - 钩子返回的预加载数据
+     * @returns Promise<void>
      */
     async runRenderEachHook(
         hook: RenderEachHook,
         to: RouteItem,
         from: RouteItem,
-    ): Promise<RouteData | undefined> {
+    ): Promise<void> {
         return new Promise((resolve) => {
             const timeout = setTimeout(() => {
                 console.error("[Router] renderEach hook timeout after 30000ms");
-                resolve(undefined); // 超时返回 undefined，不阻塞导航
+                resolve(); // 超时不阻塞导航
             }, 30000);
 
-            const next = (data?: RouteData) => {
+            const next = (_data?: RouteDataSource) => {
                 clearTimeout(timeout);
-                resolve(data);
+                // 不再处理数据，只完成钩子执行
+                resolve();
             };
 
             try {
                 const result = hook(to, from, next, this._router);
 
-                // 支持直接返回数据
+                // 支持直接返回数据（但不再使用）
                 if (result instanceof Promise) {
                     result
-                        .then((data) => {
+                        .then(() => {
                             clearTimeout(timeout);
-                            resolve(data || undefined);
+                            resolve();
                         })
                         .catch((error) => {
                             clearTimeout(timeout);
                             console.error("[Router] renderEach hook execution error:", error);
-                            resolve(undefined);
+                            resolve();
                         });
-                } else if (result !== undefined) {
+                } else {
                     clearTimeout(timeout);
-                    resolve(result);
+                    resolve();
                 }
                 // 如果调用 next()，由 next 回调处理
             } catch (error) {
                 clearTimeout(timeout);
                 console.error("[Router] renderEach hook sync error:", error);
-                resolve(undefined);
+                resolve();
             }
         });
     }
@@ -420,17 +413,18 @@ export class HookManager {
      * @param to - 目标路由
      * @param from - 来源路由
      * @param maxRetries - 最大重试次数（默认 1）
-     * @returns Promise<RouteData | undefined> - 钩子返回的预加载数据
+     * @returns Promise<void>
      */
     async runRenderEachHookWithRetry(
         hook: RenderEachHook,
         to: RouteItem,
         from: RouteItem,
         maxRetries: number = 1,
-    ): Promise<RouteData | undefined> {
+    ): Promise<void> {
         for (let attempt = 0; attempt <= maxRetries; attempt++) {
             try {
-                return await this.runRenderEachHook(hook, to, from);
+                await this.runRenderEachHook(hook, to, from);
+                return; // 成功执行，退出
             } catch (error) {
                 if (attempt === maxRetries) {
                     console.error(
@@ -447,6 +441,5 @@ export class HookManager {
                 await new Promise((resolve) => setTimeout(resolve, 1000));
             }
         }
-        return undefined;
     }
 }
