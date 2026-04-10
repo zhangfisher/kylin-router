@@ -18,7 +18,7 @@ export class ViewLoader {
     protected abortController?: AbortController;
     router: KylinRouter;
     /** 全局视图加载配置 */
-    private globalViewOptions?: Omit<RouteViewOptions, 'form'>;
+    protected globalViewOptions?: Omit<RouteViewOptions, 'form'>;
 
     constructor(router: KylinRouter, globalViewOptions?: Omit<RouteViewOptions, 'form'>) {
         this.router = router;
@@ -42,29 +42,16 @@ export class ViewLoader {
         this.abortController = new AbortController();
 
         // 合并全局选项和路由级选项（路由级优先）
-        let mergedOptions: RouteViewOptions | undefined;
-        if (options) {
-            // 有路由级选项，合并全局选项和路由级选项
-            mergedOptions = {
-                ...this.globalViewOptions,
-                ...options,
-            } as RouteViewOptions;
-        } else if (this.globalViewOptions) {
-            // 只有全局选项，不需要设置 form 字段
-            // 直接使用全局选项，因为它已经符合 RouteViewOptions 的结构（除了 form）
-            mergedOptions = {
-                form: undefined as any,
-                ...this.globalViewOptions,
-            };
-        }
-        // 如果都没有，mergedOptions 为 undefined
+        const finalOptions: RouteViewOptions | undefined = options
+            ? { ...this.globalViewOptions, ...options }
+            : undefined;
 
         try {
             // 检测 view 类型
             if (typeof view === "string") {
                 // 判断是否为 URL
                 if (this.isURL(view)) {
-                    return await this.loadRemoteView(view, mergedOptions);
+                    return await this.loadRemoteView(view, finalOptions, this.globalViewOptions);
                 } else {
                     return this.loadLocalView(view);
                 }
@@ -181,15 +168,19 @@ export class ViewLoader {
     /**
      * 远程 HTML 加载 - 从 URL 获取 HTML 内容
      * @param url - 远程 HTML 的 URL
-     * @param options - 视图加载选项
+     * @param routeOptions - 路由级加载选项
+     * @param globalOptions - 全局加载选项
      * @returns 加载结果的 Promise
      */
     private async loadRemoteView(
         url: string,
-        options?: RouteViewOptions,
+        routeOptions?: RouteViewOptions,
+        globalOptions?: Omit<RouteViewOptions, 'form'>,
     ): Promise<RouteViewLoadResult> {
-        const timeout = options?.timeout || 5000;
-        const allowUnsafe = options?.allowUnsafe || false;
+        // 合并选项：路由级优先
+        const timeout = routeOptions?.timeout ?? globalOptions?.timeout ?? 5000;
+        const allowUnsafe = routeOptions?.allowUnsafe ?? globalOptions?.allowUnsafe ?? false;
+        const selector = routeOptions?.selector ?? globalOptions?.selector;
 
         try {
             // 使用 Promise.race 实现超时机制
@@ -220,7 +211,7 @@ export class ViewLoader {
             }
 
             // 智能内容提取（D-02）
-            html = this.extractContent(html, options?.selector);
+            html = this.extractContent(html, selector);
 
             // 安全性检查（D-15, D-29）
             if (!allowUnsafe) {

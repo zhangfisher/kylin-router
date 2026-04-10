@@ -2,9 +2,11 @@
  * 路由器配置相关类型定义
  */
 
-import type { KylinRoutes, RouteItem, RouteViewOptions } from './routes';
-import type { BeforeEachHook, RenderEachHook, RouteDataOptions } from './hooks';
+import type { KylinRoutes, RouteItem } from './routes';
+import type { BeforeEachHook, RenderEachHook } from './hooks';
 import type { TemplateResult } from 'lit';
+import type { RouteViewOptions } from './routes';
+import type { RouteDataOptions } from './hooks';
 
 /**
  * 重试策略配置

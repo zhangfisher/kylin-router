@@ -31,12 +31,10 @@ interface DataLoadOptions {
 export class DataLoader {
     /** AbortController 用于取消进行中的请求 */
     private abortController?: AbortController;
-    private router: KylinRouter;
     /** 全局数据加载配置 */
-    private globalDataOptions?: Omit<RouteDataOptions, 'from'>;
+    protected globalDataOptions?: Omit<RouteDataOptions, 'from'>;
 
-    constructor(router: KylinRouter, globalDataOptions?: Omit<RouteDataOptions, 'from'>) {
-        this.router = router;
+    constructor(_router: KylinRouter, globalDataOptions?: Omit<RouteDataOptions, 'from'>) {
         this.globalDataOptions = globalDataOptions;
     }
 
@@ -85,8 +83,12 @@ export class DataLoader {
                 const from = dataOptions.from;
                 if (typeof from === "function") {
                     // from 是函数，调用 loadRemoteData
+                    const dataFn = () => {
+                        const result = from();
+                        return result instanceof Promise ? result : Promise.resolve(result);
+                    };
                     return await this.loadRemoteData(
-                        from as () => Promise<Record<string, any>>,
+                        dataFn,
                         { timeout: mergedTimeout, signal: options?.signal },
                     );
                 } else if (typeof from === "string") {
