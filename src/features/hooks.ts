@@ -365,7 +365,7 @@ export class HookManager {
         to: RouteItem,
         from: RouteItem,
     ): Promise<void> {
-        return new Promise((resolve) => {
+        return new Promise<void>((resolve) => {
             const timeout = setTimeout(() => {
                 console.error("[Router] renderEach hook timeout after 30000ms");
                 resolve(); // 超时不阻塞导航

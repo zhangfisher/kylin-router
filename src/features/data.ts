@@ -79,8 +79,8 @@ export class DataLoader {
             if (typeof data === "object" && data !== null && "from" in data) {
                 const dataOptions = data as RouteDataOptions;
 
-                // 处理缓存逻辑
-                if (dataOptions.cache !== undefined) {
+                // 处理缓存逻辑：只有 cache !== false 且 !== undefined 时才启用缓存
+                if (dataOptions.cache !== undefined && dataOptions.cache !== false) {
                     const cacheResult = this.handleCache(dataOptions);
                     if (cacheResult) {
                         return cacheResult;
@@ -125,7 +125,7 @@ export class DataLoader {
                     );
 
                     // 如果启用缓存且加载成功，存入缓存
-                    if (result.success && result.data && dataOptions.cache !== undefined) {
+                    if (result.success && result.data && dataOptions.cache !== undefined && dataOptions.cache !== false) {
                         this.setCache(dataOptions, result.data);
                     }
 
@@ -153,7 +153,7 @@ export class DataLoader {
                     );
 
                     // 如果启用缓存且加载成功，存入缓存
-                    if (result.success && result.data && dataOptions.cache !== undefined) {
+                    if (result.success && result.data && dataOptions.cache !== undefined && dataOptions.cache !== false) {
                         this.setCache(dataOptions, result.data);
                     }
 
@@ -163,7 +163,7 @@ export class DataLoader {
                     const staticData = from as Record<string, any>;
 
                     // 如果启用缓存，存入缓存
-                    if (dataOptions.cache !== undefined) {
+                    if (dataOptions.cache !== undefined && dataOptions.cache !== false) {
                         this.setCache(dataOptions, staticData);
                     }
 
@@ -273,19 +273,23 @@ export class DataLoader {
      * 生成缓存键
      * @param dataOptions - 数据加载选项
      * @returns 缓存键字符串
+     * @throws 如果 cache 配置无效则抛出错误
      */
     private generateCacheKey(dataOptions: RouteDataOptions): string {
         const cacheConfig = dataOptions.cache;
         let cacheKeyPattern: string;
 
         // 确定缓存键模式
-        if (typeof cacheConfig === 'boolean') {
+        // 注意：此方法只在 cache !== undefined && cache !== false 时被调用
+        if (typeof cacheConfig === 'boolean' && cacheConfig === true) {
+            // cache === true 时使用默认值
             cacheKeyPattern = '{path}';
         } else if (typeof cacheConfig === 'string') {
+            // cache 是字符串时使用该字符串
             cacheKeyPattern = cacheConfig;
         } else {
-            // cacheConfig 是 undefined，使用默认值
-            cacheKeyPattern = '{path}';
+            // cache === false 或 undefined 时不应该调用此方法
+            throw new Error('Invalid cache configuration: cache must be true or a string');
         }
 
         // 使用插值变量生成缓存键
