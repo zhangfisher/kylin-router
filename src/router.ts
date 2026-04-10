@@ -4,10 +4,7 @@ import type { Update } from "history";
 import type {
     KylinRouterOptiopns,
     RouteItem,
-    ModalConfig,
     ModalState,
-    ModalStackItem,
-    ModalOptions,
     ViewSource,
     ViewOptions,
 } from "./types/index";
@@ -194,10 +191,10 @@ export class KylinRouter extends Mixin(
     }
 
     /**
-     * 路由更新回调 - 在 URL 变化时被调用
-     * 执行路由匹配和参数提取
+     * 初始化导航状态
+     * @returns 当前导航版本号
      */
-    async onRouteUpdate(location: Update) {
+    protected _initializeNavigationState(): number {
         // 递增导航版本号（D-23）
         this.currentNavVersion++;
         const currentVersion = this.currentNavVersion;
@@ -214,9 +211,16 @@ export class KylinRouter extends Mixin(
             this.routes._redirectCount = 0;
         }
 
-        const pathname = location.location.pathname;
-        const search = location.location.search;
+        return currentVersion;
+    }
 
+    /**
+     * 执行路由匹配并构造导航上下文
+     * @param pathname - 路径名称
+     * @param search - 查询参数
+     * @returns 导航上下文，包含 fromRoute、toRoute 等信息
+     */
+    protected _matchRoute(pathname: string, search: string): { fromRoute: RouteItem; toRoute: RouteItem } {
         // 调试日志：导航开始
         this.log(`导航开始: from=${this.routes.current.route?.name || "(initial)"} to=${pathname}`);
 
@@ -227,11 +231,12 @@ export class KylinRouter extends Mixin(
             params: {},
             query: {},
         };
+
         // 保存完整的当前路由状态（包括 matchedRoutes）
         this.previousRoute = this.routes.current.route
             ? {
                   ...this.routes.current.route,
-                  matchedRoutes: [...this.routes.current.matchedRoutes],
+                  matchedRoutes: [...(this.routes.current.matchedRoutes || [])],
                   params: { ...this.routes.current.params },
                   query: { ...this.routes.current.query },
               }
@@ -246,10 +251,6 @@ export class KylinRouter extends Mixin(
             this.routes.current.params,
         );
 
-        // 注意：模态路由不应该通过 router.push() 调用
-        // 模态路由不进入 history 栈，必须通过 openModal API 打开
-        // 如果需要打开模态，请使用: router.openModal({ route: '/modal/path' })
-
         // 构造目标路由对象（用于 to 参数）
         const toRoute = this.routes.current.route || {
             name: "",
@@ -259,15 +260,21 @@ export class KylinRouter extends Mixin(
         };
 
         // 将匹配的参数和查询参数合并到目标路由对象
-        if (toRoute !== this.routes.current.route && this.routes.current.route) {
-            toRoute.params = this.routes.current.params;
-            toRoute.query = this.routes.current.query;
-        } else if (this.routes.current.route) {
+        if (this.routes.current.route) {
             toRoute.params = this.routes.current.params || {};
             toRoute.query = this.routes.current.query || {};
         }
 
-        // 执行 beforeEach 钩子
+        return { fromRoute, toRoute };
+    }
+
+    /**
+     * 执行全局前置守卫（beforeEach）
+     * @param toRoute - 目标路由
+     * @param fromRoute - 来源路由
+     * @returns 是否继续导航（false 表示取消）
+     */
+    protected async _executeBeforeEachHooks(toRoute: RouteItem, fromRoute: RouteItem): Promise<boolean> {
         this.log("钩子执行: beforeEach");
         try {
             const beforeEachResult = await this.hooks.executeHooks(
@@ -280,7 +287,7 @@ export class KylinRouter extends Mixin(
                 // 取消导航
                 this.log("钩子结果: beforeEach 取消导航");
                 this.isNavigating = false;
-                return;
+                return false;
             }
 
             if (typeof beforeEachResult === "string") {
@@ -291,10 +298,10 @@ export class KylinRouter extends Mixin(
                     console.error("Maximum redirect limit reached. Possible infinite loop.");
                     this.isNavigating = false;
                     this.routes._redirectCount = 0;
-                    return;
+                    return false;
                 }
                 this.replace(beforeEachResult);
-                return;
+                return false;
             }
         } catch (error) {
             console.error("Error in beforeEach hooks:", error);
@@ -307,9 +314,18 @@ export class KylinRouter extends Mixin(
             if (this.location.pathname !== fallback) {
                 this.replace(fallback);
             }
-            return;
+            return false;
         }
 
+        return true;
+    }
+
+    /**
+     * 执行路由级前置守卫（beforeEnter）
+     * @param fromRoute - 来源路由
+     * @returns 是否继续导航（false 表示取消）
+     */
+    protected async _executeBeforeEnterGuards(fromRoute: RouteItem): Promise<boolean> {
         // 获取匹配的路由链（包含嵌套路由）
         const matchedRoutes = this.routes.current.matchedRoutes || [];
 
@@ -327,144 +343,196 @@ export class KylinRouter extends Mixin(
                 this.log("守卫结果: beforeEnter 取消导航");
                 this.isNavigating = false;
                 this._pendingNavigationType = undefined;
-                return;
+                return false;
             }
 
             if (typeof beforeEnterResult === "string") {
                 // 重定向
                 this.replace(beforeEnterResult);
-                return;
+                return false;
             }
         }
 
-        // 组件加载步骤（在 renderEach 钩子前执行）
-        // 遵循导航流程：路由匹配 → 守卫执行 → 组件加载 → renderEach → 渲染
-        if (this.routes.current.route?.view) {
-            this.log("组件加载: 开始加载组件");
-            const view = this.routes.current.route.view;
+        return true;
+    }
 
-            // 判断 view 类型
-            if (isViewOptions(view)) {
-                // ViewOptions 类型：提取 form 作为实际视图源，使用配置的选项
-                this.log("组件加载: ViewOptions 类型，使用配置选项");
-                const loadResult = await this.viewLoader.loadView(
-                    typeof view.form === "string" || typeof view.form === "function"
-                        ? view.form
-                        : view.form, // HTMLElement 类型会在 loadView 中处理
-                    view,
-                );
-
-                // 检查导航版本号（D-23）
-                if (currentVersion !== this.currentNavVersion) {
-                    this.log("组件加载: 导航版本号已变更，丢弃结果");
-                    return;
-                }
-
-                if (loadResult.success) {
-                    this.log("组件加载: 成功", loadResult.content);
-                    (this.routes.current.route as any).viewContent = loadResult.content;
-                } else {
-                    this.log("组件加载: 失败", loadResult.error);
-                    this.isNavigating = false;
-                    return;
-                }
-            } else if (typeof view === "string" || typeof view === "function") {
-                // ViewSource 类型：string 或 function，使用默认选项加载
-                this.log("组件加载: ViewSource 类型（string/function）");
-                const loadResult = await this.viewLoader.loadView(view, undefined);
-
-                // 检查导航版本号（D-23）
-                if (currentVersion !== this.currentNavVersion) {
-                    this.log("组件加载: 导航版本号已变更，丢弃结果");
-                    return;
-                }
-
-                if (loadResult.success) {
-                    this.log("组件加载: 成功", loadResult.content);
-                    (this.routes.current.route as any).viewContent = loadResult.content;
-                } else {
-                    this.log("组件加载: 失败", loadResult.error);
-                    this.isNavigating = false;
-                    return;
-                }
-            } else {
-                // HTMLElement 类型，直接存储
-                this.log("组件加载: HTMLElement 类型，直接使用");
-                (this.routes.current.route as any).viewContent = view;
-            }
+    /**
+     * 加载视图组件
+     * @param currentVersion - 当前导航版本号
+     * @returns 是否继续导航（false 表示取消或版本过期）
+     */
+    protected async _loadViewComponent(currentVersion: number): Promise<boolean> {
+        if (!this.routes.current.route?.view) {
+            return true;
         }
 
-        // 数据加载步骤（在 renderEach 钩子前执行）
-        // 如果路由配置了 data，则加载数据到 route.data
-        if (this.routes.current.route?.data) {
-            this.log("数据加载: 开始加载路由数据");
-            try {
-                const dataResult = await this.dataLoader.loadData(this.routes.current.route, {
-                    signal: this.abortController.signal,
-                });
+        this.log("组件加载: 开始加载组件");
+        const view = this.routes.current.route.view;
 
-                // 检查导航版本号（D-23）
-                if (currentVersion !== this.currentNavVersion) {
-                    this.log("数据加载: 导航版本号已变更，丢弃结果");
-                    return;
-                }
-
-                if (dataResult.success && dataResult.data) {
-                    this.log("数据加载: 成功", dataResult.data);
-                    // 将加载的数据存储到 route.data
-                    (this.routes.current.route as any).data = dataResult.data;
-                } else {
-                    this.log("数据加载: 失败", dataResult.error);
-                    // 数据加载失败不阻塞导航流程，继续使用空数据
-                    (this.routes.current.route as any).data = {};
-                }
-            } catch (error) {
-                console.error("数据加载异常:", error);
-                // 数据加载异常不阻塞导航流程
-                (this.routes.current.route as any).data = {};
-            }
-        }
-
-        // 执行 renderEach 钩子（数据预加载）
-        // 遵循 D-18: 在组件加载后、渲染前执行
-        // 遵循 D-19: 失败时继续渲染组件
-        if (this.routes.current.route) {
-            this.log("钩子执行: renderEach");
-            const renderData = await this.hooks.executeRenderEach(
-                this.routes.current.route,
-                fromRoute,
+        // 判断 view 类型
+        if (isViewOptions(view)) {
+            // ViewOptions 类型：提取 form 作为实际视图源，使用配置的选项
+            this.log("组件加载: ViewOptions 类型，使用配置选项");
+            const loadResult = await this.viewLoader.loadView(
+                typeof view.form === "string" || typeof view.form === "function"
+                    ? view.form
+                    : view.form, // HTMLElement 类型会在 loadView 中处理
+                view,
             );
 
             // 检查导航版本号（D-23）
             if (currentVersion !== this.currentNavVersion) {
-                this.log("钩子执行: 导航版本号已变更，丢弃结果");
-                return;
+                this.log("组件加载: 导航版本号已变更，丢弃结果");
+                return false;
             }
 
-            // 将预加载的数据合并到 route.data
-            // 遵循 D-20: 通过 route.data 传递给组件
-            if (renderData) {
-                this.log("钩子结果: renderEach 返回数据", renderData);
-                // 合并数据：route.data = loadDataResult ∪ renderData
-                const currentData = (this.routes.current.route as any).data || {};
+            if (loadResult.success) {
+                this.log("组件加载: 成功", loadResult.content);
+                (this.routes.current.route as any).viewContent = loadResult.content;
+            } else {
+                this.log("组件加载: 失败", loadResult.error);
+                this.isNavigating = false;
+                return false;
+            }
+        } else if (typeof view === "string" || typeof view === "function") {
+            // ViewSource 类型：string 或 function，使用默认选项加载
+            this.log("组件加载: ViewSource 类型（string/function）");
+            const loadResult = await this.viewLoader.loadView(view, undefined);
+
+            // 检查导航版本号（D-23）
+            if (currentVersion !== this.currentNavVersion) {
+                this.log("组件加载: 导航版本号已变更，丢弃结果");
+                return false;
+            }
+
+            if (loadResult.success) {
+                this.log("组件加载: 成功", loadResult.content);
+                (this.routes.current.route as any).viewContent = loadResult.content;
+            } else {
+                this.log("组件加载: 失败", loadResult.error);
+                this.isNavigating = false;
+                return false;
+            }
+        } else {
+            // HTMLElement 类型，直接存储
+            this.log("组件加载: HTMLElement 类型，直接使用");
+            (this.routes.current.route as any).viewContent = view;
+        }
+
+        return true;
+    }
+
+    /**
+     * 加载路由数据
+     * @param currentVersion - 当前导航版本号
+     * @returns 是否继续导航（false 表示版本过期）
+     */
+    protected async _loadRouteData(currentVersion: number): Promise<boolean> {
+        if (!this.routes.current.route?.data) {
+            return true;
+        }
+
+        this.log("数据加载: 开始加载路由数据");
+        try {
+            const dataResult = await this.dataLoader.loadData(this.routes.current.route, {
+                signal: this.abortController.signal,
+            });
+
+            // 检查导航版本号（D-23）
+            if (currentVersion !== this.currentNavVersion) {
+                this.log("数据加载: 导航版本号已变更，丢弃结果");
+                return false;
+            }
+
+            if (dataResult.success && dataResult.data) {
+                this.log("数据加载: 成功", dataResult.data);
+                // 将加载的数据存储到 route.data
+                (this.routes.current.route as any).data = dataResult.data;
+            } else {
+                this.log("数据加载: 失败", dataResult.error);
+                // 数据加载失败不阻塞导航流程，继续使用空数据
+                (this.routes.current.route as any).data = {};
+            }
+        } catch (error) {
+            console.error("数据加载异常:", error);
+            // 数据加载异常不阻塞导航流程
+            (this.routes.current.route as any).data = {};
+        }
+
+        return true;
+    }
+
+    /**
+     * 执行 renderEach 钩子（数据预加载）
+     * @param fromRoute - 来源路由
+     * @param currentVersion - 当前导航版本号
+     * @returns 是否继续导航（false 表示版本过期）
+     */
+    protected async _executeRenderEachHook(fromRoute: RouteItem, currentVersion: number): Promise<boolean> {
+        if (!this.routes.current.route) {
+            return true;
+        }
+
+        this.log("钩子执行: renderEach");
+        const renderData = await this.hooks.executeRenderEach(
+            this.routes.current.route,
+            fromRoute,
+        );
+
+        // 检查导航版本号（D-23）
+        if (currentVersion !== this.currentNavVersion) {
+            this.log("钩子执行: 导航版本号已变更，丢弃结果");
+            return false;
+        }
+
+        // 将预加载的数据合并到 route.data
+        // 遵循 D-20: 通过 route.data 传递给组件
+        if (renderData) {
+            this.log("钩子结果: renderEach 返回数据", renderData);
+            // 合并数据：route.data = loadDataResult ∪ renderData
+            const currentData = (this.routes.current.route as any).data || {};
+            if (typeof renderData === "object" && renderData !== null) {
                 (this.routes.current.route as any).data = { ...currentData, ...renderData };
+            } else {
+                (this.routes.current.route as any).data = currentData;
             }
         }
 
-        // 执行渲染步骤（Task 5：集成渲染流程）
-        // 导航流程：路由匹配 → 守卫执行 → 组件加载 → renderEach → 渲染 → 完成
-        if (this.routes.current.route) {
-            this.log("渲染流程: 开始渲染组件");
-            try {
-                await this.renderToOutlets();
-                this.log("渲染流程: 渲染完成");
-            } catch (error) {
-                console.error("渲染流程失败:", error);
-                this.log("渲染流程: 渲染失败", error);
-                // 渲染失败不阻塞导航流程
-            }
+        return true;
+    }
+
+    /**
+     * 执行渲染步骤
+     */
+    protected async _renderRoute(): Promise<void> {
+        if (!this.routes.current.route) {
+            return;
         }
 
+        this.log("渲染流程: 开始渲染组件");
+        try {
+            await this.renderToOutlets();
+            this.log("渲染流程: 渲染完成");
+        } catch (error) {
+            console.error("渲染流程失败:", error);
+            this.log("渲染流程: 渲染失败", error);
+            // 渲染失败不阻塞导航流程
+        }
+    }
+
+    /**
+     * 完成导航流程：触发事件、执行钩子、重置状态
+     * @param location - 导航位置信息
+     * @param pathname - 路径名称
+     * @param toRoute - 目标路由
+     * @param fromRoute - 来源路由
+     */
+    protected async _finalizeNavigation(
+        location: Update,
+        pathname: string,
+        toRoute: RouteItem,
+        fromRoute: RouteItem,
+    ): Promise<void> {
         // 触发 route/change 事件（用于后续的组件渲染）
         this.emit("route/change", {
             route: this.routes.current.route || undefined,
@@ -520,6 +588,57 @@ export class KylinRouter extends Mixin(
         // 默认路径重定向检测（D-41 到 D-44）
         // 当前路径为根路径且配置了 defaultRoute 时，自动重定向
         this.routes.checkDefaultRedirect(pathname);
+    }
+
+    /**
+     * 路由更新回调 - 在 URL 变化时被调用
+     * 执行路由匹配和参数提取
+     */
+    async onRouteUpdate(location: Update) {
+        // 初始化导航状态
+        const currentVersion = this._initializeNavigationState();
+
+        const pathname = location.location.pathname;
+        const search = location.location.search;
+
+        // 执行路由匹配并获取导航上下文
+        const { fromRoute, toRoute } = this._matchRoute(pathname, search);
+
+        // 执行全局前置守卫（beforeEach）
+        const shouldContinue = await this._executeBeforeEachHooks(toRoute, fromRoute);
+        if (!shouldContinue) {
+            return;
+        }
+
+        // 执行路由级前置守卫（beforeEnter）
+        const shouldEnter = await this._executeBeforeEnterGuards(fromRoute);
+        if (!shouldEnter) {
+            return;
+        }
+
+        // 组件加载
+        const viewLoaded = await this._loadViewComponent(currentVersion);
+        if (!viewLoaded) {
+            return;
+        }
+
+        // 数据加载
+        const dataLoaded = await this._loadRouteData(currentVersion);
+        if (!dataLoaded) {
+            return;
+        }
+
+        // 执行 renderEach 钩子（数据预加载）
+        const renderEachCompleted = await this._executeRenderEachHook(fromRoute, currentVersion);
+        if (!renderEachCompleted) {
+            return;
+        }
+
+        // 执行渲染步骤
+        await this._renderRoute();
+
+        // 完成导航流程：触发事件、执行钩子、重置状态
+        await this._finalizeNavigation(location, pathname, toRoute, fromRoute);
     }
 
     /**
