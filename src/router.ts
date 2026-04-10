@@ -357,11 +357,11 @@ export class KylinRouter extends Mixin(
     }
 
     /**
-     * 加载视图组件
+     * 加载路由视图组件
      * @param currentVersion - 当前导航版本号
      * @returns 是否继续导航（false 表示取消或版本过期）
      */
-    protected async _loadViewComponent(currentVersion: number): Promise<boolean> {
+    protected async _loadRouteView(currentVersion: number): Promise<boolean> {
         if (!this.routes.current.route?.view) {
             return true;
         }
@@ -459,6 +459,40 @@ export class KylinRouter extends Mixin(
             (this.routes.current.route as any).data = {};
         }
 
+        return true;
+    }
+
+    /**
+     * 并发加载路由资源（组件和数据）
+     * 使用 Promise.allSettled 确保即使其中一个失败也能继续
+     * @param currentVersion - 当前导航版本号
+     * @returns 是否继续导航（false 表示版本过期或组件加载失败）
+     */
+    protected async _loadRouteResources(currentVersion: number): Promise<boolean> {
+        this.log("资源加载: 开始并发加载组件和数据");
+
+        // 使用 Promise.allSettled 并发加载组件和数据
+        const results = await Promise.allSettled([
+            this._loadRouteView(currentVersion),
+            this._loadRouteData(currentVersion),
+        ]);
+
+        const [viewResult] = results;
+
+        // 检查导航版本号（D-23）
+        if (currentVersion !== this.currentNavVersion) {
+            this.log("资源加载: 导航版本号已变更，丢弃结果");
+            return false;
+        }
+
+        // 处理组件加载结果
+        if (viewResult.status === "rejected" || !viewResult.value) {
+            this.log("资源加载: 组件加载失败");
+            return false;
+        }
+
+        // 数据加载失败不阻塞导航流程（已在 _loadRouteData 中处理）
+        this.log("资源加载: 组件和数据加载完成");
         return true;
     }
 
@@ -616,15 +650,9 @@ export class KylinRouter extends Mixin(
             return;
         }
 
-        // 组件加载
-        const viewLoaded = await this._loadViewComponent(currentVersion);
-        if (!viewLoaded) {
-            return;
-        }
-
-        // 数据加载
-        const dataLoaded = await this._loadRouteData(currentVersion);
-        if (!dataLoaded) {
+        // 并发加载组件和数据（使用 Promise.allSettled）
+        const resourcesLoaded = await this._loadRouteResources(currentVersion);
+        if (!resourcesLoaded) {
             return;
         }
 
