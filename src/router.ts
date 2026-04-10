@@ -5,8 +5,8 @@ import type {
     KylinRouterOptiopns,
     RouteItem,
     ModalState,
-    ViewSource,
-    ViewOptions,
+    RouteViewSource,
+    RouteViewOptions,
 } from "./types/index";
 import { HookTypeValues, type HookType } from "./types/index";
 import { Mixin } from "ts-mixer";
@@ -27,7 +27,7 @@ import { createHashHistoryFromLib } from "@/utils/hashUtils";
 /**
  * 类型守卫：检查 view 是否为 ViewOptions
  */
-function isViewOptions(view: ViewSource | ViewOptions): view is ViewOptions {
+function isViewOptions(view: RouteViewSource | RouteViewOptions): view is RouteViewOptions {
     return typeof view === "object" && view !== null && "form" in view;
 }
 
@@ -919,11 +919,11 @@ export class KylinRouter extends Mixin(
         // 初始化钩子管理器
         this.hooks = new HookManager(this);
 
-        // 初始化组件加载器
-        this.viewLoader = new ViewLoader(this);
+        // 初始化组件加载器，传递全局视图选项
+        this.viewLoader = new ViewLoader(this, this.options.viewOptions);
 
-        // 初始化数据加载器
-        this.dataLoader = new DataLoader(this);
+        // 初始化数据加载器，传递全局数据选项
+        this.dataLoader = new DataLoader(this, this.options.dataOptions);
 
         // 开始监听路由变化
         this._cleanups.push(this.history.listen(this.onRouteUpdate.bind(this)));
