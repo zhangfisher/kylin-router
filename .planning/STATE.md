@@ -102,6 +102,7 @@ None yet.
 | 260410-d3x | 给KylinRouter增加事件 data/loading, data/loaded, view/loading, view/loaded | 2026-04-10 | 046369e | [260410-d3x-kylinrouter-data-loading-data-loaded-vie](./quick/260410-d3x-kylinrouter-data-loading-data-loaded-vie/) |
 | 260410-e6k | 将RemoteLoadOptions更名为ViewOptions并统一view类型 | 2026-04-10 | a31a160 | [260410-e6k-remoteloadoptions-viewoptions-view-views](./quick/260410-e6k-remoteloadoptions-viewoptions-view-views/) |
 | 260410-eyr | 拆分 onRouteUpdate 函数，提高代码可读性和可维护性 | 2026-04-10 | c1e5f81 | [260410-eyr-onrouteupdate](./quick/260410-eyr-onrouteupdate/) |
+| 260410-fqz | 给 KylinRouterOptions 增加 viewOptions 和 dataOptions 可选参数 | 2026-04-10 | 32f8435 | [260410-fqz-kylinrouteroptions-viewoptions-dataoptio](./quick/260410-fqz-kylinrouteroptions-viewoptions-dataoptio/) |
 
 ## Quick Tasks
 
@@ -129,4 +130,4 @@ Stopped at: Completed 03-05 - 使用示例和集成测试
 Previous phase: Phase 02 (hooks) completed successfully - 4/4 plans done
 Current phase: 4
 Next plan: 03-04 模态路由系统 (依赖：03-02, 03-03)
-Last activity: 2026-04-10 - Completed quick task 260410-d3x: 给KylinRouter增加事件
+Last activity: 2026-04-10 - Completed quick task 260410-fqz: 给 KylinRouterOptions 增加 viewOptions 和 dataOptions 可选参数
