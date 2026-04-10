@@ -152,9 +152,9 @@ describe("KylinLinkElement", () => {
             // 先导航到一个路径建立初始状态
             router.push("/settings");
 
-            // 监听 navigation-start 事件来验证 replace 类型
+            // 监听 navigation/start 事件来验证 replace 类型
             let navType: string | undefined;
-            host.addEventListener("navigation-start", ((event: any) => {
+            host.addEventListener("navigation/start", ((event: any) => {
                 navType = event.detail.navigationType;
             }) as EventListener);
 

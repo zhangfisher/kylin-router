@@ -120,11 +120,11 @@ describe("Hash mode routing", () => {
         const navStarts: any[] = [];
         const navEnds: any[] = [];
 
-        host.addEventListener("navigation-start", ((event: any) => {
+        host.addEventListener("navigation/start", ((event: any) => {
             navStarts.push(event.detail);
         }) as EventListener);
 
-        host.addEventListener("navigation-end", ((event: any) => {
+        host.addEventListener("navigation/end", ((event: any) => {
             navEnds.push(event.detail);
         }) as EventListener);
 

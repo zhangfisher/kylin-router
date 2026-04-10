@@ -131,5 +131,9 @@ export type HookType = "beforeEach" | "renderEach" | "afterEach";
  * @remarks
  * 这是一个灵活的数据类型，允许存储任意结构的数据。
  * 建议在具体应用中定义更精确的数据类型以获得更好的类型安全性。
+ * 
+ * @param string - 简单的url数据,从远程加载数据
+ * @param Record<string, any> - 任意键值对数据
+ * @param () => Record<string, any> | Promise<Record<string, any>> - 支持同步或异步函数返回数据
  */
-export type RouteData = Record<string, any> | (() => Promise<Record<string, any>>);
+export type RouteData =string | Record<string, any> | (() => Record<string, any> | Promise<Record<string, any>>);

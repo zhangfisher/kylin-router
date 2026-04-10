@@ -147,11 +147,6 @@ export interface RouteItem {
      */
     name: string;
 
-    /**
-     * 预加载的数据，由 renderEach 钩子填充
-     * 组件可以通过 route.data 访问这些数据
-     */
-    data?: RouteData;
 
     /**
      * 路由路径，支持以下语法：
@@ -189,9 +184,17 @@ export interface RouteItem {
      *
      * - string:  从此路径加载HTML内容，支持相对路径和绝对路径
      * - HTMLElement:  使用指定的HTMLElement元素作为路由显示组件
+     * - () => Promise<any>: 通过动态导入函数加载组件，支持本地组件和远程HTML内容
      */
-    view?: string | HTMLElement;
+    view?: string | HTMLElement | (() => Promise<HTMLElement> | HTMLElement) ;
 
+    /**
+     * 
+     * 在导航到此路由时预加载的数据，可以是以下类型：
+     * 
+     * 这些数据会被作为路由视图渲染时使用的变量
+     */
+    data?: RouteData;
     /**
      * 是否缓存此路由对应的组件实例，默认为 false
      *
@@ -211,6 +214,7 @@ export interface RouteItem {
      */
     loading?: boolean | string | HTMLElement;
 
+    
     roles?: string[];
     redirect?: string;
     children?: RouteItem[];

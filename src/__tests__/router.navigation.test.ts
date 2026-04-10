@@ -163,15 +163,15 @@ describe("KylinRouter navigation API", () => {
         it("导航方法应该触发 onRouteUpdate 回调", async () => {
             router = await createRouter(host, { routes });
 
-            // 收集 route-change 事件
+            // 收集 route/change 事件
             const routeChanges: any[] = [];
-            host.addEventListener("route-change", ((event: any) => {
+            host.addEventListener("route/change", ((event: any) => {
                 routeChanges.push(event.detail);
             }) as EventListener);
 
             router.push("/user");
 
-            // 应该有 route-change 事件被触发
+            // 应该有 route/change 事件被触发
             expect(routeChanges.length).toBeGreaterThan(0);
             expect(routeChanges[routeChanges.length - 1].route.name).toBe("user");
         });
@@ -198,9 +198,9 @@ describe("KylinRouter navigation API", () => {
         it("导航过程中 isNavigating 应该被正确管理", async () => {
             router = await createRouter(host, { routes });
 
-            // 收集 navigation-end 事件来验证导航完成
+            // 收集 navigation/end 事件来验证导航完成
             let navEndFired = false;
-            host.addEventListener("navigation-end", () => {
+            host.addEventListener("navigation/end", () => {
                 navEndFired = true;
             });
 
@@ -213,17 +213,17 @@ describe("KylinRouter navigation API", () => {
     });
 
     describe("导航事件系统", () => {
-        it("push 应该触发 navigation-start 和 navigation-end 事件", async () => {
+        it("push 应该触发 navigation/start 和 navigation/end 事件", async () => {
             router = await createRouter(host, { routes });
 
             const navStarts: any[] = [];
             const navEnds: any[] = [];
 
-            host.addEventListener("navigation-start", ((event: any) => {
+            host.addEventListener("navigation/start", ((event: any) => {
                 navStarts.push(event.detail);
             }) as EventListener);
 
-            host.addEventListener("navigation-end", ((event: any) => {
+            host.addEventListener("navigation/end", ((event: any) => {
                 navEnds.push(event.detail);
             }) as EventListener);
 
@@ -243,7 +243,7 @@ describe("KylinRouter navigation API", () => {
 
             const navStarts: any[] = [];
 
-            host.addEventListener("navigation-start", ((event: any) => {
+            host.addEventListener("navigation/start", ((event: any) => {
                 navStarts.push(event.detail);
             }) as EventListener);
 
@@ -261,7 +261,7 @@ describe("KylinRouter navigation API", () => {
 
             const navStarts: any[] = [];
 
-            host.addEventListener("navigation-start", ((event: any) => {
+            host.addEventListener("navigation/start", ((event: any) => {
                 navStarts.push(event.detail);
             }) as EventListener);
 

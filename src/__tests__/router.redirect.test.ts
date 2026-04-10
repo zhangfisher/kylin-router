@@ -76,21 +76,21 @@ describe("Default route redirect", () => {
         expect(router.routes.current.route!.name).toBe("home");
     });
 
-    it("defaultRoute 重定向触发完整的导航流程（route-change 事件）", async () => {
+    it("defaultRoute 重定向触发完整的导航流程（route/change 事件）", async () => {
         router = await createRouter(host, {
             routes,
             defaultRoute: "/home",
         });
 
         const routeChanges: any[] = [];
-        host.addEventListener("route-change", ((event: any) => {
+        host.addEventListener("route/change", ((event: any) => {
             routeChanges.push(event.detail);
         }) as EventListener);
 
         // 手动导航到根路径触发重定向
         router.push("/");
 
-        // 应该触发 route-change 事件
+        // 应该触发 route/change 事件
         expect(routeChanges.length).toBeGreaterThan(0);
         // 最终路由应该是 /home
         expect(router.routes.current.route!.name).toBe("home");

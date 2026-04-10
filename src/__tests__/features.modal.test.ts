@@ -395,7 +395,7 @@ describe('Modal Feature', () => {
     });
 
     describe('事件触发', () => {
-        it('应该在打开模态时触发 modal-open 事件', async () => {
+        it('应该在打开模态时触发 modal/open 事件', async () => {
             mockRouter._initModals();
             const route: RouteItem = {
                 name: 'test',
@@ -406,12 +406,12 @@ describe('Modal Feature', () => {
 
             await mockRouter.openModal({ route });
 
-            const openEvent = mockRouter.emitEventCalls.find(e => e.event === 'modal-open');
+            const openEvent = mockRouter.emitEventCalls.find(e => e.event === 'modal/open');
             expect(openEvent).toBeDefined();
             expect(openEvent?.detail.route).toBe(route);
         });
 
-        it('应该在关闭模态时触发 modal-close 事件', async () => {
+        it('应该在关闭模态时触发 modal/close 事件', async () => {
             mockRouter._initModals();
 
             // 先打开一个模态
@@ -432,7 +432,7 @@ describe('Modal Feature', () => {
 
             await mockRouter._closeTopModal();
 
-            const closeEvent = mockRouter.emitEventCalls.find(e => e.event === 'modal-close');
+            const closeEvent = mockRouter.emitEventCalls.find(e => e.event === 'modal/close');
             expect(closeEvent).toBeDefined();
         });
     });

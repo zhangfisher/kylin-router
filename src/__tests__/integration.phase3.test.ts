@@ -476,7 +476,7 @@ describe('Phase 3 Integration Tests', () => {
             router.attach();
 
             // 监听导航事件
-            router.on('route-change', (event: any) => {
+            router.on('route/change', (event: any) => {
                 if (event?.detail?.route?.path) {
                     navigations.push(event.detail.route.path);
                 }

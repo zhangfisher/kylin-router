@@ -77,7 +77,7 @@ export class Modal {
         await (this as any)._renderModal(stackItem);
 
         // 触发事件
-        this.emit('modal-open', {
+        this.emit('modal/open', {
             route,
             stackItem
         });
@@ -833,7 +833,7 @@ export class Modal {
                 modalState.current = modalState.stack[modalState.stack.length - 1] || null;
 
                 // 触发事件
-                this.emit('modal-close', {
+                this.emit('modal/close', {
                     route: stackItem.route,
                     stackItem
                 });

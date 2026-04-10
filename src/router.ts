@@ -437,8 +437,8 @@ export class KylinRouter extends Mixin(
             }
         }
 
-        // 触发 route-change 事件（用于后续的组件渲染）
-        this.emit("route-change", {
+        // 触发 route/change 事件（用于后续的组件渲染）
+        this.emit("route/change", {
             route: this.routes.current.route || undefined,
             params: this.routes.current.params,
             query: this.routes.current.query,
@@ -474,8 +474,8 @@ export class KylinRouter extends Mixin(
                 });
         }
 
-        // 触发 navigation-end 事件
-        this.emit("navigation-end", {
+        // 触发 navigation/end 事件
+        this.emit("navigation/end", {
             location: location,
             navigationType: this._pendingNavigationType || "pop",
         });
@@ -536,8 +536,8 @@ export class KylinRouter extends Mixin(
             return;
         }
 
-        // 触发 navigation-start 事件
-        this.emit("navigation-start", {
+        // 触发 navigation/start 事件
+        this.emit("navigation/start", {
             path,
             navigationType: "push",
         });
@@ -551,8 +551,8 @@ export class KylinRouter extends Mixin(
         this._ensureAttached();
         this._pendingNavigationType = "replace";
         this.log(`导航方法: replace(${path})`);
-        // 触发 navigation-start 事件
-        this.emit("navigation-start", {
+        // 触发 navigation/start 事件
+        this.emit("navigation/start", {
             path,
             navigationType: "replace",
         });
@@ -573,8 +573,8 @@ export class KylinRouter extends Mixin(
             return;
         }
 
-        // 触发 navigation-start 事件
-        this.emit("navigation-start", {
+        // 触发 navigation/start 事件
+        this.emit("navigation/start", {
             path: undefined,
             navigationType: "pop",
         });
@@ -584,8 +584,8 @@ export class KylinRouter extends Mixin(
         this._ensureAttached();
         this._pendingNavigationType = "pop";
         this.log("导航方法: forward()");
-        // 触发 navigation-start 事件
-        this.emit("navigation-start", {
+        // 触发 navigation/start 事件
+        this.emit("navigation/start", {
             path: undefined,
             navigationType: "pop",
         });
@@ -595,8 +595,8 @@ export class KylinRouter extends Mixin(
         this._ensureAttached();
         this._pendingNavigationType = "pop";
         this.log(`导航方法: go(${delta})`);
-        // 触发 navigation-start 事件
-        this.emit("navigation-start", {
+        // 触发 navigation/start 事件
+        this.emit("navigation/start", {
             path: undefined,
             navigationType: "pop",
         });
