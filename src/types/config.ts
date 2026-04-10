@@ -2,8 +2,8 @@
  * 路由器配置相关类型定义
  */
 
-import type { KylinRoutes, RouteItem } from './routes';
-import type { BeforeEachHook, RenderEachHook } from './hooks';
+import type { KylinRoutes, RouteItem, RouteViewOptions } from './routes';
+import type { BeforeEachHook, RenderEachHook, RouteDataOptions } from './hooks';
 import type { TemplateResult } from 'lit';
 
 /**
@@ -76,4 +76,8 @@ export type KylinRouterOptiopns = {
     defaultErrorComponent?: string | (() => Promise<any>);
     /** 全局加载模板 */
     defaultLoadingTemplate?: TemplateResult | string;
+    /** 全局视图加载配置 */
+    viewOptions?: Omit<RouteViewOptions, 'form'>;
+    /** 全局数据加载配置 */
+    dataOptions?: Omit<RouteDataOptions, 'from'>;
 };
