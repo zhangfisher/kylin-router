@@ -83,6 +83,8 @@ export class DataLoader {
                 if (dataOptions.cache !== undefined && dataOptions.cache !== false) {
                     const cacheResult = this.handleCache(dataOptions);
                     if (cacheResult) {
+                        // 缓存命中，触发 data/loaded 事件
+                        this._router.emit("data/loaded", { route });
                         return cacheResult;
                     }
                 }
@@ -94,6 +96,9 @@ export class DataLoader {
             }
             this.abortController = new AbortController();
 
+            // 触发 data/loading 事件
+            this._router.emit("data/loading", { route });
+
             // 检查 data 类型
             if (typeof data === "function") {
                 // 远程数据加载：data 是返回 Promise 的函数
@@ -102,10 +107,19 @@ export class DataLoader {
                 if (this.globalDataOptions?.timeout !== undefined) {
                     mergedOptions.timeout = mergedOptions.timeout ?? this.globalDataOptions.timeout;
                 }
-                return await this.loadRemoteData(
+                const result = await this.loadRemoteData(
                     data as () => Promise<Record<string, any>>,
                     mergedOptions,
                 );
+
+                // 触发事件
+                if (result.success) {
+                    this._router.emit("data/loaded", { route });
+                } else {
+                    this._router.emit("data/error", { route, error: result.error! });
+                }
+
+                return result;
             } else if (typeof data === "object" && data !== null && "from" in data) {
                 // RouteDataOptions 类型：合并全局选项
                 const dataOptions = data as RouteDataOptions;
@@ -127,6 +141,13 @@ export class DataLoader {
                     // 如果启用缓存且加载成功，存入缓存
                     if (result.success && result.data && dataOptions.cache !== undefined && dataOptions.cache !== false) {
                         this.setCache(dataOptions, result.data);
+                    }
+
+                    // 触发事件
+                    if (result.success) {
+                        this._router.emit("data/loaded", { route });
+                    } else {
+                        this._router.emit("data/error", { route, error: result.error! });
                     }
 
                     return result;
@@ -157,6 +178,13 @@ export class DataLoader {
                         this.setCache(dataOptions, result.data);
                     }
 
+                    // 触发事件
+                    if (result.success) {
+                        this._router.emit("data/loaded", { route });
+                    } else {
+                        this._router.emit("data/error", { route, error: result.error! });
+                    }
+
                     return result;
                 } else {
                     // from 是 Record，直接作为静态数据返回
@@ -167,6 +195,9 @@ export class DataLoader {
                         this.setCache(dataOptions, staticData);
                     }
 
+                    // 触发 data/loaded 事件（静态数据直接成功）
+                    this._router.emit("data/loaded", { route });
+
                     return {
                         success: true,
                         data: staticData,
@@ -174,15 +205,22 @@ export class DataLoader {
                 }
             } else {
                 // 静态数据：data 已经是 Record<string, any>
+                // 触发 data/loaded 事件（静态数据直接成功）
+                this._router.emit("data/loaded", { route });
+
                 return {
                     success: true,
                     data: data as Record<string, any>,
                 };
             }
         } catch (error) {
+            const errorObj = error instanceof Error ? error : new Error(String(error));
+            // 触发 data/error 事件
+            this._router.emit("data/error", { route, error: errorObj });
+
             return {
                 success: false,
-                error: error instanceof Error ? error : new Error(String(error)),
+                error: errorObj,
             };
         }
     }
