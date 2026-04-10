@@ -8,7 +8,7 @@
  */
 
 import type { KylinRouter } from "@/router";
-import type { ViewLoadResult, ViewOptions, ViewSource } from "@/types/routes";
+import type { RouteViewLoadResult, RouteViewOptions, RouteViewSource } from "@/types/routes";
 
 /**
  * Loader 类 - 负责组件加载逻辑
@@ -17,8 +17,12 @@ export class ViewLoader {
     /** AbortController 用于取消加载请求 */
     protected abortController?: AbortController;
     router: KylinRouter;
-    constructor(router: KylinRouter) {
+    /** 全局视图加载配置 */
+    private globalViewOptions?: Omit<RouteViewOptions, 'form'>;
+
+    constructor(router: KylinRouter, globalViewOptions?: Omit<RouteViewOptions, 'form'>) {
         this.router = router;
+        this.globalViewOptions = globalViewOptions;
     }
 
     /**
@@ -28,21 +32,39 @@ export class ViewLoader {
      * @returns 加载结果的 Promise
      */
     async loadView(
-        view: ViewSource,
-        options?: ViewOptions,
-    ): Promise<ViewLoadResult> {
+        view: RouteViewSource,
+        options?: RouteViewOptions,
+    ): Promise<RouteViewLoadResult> {
         // 取消之前的加载请求
         if (this.abortController) {
             this.abortController.abort();
         }
         this.abortController = new AbortController();
 
+        // 合并全局选项和路由级选项（路由级优先）
+        let mergedOptions: RouteViewOptions | undefined;
+        if (options) {
+            // 有路由级选项，合并全局选项和路由级选项
+            mergedOptions = {
+                ...this.globalViewOptions,
+                ...options,
+            } as RouteViewOptions;
+        } else if (this.globalViewOptions) {
+            // 只有全局选项，不需要设置 form 字段
+            // 直接使用全局选项，因为它已经符合 RouteViewOptions 的结构（除了 form）
+            mergedOptions = {
+                form: undefined as any,
+                ...this.globalViewOptions,
+            };
+        }
+        // 如果都没有，mergedOptions 为 undefined
+
         try {
             // 检测 view 类型
             if (typeof view === "string") {
                 // 判断是否为 URL
                 if (this.isURL(view)) {
-                    return await this.loadRemoteView(view, options);
+                    return await this.loadRemoteView(view, mergedOptions);
                 } else {
                     return this.loadLocalView(view);
                 }
@@ -76,7 +98,7 @@ export class ViewLoader {
      * @param view - HTML 元素名（如 'div'、'my-component'）
      * @returns 加载结果
      */
-    private loadLocalView(view: string): ViewLoadResult {
+    private loadLocalView(view: string): RouteViewLoadResult {
         // 验证元素名格式
         if (!view || typeof view !== "string") {
             return {
@@ -99,7 +121,7 @@ export class ViewLoader {
      * @param importFn - 动态导入函数（如 () => import('./MyComponent.js')）
      * @returns 加载结果的 Promise
      */
-    private async loadDynamicImport(importFn: () => Promise<HTMLElement> | HTMLElement): Promise<ViewLoadResult> {
+    private async loadDynamicImport(importFn: () => Promise<HTMLElement> | HTMLElement): Promise<RouteViewLoadResult> {
         try {
             // 调用动态导入函数
             const result = importFn();
@@ -164,10 +186,10 @@ export class ViewLoader {
      */
     private async loadRemoteView(
         url: string,
-        options?: ViewOptions,
-    ): Promise<ViewLoadResult> {
+        options?: RouteViewOptions,
+    ): Promise<RouteViewLoadResult> {
         const timeout = options?.timeout || 5000;
-        const allowUnsafe = options?.allowUnsafeHTML || false;
+        const allowUnsafe = options?.allowUnsafe || false;
 
         try {
             // 使用 Promise.race 实现超时机制
