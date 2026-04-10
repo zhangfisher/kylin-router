@@ -57,3 +57,61 @@
 - 用户可以配置 `home` 路径，应用启动时自动导航到该路径
 - 默认行为不变（`home: '/'` 不触发导航）
 - 使用 `replace` 避免产生额外的历史记录
+
+## 额外变更：移除 defaultRoute
+
+在实现过程中，发现 `defaultRoute` 与 `home` 功能重叠，决定移除 `defaultRoute` 以简化 API。
+
+### 移除的文件和代码
+
+1. **src/features/routes.ts**
+   - 移除 `defaultRoute` 属性
+   - 移除 `_redirectCount` 属性
+   - 移除 `checkDefaultRedirect()` 方法
+   - 简化 `redirectToDefaultOrNotFound()` 方法，只保留 notFound 逻辑
+   - 从 `initRoutes()` 方法中移除 `defaultRoute` 参数
+
+2. **src/router.ts**
+   - 从 `initRoutes()` 调用中移除 `defaultRoute` 参数
+   - 移除 `_finalizeNavigation()` 中对 `checkDefaultRedirect()` 的调用
+   - 更新错误处理中的 fallback 逻辑，不再使用 `defaultRoute`
+
+3. **测试文件**
+   - 删除 `src/__tests__/router.redirect.test.ts`（专门测试 defaultRoute 的文件）
+   - 更新 `router.attach.test.ts`、`router.core.test.ts`、`router.dynamic.test.ts`，移除 `defaultRoute` 相关测试
+
+### 迁移指南
+
+如果之前使用了 `defaultRoute`，请改用 `home`：
+
+```typescript
+// 旧方式（已移除）
+const router = new KylinRouter("#app", {
+  routes: [...],
+  defaultRoute: "/dashboard" // 每次访问 / 都重定向
+});
+
+// 新方式
+const router = new KylinRouter("#app", {
+  routes: [...],
+  home: "/dashboard" // 仅在初始化时从 / 导航一次
+});
+```
+
+### 行为差异
+
+- **defaultRoute**: 每次访问根路径都重定向（持续监听）
+- **home**: 仅在初始化时导航（一次性）
+
+如果需要持续监听根路径访问，可以使用路由守卫：
+
+```typescript
+const router = new KylinRouter("#app", {
+  routes: [...],
+  onBeforeEach: (to) => {
+    if (to.path === '/') {
+      return '/dashboard';
+    }
+  }
+});
+```

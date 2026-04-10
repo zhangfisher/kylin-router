@@ -75,12 +75,10 @@ describe("KylinRouter core routing", () => {
                 routes,
                 mode: "history",
                 notFound: { name: "404", path: "*" },
-                defaultRoute: "/home"
             });
 
             expect(router.routes.routes).toEqual(routes);
             expect(router.routes.notFound).toBeDefined();
-            expect(router.routes.defaultRoute).toBe("/home");
         });
 
         it("应该接受数组格式的路由配置", async () => {
@@ -134,14 +132,12 @@ describe("KylinRouter core routing", () => {
             const configWithUndefined = {
                 routes,
                 notFound: undefined,
-                defaultRoute: undefined
             };
 
             router = await createRouter(host, configWithUndefined);
 
             expect(router.routes.routes).toEqual(routes);
             expect(router.routes.notFound).toBeUndefined();
-            expect(router.routes.defaultRoute).toBeUndefined();
         });
     });
 

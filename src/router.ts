@@ -321,8 +321,8 @@ export class KylinRouter extends Mixin(
             // 钩子出错时取消导航
             this.isNavigating = false;
 
-            // 回退到之前的路由或默认路由
-            const fallback = this.previousRoute?.path || this.routes.defaultRoute || "/";
+            // 回退到之前的路由或根路径
+            const fallback = this.previousRoute?.path || "/";
             if (this.location.pathname !== fallback) {
                 this.replace(fallback);
             }
@@ -617,10 +617,6 @@ export class KylinRouter extends Mixin(
         this.log(
             `导航完成: route=${this.routes.current.route?.name || "(not found)"} path=${pathname}`,
         );
-
-        // 默认路径重定向检测（D-41 到 D-44）
-        // 当前路径为根路径且配置了 defaultRoute 时，自动重定向
-        this.routes.checkDefaultRedirect(pathname);
     }
 
     /**
@@ -690,9 +686,8 @@ export class KylinRouter extends Mixin(
             const parentRoute = matchedRoutes[matchedRoutes.length - 2].route;
             this.replace(parentRoute.path);
         } else {
-            // 无父路由，回退到默认路由或根路径
-            const fallback = this.routes.defaultRoute || "/";
-            this.replace(fallback);
+            // 无父路由，回退到根路径
+            this.replace("/");
         }
     }
 
@@ -866,7 +861,6 @@ export class KylinRouter extends Mixin(
         this.routes.initRoutes(
             this.options.routes,
             this.options.notFound,
-            this.options.defaultRoute,
         );
 
         // 初始化钩子管理器

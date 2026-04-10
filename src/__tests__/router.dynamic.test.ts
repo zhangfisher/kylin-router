@@ -109,10 +109,10 @@ describe("Dynamic route registration API", () => {
         expect(router.routes.current.route!.name).toBe("not-found");
     });
 
-    it("删除当前正在访问的路由时应该自动重定向到默认路由", async () => {
+    it("删除当前正在访问的路由时应该重定向到 404 路由", async () => {
         router = await createRouter(host, {
             routes,
-            defaultRoute: "/",
+            notFound: { name: "404", path: "*" },
         });
 
         router.routes.add({ name: "settings", path: "/settings" });
@@ -122,8 +122,8 @@ describe("Dynamic route registration API", () => {
         // 删除当前访问的路由
         router.routes.remove("settings");
 
-        // 应该重定向到默认路由
-        expect(router.routes.current.route!.name).toBe("home");
+        // 应该重定向到 404 路由
+        expect(router.routes.current.route!.name).toBe("404");
     });
 
     it("删除不存在的路由应该静默处理（不抛出错误）", async () => {

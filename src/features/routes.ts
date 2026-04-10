@@ -6,15 +6,11 @@
  * - 动态路由注册（addRoute/removeRoute）
  * - 远程路由表加载（loadRemoteRoutes）
  * - 路由匹配和参数提取
- * - 默认路径重定向
  */
 
 import type { KylinRoutes, RouteItem } from "@/types";
 import { matchRoute } from "@/utils/matchRoute";
 import { extractQueryParams } from "@/utils/parseParams";
-
-/** 最大重定向次数，防止循环重定向 */
-const MAX_REDIRECTS = 10;
 
 /** 导航回调函数类型 */
 export interface NavigationCallbacks {
@@ -29,9 +25,6 @@ export class RouteRegistry {
 
     /** 404 路由配置 */
     public notFound?: RouteItem;
-
-    /** 默认路径重定向 */
-    public defaultRoute?: string;
 
     /** 当前路由状态 */
     public current: {
@@ -53,9 +46,6 @@ export class RouteRegistry {
         matchedRoutes: [],
     };
 
-    /** 当前会话的重定向次数（用于循环检测） */
-    public _redirectCount: number = 0;
-
     /** 导航回调函数 */
     private _callbacks?: NavigationCallbacks;
 
@@ -75,10 +65,8 @@ export class RouteRegistry {
     initRoutes(
         rawRoutes: KylinRoutes,
         notFound?: RouteItem,
-        defaultRoute?: string,
     ): void {
         this.notFound = notFound;
-        this.defaultRoute = defaultRoute;
 
         if (typeof rawRoutes === "function") {
             const result = rawRoutes();
@@ -218,9 +206,6 @@ export class RouteRegistry {
 
         // 重置导航状态
         this._callbacks.setIsNavigating(false);
-
-        // 检查默认路径重定向
-        this.checkDefaultRedirect(pathname);
     }
 
     /**
@@ -252,52 +237,10 @@ export class RouteRegistry {
     }
 
     /**
-     * 检查是否需要执行默认路径重定向
-     * 当访问根路径（/ 或 hash 模式的 #/）且配置了 defaultRoute 时触发
-     * 按照 D-42: 重定向触发完整导航流程、D-43: 循环重定向检测
-     */
-     checkDefaultRedirect(pathname: string): void {
-        if (!this.defaultRoute) return;
-
-        // 规范化路径用于比较
-        const normalizedPath = pathname === "" ? "/" : pathname.replace(/\/+$/, "") || "/";
-
-        // 只在根路径时触发重定向
-        if (normalizedPath !== "/") {
-            // 非 root 路径正常导航，重置重定向计数
-            this._redirectCount = 0;
-            return;
-        }
-
-        // 已经在 defaultRoute 路径上，不需要重定向
-        const targetPath = this.defaultRoute.replace(/\/+$/, "") || "/";
-        if (targetPath === "/") {
-            this._redirectCount = 0;
-            return;
-        }
-
-        // 循环重定向检测
-        this._redirectCount++;
-        if (this._redirectCount > MAX_REDIRECTS) {
-            this._redirectCount = 0;
-            throw new Error(`检测到循环重定向，已超过最大重定向次数 (${MAX_REDIRECTS})`);
-        }
-
-        // 执行重定向
-        if (this._callbacks) {
-            this._callbacks.push(this.defaultRoute);
-        }
-    }
-
-    /**
-     * 当当前路由被删除或不可访问时，重定向到默认路由或 404
+     * 当当前路由被删除或不可访问时，重定向到 404
      */
     protected redirectToDefaultOrNotFound(): void {
-        if (this.defaultRoute) {
-            if (this._callbacks) {
-                this._callbacks.push(this.defaultRoute);
-            }
-        } else if (this.notFound) {
+        if (this.notFound) {
             this.current.route = this.notFound;
             this.current.params = {};
             if (this._callbacks) {

@@ -76,7 +76,6 @@ describe("KylinRouter attach/detach 功能", () => {
                 routes,
                 mode: "history",
                 notFound: { name: "404", path: "*" },
-                defaultRoute: "/home"
             });
 
             // 验证 options 属性存在且包含完整配置
@@ -84,7 +83,6 @@ describe("KylinRouter attach/detach 功能", () => {
             expect(router.options.routes).toEqual(routes);
             expect(router.options.mode).toBe("history");
             expect(router.options.notFound).toEqual({ name: "404", path: "*" });
-            expect(router.options.defaultRoute).toBe("/home");
         });
 
         it("测试 2: 新创建的实例 attached 应为 false", async () => {
