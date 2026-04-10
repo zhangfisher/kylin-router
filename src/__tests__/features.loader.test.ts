@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import { ViewLoader } from "@/features/loader";
-import type { ViewLoadResult, ViewOptions } from "@/types/routes";
+import type { RouteViewLoadResult, RouteViewOptions } from "@/types/routes";
 
 /**
  * 创建测试用的 DOM 环境
@@ -254,9 +254,9 @@ describe("Loader - 组件加载系统", () => {
         });
 
         it("应该允许不安全的 HTML（allowUnsafeHTML=true）", async () => {
-            const options: ViewOptions = {
+            const options: RouteViewOptions = {
                 form: "http://example.com/script.html",
-                allowUnsafeHTML: true,
+                allowUnsafe: true,
             };
             const result = await loader.loadView(options.form, options);
 
@@ -292,7 +292,7 @@ describe("Loader - 组件加载系统", () => {
         });
 
         it("应该支持自定义超时时间", async () => {
-            const options: ViewOptions = {
+            const options: RouteViewOptions = {
                 form: "http://example.com/timeout.html",
                 timeout: 1000, // 1 秒超时
             };
@@ -390,7 +390,7 @@ describe("Loader - 组件加载系统", () => {
         });
 
         it("应该使用自定义选择器提取内容", async () => {
-            const options: ViewOptions = {
+            const options: RouteViewOptions = {
                 form: "http://example.com/custom.html",
                 selector: "#target",
             };
@@ -401,7 +401,7 @@ describe("Loader - 组件加载系统", () => {
         });
 
         it("应该回退到完整内容如果选择器不匹配", async () => {
-            const options: ViewOptions = {
+            const options: RouteViewOptions = {
                 form: "http://example.com/custom.html",
                 selector: "#nonexistent",
             };

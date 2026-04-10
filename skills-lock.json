@@ -1,6 +1,11 @@
 {
   "version": 1,
   "skills": {
+    "alpine-js": {
+      "source": "mindrally/skills",
+      "sourceType": "github",
+      "computedHash": "12155a49ae5c0f68a548945bbca49f5cef365118de9913442c86da6171ce4ce5"
+    },
     "tsdown": {
       "source": "rolldown/tsdown",
       "sourceType": "github",

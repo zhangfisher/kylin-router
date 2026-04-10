@@ -51,7 +51,7 @@ export class AlpineManager {
         const router = this.router;
 
         // 创建全局 store
-        Alpine.store('kylin', {
+        Alpine.store('router', {
             // current: 当前路由信息
             get current() {
                 return router.routes.current;
@@ -77,16 +77,14 @@ export class AlpineManager {
             // routes: 访问 RouteRegistry
             get routes() {
                 return router.routes;
-            },
-
-            // 自定义数据
-            ...initialData,
+            }
         } as KylinAlpineStore);
-
+        // 通过$store.data.xxx访问全局数据
+        Alpine.store("data",initialData)
         // 启动 Alpine.js（如果还未启动）
         if (!Alpine.version) {
             Alpine.start();
-        }
+        } 
     }
 
     /**

@@ -1,0 +1,24 @@
+<!-- 产品列表模板 -->
+<div class="content-header">
+    <div class="content-title" x-text="title"></div>
+    <div class="content-subtitle" x-text="subtitle"></div>
+</div>
+
+<div class="product-grid">
+    <template x-for="product in products" :key="product.id">
+        <div class="product-card" @click="window.router.push('/shop/product/' + product.id)">
+            <div class="product-image">
+                <span>📱</span>
+                <div class="product-badge" x-show="product.badge" x-text="product.badge"></div>
+            </div>
+            <div class="product-info">
+                <div class="product-name" x-text="product.name"></div>
+                <div class="product-desc" x-text="product.desc"></div>
+                <div class="product-price">
+                    ¥<span x-text="product.price"></span>
+                    <small x-show="product.originalPrice">¥<span x-text="product.originalPrice"></span></small>
+                </div>
+            </div>
+        </div>
+    </template>
+</div>

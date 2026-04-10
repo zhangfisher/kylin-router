@@ -1,0 +1,16 @@
+<!-- 首页模板 -->
+<div class="hero-section">
+    <div class="hero-title" x-text="title"></div>
+    <div class="hero-subtitle" x-text="subtitle"></div>
+    <kylin-link to="/shop/products" class="hero-cta">立即选购</kylin-link>
+</div>
+
+<div class="features-grid">
+    <template x-for="feature in features" :key="feature.title">
+        <div class="feature-card">
+            <div class="feature-icon" x-text="feature.icon"></div>
+            <div class="feature-title" x-text="feature.title"></div>
+            <div class="feature-desc" x-text="feature.desc"></div>
+        </div>
+    </template>
+</div>

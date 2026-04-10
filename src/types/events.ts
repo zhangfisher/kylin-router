@@ -28,6 +28,10 @@ export type KylinRouterEvents = {
     "data/loaded": {
         route: RouteItem;
     };
+    "data/error": {
+        route: RouteItem;
+        error:Error
+    };
     "view/loading": {
         route: RouteItem;
     };
