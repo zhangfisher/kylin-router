@@ -149,6 +149,7 @@ export class KylinRouter extends Mixin(
                 mode: "history",
                 base: "",
                 debug: false,
+                home: "/",
                 data: {}, // Alpine.js store 初始数据
             },
             options && typeof options === "object" && "routes" in options
@@ -225,7 +226,10 @@ export class KylinRouter extends Mixin(
      * @param search - 查询参数
      * @returns 导航上下文，包含 fromRoute、toRoute 等信息
      */
-    protected _matchRoute(pathname: string, search: string): { fromRoute: RouteItem; toRoute: RouteItem } {
+    protected _matchRoute(
+        pathname: string,
+        search: string,
+    ): { fromRoute: RouteItem; toRoute: RouteItem } {
         // 调试日志：导航开始
         this.log(`导航开始: from=${this.routes.current.route?.name || "(initial)"} to=${pathname}`);
 
@@ -279,7 +283,10 @@ export class KylinRouter extends Mixin(
      * @param fromRoute - 来源路由
      * @returns 是否继续导航（false 表示取消）
      */
-    protected async _executeBeforeEachHooks(toRoute: RouteItem, fromRoute: RouteItem): Promise<boolean> {
+    protected async _executeBeforeEachHooks(
+        toRoute: RouteItem,
+        fromRoute: RouteItem,
+    ): Promise<boolean> {
         this.log("钩子执行: beforeEach");
         try {
             const beforeEachResult = await this.hooks.executeHooks(
@@ -507,34 +514,21 @@ export class KylinRouter extends Mixin(
      * @param currentVersion - 当前导航版本号
      * @returns 是否继续导航（false 表示版本过期）
      */
-    protected async _executeRenderEachHook(fromRoute: RouteItem, currentVersion: number): Promise<boolean> {
+    protected async _executeRenderEachHook(
+        fromRoute: RouteItem,
+        currentVersion: number,
+    ): Promise<boolean> {
         if (!this.routes.current.route) {
             return true;
         }
 
         this.log("钩子执行: renderEach");
-        const renderData = await this.hooks.executeRenderEach(
-            this.routes.current.route,
-            fromRoute,
-        );
+        await this.hooks.executeRenderEach(this.routes.current.route, fromRoute);
 
         // 检查导航版本号（D-23）
         if (currentVersion !== this.currentNavVersion) {
             this.log("钩子执行: 导航版本号已变更，丢弃结果");
             return false;
-        }
-
-        // 将预加载的数据合并到 route.data
-        // 遵循 D-20: 通过 route.data 传递给组件
-        if (renderData) {
-            this.log("钩子结果: renderEach 返回数据", renderData);
-            // 合并数据：route.data = loadDataResult ∪ renderData
-            const currentData = (this.routes.current.route as any).data || {};
-            if (typeof renderData === "object" && renderData !== null) {
-                (this.routes.current.route as any).data = { ...currentData, ...renderData };
-            } else {
-                (this.routes.current.route as any).data = currentData;
-            }
         }
 
         return true;
@@ -849,52 +843,6 @@ export class KylinRouter extends Mixin(
         return outlets.find((outlet: any) => outlet.path === path) || null;
     }
 
-    /**
-
-
-    /**
-     * 将 router 绑定到 host 元素并开始监听路由变化
-     * @throws {Error} - 如果已 attached 或 host 无效
-     */
-    /**
-     * 主动为已存在的子组件注入 router 实例
-     * 解决组件在 router 初始化之前就已连接的问题
-     */
-    private _injectRouterToExistingComponents(): void {
-        // 查找所有可能需要 router 实例的 Kylin 自定义元素
-        const kylinSelectors = [
-            "kylin-link",
-            "kylin-outlet",
-            "kylin-loading",
-        ].join(",");
-
-        const kylinElements = this.host.querySelectorAll(kylinSelectors);
-        let injectedCount = 0;
-
-        kylinElements.forEach((element) => {
-            // 检查元素是否有 router 属性但值为 undefined
-            if ("router" in element && !(element as any).router) {
-                // 注入 router 实例
-                (element as any).router = this;
-
-                // 触发组件更新
-                if ("requestUpdate" in element && typeof (element as any).requestUpdate === "function") {
-                    (element as any).requestUpdate();
-                }
-
-                injectedCount++;
-                console.log("[KylinRouter] 为组件注入 router 实例:", {
-                    tagName: element.tagName.toLowerCase(),
-                    element,
-                });
-            }
-        });
-
-        if (injectedCount > 0) {
-            console.log("[KylinRouter] 已为", injectedCount, "个组件注入 router 实例");
-        }
-    }
-
     attach(): void {
         if (this.attached) {
             throw new Error("[KylinRouter] Already attached to a host element");
@@ -947,12 +895,15 @@ export class KylinRouter extends Mixin(
         // 标记为已绑定
         this.attached = true;
 
-        // 主动为已存在的子组件注入 router 实例
-        // 解决组件在 router 初始化之前就已连接的问题
-        this._injectRouterToExistingComponents();
-
         // 执行初始路由匹配
         this.routes.matchCurrentLocation();
+
+        // 自动导航到 home 路径（如果配置了且当前在根路径）
+        const currentPath = this.history.location.pathname;
+        if (currentPath === '/' && this.options.home && this.options.home !== '/') {
+            this.log(`自动导航到 home 路径: ${this.options.home}`);
+            this.replace(this.options.home);
+        }
     }
     /**
      * 解除 router 与 host 的绑定并清理所有监听器
