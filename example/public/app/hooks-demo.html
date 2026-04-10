@@ -593,7 +593,7 @@
             };
 
             // 使用 router.on() 监听路由变化事件，用于渲染组件
-            router.on("route-change", (data) => {
+            router.on("route/change", (data) => {
                 const { route, params, query } = data;
 
                 // 简单的模板渲染

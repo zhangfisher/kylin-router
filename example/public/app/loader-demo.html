@@ -114,11 +114,11 @@
     <div id="app">
         <nav class="demo-nav">
             <h1>组件加载系统演示</h1>
-            <kylin-link href="/loader/local">本地组件</kylin-link>
-            <kylin-link href="/loader/dynamic">动态导入</kylin-link>
-            <kylin-link href="/loader/remote">远程 HTML</kylin-link>
-            <kylin-link href="/loader/nested">嵌套路由</kylin-link>
-            <kylin-link href="/loader/data">数据预加载</kylin-link>
+            <kylin-link to="/loader/local">本地组件</kylin-link>
+            <kylin-link to="/loader/dynamic">动态导入</kylin-link>
+            <kylin-link to="/loader/remote">远程 HTML</kylin-link>
+            <kylin-link to="/loader/nested">嵌套路由</kylin-link>
+            <kylin-link to="/loader/data">数据预加载</kylin-link>
         </nav>
         <main>
             <kylin-outlet path="/loader"></kylin-outlet>
@@ -139,9 +139,9 @@
                 // 本地组件示例
                 {
                     path: '/loader/local',
-                    component: 'div',
-                    data: {
+                    view: 'div',
                         title: '本地组件示例',
+                    data: {
                         content: '这是一个本地 HTML 元素（div）',
                         description: '本地组件是最简单的加载方式，直接使用 HTML 标签字符串作为组件。',
                         loadTime: new Date().toLocaleString()
@@ -150,7 +150,8 @@
                 // 动态导入示例
                 {
                     path: '/loader/dynamic',
-                    component: async () => {
+                    title: '动态导入示例',
+                    view: async () => {
                         // 模拟动态导入延迟
                         await new Promise(resolve => setTimeout(resolve, 1000));
                         return 'div';
@@ -165,7 +166,7 @@
                 // 远程 HTML 示例
                 {
                     path: '/loader/remote',
-                    component: 'https://jsonplaceholder.typicode.com/',
+                    view: 'https://jsonplaceholder.typicode.com/',
                     remoteOptions: {
                         timeout: 5000,
                         selector: 'body'
@@ -179,7 +180,7 @@
                 // 嵌套路由示例
                 {
                     path: '/loader/nested',
-                    component: 'div',
+                    view: 'div',
                     data: {
                         title: '嵌套路由示例',
                         content: '这是父路由的内容',
@@ -188,7 +189,7 @@
                     children: [
                         {
                             path: '/loader/nested/child1',
-                            component: 'div',
+                            view: 'div',
                             data: {
                                 title: '子路由 1',
                                 content: '这是第一个子路由的内容',
@@ -197,7 +198,7 @@
                         },
                         {
                             path: '/loader/nested/child2',
-                            component: 'div',
+                            view: 'div',
                             data: {
                                 title: '子路由 2',
                                 content: '这是第二个子路由的内容',
@@ -209,7 +210,7 @@
                 // 数据预加载示例
                 {
                     path: '/loader/data',
-                    component: 'div',
+                    view: 'div',
                     renderEach: async (to, from, next) => {
                         addLog('开始预加载数据...', 'info');
                         try {
@@ -251,7 +252,7 @@
         }
 
         // 监听路由变化
-        router.on('route-change', (event) => {
+        router.on('route/change', (event) => {
             addLog(`路由变化: ${event.detail.route.path}`, 'info');
         });
 
