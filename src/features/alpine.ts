@@ -3,9 +3,9 @@
  * 提供 Alpine.js store 初始化和 x-data 绑定功能
  */
 
-import Alpine from 'alpinejs';
-import type { KylinRouter } from '@/router';
-import type { ModalOptions } from '@/types/modals';
+import Alpine from "alpinejs";
+import type { KylinRouter } from "@/router";
+import type { ModalOptions } from "@/types/modals";
 
 /**
  * Alpine.js 全局 store 接口
@@ -40,6 +40,8 @@ export class AlpineManager {
 
     constructor(router: KylinRouter) {
         this.router = router;
+        this.initStore(this.router.options.data);
+        this.bindHost(this.router.host);
     }
 
     /**
@@ -51,7 +53,7 @@ export class AlpineManager {
         const router = this.router;
 
         // 创建全局 store
-        Alpine.store('router', {
+        Alpine.store("router", {
             // current: 当前路由信息
             get current() {
                 return router.routes.current;
@@ -77,23 +79,23 @@ export class AlpineManager {
             // routes: 访问 RouteRegistry
             get routes() {
                 return router.routes;
-            }
+            },
         } as KylinAlpineStore);
         // 通过$store.data.xxx访问全局数据
-        Alpine.store("data",initialData)
+        Alpine.store("data", initialData);
         // 启动 Alpine.js（如果还未启动）
         if (!Alpine.version) {
             Alpine.start();
-        } 
+        }
     }
 
     /**
      * 为 host 元素绑定 x-data
      * @param host - 宿主元素
      */
-    bindHostData(host: HTMLElement): void {
+    bindHost(host: HTMLElement): void {
         // 添加 x-data 属性，使整个 host 树可以访问 Alpine store
-        host.setAttribute('x-data', '{}');
+        host.setAttribute("x-data", "{}");
     }
 
     /**

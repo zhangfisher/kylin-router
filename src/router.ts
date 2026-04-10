@@ -1,5 +1,5 @@
 import type { OutletRefs } from "@/utils/traverseOutlet";
-import { createBrowserHistory } from "history";
+import { createBrowserHistory, createHashHistory } from "history";
 import type { Update } from "history";
 import type {
     KylinRouterOptiopns,
@@ -110,6 +110,7 @@ export class KylinRouter extends Mixin(
         stack: [],
         current: null,
     };
+    private _redirectCount: number = 0;
 
     /** 最大模态层数，防止无限堆叠 */
     protected maxModals: number = 10;
@@ -135,14 +136,6 @@ export class KylinRouter extends Mixin(
         this.host.setAttribute("data-kylin-router", "");
         (this.host as any).router = this;
 
-        console.log("[KylinRouter] Router 初始化:", {
-            host: this.host,
-            hasAttribute: this.host.hasAttribute("data-kylin-router"),
-            hasRouter: !!(this.host as any).router,
-            tagName: this.host.tagName,
-            id: this.host.id,
-        });
-
         // 存储解析后的最终配置
         this.options = Object.assign(
             {
@@ -150,7 +143,7 @@ export class KylinRouter extends Mixin(
                 base: "",
                 debug: false,
                 home: "/",
-                data: {}, // Alpine.js store 初始数据
+                data: {},
             },
             options && typeof options === "object" && "routes" in options
                 ? options
@@ -214,7 +207,7 @@ export class KylinRouter extends Mixin(
 
         // 在导航开始时重置重定向计数（仅针对非重定向触发的导航）
         if (this._pendingNavigationType !== "replace") {
-            this.routes._redirectCount = 0;
+            this._redirectCount = 0;
         }
 
         return currentVersion;
@@ -305,11 +298,11 @@ export class KylinRouter extends Mixin(
             if (typeof beforeEachResult === "string") {
                 // 重定向
                 this.log(`钩子结果: beforeEach 重定向到 ${beforeEachResult}`);
-                this.routes._redirectCount++;
-                if (this.routes._redirectCount > 10) {
+                this._redirectCount++;
+                if (this._redirectCount > 10) {
                     console.error("Maximum redirect limit reached. Possible infinite loop.");
                     this.isNavigating = false;
-                    this.routes._redirectCount = 0;
+                    this._redirectCount = 0;
                     return false;
                 }
                 this.replace(beforeEachResult);
@@ -843,11 +836,10 @@ export class KylinRouter extends Mixin(
             throw new Error("[KylinRouter] Already attached to a host element");
         }
 
-        this.history =
-            this.mode === "hash" ? createHashHistoryFromLib(this.base) : createBrowserHistory();
+        this.history = this.mode === "hash" ? createHashHistory() : createBrowserHistory();
 
         // 初始化路由表注册器
-        this.routes = new RouteRegistry();
+        this.routes = new RouteRegistry(this);
         this.routes.setCallbacks({
             push: this.push.bind(this),
             getLocation: () => ({
@@ -858,10 +850,7 @@ export class KylinRouter extends Mixin(
                 this.isNavigating = value;
             },
         });
-        this.routes.initRoutes(
-            this.options.routes,
-            this.options.notFound,
-        );
+        this.routes.initRoutes(this.options.routes, this.options.notFound);
 
         // 初始化钩子管理器
         this.hooks = new HookManager(this);
@@ -883,8 +872,6 @@ export class KylinRouter extends Mixin(
 
         // 初始化 Alpine.js
         this.alpineManager = new AlpineManager(this);
-        this.alpineManager.initStore(this.options.data);
-        this.alpineManager.bindHostData(this.host);
 
         // 标记为已绑定
         this.attached = true;
@@ -892,11 +879,16 @@ export class KylinRouter extends Mixin(
         // 执行初始路由匹配
         this.routes.matchCurrentLocation();
 
-        // 自动导航到 home 路径（如果配置了且当前在根路径）
+        // 自动导航到 home 路径
+        // 如果当前没有匹配到路由，或者当前路径是 base 路径本身，则导航到 home
         const currentPath = this.history.location.pathname;
-        if (currentPath === '/' && this.options.home && this.options.home !== '/') {
-            this.log(`自动导航到 home 路径: ${this.options.home}`);
-            this.replace(this.options.home);
+        const hasMatchedRoute = this.routes.current.route !== null;
+
+        if (!hasMatchedRoute && this.options.home) {
+            // 构造完整的 home 路径（base + home）
+            const fullPath = this.base + this.options.home;
+            this.log(`自动导航到 home 路径: ${fullPath}（当前路径: ${currentPath}）`);
+            this.replace(fullPath);
         }
     }
     /**

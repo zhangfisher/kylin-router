@@ -8,6 +8,7 @@
  * - 路由匹配和参数提取
  */
 
+import type { KylinRouter } from "@/router";
 import type { KylinRoutes, RouteItem } from "@/types";
 import { matchRoute } from "@/utils/matchRoute";
 import { extractQueryParams } from "@/utils/parseParams";
@@ -48,7 +49,10 @@ export class RouteRegistry {
 
     /** 导航回调函数 */
     private _callbacks?: NavigationCallbacks;
-
+    router: KylinRouter;
+    constructor(router: KylinRouter) {
+        this.router = router;
+    }
     /**
      * 设置导航回调函数
      */
@@ -62,10 +66,7 @@ export class RouteRegistry {
      * 支持 RouteItem[]、单个 RouteItem、string（URL）、函数（同步/异步）格式
      * 按照 D-17: 支持多种路由配置格式
      */
-    initRoutes(
-        rawRoutes: KylinRoutes,
-        notFound?: RouteItem,
-    ): void {
+    initRoutes(rawRoutes: KylinRoutes, notFound?: RouteItem): void {
         this.notFound = notFound;
 
         if (typeof rawRoutes === "function") {
@@ -117,7 +118,7 @@ export class RouteRegistry {
      * 如果删除的是当前访问的路由，自动重定向到默认路由或 404
      * 按照 D-10: 静默处理不存在的路由、D-39: 当前路由删除后重定向
      */
-    public remove(name: string): void { 
+    public remove(name: string): void {
         function removeRouteByName(routes: RouteItem[], name: string): boolean {
             for (let i = 0; i < routes.length; i++) {
                 if (routes[i].name === name) {
@@ -182,7 +183,7 @@ export class RouteRegistry {
         this._callbacks.setIsNavigating(true);
 
         // 执行路由匹配
-        const matched = matchRoute(pathname, this.routes);
+        const matched = matchRoute(pathname, this.routes, this.router.options.base);
 
         if (matched) {
             this.current.route = matched.route;
@@ -260,7 +261,4 @@ export class RouteRegistry {
         // 单个路由对象包装为数组
         return [routes as RouteItem];
     }
-
-
 }
-

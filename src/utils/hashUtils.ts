@@ -50,6 +50,6 @@ export function normalizeHashPath(hash: string): string {
  * @param base - 基础路径，默认为 ""
  * @returns HashHistory 实例
  */
-export function createHashHistoryFromLib(base?: string) {
-    return createHashHistory({ basename: base || "" });
+export function createHashHistoryFromLib() {
+    return createHashHistory();
 }

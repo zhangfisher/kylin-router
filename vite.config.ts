@@ -12,13 +12,22 @@ export default defineConfig({
     open: false,
     fs: {
       // 允许访问项目根目录的文件
-      allow: ['..']
+      allow: ['..'],
+      strict: false
     }
   },
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
       '/src': resolve(__dirname, './src')
-    }
+    },
+    preserveSymlinks: true
+  },
+  optimizeDeps: {
+    include: ['lit', 'lit-element', 'lit-html', '@lit/context'],
+    exclude: []
+  },
+  css: {
+    devSourcemap: true
   }
 })

@@ -18,9 +18,9 @@ export class ViewLoader {
     protected abortController?: AbortController;
     router: KylinRouter;
     /** 全局视图加载配置 */
-    protected globalViewOptions?: Omit<RouteViewOptions, 'form'>;
+    protected globalViewOptions?: Omit<RouteViewOptions, "form">;
 
-    constructor(router: KylinRouter, globalViewOptions?: Omit<RouteViewOptions, 'form'>) {
+    constructor(router: KylinRouter, globalViewOptions?: Omit<RouteViewOptions, "form">) {
         this.router = router;
         this.globalViewOptions = globalViewOptions;
     }
@@ -47,14 +47,9 @@ export class ViewLoader {
             : undefined;
 
         try {
-            // 检测 view 类型
+            // 检测 view 类型，字符串代表url
             if (typeof view === "string") {
-                // 判断是否为 URL
-                if (this.isURL(view)) {
-                    return await this.loadRemoteView(view, finalOptions, this.globalViewOptions);
-                } else {
-                    return this.loadLocalView(view);
-                }
+                return await this.loadRemoteView(view, finalOptions, this.globalViewOptions);
             } else if (typeof view === "function") {
                 return await this.loadDynamicImport(view);
             } else if (view instanceof HTMLElement) {
@@ -81,34 +76,13 @@ export class ViewLoader {
     }
 
     /**
-     * 本地组件加载 - 处理 HTML 元素名
-     * @param view - HTML 元素名（如 'div'、'my-component'）
-     * @returns 加载结果
-     */
-    private loadLocalView(view: string): RouteViewLoadResult {
-        // 验证元素名格式
-        if (!view || typeof view !== "string") {
-            return {
-                success: false,
-                content: null,
-                error: new Error("Invalid view name"),
-            };
-        }
-
-        // 返回元素名，由 Render 类负责实际渲染
-        return {
-            success: true,
-            content: view,
-            error: null,
-        };
-    }
-
-    /**
      * 动态导入加载 - 处理函数形式的组件
      * @param importFn - 动态导入函数（如 () => import('./MyComponent.js')）
      * @returns 加载结果的 Promise
      */
-    private async loadDynamicImport(importFn: () => Promise<HTMLElement> | HTMLElement): Promise<RouteViewLoadResult> {
+    private async loadDynamicImport(
+        importFn: () => Promise<HTMLElement> | HTMLElement,
+    ): Promise<RouteViewLoadResult> {
         try {
             // 调用动态导入函数
             const result = importFn();
@@ -152,20 +126,6 @@ export class ViewLoader {
     }
 
     /**
-     * 判断字符串是否为 URL
-     * @param str - 待检查的字符串
-     * @returns 是否为 URL
-     */
-    private isURL(str: string): boolean {
-        try {
-            const url = new URL(str);
-            return url.protocol === "http:" || url.protocol === "https:";
-        } catch {
-            return false;
-        }
-    }
-
-    /**
      * 远程 HTML 加载 - 从 URL 获取 HTML 内容
      * @param url - 远程 HTML 的 URL
      * @param routeOptions - 路由级加载选项
@@ -175,7 +135,7 @@ export class ViewLoader {
     private async loadRemoteView(
         url: string,
         routeOptions?: RouteViewOptions,
-        globalOptions?: Omit<RouteViewOptions, 'form'>,
+        globalOptions?: Omit<RouteViewOptions, "form">,
     ): Promise<RouteViewLoadResult> {
         // 合并选项：路由级优先
         const timeout = routeOptions?.timeout ?? globalOptions?.timeout ?? 5000;
