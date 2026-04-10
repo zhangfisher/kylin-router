@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import { ViewLoader } from "@/features/loader";
-import type { ViewLoadResult, RemoteLoadOptions } from "@/types/routes";
+import type { ViewLoadResult, ViewOptions } from "@/types/routes";
 
 /**
  * 创建测试用的 DOM 环境
@@ -254,10 +254,11 @@ describe("Loader - 组件加载系统", () => {
         });
 
         it("应该允许不安全的 HTML（allowUnsafeHTML=true）", async () => {
-            const options: RemoteLoadOptions = {
+            const options: ViewOptions = {
+                form: "http://example.com/script.html",
                 allowUnsafeHTML: true,
             };
-            const result = await loader.loadView("http://example.com/script.html", options);
+            const result = await loader.loadView(options.form, options);
 
             expect(result.success).toBe(true);
             expect(result.content).toContain("<script>");
@@ -291,10 +292,11 @@ describe("Loader - 组件加载系统", () => {
         });
 
         it("应该支持自定义超时时间", async () => {
-            const options: RemoteLoadOptions = {
+            const options: ViewOptions = {
+                form: "http://example.com/timeout.html",
                 timeout: 1000, // 1 秒超时
             };
-            const result = await loader.loadView("http://example.com/timeout.html", options);
+            const result = await loader.loadView(options.form, options);
 
             expect(result.success).toBe(false);
             expect(result.error?.message).toBe("Load timeout");
@@ -388,20 +390,22 @@ describe("Loader - 组件加载系统", () => {
         });
 
         it("应该使用自定义选择器提取内容", async () => {
-            const options: RemoteLoadOptions = {
-                extractSelector: "#target",
+            const options: ViewOptions = {
+                form: "http://example.com/custom.html",
+                selector: "#target",
             };
-            const result = await loader.loadView("http://example.com/custom.html", options);
+            const result = await loader.loadView(options.form, options);
 
             expect(result.success).toBe(true);
             expect(result.content).toBe("Target Content");
         });
 
         it("应该回退到完整内容如果选择器不匹配", async () => {
-            const options: RemoteLoadOptions = {
-                extractSelector: "#nonexistent",
+            const options: ViewOptions = {
+                form: "http://example.com/custom.html",
+                selector: "#nonexistent",
             };
-            const result = await loader.loadView("http://example.com/custom.html", options);
+            const result = await loader.loadView(options.form, options);
 
             expect(result.success).toBe(true);
             expect(result.content).toContain('<div class="wrapper">');

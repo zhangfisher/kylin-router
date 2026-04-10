@@ -31,6 +31,15 @@ export type RenderMode = "replace" | "append";
  */
 export type TemplateData = Record<string, any>;
 
+
+/**
+ * 视图源类型
+ *
+ * - string: 视图URL，用于从远程加载HTML内容
+ * - HTMLElement: 直接使用指定的HTMLElement元素作为视图内容
+ * - () => Promise<any>: 通过函数动态加载视图，支持动态导入和异步加载
+ */
+export type ViewSource = string | HTMLElement | (() => Promise<any>);
 /**
  * 渲染上下文接口
  * 提供模板渲染时所需的上下文数据
@@ -86,12 +95,17 @@ export interface RenderOptions {
  * @param view - 视图配置，可以是字符串（URL 或元素名）或函数（动态导入）
  * @returns 加载结果的 Promise
  */
-export type ComponentLoader = (view: string | (() => Promise<any>)) => Promise<ViewLoadResult>;
+export type ViewLoader = (view: string | (() => Promise<any>)) => Promise<ViewLoadResult>;
 
 /**
- * 远程 HTML 加载配置选项
+ * 视图加载配置选项
+ * 当 view 需要特殊配置时使用
  */
-export interface RemoteLoadOptions {
+export interface ViewOptions {
+    /**
+     * 视图源
+     */
+    form: ViewSource;
     /**
      * 是否允许不安全的 HTML（如 script 标签）
      * 默认为 false，会移除潜在的危险内容
@@ -108,7 +122,7 @@ export interface RemoteLoadOptions {
      * 自定义内容提取选择器
      * 如果提供，将从加载的 HTML 中提取匹配该选择器的内容
      */
-    extractSelector?: string;
+    selector?: string;
 }
 
 /**
@@ -125,9 +139,10 @@ export interface ViewLoadResult {
      * 加载的内容
      * - TemplateResult: lit 模板结果
      * - string: HTML 字符串或元素名
+     * - HTMLElement: HTML 元素
      * - null: 加载失败时为 null
      */
-    content: TemplateResult | string | null;
+    content: TemplateResult | string | HTMLElement | null;
 
     /**
      * 加载错误信息
@@ -182,11 +197,20 @@ export interface RouteItem {
     /**
      * 路由显示组件
      *
-     * - string:  从此路径加载HTML内容，支持相对路径和绝对路径
-     * - HTMLElement:  使用指定的HTMLElement元素作为路由显示组件
-     * - () => Promise<any>: 通过动态导入函数加载组件，支持本地组件和远程HTML内容
+     * 可以是以下两种类型之一：
+     *
+     * 1. ViewSource - 视图源：
+     *    - string: 从此路径加载HTML内容，支持相对路径和绝对路径
+     *    - HTMLElement: 使用指定的HTMLElement元素作为路由显示组件
+     *    - () => Promise<any>: 通过动态导入函数加载组件，支持本地组件和远程HTML内容
+     *
+     * 2. ViewOptions - 视图配置：
+     *    - form: ViewSource - 视图源
+     *    - allowUnsafeHTML: 是否允许不安全的HTML（默认 false）
+     *    - timeout: 加载超时时间（默认 5000ms）
+     *    - selector: 自定义内容提取选择器
      */
-    view?: string | HTMLElement | (() => Promise<HTMLElement> | HTMLElement) ;
+    view?: ViewSource | ViewOptions;
 
     /**
      * 
@@ -264,12 +288,6 @@ export interface RouteItem {
      * 重试策略配置
      */
     retry?: RetryConfig;
-
-    /**
-     * 远程 HTML 加载配置选项
-     * 当 view 是 URL 时生效
-     */
-    remoteOptions?: RemoteLoadOptions;
 
     /**
      * 加载器超时时间（毫秒）

@@ -8,6 +8,8 @@ import type {
     ModalState,
     ModalStackItem,
     ModalOptions,
+    ViewSource,
+    ViewOptions,
 } from "./types/index";
 import { HookTypeValues, type HookType } from "./types/index";
 import { Mixin } from "ts-mixer";
@@ -24,6 +26,13 @@ import {
     Modal,
 } from "./features";
 import { createHashHistoryFromLib } from "@/utils/hashUtils";
+
+/**
+ * 类型守卫：检查 view 是否为 ViewOptions
+ */
+function isViewOptions(view: ViewSource | ViewOptions): view is ViewOptions {
+    return typeof view === "object" && view !== null && "form" in view;
+}
 
 import { HookManager } from "./features/hooks";
 import { RouteRegistry } from "./features/routes";
@@ -334,12 +343,15 @@ export class KylinRouter extends Mixin(
             this.log("组件加载: 开始加载组件");
             const view = this.routes.current.route.view;
 
-            // 处理不同类型的 view
-            if (typeof view === "string" || typeof view === "function") {
-                // string 或 function 类型，使用 Loader 加载
+            // 判断 view 类型
+            if (isViewOptions(view)) {
+                // ViewOptions 类型：提取 form 作为实际视图源，使用配置的选项
+                this.log("组件加载: ViewOptions 类型，使用配置选项");
                 const loadResult = await this.viewLoader.loadView(
+                    typeof view.form === "string" || typeof view.form === "function"
+                        ? view.form
+                        : view.form, // HTMLElement 类型会在 loadView 中处理
                     view,
-                    (this.routes.current.route as any).remoteOptions,
                 );
 
                 // 检查导航版本号（D-23）
@@ -350,12 +362,28 @@ export class KylinRouter extends Mixin(
 
                 if (loadResult.success) {
                     this.log("组件加载: 成功", loadResult.content);
-                    // 将加载的内容存储到 route.viewContent
                     (this.routes.current.route as any).viewContent = loadResult.content;
                 } else {
                     this.log("组件加载: 失败", loadResult.error);
+                    this.isNavigating = false;
+                    return;
+                }
+            } else if (typeof view === "string" || typeof view === "function") {
+                // ViewSource 类型：string 或 function，使用默认选项加载
+                this.log("组件加载: ViewSource 类型（string/function）");
+                const loadResult = await this.viewLoader.loadView(view, undefined);
 
-                    // 组件加载失败，不继续后续流程
+                // 检查导航版本号（D-23）
+                if (currentVersion !== this.currentNavVersion) {
+                    this.log("组件加载: 导航版本号已变更，丢弃结果");
+                    return;
+                }
+
+                if (loadResult.success) {
+                    this.log("组件加载: 成功", loadResult.content);
+                    (this.routes.current.route as any).viewContent = loadResult.content;
+                } else {
+                    this.log("组件加载: 失败", loadResult.error);
                     this.isNavigating = false;
                     return;
                 }

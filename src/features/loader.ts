@@ -8,7 +8,7 @@
  */
 
 import type { KylinRouter } from "@/router";
-import type { ViewLoadResult, RemoteLoadOptions } from "@/types/routes";
+import type { ViewLoadResult, ViewOptions, ViewSource } from "@/types/routes";
 
 /**
  * Loader 类 - 负责组件加载逻辑
@@ -23,13 +23,13 @@ export class ViewLoader {
 
     /**
      * 主加载方法 - 根据 view 类型分发到不同加载策略
-     * @param view - 视图配置（字符串、函数或 URL）
-     * @param options - 远程加载选项（可选）
+     * @param view - 视图源配置（ViewSource）
+     * @param options - 视图加载选项（可选）
      * @returns 加载结果的 Promise
      */
     async loadView(
-        view: string | (() => Promise<any>),
-        options?: RemoteLoadOptions,
+        view: ViewSource,
+        options?: ViewOptions,
     ): Promise<ViewLoadResult> {
         // 取消之前的加载请求
         if (this.abortController) {
@@ -48,6 +48,13 @@ export class ViewLoader {
                 }
             } else if (typeof view === "function") {
                 return await this.loadDynamicImport(view);
+            } else if (view instanceof HTMLElement) {
+                // HTMLElement 类型，直接返回
+                return {
+                    success: true,
+                    content: view,
+                    error: null,
+                };
             } else {
                 return {
                     success: false,
@@ -92,13 +99,25 @@ export class ViewLoader {
      * @param importFn - 动态导入函数（如 () => import('./MyComponent.js')）
      * @returns 加载结果的 Promise
      */
-    private async loadDynamicImport(importFn: () => Promise<any>): Promise<ViewLoadResult> {
+    private async loadDynamicImport(importFn: () => Promise<HTMLElement> | HTMLElement): Promise<ViewLoadResult> {
         try {
             // 调用动态导入函数
-            const module = await importFn();
+            const result = importFn();
+
+            // 处理同步返回的 HTMLElement
+            if (result instanceof HTMLElement) {
+                return {
+                    success: true,
+                    content: result,
+                    error: null,
+                };
+            }
+
+            // 处理异步返回的 Promise
+            const module = await result;
 
             // 提取默认导出或命名导出
-            const component = module.default || module;
+            const component = (module as any).default || module;
 
             if (!component) {
                 return {
@@ -140,12 +159,12 @@ export class ViewLoader {
     /**
      * 远程 HTML 加载 - 从 URL 获取 HTML 内容
      * @param url - 远程 HTML 的 URL
-     * @param options - 加载选项
+     * @param options - 视图加载选项
      * @returns 加载结果的 Promise
      */
     private async loadRemoteView(
         url: string,
-        options?: RemoteLoadOptions,
+        options?: ViewOptions,
     ): Promise<ViewLoadResult> {
         const timeout = options?.timeout || 5000;
         const allowUnsafe = options?.allowUnsafeHTML || false;
@@ -179,7 +198,7 @@ export class ViewLoader {
             }
 
             // 智能内容提取（D-02）
-            html = this.extractContent(html, options?.extractSelector);
+            html = this.extractContent(html, options?.selector);
 
             // 安全性检查（D-15, D-29）
             if (!allowUnsafe) {
