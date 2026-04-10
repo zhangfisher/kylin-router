@@ -10,6 +10,7 @@
 import type { KylinRouter } from "@/router";
 import type { RouteItem } from "@/types";
 import type { RouteDataOptions } from "@/types/hooks";
+import { params } from "@/utils/params";
 
 /**
  * 数据加载结果
@@ -28,14 +29,32 @@ interface DataLoadOptions {
     signal?: AbortSignal;
 }
 
+/**
+ * 缓存项接口
+ */
+interface CacheItem {
+    /** 缓存的数据 */
+    data: Record<string, any>;
+    /** 过期时间戳，0 表示不过期 */
+    expires: number;
+    /** 缓存创建时间戳 */
+    timestamp: number;
+}
+
 export class DataLoader {
     /** AbortController 用于取消进行中的请求 */
     private abortController?: AbortController;
     /** 全局数据加载配置 */
     protected globalDataOptions?: Omit<RouteDataOptions, 'from'>;
+    /** 缓存存储 */
+    private cached: Map<string, CacheItem>;
+    /** 路由器实例 */
+    private _router: KylinRouter;
 
     constructor(_router: KylinRouter, globalDataOptions?: Omit<RouteDataOptions, 'from'>) {
+        this._router = _router;
         this.globalDataOptions = globalDataOptions;
+        this.cached = new Map();
     }
 
     /**
@@ -56,6 +75,19 @@ export class DataLoader {
         }
 
         try {
+            // 检查是否是 RouteDataOptions 类型且启用了缓存
+            if (typeof data === "object" && data !== null && "from" in data) {
+                const dataOptions = data as RouteDataOptions;
+
+                // 处理缓存逻辑
+                if (dataOptions.cache !== undefined) {
+                    const cacheResult = this.handleCache(dataOptions);
+                    if (cacheResult) {
+                        return cacheResult;
+                    }
+                }
+            }
+
             // 取消之前的加载请求
             if (this.abortController) {
                 this.abortController.abort();
@@ -87,22 +119,57 @@ export class DataLoader {
                         const result = from();
                         return result instanceof Promise ? result : Promise.resolve(result);
                     };
-                    return await this.loadRemoteData(
+                    const result = await this.loadRemoteData(
                         dataFn,
                         { timeout: mergedTimeout, signal: options?.signal },
                     );
+
+                    // 如果启用缓存且加载成功，存入缓存
+                    if (result.success && result.data && dataOptions.cache !== undefined) {
+                        this.setCache(dataOptions, result.data);
+                    }
+
+                    return result;
                 } else if (typeof from === "string") {
                     // from 是字符串 URL，需要从远程加载
-                    // 这里暂时返回空对象，实际应该实现远程加载逻辑
-                    return {
-                        success: true,
-                        data: {},
+                    // 使用插值处理 URL
+                    const interpolationVars = this.buildInterpolationVars();
+                    const interpolatedUrl = params(from, interpolationVars);
+
+                    // 创建数据加载函数
+                    const dataFn = async () => {
+                        const response = await fetch(interpolatedUrl, {
+                            signal: options?.signal || this.abortController?.signal,
+                        });
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                        }
+                        return await response.json();
                     };
+
+                    const result = await this.loadRemoteData(
+                        dataFn,
+                        { timeout: mergedTimeout, signal: options?.signal },
+                    );
+
+                    // 如果启用缓存且加载成功，存入缓存
+                    if (result.success && result.data && dataOptions.cache !== undefined) {
+                        this.setCache(dataOptions, result.data);
+                    }
+
+                    return result;
                 } else {
                     // from 是 Record，直接作为静态数据返回
+                    const staticData = from as Record<string, any>;
+
+                    // 如果启用缓存，存入缓存
+                    if (dataOptions.cache !== undefined) {
+                        this.setCache(dataOptions, staticData);
+                    }
+
                     return {
                         success: true,
-                        data: from as Record<string, any>,
+                        data: staticData,
                     };
                 }
             } else {
@@ -183,6 +250,103 @@ export class DataLoader {
         if (this.abortController) {
             this.abortController.abort();
             this.abortController = undefined;
+        }
+    }
+
+    /**
+     * 构建插值变量字典
+     * @returns 插值变量对象
+     */
+    private buildInterpolationVars(): Record<string, any> {
+        const current = this._router.routes.current;
+        return {
+            path: current.route?.path || '',
+            basepath: current.route?.path || '',
+            url: this._router.history.location.pathname,
+            timestamp: Date.now(),
+            ...current.query,
+            ...current.params,
+        };
+    }
+
+    /**
+     * 生成缓存键
+     * @param dataOptions - 数据加载选项
+     * @returns 缓存键字符串
+     */
+    private generateCacheKey(dataOptions: RouteDataOptions): string {
+        const cacheConfig = dataOptions.cache;
+        let cacheKeyPattern: string;
+
+        // 确定缓存键模式
+        if (typeof cacheConfig === 'boolean') {
+            cacheKeyPattern = '{path}';
+        } else if (typeof cacheConfig === 'string') {
+            cacheKeyPattern = cacheConfig;
+        } else {
+            // cacheConfig 是 undefined，使用默认值
+            cacheKeyPattern = '{path}';
+        }
+
+        // 使用插值变量生成缓存键
+        const interpolationVars = this.buildInterpolationVars();
+        return params(cacheKeyPattern, interpolationVars);
+    }
+
+    /**
+     * 处理缓存逻辑
+     * @param dataOptions - 数据加载选项
+     * @returns 如果缓存有效则返回缓存数据，否则返回 null
+     */
+    private handleCache(dataOptions: RouteDataOptions): DataLoadResult | null {
+        const cacheKey = this.generateCacheKey(dataOptions);
+        const cachedItem = this.cached.get(cacheKey);
+
+        if (cachedItem) {
+            // 检查缓存是否过期
+            const expires = dataOptions.expires || 0;
+            const isExpired = expires !== 0 && (Date.now() - cachedItem.timestamp) > expires;
+
+            if (!isExpired) {
+                // 缓存有效，返回缓存数据
+                return {
+                    success: true,
+                    data: cachedItem.data,
+                };
+            } else {
+                // 缓存过期，删除
+                this.cached.delete(cacheKey);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * 设置缓存
+     * @param dataOptions - 数据加载选项
+     * @param data - 要缓存的数据
+     */
+    private setCache(dataOptions: RouteDataOptions, data: Record<string, any>): void {
+        const cacheKey = this.generateCacheKey(dataOptions);
+        const expires = dataOptions.expires || 0;
+
+        this.cached.set(cacheKey, {
+            data,
+            expires,
+            timestamp: Date.now(),
+        });
+    }
+
+    /**
+     * 清空缓存
+     * @param key - 可选，指定要清空的缓存键。如果不指定，清空所有缓存
+     */
+    clearCache(key?: string): void {
+        if (key) {
+            this.cached.delete(key);
+        } else {
+            this.cached.clear();
         }
     }
 }
