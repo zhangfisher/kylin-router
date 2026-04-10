@@ -7,9 +7,10 @@
 
 import { html, render } from "lit";
 import { triggerEvent } from "@/utils/triggerEvent";
+import { generateRouteHash } from "@/utils/hash";
 import type { KylinRouter } from "@/router";
 import type { RouteItem } from "@/types";
-import type { ViewLoadResult, RouteViewContext, RenderMode, RenderOptions } from "@/types/routes";
+import type { RouteViewLoadResult, RouteViewContext, RenderMode, RenderOptions } from "@/types/routes";
 
 export class Render {
     /**
@@ -20,7 +21,7 @@ export class Render {
      */
     async renderToOutlet(
         this: KylinRouter,
-        loadResult: ViewLoadResult,
+        loadResult: RouteViewLoadResult,
         outlet: HTMLElement,
         options?: RenderOptions,
     ): Promise<void> {
@@ -44,6 +45,35 @@ export class Render {
             return;
         }
 
+        // 检查是否为 kylin-outlet 组件
+        const isKylinOutlet = outlet.tagName.toLowerCase() === "kylin-outlet";
+
+        // 生成路由哈希
+        const hash = generateRouteHash(
+            route,
+            this.history.location.pathname,
+            this.routes.current.params,
+            this.routes.current.query
+        );
+
+        // 检查是否有数据
+        const routeData = (route as any).data;
+        const hasData = routeData && typeof routeData === "object" && Object.keys(routeData).length > 0;
+
+        // 如果是 kylin-outlet 且有数据，使用新的渲染方式
+        if (isKylinOutlet && hasData) {
+            // 使用 outlet 的 renderView 方法
+            await (outlet as any).renderView(content, hash, true, routeData);
+            return;
+        }
+
+        // 如果是 kylin-outlet 但没有数据，使用简化渲染
+        if (isKylinOutlet && !hasData) {
+            await (outlet as any).renderView(content, hash, false);
+            return;
+        }
+
+        // 非 kylin-outlet，使用原有渲染逻辑
         // 确定渲染模式
         const mode = this.determineRenderMode(outlet, route, options);
 

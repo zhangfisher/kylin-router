@@ -2,14 +2,14 @@
  * 路由配置相关类型定义
  */
 
-import type { RenderEachHook, RouteData } from "./hooks";
+import type { RenderEachHook, RouteDataOptions, RouteDataSource } from "./hooks";
 import type { TemplateResult } from "lit";
 import type { KylinRouter } from "@/router";
 import type { ErrorBoundaryConfig, LoadingConfig, RetryConfig } from "./config";
 import type { ModalConfig } from "./modals";
 
 // 重新导出 RouteData 以保持向后兼容
-export type { RouteData };
+export type { RouteDataSource as RouteData };
 
 // 重新导出模态相关类型以保持向后兼容
 export type { ModalConfig, ModalState, ModalStackItem, ModalOptions } from "./modals";
@@ -39,7 +39,7 @@ export type TemplateData = Record<string, any>;
  * - HTMLElement: 直接使用指定的HTMLElement元素作为视图内容
  * - () => Promise<any>: 通过函数动态加载视图，支持动态导入和异步加载
  */
-export type ViewSource = string | HTMLElement | (() => Promise<any>);
+export type RouteViewSource = string | HTMLElement | (() => Promise<any>);
 /**
  * 渲染上下文接口
  * 提供模板渲染时所需的上下文数据
@@ -95,22 +95,22 @@ export interface RenderOptions {
  * @param view - 视图配置，可以是字符串（URL 或元素名）或函数（动态导入）
  * @returns 加载结果的 Promise
  */
-export type ViewLoader = (view: string | (() => Promise<any>)) => Promise<ViewLoadResult>;
+export type RouteViewLoader = (view: string | (() => Promise<any>)) => Promise<RouteViewLoadResult>;
 
 /**
  * 视图加载配置选项
  * 当 view 需要特殊配置时使用
  */
-export interface ViewOptions {
+export interface RouteViewOptions {
     /**
      * 视图源
      */
-    form: ViewSource;
+    form: RouteViewSource;
     /**
      * 是否允许不安全的 HTML（如 script 标签）
      * 默认为 false，会移除潜在的危险内容
      */
-    allowUnsafeHTML?: boolean;
+    allowUnsafe?: boolean;
 
     /**
      * 加载超时时间（毫秒）
@@ -129,7 +129,7 @@ export interface ViewOptions {
  * 组件加载结果类型
  * 表示组件加载操作的最终状态和结果
  */
-export interface ViewLoadResult {
+export interface RouteViewLoadResult {
     /**
      * 是否加载成功
      */
@@ -210,7 +210,7 @@ export interface RouteItem {
      *    - timeout: 加载超时时间（默认 5000ms）
      *    - selector: 自定义内容提取选择器
      */
-    view?: ViewSource | ViewOptions;
+    view?: RouteViewSource | RouteViewOptions;
 
     /**
      * 
@@ -218,7 +218,7 @@ export interface RouteItem {
      * 
      * 这些数据会被作为路由视图渲染时使用的变量
      */
-    data?: RouteData;
+    data?: RouteDataSource | RouteDataOptions
     /**
      * 是否缓存此路由对应的组件实例，默认为 false
      *
@@ -238,15 +238,28 @@ export interface RouteItem {
      */
     loading?: boolean | string | HTMLElement;
 
-    
+    /**
+     * 路由哈希标识，用于 Alpine.js store 的命名和视图缓存
+     * 支持字符串插值，可用变量：
+     * - {path}: 路由路径
+     * - {basepath}: 基础路径
+     * - {url}: 完整 URL
+     * - {timestamp}: 时间戳
+     * - {query.*}: 查询参数
+     * - {params.*}: 路径参数
+     * @default "{path}"
+     * @example
+     * hash: "user-{params.id}" // 生成类似 "user-123" 的哈希
+     * hash: "posts-{query.category}" // 生成类似 "posts-tech" 的哈希
+     */
+    hash?: string;
+
+
     roles?: string[];
     redirect?: string;
     children?: RouteItem[];
     meta?: Record<string, any>;
-
-    onBeforeEnter?: (to: RouteItem, from: RouteItem) => boolean | Promise<boolean>;
-    onBeforeUpdate?: (to: RouteItem, from: RouteItem) => void;
-    onBeforeLeave?: (to: RouteItem, from: RouteItem) => void;
+ 
 
     /**
      * 路由级守卫：在进入该路由前执行
@@ -278,29 +291,13 @@ export interface RouteItem {
      * 错误边界配置
      */
     errorBoundary?: ErrorBoundaryConfig;
-
-    /**
-     * 加载状态配置
-     */
-    loadingConfig?: LoadingConfig;
+ 
 
     /**
      * 重试策略配置
      */
     retry?: RetryConfig;
-
-    /**
-     * 加载器超时时间（毫秒）
-     * 覆盖默认的超时配置
-     */
-    loaderTimeout?: number;
-    /**
-     * 渲染模式（可选）
-     * 覆盖默认的渲染模式
-     * - replace: 替换模式（默认）
-     * - append: 追加模式
-     */
-    renderMode?: RenderMode;
+  
 
     /**
      * 模态路由配置
@@ -328,6 +325,9 @@ export interface MatchedRoute {
     route: RouteItem;
     /** 提取的路径参数 */
     params: Record<string, string>;
+    /** 提取的查询参数 */
+    query: Record<string, string>;
+
     /** 剩余未匹配的路径，用于嵌套路由 */
     remainingPath: string;
 }
