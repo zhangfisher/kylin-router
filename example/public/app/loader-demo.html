@@ -126,7 +126,10 @@
             <kylin-outlet path="/loader"></kylin-outlet>
         </main>
         <div class="demo-log">
-            <h3>导航日志</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 style="margin: 0;">导航日志</h3>
+                <button id="clear-log" style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">清空日志</button>
+            </div>
             <div id="log-container"></div>
         </div>
     </div>
@@ -296,6 +299,16 @@
                 container.removeChild(container.lastChild);
             }
         }
+
+        // 清空日志函数
+        function clearLog() {
+            const container = document.getElementById('log-container');
+            container.innerHTML = '';
+            addLog('日志已清空', 'info');
+        }
+
+        // 绑定清空日志按钮
+        document.getElementById('clear-log').addEventListener('click', clearLog);
 
         // 监听路由变化
         router.on('route/change', (event) => {
