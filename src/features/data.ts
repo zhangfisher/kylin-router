@@ -9,6 +9,7 @@
 
 import type { KylinRouter } from "@/router";
 import type { RouteItem } from "@/types";
+import type { RouteDataOptions } from "@/types/hooks";
 
 /**
  * 数据加载结果
@@ -31,8 +32,12 @@ export class DataLoader {
     /** AbortController 用于取消进行中的请求 */
     private abortController?: AbortController;
     private router: KylinRouter;
-    constructor(router: KylinRouter) {
+    /** 全局数据加载配置 */
+    private globalDataOptions?: Omit<RouteDataOptions, 'from'>;
+
+    constructor(router: KylinRouter, globalDataOptions?: Omit<RouteDataOptions, 'from'>) {
         this.router = router;
+        this.globalDataOptions = globalDataOptions;
     }
 
     /**
@@ -62,10 +67,42 @@ export class DataLoader {
             // 检查 data 类型
             if (typeof data === "function") {
                 // 远程数据加载：data 是返回 Promise 的函数
+                // 合并全局选项和传入的选项
+                const mergedOptions = options ? { ...options } : {};
+                if (this.globalDataOptions?.timeout !== undefined) {
+                    mergedOptions.timeout = mergedOptions.timeout ?? this.globalDataOptions.timeout;
+                }
                 return await this.loadRemoteData(
                     data as () => Promise<Record<string, any>>,
-                    options,
+                    mergedOptions,
                 );
+            } else if (typeof data === "object" && data !== null && "from" in data) {
+                // RouteDataOptions 类型：合并全局选项
+                const dataOptions = data as RouteDataOptions;
+                const mergedTimeout = dataOptions.timeout ?? this.globalDataOptions?.timeout;
+
+                // 检查 from 字段的类型
+                const from = dataOptions.from;
+                if (typeof from === "function") {
+                    // from 是函数，调用 loadRemoteData
+                    return await this.loadRemoteData(
+                        from as () => Promise<Record<string, any>>,
+                        { timeout: mergedTimeout, signal: options?.signal },
+                    );
+                } else if (typeof from === "string") {
+                    // from 是字符串 URL，需要从远程加载
+                    // 这里暂时返回空对象，实际应该实现远程加载逻辑
+                    return {
+                        success: true,
+                        data: {},
+                    };
+                } else {
+                    // from 是 Record，直接作为静态数据返回
+                    return {
+                        success: true,
+                        data: from as Record<string, any>,
+                    };
+                }
             } else {
                 // 静态数据：data 已经是 Record<string, any>
                 return {
