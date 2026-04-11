@@ -920,6 +920,23 @@ export class KylinRouter extends Mixin(
     }
 
     /**
+     * 确保 host 元素内部有至少一个 outlet
+     * 如果没有，自动创建并插入一个默认 outlet
+     */
+    protected _ensureDefaultOutlet(): void {
+        const existingOutlet = findOutletInElement(this.host);
+        if (existingOutlet) {
+            this.log("自动插入 outlet: host 内部已有 outlet，跳过创建");
+            return;
+        }
+
+        this.log("自动插入 outlet: host 内部没有 outlet，自动创建");
+        const defaultOutlet = document.createElement("kylin-outlet");
+        this.host.appendChild(defaultOutlet);
+        this.log("自动插入 outlet: 默认 outlet 已创建并插入");
+    }
+
+    /**
      * 检查 outlet 是否匹配当前路由
      */
     private _outletMatchesRoute(outlet: any, route: RouteItem): boolean {
@@ -983,6 +1000,9 @@ export class KylinRouter extends Mixin(
 
         // 初始化 Alpine.js
         this.alpineManager = new AlpineManager(this);
+
+        // 自动插入默认 outlet（如果 host 内部没有 outlet）
+        this._ensureDefaultOutlet();
 
         // 标记为已绑定
         this.attached = true;
