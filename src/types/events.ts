@@ -1,5 +1,5 @@
 import type { Update } from "history";
-import type { RouteItem } from "./index";
+import type { KylinRouteItem } from "./index";
 import type { ModalStackItem } from "./routes";
 
 export type KylinRouterEvents = {
@@ -9,33 +9,33 @@ export type KylinRouterEvents = {
         navigationType: "push" | "replace" | "pop";
     };
     "route/change": {
-        route: RouteItem | undefined;
+        route: KylinRouteItem | undefined;
         params: Record<string, string>;
         query: Record<string, string>;
         location: Update;
     };
     "modal/open": {
-        route: RouteItem;
+        route: KylinRouteItem;
         stackItem: ModalStackItem;
     };
     "modal/close": {
-        route: RouteItem;
+        route: KylinRouteItem;
         stackItem: ModalStackItem;
     };
     "data/loading": {
-        route: RouteItem;
+        route: KylinRouteItem;
     };
     "data/loaded": {
-        route: RouteItem;
+        route: KylinRouteItem;
     };
     "data/error": {
-        route: RouteItem;
-        error:Error
+        route: KylinRouteItem;
+        error: Error;
     };
     "view/loading": {
-        route: RouteItem;
+        route: KylinRouteItem;
     };
     "view/loaded": {
-        route: RouteItem;
+        route: KylinRouteItem;
     };
 };

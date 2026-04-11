@@ -2,14 +2,13 @@
  * 路由配置相关类型定义
  */
 
-import type { RenderEachHook, RouteDataOptions, RouteDataSource } from "./hooks";
+import type { RenderEachHook, KylinRouteDataOptions, KylinRouteDataSource } from "./hooks";
 import type { TemplateResult } from "lit";
-import type { KylinRouter } from "@/router";
-import type { ErrorBoundaryConfig, LoadingConfig, RetryConfig } from "./config";
+import type { ErrorBoundaryConfig, RetryConfig } from "./config";
 import type { ModalConfig } from "./modals";
 
 // 重新导出 RouteData 以保持向后兼容
-export type { RouteDataSource as RouteData };
+export type { KylinRouteDataSource as RouteData };
 
 // 重新导出模态相关类型以保持向后兼容
 export type { ModalConfig, ModalState, ModalStackItem, ModalOptions } from "./modals";
@@ -23,14 +22,13 @@ export type { ModalConfig, ModalState, ModalStackItem, ModalOptions } from "./mo
  * - replace: 替换模式，新内容替换 outlet 中的旧内容（默认）
  * - append: 追加模式，新内容添加到现有内容之后
  */
-export type RenderMode = "replace" | "append";
+export type KylinRenderMode = "replace" | "append";
 
 /**
  * 模板数据类型
  * 用于存储模板变量和对应的值
  */
 export type TemplateData = Record<string, any>;
-
 
 /**
  * 视图源类型
@@ -39,16 +37,16 @@ export type TemplateData = Record<string, any>;
  * - HTMLElement: 直接使用指定的HTMLElement元素作为视图内容
  * - () => Promise<any>: 通过函数动态加载视图，支持动态导入和异步加载
  */
-export type RouteViewSource = string | HTMLElement | (() => Promise<any>);
+export type KylinRouteViewSource = string | HTMLElement | (() => Promise<any>);
 /**
  * 渲染上下文接口
  * 提供模板渲染时所需的上下文数据
  */
-export interface RouteViewContext {
+export interface KylinRouteViewContext {
     /**
      * 当前路由对象，包含预加载的数据
      */
-    $route: RouteItem;
+    $route: KylinRouteItem;
     /**
      * 查询参数对象
      */
@@ -68,11 +66,11 @@ export interface RouteViewContext {
  * 渲染选项接口
  * 配置组件渲染行为
  */
-export interface RenderOptions {
+export interface KylinRenderOptions {
     /**
      * 渲染模式（默认 replace）
      */
-    mode?: RenderMode;
+    mode?: KylinRenderMode;
 
     /**
      * 目标 outlet 元素
@@ -95,17 +93,19 @@ export interface RenderOptions {
  * @param view - 视图配置，可以是字符串（URL 或元素名）或函数（动态导入）
  * @returns 加载结果的 Promise
  */
-export type RouteViewLoader = (view: string | (() => Promise<any>)) => Promise<RouteViewLoadResult>;
+export type KylinRouteViewLoader = (
+    view: string | (() => Promise<any>),
+) => Promise<RouteViewLoadResult>;
 
 /**
  * 视图加载配置选项
  * 当 view 需要特殊配置时使用
  */
-export interface RouteViewOptions {
+export interface KylinRouteViewOptions {
     /**
      * 视图源
      */
-    form: RouteViewSource;
+    form: KylinRouteViewSource;
     /**
      * 是否允许不安全的 HTML（如 script 标签）
      * 默认为 false，会移除潜在的危险内容
@@ -123,6 +123,13 @@ export interface RouteViewOptions {
      * 如果提供，将从加载的 HTML 中提取匹配该选择器的内容
      */
     selector?: string;
+
+    /**
+     * 视图缓存时间（毫秒）
+     * 默认为 0，表示不缓存
+     * 大于 0 表示缓存指定毫秒数，超时后失效
+     */
+    cache?: number;
 }
 
 /**
@@ -137,12 +144,11 @@ export interface RouteViewLoadResult {
 
     /**
      * 加载的内容
-     * - TemplateResult: lit 模板结果
-     * - string: HTML 字符串或元素名
+     * - string:  Alpinejs模板
      * - HTMLElement: HTML 元素
      * - null: 加载失败时为 null
      */
-    content: TemplateResult | string | HTMLElement | null;
+    content: string | HTMLElement | null;
 
     /**
      * 加载错误信息
@@ -154,14 +160,8 @@ export interface RouteViewLoadResult {
 /**
  * 路由配置项
  */
-export interface RouteItem {
-    /**
-     * 路由名称，必须同级唯一
-     *
-     * 用于作为url的标识符，生成url路径，以及在路由导航中显示
-     */
-    name: string;
-
+export interface KylinRouteItem {
+    name?: string;
 
     /**
      * 路由路径，支持以下语法：
@@ -174,6 +174,7 @@ export interface RouteItem {
      */
     path: string;
 
+    fullPath?: string;
     /**
      * 指向渲染此路由的 outlet 元素的 WeakRef
      * 用于嵌套路由的递归渲染
@@ -216,15 +217,15 @@ export interface RouteItem {
      *    - timeout: 加载超时时间（默认 5000ms）
      *    - selector: 自定义内容提取选择器
      */
-    view?: RouteViewSource | RouteViewOptions;
+    view?: KylinRouteViewSource | KylinRouteViewOptions;
 
     /**
-     * 
+     *
      * 在导航到此路由时预加载的数据，可以是以下类型：
-     * 
+     *
      * 这些数据会被作为路由视图渲染时使用的变量
      */
-    data?: RouteDataSource | RouteDataOptions
+    data?: KylinRouteDataSource | KylinRouteDataOptions;
     /**
      * 是否缓存此路由对应的组件实例，默认为 false
      *
@@ -260,12 +261,30 @@ export interface RouteItem {
      */
     hash?: string;
 
+    /**
+     * 内部属性：视图模板缓存
+     * 用于存储已加载的视图内容，避免重复加载
+     * 包含缓存内容和缓存时间戳
+     * @internal
+     */
+    _viewTemplate?: {
+        /** 缓存的内容 */
+        content: any;
+        /** 缓存的时间戳 */
+        timestamp: number;
+        /** 缓存有效期（毫秒） */
+        duration: number;
+    };
 
     roles?: string[];
+    /**
+     * 重定向到其他路由
+     * 支持绝对路径和相对路径
+     *
+     */
     redirect?: string;
-    children?: RouteItem[];
+    children?: KylinRouteItem[];
     meta?: Record<string, any>;
- 
 
     /**
      * 路由级守卫：在进入该路由前执行
@@ -274,14 +293,17 @@ export interface RouteItem {
      * @returns boolean | Promise<boolean> - true 继续导航，false 取消导航
      * @returns string - 重定向路径
      */
-    beforeEnter?: (to: RouteItem, from: RouteItem) => boolean | string | Promise<boolean | string>;
+    beforeEnter?: (
+        to: KylinRouteItem,
+        from: KylinRouteItem,
+    ) => boolean | string | Promise<boolean | string>;
 
     /**
      * 路由级守卫：在离开该路由后执行
      * @param to - 目标路由
      * @param from - 来源路由（当前路由）
      */
-    afterLeave?: (to: RouteItem, from: RouteItem) => void | Promise<void>;
+    afterLeave?: (to: KylinRouteItem, from: KylinRouteItem) => void | Promise<void>;
 
     /**
      * 路由级 renderEach 钩子，用于数据预加载
@@ -297,13 +319,14 @@ export interface RouteItem {
      * 错误边界配置
      */
     errorBoundary?: ErrorBoundaryConfig;
- 
-
+    /**
+     * 当导航到此出错进的回退路由
+     */
+    fallback?: string;
     /**
      * 重试策略配置
      */
     retry?: RetryConfig;
-  
 
     /**
      * 模态路由配置
@@ -318,8 +341,8 @@ export interface RouteItem {
  * 支持多种配置形式
  */
 export type KylinRoutes =
-    | RouteItem[]
-    | RouteItem
+    | KylinRouteItem[]
+    | KylinRouteItem
     | string
     | (() => KylinRoutes | Promise<KylinRoutes>);
 
@@ -328,7 +351,7 @@ export type KylinRoutes =
  */
 export interface MatchedRoute {
     /** 匹配的路由配置 */
-    route: RouteItem;
+    route: KylinRouteItem;
     /** 提取的路径参数 */
     params: Record<string, string>;
     /** 提取的查询参数 */
@@ -337,3 +360,17 @@ export interface MatchedRoute {
     /** 剩余未匹配的路径，用于嵌套路由 */
     remainingPath: string;
 }
+
+export type KylinMatchedRouteItem = {
+    /** 匹配的路由配置 */
+    route: KylinRouteItem;
+    /** 提取的路径参数 */
+    params: Record<string, string>;
+    /** 提取的查询参数 */
+    query: Record<string, string>;
+    state: Record<string, any>;
+    /**
+     * 完整路由
+     */
+    path: string;
+};

@@ -5,7 +5,7 @@
  */
 
 import type { KylinRouter } from "@/router";
-import type { HookFunction, RouteItem, RouteDataSource, RenderEachHook } from "@/types";
+import type { HookFunction, KylinRouteItem, KylinRouteDataSource, RenderEachHook } from "@/types";
 import type { HookType } from "@/types";
 import { HookTypeValues } from "@/types/hooks";
 
@@ -77,7 +77,11 @@ export class HookManager {
      * @param from - 来源路由
      * @returns Promise<boolean | string> - 返回 false 表示取消导航，返回字符串表示重定向路径，返回 true 表示继续
      */
-    async executeHooks(type: HookType, to: RouteItem, from: RouteItem): Promise<boolean | string> {
+    async executeHooks(
+        type: HookType,
+        to: KylinRouteItem,
+        from: KylinRouteItem,
+    ): Promise<boolean | string> {
         const hooks = this.hooks[type];
         if (hooks.length === 0) return true;
 
@@ -103,8 +107,8 @@ export class HookManager {
      */
     async executeAfterEachHooks(
         hooks: HookFunction[],
-        to: RouteItem,
-        from: RouteItem,
+        to: KylinRouteItem,
+        from: KylinRouteItem,
     ): Promise<boolean> {
         for (const hook of hooks) {
             try {
@@ -123,7 +127,11 @@ export class HookManager {
      * @param to - 目标路由
      * @param from - 来源路由
      */
-    async runAfterEachHook(hook: HookFunction, to: RouteItem, from: RouteItem): Promise<void> {
+    async runAfterEachHook(
+        hook: HookFunction,
+        to: KylinRouteItem,
+        from: KylinRouteItem,
+    ): Promise<void> {
         return new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
                 console.error("[Router] afterEach hook timeout after 30000ms");
@@ -161,7 +169,11 @@ export class HookManager {
      * @param from - 来源路由
      * @returns Promise<boolean | string> - 钩子执行结果
      */
-    async runHook(hook: HookFunction, to: RouteItem, from: RouteItem): Promise<boolean | string> {
+    async runHook(
+        hook: HookFunction,
+        to: KylinRouteItem,
+        from: KylinRouteItem,
+    ): Promise<boolean | string> {
         return new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
                 reject(new Error(`Hook timeout after 30000ms`));
@@ -199,8 +211,8 @@ export class HookManager {
      */
     async executeRouteGuards(
         matchedRoutes: any[],
-        to: RouteItem,
-        from: RouteItem,
+        to: KylinRouteItem,
+        from: KylinRouteItem,
         guardType: "beforeEnter" | "afterLeave",
     ): Promise<boolean | string> {
         // 从外到内执行父 → 子
@@ -241,10 +253,10 @@ export class HookManager {
      * @returns Promise<boolean | string> - 守卫执行结果
      */
     async runRouteGuard(
-        route: RouteItem,
-        guard: (to: RouteItem, from: RouteItem) => any,
-        to: RouteItem,
-        from: RouteItem,
+        route: KylinRouteItem,
+        guard: (to: KylinRouteItem, from: KylinRouteItem) => any,
+        to: KylinRouteItem,
+        from: KylinRouteItem,
     ): Promise<boolean | string> {
         return new Promise<boolean | string>((resolve) => {
             const timeout = setTimeout(() => {
@@ -318,7 +330,7 @@ export class HookManager {
      * @param from - 来源路由
      * @returns Promise<void>
      */
-    async executeRenderEach(to: RouteItem, from: RouteItem): Promise<void> {
+    async executeRenderEach(to: KylinRouteItem, from: KylinRouteItem): Promise<void> {
         // 收集全局 renderEach 钩子
         const globalHooks = this.hooks[HookTypeValues.RENDER_EACH as HookType] as RenderEachHook[];
         // 收集路由级 renderEach 钩子
@@ -362,8 +374,8 @@ export class HookManager {
      */
     async runRenderEachHook(
         hook: RenderEachHook,
-        to: RouteItem,
-        from: RouteItem,
+        to: KylinRouteItem,
+        from: KylinRouteItem,
     ): Promise<void> {
         return new Promise<void>((resolve) => {
             const timeout = setTimeout(() => {
@@ -371,7 +383,7 @@ export class HookManager {
                 resolve(); // 超时不阻塞导航
             }, 30000);
 
-            const next = (_data?: RouteDataSource) => {
+            const next = (_data?: KylinRouteDataSource) => {
                 clearTimeout(timeout);
                 // 不再处理数据，只完成钩子执行
                 resolve();
@@ -417,8 +429,8 @@ export class HookManager {
      */
     async runRenderEachHookWithRetry(
         hook: RenderEachHook,
-        to: RouteItem,
-        from: RouteItem,
+        to: KylinRouteItem,
+        from: KylinRouteItem,
         maxRetries: number = 1,
     ): Promise<void> {
         for (let attempt = 0; attempt <= maxRetries; attempt++) {

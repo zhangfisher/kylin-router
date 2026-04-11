@@ -8,7 +8,11 @@
  */
 
 import type { KylinRouter } from "@/router";
-import type { RouteViewLoadResult, RouteViewOptions, RouteViewSource } from "@/types/routes";
+import type {
+    RouteViewLoadResult,
+    KylinRouteViewOptions,
+    KylinRouteViewSource,
+} from "@/types/routes";
 import { joinPath } from "@/utils/joinPath";
 
 /**
@@ -19,9 +23,9 @@ export class ViewLoader {
     protected abortController?: AbortController;
     router: KylinRouter;
     /** 全局视图加载配置 */
-    protected globalViewOptions?: Omit<RouteViewOptions, "form">;
+    protected globalViewOptions?: Omit<KylinRouteViewOptions, "form">;
 
-    constructor(router: KylinRouter, globalViewOptions?: Omit<RouteViewOptions, "form">) {
+    constructor(router: KylinRouter, globalViewOptions?: Omit<KylinRouteViewOptions, "form">) {
         this.router = router;
         this.globalViewOptions = globalViewOptions;
     }
@@ -33,8 +37,8 @@ export class ViewLoader {
      * @returns 加载结果的 Promise
      */
     async loadView(
-        view: RouteViewSource,
-        options?: RouteViewOptions,
+        view: KylinRouteViewSource,
+        options?: KylinRouteViewOptions,
     ): Promise<RouteViewLoadResult> {
         // 取消之前的加载请求
         if (this.abortController) {
@@ -43,7 +47,7 @@ export class ViewLoader {
         this.abortController = new AbortController();
 
         // 合并全局选项和路由级选项（路由级优先）
-        const finalOptions: RouteViewOptions | undefined = options
+        const finalOptions: KylinRouteViewOptions | undefined = options
             ? { ...this.globalViewOptions, ...options }
             : undefined;
 
@@ -169,8 +173,8 @@ export class ViewLoader {
      */
     private async loadRemoteView(
         url: string,
-        routeOptions?: RouteViewOptions,
-        globalOptions?: Omit<RouteViewOptions, "form">,
+        routeOptions?: KylinRouteViewOptions,
+        globalOptions?: Omit<KylinRouteViewOptions, "form">,
     ): Promise<RouteViewLoadResult> {
         // 合并选项：路由级优先
         const timeout = routeOptions?.timeout ?? globalOptions?.timeout ?? 5000;

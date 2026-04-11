@@ -3,10 +3,10 @@ import { createBrowserHistory, createHashHistory } from "history";
 import type { Update } from "history";
 import type {
     KylinRouterOptiopns,
-    RouteItem,
+    KylinRouteItem,
     ModalState,
-    RouteViewSource,
-    RouteViewOptions,
+    KylinRouteViewSource,
+    KylinRouteViewOptions,
 } from "./types/index";
 import { HookTypeValues, type HookType } from "./types/index";
 import { Mixin } from "ts-mixer";
@@ -29,13 +29,16 @@ import { getBaseUrl } from "@/utils/getBaseUrl";
 /**
  * 类型守卫：检查 view 是否为 ViewOptions
  */
-function isViewOptions(view: RouteViewSource | RouteViewOptions): view is RouteViewOptions {
+function isViewOptions(
+    view: KylinRouteViewSource | KylinRouteViewOptions,
+): view is KylinRouteViewOptions {
     return typeof view === "object" && view !== null && "form" in view;
 }
 
 import { HookManager } from "./features/hooks";
 import { RouteRegistry } from "./features/routes";
 import { AlpineManager } from "./features/alpine";
+import { getRouteViewOptions } from "./utils/getRouteViewOptions";
 
 /**
  *
@@ -82,9 +85,9 @@ export class KylinRouter extends Mixin(
     private _pendingNavigationType?: "push" | "replace" | "pop";
 
     /** 上一个路由，用于 afterLeave 守卫 */
-    protected previousRoute?: RouteItem & {
+    protected previous?: KylinRouteItem & {
         matchedRoutes?: Array<{
-            route: RouteItem;
+            route: KylinRouteItem;
             params: Record<string, string>;
             remainingPath: string;
         }>;
@@ -192,30 +195,6 @@ export class KylinRouter extends Mixin(
     }
 
     /**
-     * 初始化导航状态
-     * @returns 当前导航版本号
-     */
-    protected _initializeNavigationState(): number {
-        // 递增导航版本号（D-23）
-        this.currentNavVersion++;
-        const currentVersion = this.currentNavVersion;
-
-        // 取消旧请求，创建新的 AbortController（D-24）
-        this.abortController.abort();
-        this.abortController = new AbortController();
-
-        // 设置导航状态
-        this.isNavigating = true;
-
-        // 在导航开始时重置重定向计数（仅针对非重定向触发的导航）
-        if (this._pendingNavigationType !== "replace") {
-            this._redirectCount = 0;
-        }
-
-        return currentVersion;
-    }
-
-    /**
      * 执行路由匹配并构造导航上下文
      * @param pathname - 路径名称
      * @param search - 查询参数
@@ -224,7 +203,7 @@ export class KylinRouter extends Mixin(
     protected _matchRoute(
         pathname: string,
         search: string,
-    ): { fromRoute: RouteItem; toRoute: RouteItem } {
+    ): { fromRoute: KylinRouteItem; toRoute: KylinRouteItem } {
         // 调试日志：导航开始
         this.log(`导航开始: from=${this.routes.current.route?.name || "(initial)"} to=${pathname}`);
 
@@ -237,7 +216,7 @@ export class KylinRouter extends Mixin(
         };
 
         // 保存完整的当前路由状态（包括 matchedRoutes）
-        this.previousRoute = this.routes.current.route
+        this.previous = this.routes.current.route
             ? {
                   ...this.routes.current.route,
                   matchedRoutes: [...(this.routes.current.matchedRoutes || [])],
@@ -279,8 +258,8 @@ export class KylinRouter extends Mixin(
      * @returns 是否继续导航（false 表示取消）
      */
     protected async _executeBeforeEachHooks(
-        toRoute: RouteItem,
-        fromRoute: RouteItem,
+        toRoute: KylinRouteItem,
+        fromRoute: KylinRouteItem,
     ): Promise<boolean> {
         this.log("钩子执行: beforeEach");
         try {
@@ -317,7 +296,7 @@ export class KylinRouter extends Mixin(
             this.isNavigating = false;
 
             // 回退到之前的路由或根路径
-            const fallback = this.previousRoute?.path || "/";
+            const fallback = this.previous?.path || "/";
             if (this.location.pathname !== fallback) {
                 this.replace(fallback);
             }
@@ -332,7 +311,7 @@ export class KylinRouter extends Mixin(
      * @param fromRoute - 来源路由
      * @returns 是否继续导航（false 表示取消）
      */
-    protected async _executeBeforeEnterGuards(fromRoute: RouteItem): Promise<boolean> {
+    protected async _executeBeforeEnterGuards(fromRoute: KylinRouteItem): Promise<boolean> {
         // 获取匹配的路由链（包含嵌套路由）
         const matchedRoutes = this.routes.current.matchedRoutes || [];
 
@@ -365,10 +344,9 @@ export class KylinRouter extends Mixin(
 
     /**
      * 加载路由视图组件
-     * @param currentVersion - 当前导航版本号
      * @returns 是否继续导航（false 表示取消或版本过期）
      */
-    protected async _loadRouteView(currentVersion: number): Promise<boolean> {
+    protected async _loadRouteView(route: KylinRouteItem): Promise<boolean> {
         if (!this.routes.current.route?.view) {
             return true;
         }
@@ -387,12 +365,6 @@ export class KylinRouter extends Mixin(
                 view,
             );
 
-            // 检查导航版本号（D-23）
-            if (currentVersion !== this.currentNavVersion) {
-                this.log("组件加载: 导航版本号已变更，丢弃结果");
-                return false;
-            }
-
             if (loadResult.success) {
                 this.log("组件加载: 成功", loadResult.content);
                 (this.routes.current.route as any).viewContent = loadResult.content;
@@ -405,12 +377,6 @@ export class KylinRouter extends Mixin(
             // ViewSource 类型：string 或 function，使用默认选项加载
             this.log("组件加载: ViewSource 类型（string/function）");
             const loadResult = await this.viewLoader.loadView(view, undefined);
-
-            // 检查导航版本号（D-23）
-            if (currentVersion !== this.currentNavVersion) {
-                this.log("组件加载: 导航版本号已变更，丢弃结果");
-                return false;
-            }
 
             if (loadResult.success) {
                 this.log("组件加载: 成功", loadResult.content);
@@ -431,10 +397,9 @@ export class KylinRouter extends Mixin(
 
     /**
      * 加载路由数据
-     * @param currentVersion - 当前导航版本号
      * @returns 是否继续导航（false 表示版本过期）
      */
-    protected async _loadRouteData(currentVersion: number): Promise<boolean> {
+    protected async _loadRouteData(route: KylinRouteItem): Promise<boolean> {
         if (!this.routes.current.route?.data) {
             return true;
         }
@@ -444,12 +409,6 @@ export class KylinRouter extends Mixin(
             const dataResult = await this.dataLoader.loadData(this.routes.current.route, {
                 signal: this.abortController.signal,
             });
-
-            // 检查导航版本号（D-23）
-            if (currentVersion !== this.currentNavVersion) {
-                this.log("数据加载: 导航版本号已变更，丢弃结果");
-                return false;
-            }
 
             if (dataResult.success && dataResult.data) {
                 this.log("数据加载: 成功", dataResult.data);
@@ -475,22 +434,15 @@ export class KylinRouter extends Mixin(
      * @param currentVersion - 当前导航版本号
      * @returns 是否继续导航（false 表示版本过期或组件加载失败）
      */
-    protected async _loadRouteResources(currentVersion: number): Promise<boolean> {
+    protected async _loadRouteResources(route: KylinRouteItem): Promise<boolean> {
         this.log("资源加载: 开始并发加载组件和数据");
 
-        // 使用 Promise.allSettled 并发加载组件和数据
         const results = await Promise.allSettled([
-            this._loadRouteView(currentVersion),
-            this._loadRouteData(currentVersion),
+            this._loadRouteView(route),
+            this._loadRouteData(route),
         ]);
 
         const [viewResult] = results;
-
-        // 检查导航版本号（D-23）
-        if (currentVersion !== this.currentNavVersion) {
-            this.log("资源加载: 导航版本号已变更，丢弃结果");
-            return false;
-        }
 
         // 处理组件加载结果
         if (viewResult.status === "rejected" || !viewResult.value) {
@@ -498,8 +450,6 @@ export class KylinRouter extends Mixin(
             return false;
         }
 
-        // 数据加载失败不阻塞导航流程（已在 _loadRouteData 中处理）
-        this.log("资源加载: 组件和数据加载完成");
         return true;
     }
 
@@ -509,22 +459,13 @@ export class KylinRouter extends Mixin(
      * @param currentVersion - 当前导航版本号
      * @returns 是否继续导航（false 表示版本过期）
      */
-    protected async _executeRenderEachHook(
-        fromRoute: RouteItem,
-        currentVersion: number,
-    ): Promise<boolean> {
+    protected async _executeRenderEachHook(fromRoute: KylinRouteItem): Promise<boolean> {
         if (!this.routes.current.route) {
             return true;
         }
 
         this.log("钩子执行: renderEach");
         await this.hooks.executeRenderEach(this.routes.current.route, fromRoute);
-
-        // 检查导航版本号（D-23）
-        if (currentVersion !== this.currentNavVersion) {
-            this.log("钩子执行: 导航版本号已变更，丢弃结果");
-            return false;
-        }
 
         return true;
     }
@@ -543,9 +484,6 @@ export class KylinRouter extends Mixin(
             const matchedRoutes = this.routes.current.matchedRoutes || [];
             if (matchedRoutes.length > 0) {
                 await this._renderRouteHierarchy(matchedRoutes);
-            } else {
-                // 如果没有 matchedRoutes，回退到旧方法（向后兼容）
-                await this.renderToOutlets();
             }
             this.log("渲染流程: 渲染完成");
         } catch (error) {
@@ -565,8 +503,8 @@ export class KylinRouter extends Mixin(
     protected async _finalizeNavigation(
         location: Update,
         pathname: string,
-        toRoute: RouteItem,
-        fromRoute: RouteItem,
+        toRoute: KylinRouteItem,
+        fromRoute: KylinRouteItem,
     ): Promise<void> {
         // 触发 route/change 事件（用于后续的组件渲染）
         this.emit("route/change", {
@@ -591,12 +529,12 @@ export class KylinRouter extends Mixin(
         }
 
         // 执行 afterLeave 守卫（异步执行，不阻塞导航）
-        if (this.previousRoute && this.previousRoute.matchedRoutes) {
+        if (this.previous && this.previous.matchedRoutes) {
             this.hooks
                 .executeRouteGuards(
-                    this.previousRoute.matchedRoutes,
+                    this.previous.matchedRoutes,
                     toRoute,
-                    this.previousRoute,
+                    this.previous,
                     "afterLeave",
                 )
                 .catch((error) => {
@@ -626,9 +564,6 @@ export class KylinRouter extends Mixin(
      * 执行路由匹配和参数提取
      */
     async onRouteUpdate(location: Update) {
-        // 初始化导航状态
-        const currentVersion = this._initializeNavigationState();
-
         const pathname = location.location.pathname;
         const search = location.location.search;
 
@@ -648,13 +583,13 @@ export class KylinRouter extends Mixin(
         }
 
         // 并发加载组件和数据（使用 Promise.allSettled）
-        const resourcesLoaded = await this._loadRouteResources(currentVersion);
+        const resourcesLoaded = await this._loadRouteResources(toRoute);
         if (!resourcesLoaded) {
             return;
         }
 
         // 执行 renderEach 钩子（数据预加载）
-        const renderEachCompleted = await this._executeRenderEachHook(fromRoute, currentVersion);
+        const renderEachCompleted = await this._executeRenderEachHook(fromRoute);
         if (!renderEachCompleted) {
             return;
         }
@@ -817,17 +752,19 @@ export class KylinRouter extends Mixin(
         // 等待所有渲染完成（并行渲染）
         await Promise.all(renderPromises);
     }
+    private _isViewExpires(route: KylinRouteItem) {}
 
     /**
      * 递归渲染路由层级结构
      * 按照路由分层逐层渲染，每层在父 outlet 内部查找或创建子 outlet
      */
     protected async _renderRouteHierarchy(
+        this: KylinRouter,
         matchedRoutes: Array<{
-            route: RouteItem;
+            route: KylinRouteItem;
             params: Record<string, string>;
             remainingPath: string;
-        }>
+        }>,
     ): Promise<void> {
         if (!matchedRoutes || matchedRoutes.length === 0) {
             this.log("渲染流程: 无匹配路由需要渲染");
@@ -848,7 +785,7 @@ export class KylinRouter extends Mixin(
             const isRootRoute = i === 0;
             let outlet = this._findOrCreateOutlet(parentElement, isRootRoute);
             if (!outlet) {
-                console.error(`渲染流程: 路由 ${route.name} 无法找到 outlet`);
+                this.log(`渲染流程: 路由 ${route.name} 无法找到 <kylin-outlet>`);
                 return;
             }
 
@@ -856,10 +793,13 @@ export class KylinRouter extends Mixin(
             route.el = new WeakRef(outlet);
 
             // 检查当前层是否已加载组件
-            let loadResult = (route as any).viewContent;
+            const viewOptions = getRouteViewOptions(route, this);
+            let viewTemplate = route._viewTemplate;
 
+            if (viewTemplate) {
+            }
             // 如果有 view 但还没有加载，先显示 loading
-            if (route.view && !loadResult) {
+            if (!viewTemplate) {
                 this.log(`渲染流程: 路由 ${route.name} 需要加载，先显示 loading`);
                 this._showLoadingInOutlet(outlet);
 
@@ -938,7 +878,7 @@ export class KylinRouter extends Mixin(
      * @param route - 路由项
      * @returns 加载的内容或 null
      */
-    protected async _loadViewForRoute(route: RouteItem): Promise<any> {
+    protected async _loadViewForRoute(route: KylinRouteItem): Promise<any> {
         if (!route.view) {
             return null;
         }
@@ -946,10 +886,23 @@ export class KylinRouter extends Mixin(
         this.log(`渲染流程: 加载路由 ${route.name} 的 view`);
 
         try {
+            // 检查缓存
+            const cache = this._getValidCache(route);
+            if (cache !== null) {
+                this.log(`渲染流程: 路由 ${route.name} 使用缓存内容`);
+                (route as any).viewContent = cache;
+                return cache;
+            }
+
+            // 无有效缓存，执行加载逻辑
             const view = route.view;
             let loadResult;
+            let cacheDuration = 0; // 默认不缓存
 
             if (isViewOptions(view)) {
+                // 提取缓存配置
+                cacheDuration = view.cache || 0;
+
                 loadResult = await this.viewLoader.loadView(
                     typeof view.form === "string" || typeof view.form === "function"
                         ? view.form
@@ -964,8 +917,18 @@ export class KylinRouter extends Mixin(
 
             if (loadResult.success) {
                 this.log(`渲染流程: 路由 ${route.name} view 加载成功`);
-                (route as any).viewContent = loadResult.content;
-                return loadResult.content;
+                const content = loadResult.content;
+
+                // 设置到 viewContent
+                (route as any).viewContent = content;
+
+                // 如果需要缓存，保存到 _viewTemplate
+                if (cacheDuration > 0) {
+                    this._setCache(route, content, cacheDuration);
+                    this.log(`渲染流程: 路由 ${route.name} 内容已缓存 ${cacheDuration}ms`);
+                }
+
+                return content;
             } else {
                 this.log(`渲染流程: 路由 ${route.name} view 加载失败`, loadResult.error);
                 return null;
@@ -977,6 +940,45 @@ export class KylinRouter extends Mixin(
     }
 
     /**
+     * 获取有效的缓存内容
+     * @param route - 路由项
+     * @returns 缓存内容，如果缓存无效或不存在则返回 null
+     */
+    protected _getValidCache(route: KylinRouteItem): any {
+        const cache = (route as any)._viewTemplate;
+        if (!cache) {
+            return null;
+        }
+
+        const now = Date.now();
+        const elapsed = now - cache.timestamp;
+
+        // 检查缓存是否过期
+        if (elapsed > cache.duration) {
+            this.log(
+                `渲染流程: 路由 ${route.name} 缓存已过期 (${elapsed}ms > ${cache.duration}ms)`,
+            );
+            return null;
+        }
+
+        return cache.content;
+    }
+
+    /**
+     * 设置缓存
+     * @param route - 路由项
+     * @param content - 要缓存的内容
+     * @param duration - 缓存有效期（毫秒）
+     */
+    protected _setCache(route: KylinRouteItem, content: any, duration: number): void {
+        (route as any)._viewTemplate = {
+            content: content,
+            timestamp: Date.now(),
+            duration: duration,
+        };
+    }
+
+    /**
      * 在父元素内部查找或创建 outlet
      * @param parent - 父元素
      * @param allowCreate - 是否允许自动创建 outlet（仅根路由为 true）
@@ -984,7 +986,7 @@ export class KylinRouter extends Mixin(
      */
     protected _findOrCreateOutlet(
         parent: HTMLElement,
-        allowCreate: boolean = false
+        allowCreate: boolean = false,
     ): HTMLElement | null {
         // 先尝试查找现有的 outlet
         let outlet = findOutletInElement(parent);
@@ -1011,7 +1013,7 @@ export class KylinRouter extends Mixin(
      * 生成路由哈希标识
      * 用于 Alpine.js store 的命名
      */
-    protected _generateRouteHash(route: RouteItem): string {
+    protected _generateRouteHash(route: KylinRouteItem): string {
         // 使用路由名称作为哈希
         return `route-${route.name}`;
     }
@@ -1036,7 +1038,7 @@ export class KylinRouter extends Mixin(
     /**
      * 检查 outlet 是否匹配当前路由
      */
-    private _outletMatchesRoute(outlet: any, route: RouteItem): boolean {
+    private _outletMatchesRoute(outlet: any, route: KylinRouteItem): boolean {
         if (!outlet.path) return true;
         return route.path === outlet.path || route.path.startsWith(outlet.path + "/");
     }

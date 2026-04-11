@@ -9,7 +9,7 @@
  */
 
 import type { KylinRouter } from "@/router";
-import type { KylinRoutes, RouteItem } from "@/types";
+import type { KylinRoutes, KylinRouteItem } from "@/types";
 import { matchRoute } from "@/utils/matchRoute";
 import { extractQueryParams } from "@/utils/parseParams";
 
@@ -22,20 +22,20 @@ export interface NavigationCallbacks {
 
 export class RouteRegistry {
     /** 路由表配置 */
-    public routes!: RouteItem[];
+    public routes!: KylinRouteItem[];
 
     /** 404 路由配置 */
-    public notFound?: RouteItem;
+    public notFound?: KylinRouteItem;
 
     /** 当前路由状态 */
     public current: {
-        route: RouteItem | null;
+        route: KylinRouteItem | null;
         params: Record<string, string>;
         query: Record<string, string>;
         remainingPath: string;
         /** 匹配的路由链（从根到叶子节点） */
         matchedRoutes: Array<{
-            route: RouteItem;
+            route: KylinRouteItem;
             params: Record<string, string>;
             remainingPath: string;
         }>;
@@ -66,7 +66,7 @@ export class RouteRegistry {
      * 支持 RouteItem[]、单个 RouteItem、string（URL）、函数（同步/异步）格式
      * 按照 D-17: 支持多种路由配置格式
      */
-    initRoutes(rawRoutes: KylinRoutes, notFound?: RouteItem): void {
+    initRoutes(rawRoutes: KylinRoutes, notFound?: KylinRouteItem): void {
         this.notFound = notFound;
 
         if (typeof rawRoutes === "function") {
@@ -94,7 +94,7 @@ export class RouteRegistry {
      * 如果 name 已存在则覆盖旧路由（后者覆盖策略）
      * 按照 D-11: 后者覆盖策略、D-38: 统一优先级规则
      */
-    public add(route: RouteItem): void {
+    public add(route: KylinRouteItem): void {
         const existingIndex = this.routes.findIndex((r) => r.name === route.name);
         if (existingIndex !== -1) {
             this.routes[existingIndex] = route;
@@ -119,7 +119,7 @@ export class RouteRegistry {
      * 按照 D-10: 静默处理不存在的路由、D-39: 当前路由删除后重定向
      */
     public remove(name: string): void {
-        function removeRouteByName(routes: RouteItem[], name: string): boolean {
+        function removeRouteByName(routes: KylinRouteItem[], name: string): boolean {
             for (let i = 0; i < routes.length; i++) {
                 if (routes[i].name === name) {
                     routes.splice(i, 1);
@@ -146,7 +146,7 @@ export class RouteRegistry {
      * 按照 D-17: 统一格式转换
      */
     protected async loadRemoteRoutes(
-        source: RouteItem[] | RouteItem | (() => KylinRoutes | Promise<KylinRoutes>),
+        source: KylinRouteItem[] | KylinRouteItem | (() => KylinRoutes | Promise<KylinRoutes>),
     ): Promise<void> {
         let loaded: KylinRoutes;
 
@@ -254,11 +254,11 @@ export class RouteRegistry {
      * 将路由配置规范化为 RouteItem[]
      * 按照 D-17: 支持多种路由配置格式（对象数组、单个对象）
      */
-    private _normalizeRoutes(routes: KylinRoutes): RouteItem[] {
+    private _normalizeRoutes(routes: KylinRoutes): KylinRouteItem[] {
         if (Array.isArray(routes)) {
             return routes;
         }
         // 单个路由对象包装为数组
-        return [routes as RouteItem];
+        return [routes as KylinRouteItem];
     }
 }

@@ -1,33 +1,28 @@
 /**
- * 路由匹配算法
+ * 路由匹配算法 v2.0
  *
  * 实现混合匹配策略：
- * - 叶子节点完全匹配
- * - 父节点支持前缀匹配以支持嵌套路由
+ * - 严格匹配(strict=true): 完全匹配路径
+ * - 非严格匹配(strict=false): 前缀匹配，支持嵌套路由
  *
  * 匹配优先级：具体路径 > 参数化路径 > 通配符
  *
- * 按照 CONTEXT.md 决策 D-01 到 D-08 实现
+ * 返回首个匹配分支上所有嵌套路由项
  */
 
-import type { RouteItem } from "@/types";
+import type { KylinRouteItem, KylinMatchedRouteItem } from "@/types";
 
 /**
- * 路由匹配结果
+ * 匹配选项
  */
-export interface MatchedRoute {
-    /** 匹配的路由配置 */
-    route: RouteItem;
-    /** 提取的路径参数 */
-    params: Record<string, string>;
-    /** 剩余未匹配的路径，用于嵌套路由 */
-    remainingPath: string;
-    /** 匹配的路由链（从根到叶子节点，用于守卫执行） */
-    matchedRoutes: Array<{
-        route: RouteItem;
-        params: Record<string, string>;
-        remainingPath: string;
-    }>;
+export interface MatchOptions {
+    /**
+     * 严格匹配模式
+     * - true: 完全匹配路径，不允许超余路径
+     * - false: 前缀匹配，允许超余路径（用于嵌套路由）
+     * @default true
+     */
+    strict?: boolean;
 }
 
 /**
@@ -81,6 +76,31 @@ function escapeRegex(str: string): string {
 }
 
 /**
+ * 从 pathname 中移除 hash 部分
+ */
+function stripHash(pathname: string): string {
+    const hashIndex = pathname.indexOf("#");
+    return hashIndex >= 0 ? pathname.slice(0, hashIndex) : pathname;
+}
+
+/**
+ * 解析 URL 查询参数
+ */
+function parseQueryString(pathname: string): { pathname: string; query: Record<string, string> } {
+    const cleaned = stripHash(pathname);
+    const [path, search = ""] = cleaned.split("?", 2);
+    const query: Record<string, string> = {};
+
+    if (search) {
+        new URLSearchParams(search).forEach((value, key) => {
+            query[key] = value;
+        });
+    }
+
+    return { pathname: path, query };
+}
+
+/**
  * 分析路径段是静态、参数化还是通配符
  */
 function classifySegment(segment: string): "static" | "param" | "wildcard" {
@@ -93,15 +113,13 @@ function classifySegment(segment: string): "static" | "param" | "wildcard" {
  * 计算路由的匹配优先级分数
  * 按照 D-05: 具体路径优先于参数化路径，参数化路径优先于通配符
  */
-function calculatePriority(route: RouteItem): number {
+function calculatePriority(route: KylinRouteItem): number {
     const segments = route.path.split("/").filter(Boolean);
     if (segments.length === 0) return STATIC_BASE;
 
     const lastSegment = segments[segments.length - 1] || "";
     const classification = classifySegment(lastSegment);
-    const staticCount = segments.filter(
-        (s) => classifySegment(s) === "static"
-    ).length;
+    const staticCount = segments.filter((s) => classifySegment(s) === "static").length;
 
     switch (classification) {
         case "wildcard":
@@ -123,10 +141,7 @@ function calculatePriority(route: RouteItem): number {
  * - 尖括号参数: "<id>" -> 捕获组
  * - 正则约束: ":id(\d+)" 或 "<id(\d+)>"
  */
-function compileSegments(
-    pattern: string,
-    fullMatch: boolean
-): CompiledPattern {
+function compileSegments(pattern: string, fullMatch: boolean): CompiledPattern {
     const paramNames: string[] = [];
     // 先在原始 pattern 上提取参数名（保留大小写）
     // 然后对静态部分做规范化（小写 + 去末尾斜杠）
@@ -187,15 +202,17 @@ function compileSegments(
  * 支持静态路径、动态参数（:param 和 <param>）、正则约束、通配符
  *
  * @param route - 路由配置
+ * @param isPrefix - 是否使用前缀匹配（用于嵌套路由）
  * @returns 匹配函数，接受 pathname 返回匹配结果
  */
 export function createRouteMatcher(
-    route: RouteItem
+    route: KylinRouteItem,
+    isPrefix: boolean = false,
 ): (pathname: string) => RouteMatchResult {
-    const pattern = route.path;
+    const rawPattern = route.path;
 
     // 通配符路由始终匹配
-    if (pattern === "*") {
+    if (rawPattern === "*") {
         return (_pathname: string) => ({
             matched: true,
             params: {},
@@ -203,10 +220,14 @@ export function createRouteMatcher(
         });
     }
 
-    const { regex, paramNames } = compileSegments(pattern, true);
+    // 忽略 route.path 开头的 /，因为路由表中的 path 应该不以 / 开头
+    const cleanedPattern = rawPattern === "/" ? "/" : rawPattern.replace(/^\/+/, "");
+    const absolutePattern = cleanedPattern.startsWith("/") ? cleanedPattern : "/" + cleanedPattern;
+
+    const { regex, paramNames } = compileSegments(absolutePattern, !isPrefix);
 
     return (pathname: string) => {
-        const normalized = normalizePath(pathname);
+        const normalized = normalizePath(parseQueryString(pathname).pathname);
         const fullMatch = normalized.match(regex);
 
         if (fullMatch) {
@@ -214,10 +235,18 @@ export function createRouteMatcher(
             paramNames.forEach((name, index) => {
                 params[name] = fullMatch[index + 1] || "";
             });
+
+            // 对于前缀匹配，remainingPath 来自最后的捕获组
+            let remainingPath = "";
+            if (isPrefix) {
+                const remainingIndex = paramNames.length + 1;
+                remainingPath = fullMatch[remainingIndex] || "";
+            }
+
             return {
                 matched: true,
                 params,
-                remainingPath: "",
+                remainingPath,
             };
         }
 
@@ -230,148 +259,137 @@ export function createRouteMatcher(
 }
 
 /**
- * 主路由匹配函数
+ * 递归匹配路由的内部函数
  *
- * 按照 CONTEXT.md 决策 D-01 到 D-08 实现匹配策略：
- * - D-01: 叶子节点完全匹配，父节点前缀匹配
- * - D-03: 支持通配符 * 匹配多层路径
- * - D-04: 子路由自动检测路径继承
- * - D-05: 匹配优先级：具体 > 参数化 > 通配符
- * - D-07: 路径规范化移除末尾斜杠
- * - D-08: 大小写不敏感匹配
- *
- * @param pathname - 当前 URL 路径
- * @param routes - 路由表配置
- * @param basePath - 基础路径前缀（用于递归）
- * @param parentMatched - 父路由链（用于递归）
- * @returns 匹配结果或 null
+ * @param pathname - 规范化后的路径
+ * @param routes - 当前路由表
+ * @param options - 匹配选项
+ * @param parentPath - 父路由路径
+ * @param parentParams - 父路由累积的参数
+ * @returns 匹配的路由项数组
  */
-export function matchRoute(
+function _matchRoutesInternal(
     pathname: string,
-    routes: RouteItem[],
-    basePath: string = "",
-    parentMatched: Array<{ route: RouteItem; params: Record<string, string>; remainingPath: string }> = []
-): MatchedRoute | null {
-    const normalizedPathname = normalizePath(pathname);
+    routes: KylinRouteItem[],
+    strict: boolean,
+    parentPath: string = "",
+    parentParams: Record<string, string> = {},
+    inputQuery: Record<string, string> = {},
+): KylinMatchedRouteItem[] {
+    const sortedRoutes = routes
+        .map((route, routeIndex) => ({ route, routeIndex, priority: calculatePriority(route) }))
+        .sort((a, b) => {
+            if (b.priority !== a.priority) {
+                return b.priority - a.priority;
+            }
+            return a.routeIndex - b.routeIndex;
+        })
+        .map((item) => item.route);
 
-    interface Candidate {
-        route: RouteItem;
-        params: Record<string, string>;
-        remainingPath: string;
-        priority: number;
-        matchedRoutes: Array<{
-            route: RouteItem;
-            params: Record<string, string>;
-            remainingPath: string;
-        }>;
-    }
+    for (const route of sortedRoutes) {
+        const isLeaf = !route.children || route.children.length === 0;
 
-    const candidates: Candidate[] = [];
-
-    for (const route of routes) {
-        const routePath = buildFullPath(basePath, route.path);
-
-        // 通配符路由
+        // 通配符路由始终匹配
         if (route.path === "*") {
-            candidates.push({
+            const fullPath = normalizePath(parentPath + pathname);
+            const match: KylinMatchedRouteItem = {
                 route,
-                params: {},
-                remainingPath: "",
-                priority: WILDCARD_PRIORITY,
-                matchedRoutes: [...parentMatched, { route, params: {}, remainingPath: "" }],
-            });
+                params: Object.assign({}, route.params, parentParams),
+                query: { ...route.query, ...inputQuery },
+                state: {},
+                path: fullPath || "/",
+            };
+            return [match];
+        }
+
+        const matcher = createRouteMatcher(route, true);
+        const matchResult = matcher(pathname);
+        if (!matchResult.matched) continue;
+
+        const matchedPath = pathname.slice(
+            0,
+            pathname.length - (matchResult.remainingPath?.length || 0),
+        );
+        const fullPath = normalizePath((parentPath + "/" + matchedPath).replace(/\/+/g, "/"));
+        const mergedParams = Object.assign({}, route.params, parentParams, matchResult.params);
+
+        const currentMatch: KylinMatchedRouteItem = {
+            route,
+            params: mergedParams,
+            query: { ...route.query },
+            state: {},
+            path: fullPath || "/",
+        };
+
+        if (!matchResult.remainingPath) {
+            if (strict && route.children && route.children.length > 0) {
+                continue;
+            }
+
+            currentMatch.query = { ...route.query, ...inputQuery };
+            return [currentMatch];
+        }
+
+        if (route.children && route.children.length > 0) {
+            const childPath = "/" + matchResult.remainingPath;
+            const childMatches = _matchRoutesInternal(
+                childPath,
+                route.children,
+                strict,
+                fullPath,
+                mergedParams,
+                inputQuery,
+            );
+
+            if (childMatches.length > 0) {
+                return [currentMatch, ...childMatches];
+            }
+
+            if (!strict) {
+                currentMatch.query = { ...route.query, ...inputQuery };
+                return [currentMatch];
+            }
             continue;
         }
 
-        // 使用前缀匹配模式编译
-        const { regex, paramNames } = compileSegments(routePath, false);
-        const match = normalizedPathname.match(regex);
-
-        if (!match) continue;
-
-        // 提取参数
-        const params: Record<string, string> = {};
-        paramNames.forEach((name, index) => {
-            params[name] = match[index + 1] || "";
-        });
-
-        // remainingPath 在前缀匹配中的索引 = paramNames.length + 1
-        // 因为 match[0] 是完整匹配，match[1..n] 是参数捕获组，match[n+1] 是 remainingPath
-        const remainingIndex = paramNames.length + 1;
-        const remainingPart = match[remainingIndex] || "";
-
-        // 当前路由的匹配信息
-        const currentMatched = {
-            route,
-            params,
-            remainingPath: remainingPart,
-        };
-
-        // 完全匹配（叶子级别）
-        if (!remainingPart) {
-            candidates.push({
-                route,
-                params,
-                remainingPath: "",
-                priority: calculatePriority(route),
-                matchedRoutes: [...parentMatched, currentMatched],
-            });
+        if (!isLeaf && matchResult.remainingPath) {
+            continue;
         }
 
-        // 有子路由且有剩余路径时，递归匹配子路由
-        if (remainingPart && route.children && route.children.length > 0) {
-            const childResult = matchRoute(
-                "/" + remainingPart,
-                route.children,
-                "",
-                [...parentMatched, currentMatched]
-            );
-
-            if (childResult) {
-                const mergedParams = { ...params, ...childResult.params };
-                candidates.push({
-                    route: childResult.route,
-                    params: mergedParams,
-                    remainingPath: childResult.remainingPath,
-                    priority: calculatePriority(childResult.route),
-                    matchedRoutes: childResult.matchedRoutes,
-                });
-            }
+        if (!strict) {
+            currentMatch.query = { ...route.query, ...inputQuery };
+            return [currentMatch];
         }
     }
 
-    if (candidates.length === 0) {
-        return null;
-    }
-
-    // 按 D-05 优先级排序：高优先级优先，优先级相同时保持配置顺序
-    candidates.sort((a, b) => {
-        if (b.priority !== a.priority) {
-            return b.priority - a.priority;
-        }
-        return 0;
-    });
-
-    const best = candidates[0];
-    return {
-        route: best.route,
-        params: best.params,
-        remainingPath: best.remainingPath,
-        matchedRoutes: best.matchedRoutes,
-    };
+    return [];
 }
 
 /**
- * 构建完整路径
- * 按照 D-04: 以 / 开头为绝对路径，否则为相对路径
+ * 主路由匹配函数 - 新版实现
+ *
+ * 支持严格/非严格匹配，支持返回单个或多个匹配项
+ *
+ * @param pathname - 当前 URL 路径
+ * @param routes - 路由表配置
+ * @param options - 匹配选项 { strict?: boolean }
+ * @returns 匹配的路由项数组，包含匹配分支上的所有 KylinMatchedRouteItem
+ *
+ * @example
+ * // 严格匹配（默认），返回完整的匹配分支
+ * matchRoute("/user/123", routes);
+ *
+ * // 非严格匹配，允许路径前缀匹配
+ * matchRoute("/user", routes, { strict: false });
  */
-function buildFullPath(basePath: string, routePath: string): string {
-    if (routePath.startsWith("/")) {
-        return routePath;
-    }
-    if (!basePath || basePath === "/") {
-        return "/" + routePath;
-    }
-    const cleanBase = basePath.replace(/\/+$/, "");
-    return cleanBase + "/" + routePath;
+export function matchRoute(
+    pathname: string,
+    routes: KylinRouteItem[],
+    options?: MatchOptions,
+): KylinMatchedRouteItem[] {
+    const { pathname: pathWithoutQuery, query: inputQuery } = parseQueryString(pathname);
+    const normalized = normalizePath(pathWithoutQuery);
+    const strict = options?.strict ?? true;
+
+    return _matchRoutesInternal(normalized, routes, strict, "", {}, inputQuery);
 }

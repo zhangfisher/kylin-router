@@ -4,7 +4,7 @@
  * @module types/modals
  */
 
-import type { RouteItem } from "./routes";
+import type { KylinRouteItem } from "./routes";
 
 // ============================================================================
 // 模态路由相关类型定义
@@ -20,7 +20,7 @@ export interface ModalConfig {
      * - dialog: 对话框式模态，支持9种位置
      * - drawer: 抽屉式模态，支持4种边缘位置
      */
-    type?: 'dialog' | 'drawer';
+    type?: "dialog" | "drawer";
 
     /**
      * 模态显示位置
@@ -28,7 +28,16 @@ export interface ModalConfig {
      * - drawer 支持: left, right, top, bottom
      * @default center
      */
-    position?: 'center' | 'top' | 'top-left' | 'top-right' | 'right' | 'bottom-right' | 'bottom' | 'bottom-left' | 'left';
+    position?:
+        | "center"
+        | "top"
+        | "top-left"
+        | "top-right"
+        | "right"
+        | "bottom-right"
+        | "bottom"
+        | "bottom-left"
+        | "left";
 
     /**
      * 在 position 基础上的额外偏移量（像素）
@@ -72,7 +81,7 @@ export interface ModalStackItem {
     /**
      * 模态路由对象
      */
-    route: RouteItem;
+    route: KylinRouteItem;
 
     /**
      * 模态元素
@@ -112,7 +121,7 @@ export interface ModalOptions {
     /**
      * 路由路径或配置
      */
-    route?: string | RouteItem;
+    route?: string | KylinRouteItem;
 
     /**
      * 路由参数

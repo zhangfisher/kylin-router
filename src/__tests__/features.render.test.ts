@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import { Render } from "@/features/render";
-import type { LoadResult, RenderContext, RenderOptions, RouteItem } from "@/types";
+import type { LoadResult, RenderContext, KylinRenderOptions, KylinRouteItem } from "@/types";
 
 /**
  * 创建测试用的 DOM 环境
@@ -49,10 +49,10 @@ function createMockRouter(): any {
                 route: null,
                 params: {},
                 query: {},
-                matchedRoutes: []
-            }
+                matchedRoutes: [],
+            },
         },
-        render: {} // 会被 Render 实例替换
+        render: {}, // 会被 Render 实例替换
     };
 }
 
@@ -66,41 +66,47 @@ describe("Render 类", () => {
         // Render 类通过 Mixin 模式集成到 KylinRouter
         // 模拟 Render 方法绑定到 router 实例
         Object.assign(mockRouter, {
-            createRenderContext: function(route: RouteItem) {
+            createRenderContext: function (route: KylinRouteItem) {
                 const context: RenderContext = {
                     router: mockRouter,
                     route: {
                         ...route,
-                        data: route.data || {}
+                        data: route.data || {},
                     },
-                    ...(route.data || {})
+                    ...(route.data || {}),
                 };
                 return context;
             },
-            renderToOutlet: async function(loadResult: LoadResult, outlet: HTMLElement, options?: RenderOptions) {
+            renderToOutlet: async function (
+                loadResult: LoadResult,
+                outlet: HTMLElement,
+                options?: KylinRenderOptions,
+            ) {
                 // 简化的渲染逻辑用于测试
                 if (!loadResult.success) {
-                    outlet.innerHTML = `<div class="kylin-render-error"><h3>渲染错误</h3><p>${loadResult.error?.message || 'Unknown error'}</p></div>`;
+                    outlet.innerHTML = `<div class="kylin-render-error"><h3>渲染错误</h3><p>${loadResult.error?.message || "Unknown error"}</p></div>`;
                     return;
                 }
 
                 const content = loadResult.content;
                 if (!content) {
-                    outlet.innerHTML = '<div class="kylin-render-error"><h3>渲染错误</h3><p>No content to render</p></div>';
+                    outlet.innerHTML =
+                        '<div class="kylin-render-error"><h3>渲染错误</h3><p>No content to render</p></div>';
                     return;
                 }
 
                 const route = mockRouter.routes.current.route;
                 if (!route) {
-                    outlet.innerHTML = '<div class="kylin-render-error"><h3>渲染错误</h3><p>No current route</p></div>';
+                    outlet.innerHTML =
+                        '<div class="kylin-render-error"><h3>渲染错误</h3><p>No current route</p></div>';
                     return;
                 }
 
                 // 简化：直接渲染内容
-                if (typeof content === 'string') {
+                if (typeof content === "string") {
                     outlet.innerHTML = content;
                 }
-            }
+            },
         });
     });
 
@@ -114,10 +120,10 @@ describe("Render 类", () => {
 
     describe("createRenderContext", () => {
         it("应该创建包含 router 和 route 的基础上下文", () => {
-            const route: RouteItem = {
+            const route: KylinRouteItem = {
                 name: "test",
                 path: "/test",
-                data: { userId: 123 }
+                data: { userId: 123 },
             };
 
             const context = mockRouter.createRenderContext(route);
@@ -129,14 +135,14 @@ describe("Render 类", () => {
         });
 
         it("应该正确展开 route.data 字段为局部变量", () => {
-            const route: RouteItem = {
+            const route: KylinRouteItem = {
                 name: "test",
                 path: "/test",
                 data: {
                     title: "Hello",
                     userId: 456,
-                    nested: { value: "deep" }
-                }
+                    nested: { value: "deep" },
+                },
             };
 
             const context = mockRouter.createRenderContext(route);
@@ -147,9 +153,9 @@ describe("Render 类", () => {
         });
 
         it("应该处理空的 route.data", () => {
-            const route: RouteItem = {
+            const route: KylinRouteItem = {
                 name: "test",
-                path: "/test"
+                path: "/test",
             };
 
             const context = mockRouter.createRenderContext(route);
@@ -168,12 +174,12 @@ describe("Render 类", () => {
             const loadResult: LoadResult = {
                 success: true,
                 content: "<h1>Hello World</h1>",
-                error: null
+                error: null,
             };
 
-            const route: RouteItem = {
+            const route: KylinRouteItem = {
                 name: "test",
-                path: "/test"
+                path: "/test",
             };
 
             mockRouter.routes.current.route = route;
@@ -190,12 +196,12 @@ describe("Render 类", () => {
             const loadResult: LoadResult = {
                 success: false,
                 content: null,
-                error: new Error("Load failed")
+                error: new Error("Load failed"),
             };
 
-            const route: RouteItem = {
+            const route: KylinRouteItem = {
                 name: "test",
-                path: "/test"
+                path: "/test",
             };
 
             mockRouter.routes.current.route = route;
@@ -213,12 +219,12 @@ describe("Render 类", () => {
             const loadResult: LoadResult = {
                 success: true,
                 content: "<div>New Content</div>",
-                error: null
+                error: null,
             };
 
-            const route: RouteItem = {
+            const route: KylinRouteItem = {
                 name: "test",
-                path: "/test"
+                path: "/test",
             };
 
             mockRouter.routes.current.route = route;
@@ -238,12 +244,12 @@ describe("Render 类", () => {
             const loadResult: LoadResult = {
                 success: true,
                 content: null,
-                error: null
+                error: null,
             };
 
-            const route: RouteItem = {
+            const route: KylinRouteItem = {
                 name: "test",
-                path: "/test"
+                path: "/test",
             };
 
             mockRouter.routes.current.route = route;

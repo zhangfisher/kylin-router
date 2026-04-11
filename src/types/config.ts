@@ -2,11 +2,11 @@
  * 路由器配置相关类型定义
  */
 
-import type { KylinRoutes, RouteItem } from "./routes";
+import type { KylinRoutes, KylinRouteItem } from "./routes";
 import type { BeforeEachHook, RenderEachHook } from "./hooks";
 import type { TemplateResult } from "lit";
-import type { RouteViewOptions } from "./routes";
-import type { RouteDataOptions } from "./hooks";
+import type { KylinRouteViewOptions } from "./routes";
+import type { KylinRouteDataOptions } from "./hooks";
 
 /**
  * 重试策略配置
@@ -59,7 +59,7 @@ export type KylinRouterOptiopns = {
     /** 路由配置 */
     routes: KylinRoutes;
     /** 未匹配路由时的 404 路由配置 */
-    notFound?: RouteItem;
+    notFound?: KylinRouteItem;
     /** 起始路径 */
     home?: string;
     /** 导航解析前钩子 */
@@ -67,7 +67,7 @@ export type KylinRouterOptiopns = {
     /** 全局前置守卫 */
     onBeforeEach?: BeforeEachHook;
     /** 全局后置钩子 */
-    onAfterEach?: (to: RouteItem, from: RouteItem) => void | Promise<void>;
+    onAfterEach?: (to: KylinRouteItem, from: KylinRouteItem) => void | Promise<void>;
     /** 全局 renderEach 钩子，用于数据预加载 */
     onRenderEach?: RenderEachHook | RenderEachHook[];
     /** 是否启用调试模式，启用后会输出详细的导航日志（默认 false） */
@@ -79,9 +79,9 @@ export type KylinRouterOptiopns = {
     /** 全局加载模板 */
     defaultLoadingTemplate?: TemplateResult | string;
     /** 全局视图加载配置 */
-    viewOptions?: Omit<RouteViewOptions, "form">;
+    viewOptions?: Omit<KylinRouteViewOptions, "form">;
     /** 全局数据加载配置 */
-    dataOptions?: Omit<RouteDataOptions, "from">;
+    dataOptions?: Omit<KylinRouteDataOptions, "from">;
     /** Alpine.js 全局 store 初始数据 */
     data?: Record<string, any>;
 };

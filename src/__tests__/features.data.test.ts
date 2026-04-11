@@ -6,7 +6,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import { DataLoader } from "../features/data";
 import type { KylinRouter } from "../router";
-import type { RouteItem } from "../types";
+import type { KylinRouteItem } from "../types";
 
 // Mock KylinRouter
 const createMockRouter = (): Partial<KylinRouter> => ({
@@ -37,7 +37,7 @@ describe("DataLoader", () => {
 
     describe("静态数据加载测试", () => {
         it("应该成功加载静态数据", async () => {
-            const route: RouteItem = {
+            const route: KylinRouteItem = {
                 name: "test",
                 path: "/test",
                 data: { userId: 123, username: "test" },
@@ -51,7 +51,7 @@ describe("DataLoader", () => {
         });
 
         it("应该处理空数据", async () => {
-            const route: RouteItem = {
+            const route: KylinRouteItem = {
                 name: "test",
                 path: "/test",
                 data: {},
@@ -64,7 +64,7 @@ describe("DataLoader", () => {
         });
 
         it("应该在没有 data 字段时返回空数据", async () => {
-            const route: RouteItem = {
+            const route: KylinRouteItem = {
                 name: "test",
                 path: "/test",
             };
@@ -83,7 +83,7 @@ describe("DataLoader", () => {
                 username: "remote",
             });
 
-            const route: RouteItem = {
+            const route: KylinRouteItem = {
                 name: "test",
                 path: "/test",
                 data: mockDataFn,
@@ -100,7 +100,7 @@ describe("DataLoader", () => {
                 throw new Error("Network error");
             };
 
-            const route: RouteItem = {
+            const route: KylinRouteItem = {
                 name: "test",
                 path: "/test",
                 data: mockDataFn,
@@ -121,7 +121,7 @@ describe("DataLoader", () => {
                 return { data: "slow" };
             };
 
-            const route: RouteItem = {
+            const route: KylinRouteItem = {
                 name: "test",
                 path: "/test",
                 data: mockDataFn,
@@ -136,7 +136,7 @@ describe("DataLoader", () => {
         it("应该验证返回数据类型", async () => {
             const mockDataFn = async () => null as any;
 
-            const route: RouteItem = {
+            const route: KylinRouteItem = {
                 name: "test",
                 path: "/test",
                 data: mockDataFn,
@@ -161,7 +161,7 @@ describe("DataLoader", () => {
                 return { data: "test" };
             };
 
-            const route: RouteItem = {
+            const route: KylinRouteItem = {
                 name: "test",
                 path: "/test",
                 data: mockDataFn as any,
@@ -183,7 +183,7 @@ describe("DataLoader", () => {
             const dataLoader2 = new DataLoader(mockRouter as KylinRouter);
 
             // 先触发一次数据加载，初始化 abortController
-            const route: RouteItem = {
+            const route: KylinRouteItem = {
                 name: "test",
                 path: "/test",
                 data: { test: "data" },
@@ -208,7 +208,7 @@ describe("DataLoader", () => {
                 posts: [{ id: 1, title: "Post 1" }],
             });
 
-            const route: RouteItem = {
+            const route: KylinRouteItem = {
                 name: "test",
                 path: "/test",
                 data: mockDataFn,
@@ -229,7 +229,7 @@ describe("DataLoader", () => {
                 return { data: "test" };
             };
 
-            const route: RouteItem = {
+            const route: KylinRouteItem = {
                 name: "test",
                 path: "/test",
                 data: mockDataFn,

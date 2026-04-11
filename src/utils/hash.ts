@@ -3,7 +3,7 @@
  * 用于生成唯一的路由标识符，支持字符串插值
  */
 
-import type { RouteItem } from "@/types/routes";
+import type { KylinRouteItem } from "@/types/routes";
 import { params } from "./params";
 
 /**
@@ -15,10 +15,10 @@ import { params } from "./params";
  * @returns 生成的哈希字符串
  */
 export function generateRouteHash(
-    route: RouteItem,
+    route: KylinRouteItem,
     currentPath: string,
     currentParams: Record<string, string>,
-    currentQuery: Record<string, string>
+    currentQuery: Record<string, string>,
 ): string {
     // 使用默认值 "{path}" 如果未指定 hash
     const hashPattern = route.hash || "{path}";
@@ -38,11 +38,11 @@ export function generateRouteHash(
 
     // 转义特殊字符，确保是有效的 Alpine.js store 名称
     // 替换非字母数字字符为下划线（保留连字符和下划线）
-    hash = hash.replace(/[^a-zA-Z0-9_-]/g, '_');
+    hash = hash.replace(/[^a-zA-Z0-9_-]/g, "_");
 
     // 确保不以数字开头（Alpine.js store 名称限制）
     if (hash && /^[0-9]/.test(hash)) {
-        hash = '_' + hash;
+        hash = "_" + hash;
     }
 
     return hash;

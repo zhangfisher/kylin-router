@@ -1,7 +1,7 @@
 # Quick Task: Base URL Auto-Detection and Prefixing
 
 **Created:** 2026-04-11
-**Status:** In Progress
+**Status:** ✅ Completed
 
 ## Task Description
 
@@ -40,12 +40,12 @@
 
 ## Success Criteria
 
-- [ ] getBaseUrl 工具函数创建并能正确处理各种路径格式
-- [ ] KylinRouter.options.base 默认值自动设置
-- [ ] kylin-link 点击时自动添加 baseUrl
-- [ ] loadView 和 loadData 自动添加 baseUrl 前缀
-- [ ] 完整 URL 不受影响
-- [ ] 所有修改通过类型检查
+- [x] getBaseUrl 工具函数创建并能正确处理各种路径格式
+- [x] KylinRouter.options.base 默认值自动设置
+- [x] kylin-link 点击时自动添加 baseUrl
+- [x] loadView 和 loadData 自动添加 baseUrl 前缀
+- [x] 完整 URL 不受影响
+- [x] 所有修改通过类型检查
 
 ## Implementation Notes
 

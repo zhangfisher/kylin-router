@@ -13,7 +13,13 @@
  */
 
 import type { KylinRouter } from "@/router";
-import type { RouteItem, ModalConfig, ModalState, ModalStackItem, ModalOptions } from "@/types";
+import type {
+    KylinRouteItem,
+    ModalConfig,
+    ModalState,
+    ModalStackItem,
+    ModalOptions,
+} from "@/types";
 
 /**
  * Modal Mixin 类 - 负责模态窗口的所有功能
@@ -39,18 +45,18 @@ export class Modal {
         // 解析路由配置
         const route = (this as any)._resolveModalRoute(options);
         if (!route) {
-            throw new Error('Invalid modal route');
+            throw new Error("Invalid modal route");
         }
 
         // 检查模态配置
         const modalConfig = (this as any)._getModalConfig(route);
         if (!modalConfig) {
-            throw new Error('Route is not configured as modal');
+            throw new Error("Route is not configured as modal");
         }
 
         // 检查模态栈限制
         if (modalState.stack.length >= maxModals) {
-            console.warn('Maximum modal stack depth reached');
+            console.warn("Maximum modal stack depth reached");
             return;
         }
 
@@ -68,7 +74,7 @@ export class Modal {
             route,
             element: modalElement,
             backdrop: backdropElement,
-            timestamp: Date.now()
+            timestamp: Date.now(),
         };
         modalState.stack.push(stackItem);
         modalState.current = stackItem;
@@ -77,9 +83,9 @@ export class Modal {
         await (this as any)._renderModal(stackItem);
 
         // 触发事件
-        this.emit('modal/open', {
+        this.emit("modal/open", {
             route,
-            stackItem
+            stackItem,
         });
 
         // 自动关闭功能
@@ -100,13 +106,13 @@ export class Modal {
      * 关闭模态
      * @param route - 可选，指定要关闭的模态路由
      */
-    async closeModal(this: KylinRouter, route?: RouteItem | string): Promise<void> {
+    async closeModal(this: KylinRouter, route?: KylinRouteItem | string): Promise<void> {
         const modalState = (this as any).modalState as ModalState;
 
         if (route) {
             // 关闭指定模态
-            let targetRoute: RouteItem | null;
-            if (typeof route === 'string') {
+            let targetRoute: KylinRouteItem | null;
+            if (typeof route === "string") {
                 // 通过路径查找路由
                 const matched = this.routes.match(route);
                 targetRoute = matched?.route || null;
@@ -116,9 +122,7 @@ export class Modal {
 
             if (!targetRoute) return;
 
-            const index = modalState.stack.findIndex(
-                item => item.route === targetRoute
-            );
+            const index = modalState.stack.findIndex((item) => item.route === targetRoute);
             if (index !== -1) {
                 // 关闭该模态及上面的所有模态
                 while (modalState.stack.length > index) {
@@ -174,18 +178,18 @@ export class Modal {
         this._setupModalEventListeners();
         this._injectModalStyles();
     }
-/**
+    /**
      * 注入模态样式
      * 添加模态容器和背景遮罩的默认样式
      */
     protected injectModalStyles(): void {
         // 检查是否已注入样式
-        if (document.querySelector('#kylin-modal-styles')) {
+        if (document.querySelector("#kylin-modal-styles")) {
             return;
         }
 
-        const style = document.createElement('style');
-        style.id = 'kylin-modal-styles';
+        const style = document.createElement("style");
+        style.id = "kylin-modal-styles";
         style.textContent = `
             .kylin-modals {
                 position: fixed;
@@ -240,10 +244,10 @@ export class Modal {
      * 如果容器不存在则创建，并返回容器元素
      */
     _createModalContainer(this: KylinRouter): HTMLElement {
-        let container = this.host.querySelector('.kylin-modals') as HTMLElement;
+        let container = this.host.querySelector(".kylin-modals") as HTMLElement;
         if (!container) {
-            container = document.createElement('div');
-            container.className = 'kylin-modals';
+            container = document.createElement("div");
+            container.className = "kylin-modals";
             this.host.appendChild(container);
         }
         (this as any).modalContainer = container;
@@ -256,9 +260,9 @@ export class Modal {
      */
     _setupModalEventListeners(this: KylinRouter): void {
         // ESC 键关闭模态
-        document.addEventListener('keydown', (e) => {
+        document.addEventListener("keydown", (e) => {
             const modalState = (this as any).modalState as ModalState;
-            if (e.key === 'Escape' && modalState.current) {
+            if (e.key === "Escape" && modalState.current) {
                 const config = (this as any)._getModalConfig(modalState.current.route);
                 if (config?.closeOnEsc !== false) {
                     (this as any)._closeTopModal();
@@ -271,8 +275,8 @@ export class Modal {
      * 获取模态配置
      * 从路由配置中提取模态配置
      */
-    _getModalConfig(this: KylinRouter, route: RouteItem): ModalConfig | null {
-        if (typeof route.modal === 'boolean') {
+    _getModalConfig(this: KylinRouter, route: KylinRouteItem): ModalConfig | null {
+        if (typeof route.modal === "boolean") {
             return route.modal ? {} : null;
         }
         return route.modal || null;
@@ -284,12 +288,12 @@ export class Modal {
      */
     _injectModalStyles(this: KylinRouter): void {
         // 检查是否已注入样式
-        if (document.querySelector('#kylin-modal-styles')) {
+        if (document.querySelector("#kylin-modal-styles")) {
             return;
         }
 
-        const style = document.createElement('style');
-        style.id = 'kylin-modal-styles';
+        const style = document.createElement("style");
+        style.id = "kylin-modal-styles";
         style.textContent = `
             /* ==================== 模态容器 ==================== */
             .kylin-modals {
@@ -817,9 +821,9 @@ export class Modal {
         if (!stackItem) return Promise.resolve();
 
         // 添加关闭动画类
-        stackItem.element.classList.add('closing');
+        stackItem.element.classList.add("closing");
         if (stackItem.backdrop) {
-            stackItem.backdrop.classList.add('closing');
+            stackItem.backdrop.classList.add("closing");
         }
 
         // 等待动画完成（0.2秒）
@@ -833,9 +837,9 @@ export class Modal {
                 modalState.current = modalState.stack[modalState.stack.length - 1] || null;
 
                 // 触发事件
-                this.emit('modal/close', {
+                this.emit("modal/close", {
                     route: stackItem.route,
-                    stackItem
+                    stackItem,
                 });
 
                 // 恢复 URL
@@ -849,25 +853,25 @@ export class Modal {
     /**
      * 创建模态元素
      */
-    protected _createModalElement(this: KylinRouter, route: RouteItem): Promise<HTMLElement> {
-        const element = document.createElement('div');
-        element.className = 'kylin-modal-content';
+    protected _createModalElement(this: KylinRouter, route: KylinRouteItem): Promise<HTMLElement> {
+        const element = document.createElement("div");
+        element.className = "kylin-modal-content";
 
         // 加载组件
         if (route.view) {
             // 处理不同类型的 view
-            if (typeof route.view === 'string') {
+            if (typeof route.view === "string") {
                 // 字符串类型：可能是 URL 或元素名
                 const loadResult = (this as any).viewLoader.loadView(
                     route.view,
-                    (route as any).remoteOptions
+                    (route as any).remoteOptions,
                 );
 
                 return loadResult.then(async (result: any) => {
                     if (result.success && result.content) {
                         // 使用 Render mixin 的 renderToOutlet 方法
                         await this.renderToOutlet(result, element, {
-                            mode: 'replace'
+                            mode: "replace",
                         });
                     }
                     return element;
@@ -877,7 +881,7 @@ export class Modal {
                 const viewElement = route.view as HTMLElement;
 
                 // 检查是否为 template 元素
-                if (viewElement.tagName === 'TEMPLATE') {
+                if (viewElement.tagName === "TEMPLATE") {
                     // HTMLTemplateElement 类型：克隆模板内容并附加
                     const templateElement = viewElement as HTMLTemplateElement;
                     const clone = templateElement.content.cloneNode(true);
@@ -892,16 +896,15 @@ export class Modal {
         return Promise.resolve(element);
     }
 
-
     /**
      * 创建模态容器（D-17）
      * 如果容器不存在则创建，并返回容器元素
      */
-    private createModalContainer(this: KylinRouter, ): HTMLElement {
-        let container = this.host.querySelector('.kylin-modals') as HTMLElement;
+    private createModalContainer(this: KylinRouter): HTMLElement {
+        let container = this.host.querySelector(".kylin-modals") as HTMLElement;
         if (!container) {
-            container = document.createElement('div');
-            container.className = 'kylin-modals';
+            container = document.createElement("div");
+            container.className = "kylin-modals";
             this.host.appendChild(container);
         }
         this.modalContainer = container;
@@ -912,10 +915,10 @@ export class Modal {
      * 设置模态事件监听
      * 监听 ESC 键关闭模态
      */
-    private setupModalEventListeners(this: KylinRouter,): void {
+    private setupModalEventListeners(this: KylinRouter): void {
         // ESC 键关闭模态
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.modalState.current) {
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && this.modalState.current) {
                 const config = this.getModalConfig(this.modalState.current.route);
                 if (config?.closeOnEsc !== false) {
                     this.closeTopModal();
@@ -928,8 +931,8 @@ export class Modal {
      * 获取模态配置
      * 从路由配置中提取模态配置
      */
-    private getModalConfig(route: RouteItem): ModalConfig | null {
-        if (typeof route.modal === 'boolean') {
+    private getModalConfig(route: KylinRouteItem): ModalConfig | null {
+        if (typeof route.modal === "boolean") {
             return route.modal ? {} : null;
         }
         return route.modal || null;
@@ -953,9 +956,9 @@ export class Modal {
         this.modalState.current = this.modalState.stack[this.modalState.stack.length - 1] || null;
 
         // 触发事件
-        this.emit('modal-close', {
+        this.emit("modal-close", {
             route: stackItem.route,
-            stackItem
+            stackItem,
         });
 
         // 恢复 URL
@@ -970,12 +973,12 @@ export class Modal {
             return undefined;
         }
 
-        const backdrop = document.createElement('div');
-        backdrop.className = 'kylin-modal-backdrop';
+        const backdrop = document.createElement("div");
+        backdrop.className = "kylin-modal-backdrop";
 
         // 点击遮罩关闭模态
         if (config.closeOnBackdropClick !== false) {
-            backdrop.addEventListener('click', () => {
+            backdrop.addEventListener("click", () => {
                 (this as any)._closeTopModal();
             });
         }
@@ -1009,11 +1012,15 @@ export class Modal {
     /**
      * 应用模态样式
      */
-    protected _applyModalStyles(this: KylinRouter, element: HTMLElement, config: ModalConfig | null): void {
+    protected _applyModalStyles(
+        this: KylinRouter,
+        element: HTMLElement,
+        config: ModalConfig | null,
+    ): void {
         if (!config) return;
 
-        const type = config.type || 'dialog';
-        const position = config.position || 'center';
+        const type = config.type || "dialog";
+        const position = config.position || "center";
         const offset = config.offset || [0, 0];
 
         // 设置类型样式类
@@ -1033,81 +1040,81 @@ export class Modal {
         element: HTMLElement,
         type: string,
         position: string,
-        offset: [number, number]
+        offset: [number, number],
     ): void {
         const style = element.style;
 
         // 重置基本样式
-        style.position = 'fixed';
-        style.zIndex = '10000';
+        style.position = "fixed";
+        style.zIndex = "10000";
 
         // 根据类型应用默认样式
-        if (type === 'dialog') {
+        if (type === "dialog") {
             // dialog 默认有固定的宽度和最大高度
-            style.maxWidth = '600px';
-            style.maxHeight = '80vh';
-            style.overflow = 'auto';
-        } else if (type === 'drawer') {
+            style.maxWidth = "600px";
+            style.maxHeight = "80vh";
+            style.overflow = "auto";
+        } else if (type === "drawer") {
             // drawer 根据位置设置不同的默认样式
-            if (position === 'left' || position === 'right') {
+            if (position === "left" || position === "right") {
                 // 左右抽屉：固定宽度 300px
-                style.width = '300px';
-                style.maxHeight = '100vh';
-                style.overflow = 'auto';
+                style.width = "300px";
+                style.maxHeight = "100vh";
+                style.overflow = "auto";
             } else {
                 // 上下抽屉：宽度由 CSS 控制（100%），高度 300px
-                style.maxHeight = '100vh';
-                style.overflow = 'auto';
+                style.maxHeight = "100vh";
+                style.overflow = "auto";
             }
         }
 
         // 应用位置
         // 注意：drawer 类型的位置由 CSS 类控制，不需要内联样式（除了可能的偏移）
-        if (type === 'drawer') {
+        if (type === "drawer") {
             // drawer 的位置样式已在 CSS 中定义，这里只需处理偏移
             // 但为了保持灵活性，仍为非标准位置提供基本定位
             return;
         }
 
         switch (position) {
-            case 'center':
-                style.top = '50%';
-                style.left = '50%';
+            case "center":
+                style.top = "50%";
+                style.left = "50%";
                 style.transform = `translate(calc(-50% + ${offset[0]}px), calc(-50% + ${offset[1]}px))`;
                 break;
-            case 'top':
+            case "top":
                 style.top = `${offset[1]}px`;
-                style.left = '50%';
+                style.left = "50%";
                 style.transform = `translateX(calc(-50% + ${offset[0]}px))`;
                 break;
-            case 'top-left':
+            case "top-left":
                 style.top = `${offset[1]}px`;
                 style.left = `${offset[0]}px`;
                 break;
-            case 'top-right':
+            case "top-right":
                 style.top = `${offset[1]}px`;
                 style.right = `${offset[0]}px`;
                 break;
-            case 'right':
-                style.top = '50%';
+            case "right":
+                style.top = "50%";
                 style.right = `${offset[0]}px`;
                 style.transform = `translateY(calc(-50% + ${offset[1]}px))`;
                 break;
-            case 'bottom-right':
+            case "bottom-right":
                 style.bottom = `${offset[1]}px`;
                 style.right = `${offset[0]}px`;
                 break;
-            case 'bottom':
+            case "bottom":
                 style.bottom = `${offset[1]}px`;
-                style.left = '50%';
+                style.left = "50%";
                 style.transform = `translateX(calc(-50% + ${offset[0]}px))`;
                 break;
-            case 'bottom-left':
+            case "bottom-left":
                 style.bottom = `${offset[1]}px`;
                 style.left = `${offset[0]}px`;
                 break;
-            case 'left':
-                style.top = '50%';
+            case "left":
+                style.top = "50%";
                 style.left = `${offset[0]}px`;
                 style.transform = `translateY(calc(-50% + ${offset[1]}px))`;
                 break;
@@ -1117,9 +1124,9 @@ export class Modal {
     /**
      * 解析模态路由
      */
-    protected _resolveModalRoute(this: KylinRouter, options: ModalOptions): RouteItem | null {
+    protected _resolveModalRoute(this: KylinRouter, options: ModalOptions): KylinRouteItem | null {
         if (options.route) {
-            if (typeof options.route === 'string') {
+            if (typeof options.route === "string") {
                 // 通过路径查找路由
                 return this.routes.match(options.route)?.route || null;
             } else {
@@ -1134,7 +1141,7 @@ export class Modal {
      * 更新模态 URL（不改变 URL，模态路由与普通路由共存）
      * 模态路由通过内部状态管理，不改变浏览器 URL
      */
-    _updateModalURL(this: KylinRouter, _route: RouteItem): void {
+    _updateModalURL(this: KylinRouter, _route: KylinRouteItem): void {
         // 模态路由不改变 URL，保持当前 URL 不变
         // 这样模态路由可以与普通路由共存
     }

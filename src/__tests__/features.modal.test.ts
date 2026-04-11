@@ -12,7 +12,7 @@
 
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import { Modal } from "@/features/modal";
-import type { RouteItem, ModalConfig, ModalState, ModalStackItem } from "@/types";
+import type { KylinRouteItem, ModalConfig, ModalState, ModalStackItem } from "@/types";
 
 /**
  * 创建测试用的 DOM 环境
@@ -55,7 +55,7 @@ class MockRouter {
     modalContainer: HTMLElement | null = null;
     modalState: ModalState = {
         stack: [],
-        current: null
+        current: null,
     };
     maxModals: number = 10;
     emitEventCalls: any[] = [];
@@ -72,34 +72,34 @@ class MockRouter {
     // 模拟 routes.match 方法
     routes = {
         match: (path: string) => {
-            const routes: Record<string, RouteItem> = {
-                '/modal/basic': {
-                    name: 'basic-modal',
-                    path: '/modal/basic',
-                    view: document.createElement('div'),
-                    modal: true
+            const routes: Record<string, KylinRouteItem> = {
+                "/modal/basic": {
+                    name: "basic-modal",
+                    path: "/modal/basic",
+                    view: document.createElement("div"),
+                    modal: true,
                 },
-                '/modal/configured': {
-                    name: 'configured-modal',
-                    path: '/modal/configured',
-                    view: document.createElement('div'),
+                "/modal/configured": {
+                    name: "configured-modal",
+                    path: "/modal/configured",
+                    view: document.createElement("div"),
                     modal: {
                         backdrop: true,
                         closeOnBackdropClick: true,
-                        closeOnEsc: true
-                    }
+                        closeOnEsc: true,
+                    },
                 },
-                '/modal/no-backdrop': {
-                    name: 'no-backdrop-modal',
-                    path: '/modal/no-backdrop',
-                    view: document.createElement('div'),
+                "/modal/no-backdrop": {
+                    name: "no-backdrop-modal",
+                    path: "/modal/no-backdrop",
+                    view: document.createElement("div"),
                     modal: {
-                        backdrop: false
-                    }
-                }
+                        backdrop: false,
+                    },
+                },
             };
             return { route: routes[path] || null };
-        }
+        },
     };
 
     // 模拟 viewLoader.loadView 方法
@@ -107,9 +107,9 @@ class MockRouter {
         loadView: async (view: any) => {
             return {
                 success: true,
-                content: '<div>Modal Content</div>'
+                content: "<div>Modal Content</div>",
             };
-        }
+        },
     };
 
     // 模拟 renderToOutlet 方法
@@ -137,12 +137,18 @@ class MockRouter {
     _applyPositionStyles = (Modal.prototype._applyPositionStyles as any).bind(this);
 
     // Getter 方法需要特殊处理
-    get hasOpenModals() { return this.modalState.stack.length > 0; }
-    get modalCount() { return this.modalState.stack.length; }
-    get currentModal() { return this.modalState.current; }
+    get hasOpenModals() {
+        return this.modalState.stack.length > 0;
+    }
+    get modalCount() {
+        return this.modalState.stack.length;
+    }
+    get currentModal() {
+        return this.modalState.current;
+    }
 }
 
-describe('Modal Feature', () => {
+describe("Modal Feature", () => {
     let mockRouter: InstanceType<typeof MockRouter>;
     let container: HTMLElement;
 
@@ -159,23 +165,23 @@ describe('Modal Feature', () => {
         }
         // 清理可能创建的模态样式
         // @ts-ignore
-        const style = document.querySelector('#kylin-modal-styles');
+        const style = document.querySelector("#kylin-modal-styles");
         if (style) {
             style.remove();
         }
     });
 
-    describe('模态容器管理', () => {
-        it('应该创建模态容器', () => {
+    describe("模态容器管理", () => {
+        it("应该创建模态容器", () => {
             mockRouter._createModalContainer();
 
             expect(mockRouter.modalContainer).not.toBeNull();
-            expect(mockRouter.modalContainer?.className).toBe('kylin-modals');
+            expect(mockRouter.modalContainer?.className).toBe("kylin-modals");
         });
 
-        it('应该复用已存在的模态容器', () => {
-            const existingContainer = document.createElement('div');
-            existingContainer.className = 'kylin-modals';
+        it("应该复用已存在的模态容器", () => {
+            const existingContainer = document.createElement("div");
+            existingContainer.className = "kylin-modals";
             container.appendChild(existingContainer);
 
             mockRouter._createModalContainer();
@@ -183,24 +189,24 @@ describe('Modal Feature', () => {
             expect(mockRouter.modalContainer).toBe(existingContainer);
         });
 
-        it('应该注入模态样式', () => {
+        it("应该注入模态样式", () => {
             mockRouter._injectModalStyles();
 
-            const style = document.querySelector('#kylin-modal-styles');
+            const style = document.querySelector("#kylin-modal-styles");
             expect(style).not.toBeNull();
-            expect(style?.textContent).toContain('.kylin-modals');
-            expect(style?.textContent).toContain('.kylin-modal-backdrop');
-            expect(style?.textContent).toContain('.kylin-modal-content');
+            expect(style?.textContent).toContain(".kylin-modals");
+            expect(style?.textContent).toContain(".kylin-modal-backdrop");
+            expect(style?.textContent).toContain(".kylin-modal-content");
         });
     });
 
-    describe('模态配置解析', () => {
-        it('应该正确解析布尔类型的模态配置', () => {
-            const route: RouteItem = {
-                name: 'test',
-                path: '/test',
-                view: document.createElement('div'),
-                modal: true
+    describe("模态配置解析", () => {
+        it("应该正确解析布尔类型的模态配置", () => {
+            const route: KylinRouteItem = {
+                name: "test",
+                path: "/test",
+                view: document.createElement("div"),
+                modal: true,
             };
 
             const config = mockRouter._getModalConfig(route);
@@ -208,28 +214,28 @@ describe('Modal Feature', () => {
             expect(config?.modal).toBeUndefined(); // 布尔值转换为空对象
         });
 
-        it('应该正确解析对象类型的模态配置', () => {
+        it("应该正确解析对象类型的模态配置", () => {
             const modalConfig: ModalConfig = {
                 backdrop: true,
                 closeOnBackdropClick: true,
-                closeOnEsc: true
+                closeOnEsc: true,
             };
-            const route: RouteItem = {
-                name: 'test',
-                path: '/test',
-                view: document.createElement('div'),
-                modal: modalConfig
+            const route: KylinRouteItem = {
+                name: "test",
+                path: "/test",
+                view: document.createElement("div"),
+                modal: modalConfig,
             };
 
             const config = mockRouter._getModalConfig(route);
             expect(config).toEqual(modalConfig);
         });
 
-        it('应该为非模态路由返回 null', () => {
-            const route: RouteItem = {
-                name: 'test',
-                path: '/test',
-                view: document.createElement('div')
+        it("应该为非模态路由返回 null", () => {
+            const route: KylinRouteItem = {
+                name: "test",
+                path: "/test",
+                view: document.createElement("div"),
             };
 
             const config = mockRouter._getModalConfig(route);
@@ -237,48 +243,48 @@ describe('Modal Feature', () => {
         });
     });
 
-    describe('模态路由解析', () => {
-        it('应该通过路径字符串解析模态路由', async () => {
-            const route = mockRouter._resolveModalRoute({ route: '/modal/basic' });
+    describe("模态路由解析", () => {
+        it("应该通过路径字符串解析模态路由", async () => {
+            const route = mockRouter._resolveModalRoute({ route: "/modal/basic" });
 
             expect(route).not.toBeNull();
-            expect(route?.name).toBe('basic-modal');
+            expect(route?.name).toBe("basic-modal");
         });
 
-        it('应该直接使用路由对象', async () => {
-            const routeItem: RouteItem = {
-                name: 'test',
-                path: '/test',
-                view: document.createElement('div'),
-                modal: true
+        it("应该直接使用路由对象", async () => {
+            const routeItem: KylinRouteItem = {
+                name: "test",
+                path: "/test",
+                view: document.createElement("div"),
+                modal: true,
             };
             const route = mockRouter._resolveModalRoute({ route: routeItem });
 
             expect(route).toBe(routeItem);
         });
 
-        it('应该为无效路由返回 null', async () => {
-            const route = mockRouter._resolveModalRoute({ route: '/non-existent' });
+        it("应该为无效路由返回 null", async () => {
+            const route = mockRouter._resolveModalRoute({ route: "/non-existent" });
 
             expect(route).toBeNull();
         });
     });
 
-    describe('背景遮罩创建', () => {
-        it('应该创建背景遮罩', () => {
+    describe("背景遮罩创建", () => {
+        it("应该创建背景遮罩", () => {
             const config: ModalConfig = {
-                backdrop: true
+                backdrop: true,
             };
 
             const backdrop = mockRouter._createBackdrop(config);
 
             expect(backdrop).toBeDefined();
-            expect(backdrop?.className).toBe('kylin-modal-backdrop');
+            expect(backdrop?.className).toBe("kylin-modal-backdrop");
         });
 
-        it('应该为 backdrop: false 不创建遮罩', () => {
+        it("应该为 backdrop: false 不创建遮罩", () => {
             const config: ModalConfig = {
-                backdrop: false
+                backdrop: false,
             };
 
             const backdrop = mockRouter._createBackdrop(config);
@@ -286,26 +292,28 @@ describe('Modal Feature', () => {
             expect(backdrop).toBeUndefined();
         });
 
-        it('应该支持点击遮罩关闭', () => {
+        it("应该支持点击遮罩关闭", () => {
             const config: ModalConfig = {
                 backdrop: true,
-                closeOnBackdropClick: true
+                closeOnBackdropClick: true,
             };
 
             const backdrop = mockRouter._createBackdrop(config);
             let clicked = false;
             if (backdrop) {
-                backdrop.addEventListener('click', () => { clicked = true; });
+                backdrop.addEventListener("click", () => {
+                    clicked = true;
+                });
                 backdrop.click();
             }
 
             expect(clicked).toBe(true);
         });
 
-        it('应该禁止点击遮罩关闭', () => {
+        it("应该禁止点击遮罩关闭", () => {
             const config: ModalConfig = {
                 backdrop: true,
-                closeOnBackdropClick: false
+                closeOnBackdropClick: false,
             };
 
             const backdrop = mockRouter._createBackdrop(config);
@@ -314,19 +322,19 @@ describe('Modal Feature', () => {
             // 当 closeOnBackdropClick 为 false 时，backdrop 不会有点击事件监听器
             // 所以我们通过检查元素的事件监听器来验证
             // 但由于无法直接检查事件监听器，我们只验证 backdrop 被创建了
-            expect(backdrop?.className).toBe('kylin-modal-backdrop');
+            expect(backdrop?.className).toBe("kylin-modal-backdrop");
         });
     });
 
-    describe('模态状态管理', () => {
-        it('应该正确报告是否有打开的模态', () => {
+    describe("模态状态管理", () => {
+        it("应该正确报告是否有打开的模态", () => {
             expect(mockRouter.hasOpenModals).toBe(false);
 
             mockRouter.modalState.stack.push({} as ModalStackItem);
             expect(mockRouter.hasOpenModals).toBe(true);
         });
 
-        it('应该正确报告模态数量', () => {
+        it("应该正确报告模态数量", () => {
             expect(mockRouter.modalCount).toBe(0);
 
             mockRouter.modalState.stack.push({} as ModalStackItem);
@@ -336,13 +344,13 @@ describe('Modal Feature', () => {
             expect(mockRouter.modalCount).toBe(2);
         });
 
-        it('应该正确报告当前模态', () => {
+        it("应该正确报告当前模态", () => {
             expect(mockRouter.currentModal).toBeNull();
 
             const stackItem: ModalStackItem = {
-                route: {} as RouteItem,
-                element: document.createElement('div'),
-                timestamp: Date.now()
+                route: {} as KylinRouteItem,
+                element: document.createElement("div"),
+                timestamp: Date.now(),
             };
             mockRouter.modalState.current = stackItem;
 
@@ -350,19 +358,19 @@ describe('Modal Feature', () => {
         });
     });
 
-    describe('模态栈管理', () => {
-        it('应该限制最大模态层数', async () => {
+    describe("模态栈管理", () => {
+        it("应该限制最大模态层数", async () => {
             mockRouter.maxModals = 2;
 
             // 模拟打开模态栈
-            const closeModalSpy = mockRouter._closeTopModal = async () => {};
+            const closeModalSpy = (mockRouter._closeTopModal = async () => {});
 
             // 尝试超过最大层数
             for (let i = 0; i < 5; i++) {
                 mockRouter.modalState.stack.push({
-                    route: {} as RouteItem,
-                    element: document.createElement('div'),
-                    timestamp: Date.now()
+                    route: {} as KylinRouteItem,
+                    element: document.createElement("div"),
+                    timestamp: Date.now(),
                 });
             }
 
@@ -370,16 +378,16 @@ describe('Modal Feature', () => {
             expect(mockRouter.modalState.stack.length).toBe(5); // 实际会超出，但在 openModal 中会检查
         });
 
-        it('应该正确更新当前模态', () => {
+        it("应该正确更新当前模态", () => {
             const item1: ModalStackItem = {
-                route: {} as RouteItem,
-                element: document.createElement('div'),
-                timestamp: Date.now()
+                route: {} as KylinRouteItem,
+                element: document.createElement("div"),
+                timestamp: Date.now(),
             };
             const item2: ModalStackItem = {
-                route: {} as RouteItem,
-                element: document.createElement('div'),
-                timestamp: Date.now() + 1
+                route: {} as KylinRouteItem,
+                element: document.createElement("div"),
+                timestamp: Date.now() + 1,
             };
 
             mockRouter.modalState.stack.push(item1);
@@ -394,36 +402,36 @@ describe('Modal Feature', () => {
         });
     });
 
-    describe('事件触发', () => {
-        it('应该在打开模态时触发 modal/open 事件', async () => {
+    describe("事件触发", () => {
+        it("应该在打开模态时触发 modal/open 事件", async () => {
             mockRouter._initModals();
-            const route: RouteItem = {
-                name: 'test',
-                path: '/test',
-                view: document.createElement('div'),
-                modal: true
+            const route: KylinRouteItem = {
+                name: "test",
+                path: "/test",
+                view: document.createElement("div"),
+                modal: true,
             };
 
             await mockRouter.openModal({ route });
 
-            const openEvent = mockRouter.emitEventCalls.find(e => e.event === 'modal/open');
+            const openEvent = mockRouter.emitEventCalls.find((e) => e.event === "modal/open");
             expect(openEvent).toBeDefined();
             expect(openEvent?.detail.route).toBe(route);
         });
 
-        it('应该在关闭模态时触发 modal/close 事件', async () => {
+        it("应该在关闭模态时触发 modal/close 事件", async () => {
             mockRouter._initModals();
 
             // 先打开一个模态
             const stackItem: ModalStackItem = {
                 route: {
-                    name: 'test',
-                    path: '/test',
-                    view: document.createElement('div'),
-                    modal: true
+                    name: "test",
+                    path: "/test",
+                    view: document.createElement("div"),
+                    modal: true,
                 },
-                element: document.createElement('div'),
-                timestamp: Date.now()
+                element: document.createElement("div"),
+                timestamp: Date.now(),
             };
 
             // 手动设置模态栈
@@ -432,85 +440,87 @@ describe('Modal Feature', () => {
 
             await mockRouter._closeTopModal();
 
-            const closeEvent = mockRouter.emitEventCalls.find(e => e.event === 'modal/close');
+            const closeEvent = mockRouter.emitEventCalls.find((e) => e.event === "modal/close");
             expect(closeEvent).toBeDefined();
         });
     });
 
-    describe('初始化', () => {
-        it('应该正确初始化模态系统', () => {
+    describe("初始化", () => {
+        it("应该正确初始化模态系统", () => {
             mockRouter._initModals();
 
             expect(mockRouter.modalContainer).not.toBeNull();
-            expect(document.querySelector('.kylin-modals')).not.toBeNull();
-            expect(document.querySelector('#kylin-modal-styles')).not.toBeNull();
+            expect(document.querySelector(".kylin-modals")).not.toBeNull();
+            expect(document.querySelector("#kylin-modal-styles")).not.toBeNull();
         });
     });
 
-    describe('错误处理', () => {
-        it('应该为无效路由抛出错误', async () => {
-            await expect(mockRouter.openModal({ route: '/non-existent' }))
-                .rejects.toThrow('Invalid modal route');
+    describe("错误处理", () => {
+        it("应该为无效路由抛出错误", async () => {
+            await expect(mockRouter.openModal({ route: "/non-existent" })).rejects.toThrow(
+                "Invalid modal route",
+            );
         });
 
-        it('应该为非模态路由抛出错误', async () => {
-            const route: RouteItem = {
-                name: 'test',
-                path: '/test',
-                view: document.createElement('div')
+        it("应该为非模态路由抛出错误", async () => {
+            const route: KylinRouteItem = {
+                name: "test",
+                path: "/test",
+                view: document.createElement("div"),
                 // modal 字段缺失
             };
 
-            await expect(mockRouter.openModal({ route }))
-                .rejects.toThrow('Route is not configured as modal');
+            await expect(mockRouter.openModal({ route })).rejects.toThrow(
+                "Route is not configured as modal",
+            );
         });
     });
 
-    describe('模态元素创建', () => {
-        it('应该为 HTMLTemplateElement 创建模态元素', async () => {
-            const template = document.createElement('template');
-            template.innerHTML = '<div>Modal Content</div>';
+    describe("模态元素创建", () => {
+        it("应该为 HTMLTemplateElement 创建模态元素", async () => {
+            const template = document.createElement("template");
+            template.innerHTML = "<div>Modal Content</div>";
 
-            const route: RouteItem = {
-                name: 'test',
-                path: '/test',
+            const route: KylinRouteItem = {
+                name: "test",
+                path: "/test",
                 view: template,
-                modal: true
+                modal: true,
             };
 
             const element = await mockRouter._createModalElement(route);
 
-            expect(element.className).toBe('kylin-modal-content');
-            expect(element.innerHTML).toContain('Modal Content');
+            expect(element.className).toBe("kylin-modal-content");
+            expect(element.innerHTML).toContain("Modal Content");
         });
 
-        it('应该为普通 HTMLElement 创建模态元素', async () => {
-            const div = document.createElement('div');
-            div.textContent = 'Direct Element';
+        it("应该为普通 HTMLElement 创建模态元素", async () => {
+            const div = document.createElement("div");
+            div.textContent = "Direct Element";
 
-            const route: RouteItem = {
-                name: 'test',
-                path: '/test',
+            const route: KylinRouteItem = {
+                name: "test",
+                path: "/test",
                 view: div,
-                modal: true
+                modal: true,
             };
 
             const element = await mockRouter._createModalElement(route);
 
-            expect(element.className).toBe('kylin-modal-content');
+            expect(element.className).toBe("kylin-modal-content");
             expect(element.contains(div)).toBe(true);
         });
     });
 
-    describe('与普通路由共存', () => {
-        it('模态路由不应该改变 URL', () => {
+    describe("与普通路由共存", () => {
+        it("模态路由不应该改变 URL", () => {
             const initialURL = window.location.href;
-            mockRouter._updateModalURL({} as RouteItem);
+            mockRouter._updateModalURL({} as KylinRouteItem);
 
             expect(window.location.href).toBe(initialURL);
         });
 
-        it('关闭模态不应该恢复 URL', () => {
+        it("关闭模态不应该恢复 URL", () => {
             const initialURL = window.location.href;
             mockRouter._restoreModalURL();
 

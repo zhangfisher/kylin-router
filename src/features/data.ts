@@ -8,8 +8,8 @@
  */
 
 import type { KylinRouter } from "@/router";
-import type { RouteItem } from "@/types";
-import type { RouteDataOptions } from "@/types/hooks";
+import type { KylinRouteItem } from "@/types";
+import type { KylinRouteDataOptions } from "@/types/hooks";
 import { params } from "@/utils/params";
 import { joinPath } from "@/utils/joinPath";
 
@@ -46,13 +46,13 @@ export class DataLoader {
     /** AbortController 用于取消进行中的请求 */
     private abortController?: AbortController;
     /** 全局数据加载配置 */
-    protected globalDataOptions?: Omit<RouteDataOptions, 'from'>;
+    protected globalDataOptions?: Omit<KylinRouteDataOptions, "from">;
     /** 缓存存储 */
     private cached: Map<string, CacheItem>;
     /** 路由器实例 */
     private _router: KylinRouter;
 
-    constructor(_router: KylinRouter, globalDataOptions?: Omit<RouteDataOptions, 'from'>) {
+    constructor(_router: KylinRouter, globalDataOptions?: Omit<KylinRouteDataOptions, "from">) {
         this._router = _router;
         this.globalDataOptions = globalDataOptions;
         this.cached = new Map();
@@ -64,7 +64,7 @@ export class DataLoader {
      * @param options - 加载选项
      * @returns 加载结果
      */
-    async loadData(route: RouteItem, options?: DataLoadOptions): Promise<DataLoadResult> {
+    async loadData(route: KylinRouteItem, options?: DataLoadOptions): Promise<DataLoadResult> {
         const data = route.data;
 
         // 如果没有 data 字段，返回空数据
@@ -78,7 +78,7 @@ export class DataLoader {
         try {
             // 检查是否是 RouteDataOptions 类型且启用了缓存
             if (typeof data === "object" && data !== null && "from" in data) {
-                const dataOptions = data as RouteDataOptions;
+                const dataOptions = data as KylinRouteDataOptions;
 
                 // 处理缓存逻辑：只有 cache !== false 且 !== undefined 时才启用缓存
                 if (dataOptions.cache !== undefined && dataOptions.cache !== false) {
@@ -123,7 +123,7 @@ export class DataLoader {
                 return result;
             } else if (typeof data === "object" && data !== null && "from" in data) {
                 // RouteDataOptions 类型：合并全局选项
-                const dataOptions = data as RouteDataOptions;
+                const dataOptions = data as KylinRouteDataOptions;
                 const mergedTimeout = dataOptions.timeout ?? this.globalDataOptions?.timeout;
 
                 // 检查 from 字段的类型
@@ -134,13 +134,18 @@ export class DataLoader {
                         const result = from();
                         return result instanceof Promise ? result : Promise.resolve(result);
                     };
-                    const result = await this.loadRemoteData(
-                        dataFn,
-                        { timeout: mergedTimeout, signal: options?.signal },
-                    );
+                    const result = await this.loadRemoteData(dataFn, {
+                        timeout: mergedTimeout,
+                        signal: options?.signal,
+                    });
 
                     // 如果启用缓存且加载成功，存入缓存
-                    if (result.success && result.data && dataOptions.cache !== undefined && dataOptions.cache !== false) {
+                    if (
+                        result.success &&
+                        result.data &&
+                        dataOptions.cache !== undefined &&
+                        dataOptions.cache !== false
+                    ) {
                         this.setCache(dataOptions, result.data);
                     }
 
@@ -172,13 +177,18 @@ export class DataLoader {
                         return await response.json();
                     };
 
-                    const result = await this.loadRemoteData(
-                        dataFn,
-                        { timeout: mergedTimeout, signal: options?.signal },
-                    );
+                    const result = await this.loadRemoteData(dataFn, {
+                        timeout: mergedTimeout,
+                        signal: options?.signal,
+                    });
 
                     // 如果启用缓存且加载成功，存入缓存
-                    if (result.success && result.data && dataOptions.cache !== undefined && dataOptions.cache !== false) {
+                    if (
+                        result.success &&
+                        result.data &&
+                        dataOptions.cache !== undefined &&
+                        dataOptions.cache !== false
+                    ) {
                         this.setCache(dataOptions, result.data);
                     }
 
@@ -302,8 +312,8 @@ export class DataLoader {
     private buildInterpolationVars(): Record<string, any> {
         const current = this._router.routes.current;
         return {
-            path: current.route?.path || '',
-            basepath: current.route?.path || '',
+            path: current.route?.path || "",
+            basepath: current.route?.path || "",
             url: this._router.history.location.pathname,
             timestamp: Date.now(),
             ...current.query,
@@ -317,21 +327,21 @@ export class DataLoader {
      * @returns 缓存键字符串
      * @throws 如果 cache 配置无效则抛出错误
      */
-    private generateCacheKey(dataOptions: RouteDataOptions): string {
+    private generateCacheKey(dataOptions: KylinRouteDataOptions): string {
         const cacheConfig = dataOptions.cache;
         let cacheKeyPattern: string;
 
         // 确定缓存键模式
         // 注意：此方法只在 cache !== undefined && cache !== false 时被调用
-        if (typeof cacheConfig === 'boolean' && cacheConfig === true) {
+        if (typeof cacheConfig === "boolean" && cacheConfig === true) {
             // cache === true 时使用默认值
-            cacheKeyPattern = '{path}';
-        } else if (typeof cacheConfig === 'string') {
+            cacheKeyPattern = "{path}";
+        } else if (typeof cacheConfig === "string") {
             // cache 是字符串时使用该字符串
             cacheKeyPattern = cacheConfig;
         } else {
             // cache === false 或 undefined 时不应该调用此方法
-            throw new Error('Invalid cache configuration: cache must be true or a string');
+            throw new Error("Invalid cache configuration: cache must be true or a string");
         }
 
         // 使用插值变量生成缓存键
@@ -344,14 +354,14 @@ export class DataLoader {
      * @param dataOptions - 数据加载选项
      * @returns 如果缓存有效则返回缓存数据，否则返回 null
      */
-    private handleCache(dataOptions: RouteDataOptions): DataLoadResult | null {
+    private handleCache(dataOptions: KylinRouteDataOptions): DataLoadResult | null {
         const cacheKey = this.generateCacheKey(dataOptions);
         const cachedItem = this.cached.get(cacheKey);
 
         if (cachedItem) {
             // 检查缓存是否过期
             const expires = dataOptions.expires || 0;
-            const isExpired = expires !== 0 && (Date.now() - cachedItem.timestamp) > expires;
+            const isExpired = expires !== 0 && Date.now() - cachedItem.timestamp > expires;
 
             if (!isExpired) {
                 // 缓存有效，返回缓存数据
@@ -373,7 +383,7 @@ export class DataLoader {
      * @param dataOptions - 数据加载选项
      * @param data - 要缓存的数据
      */
-    private setCache(dataOptions: RouteDataOptions, data: Record<string, any>): void {
+    private setCache(dataOptions: KylinRouteDataOptions, data: Record<string, any>): void {
         const cacheKey = this.generateCacheKey(dataOptions);
         const expires = dataOptions.expires || 0;
 
