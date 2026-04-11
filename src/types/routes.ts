@@ -175,6 +175,12 @@ export interface RouteItem {
     path: string;
 
     /**
+     * 指向渲染此路由的 outlet 元素的 WeakRef
+     * 用于嵌套路由的递归渲染
+     */
+    el?: WeakRef<HTMLElement>;
+
+    /**
      * 路由标题，通常用于显示在导航菜单或标签页上
      */
     title?: string;
