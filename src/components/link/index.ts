@@ -2,6 +2,7 @@ import { html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { KylinRouterElementBase } from "../base";
 import type { KylinRouter } from "@/router";
+import { joinPath } from "@/utils/joinPath";
 
 /**
  * 判断目标路径是否为内部路由
@@ -78,11 +79,27 @@ export class KylinLinkElement extends KylinRouterElementBase {
                 // 没有 router 实例，降级为普通 <a> 标签（不阻止默认行为）
                 return;
             }
+
+            // 自动添加 base URL 前缀
+            const baseUrl = this.router.options.base || "";
+            let finalPath = target;
+
+            // 如果路径不以 / 开头（相对路径），添加 base 前缀
+            if (!target.startsWith("/")) {
+                finalPath = joinPath(baseUrl, target);
+            } else if (baseUrl !== "/" && baseUrl !== "") {
+                // 如果路径以 / 开头且 base 不是根路径，需要检查是否需要添加前缀
+                // 检查路径是否已经包含 base 前缀
+                if (!target.startsWith(baseUrl)) {
+                    finalPath = joinPath(baseUrl, target);
+                }
+            }
+
             // 根据 replace 属性选择导航方式
             if (this.replace) {
-                this.router.replace(target);
+                this.router.replace(finalPath);
             } else {
-                this.router.push(target);
+                this.router.push(finalPath);
             }
         });
 
