@@ -843,10 +843,11 @@ export class KylinRouter extends Mixin(
 
             this.log(`渲染流程: 渲染第 ${i + 1} 层 - ${route.name} (${route.path})`);
 
-            // 查找或创建 outlet
-            let outlet = this._findOrCreateOutlet(parentElement);
+            // 查找或创建 outlet（只有根路由才自动创建）
+            const isRootRoute = i === 0;
+            let outlet = this._findOrCreateOutlet(parentElement, isRootRoute);
             if (!outlet) {
-                console.error(`渲染流程: 无法为路由 ${route.name} 创建 outlet`);
+                console.error(`渲染流程: 路由 ${route.name} 无法找到 outlet`);
                 return;
             }
 
@@ -891,9 +892,13 @@ export class KylinRouter extends Mixin(
     /**
      * 在父元素内部查找或创建 outlet
      * @param parent - 父元素
+     * @param allowCreate - 是否允许自动创建 outlet（仅根路由为 true）
      * @returns 找到或创建的 outlet 元素
      */
-    protected _findOrCreateOutlet(parent: HTMLElement): HTMLElement | null {
+    protected _findOrCreateOutlet(
+        parent: HTMLElement,
+        allowCreate: boolean = false
+    ): HTMLElement | null {
         // 先尝试查找现有的 outlet
         let outlet = findOutletInElement(parent);
 
@@ -902,12 +907,17 @@ export class KylinRouter extends Mixin(
             return outlet;
         }
 
-        // 如果没有找到，自动创建一个
-        this.log("渲染流程: 未找到 outlet，自动创建");
-        const newOutlet = document.createElement("kylin-outlet");
-        parent.appendChild(newOutlet);
+        // 如果没有找到且允许创建，自动创建一个（仅根路由）
+        if (allowCreate) {
+            this.log("渲染流程: 未找到 outlet，自动创建");
+            const newOutlet = document.createElement("kylin-outlet");
+            parent.appendChild(newOutlet);
+            return newOutlet;
+        }
 
-        return newOutlet;
+        // 子路由找不到 outlet，返回 null
+        this.log("渲染流程: 未找到 outlet，且不允许自动创建");
+        return null;
     }
 
     /**
