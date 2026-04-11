@@ -24,6 +24,7 @@ import {
 } from "./features";
 import { createHashHistoryFromLib } from "@/utils/hashUtils";
 import { findOutletInElement } from "@/utils/findOutletInElement";
+import { getBaseUrl } from "@/utils/getBaseUrl";
 
 /**
  * 类型守卫：检查 view 是否为 ViewOptions
@@ -141,7 +142,7 @@ export class KylinRouter extends Mixin(
         this.options = Object.assign(
             {
                 mode: "history",
-                base: "",
+                base: getBaseUrl(), // 自动检测 base URL
                 debug: false,
                 home: "/",
                 data: {},
