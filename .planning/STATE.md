@@ -110,6 +110,7 @@ None yet.
 | 260410-auto-home | 路由器初始化时自动导航到 home 路径（移除 defaultRoute） | 2026-04-10 | 8919a6c | [260410-auto-home](./quick/260410-auto-home/) |
 | 260411-refactor | 重构路由视图渲染方式，移除path属性，实现递归渲染，添加loading状态 | 2026-04-11 | 779759a | [260411-refactor](./quick/260411-refactor/) |
 | 260411-base-url-auto-detection | Base URL 自动检测和前缀添加功能 | 2026-04-11 | aa2db80 | [260411-base-url-auto-detection](./quick/260411-base-url-auto-detection/) |
+| 260411-recursive-rendering-tests | 添加递归渲染功能的单元测试 | 2026-04-11 | c7e215a | [260411-recursive-rendering-tests](./quick/260411-recursive-rendering-tests/) |
 
 ## Quick Tasks
 
