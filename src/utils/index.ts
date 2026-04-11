@@ -1,4 +1,5 @@
 export * from "./emitter";
+export * from "./findOutletInElement";
 export * from "./hash";
 export * from "./hashUtils";
 export * from "./joinPath";
