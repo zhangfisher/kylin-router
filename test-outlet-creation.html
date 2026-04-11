@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试 Outlet 自动创建逻辑</title>
+    <script type="module" src="/src/index.ts"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- 测试场景1：根路由没有 outlet，应该自动创建 -->
+        <h2>测试场景1：根路由自动创建 outlet</h2>
+        <div id="test1">
+            <!-- 这里没有 kylin-outlet，应该自动创建 -->
+        </div>
+
+        <!-- 测试场景2：嵌套路由，子路由的 view 必须提供 outlet -->
+        <h2>测试场景2：嵌套路由需要显式 outlet</h2>
+        <div id="test2">
+            <kylin-outlet></kylin-outlet>
+        </div>
+    </div>
+
+    <script type="module">
+        import { KylinRouter } from '/src/router.ts';
+
+        // 测试场景1：根路由没有 outlet，应该自动创建
+        const test1Host = document.getElementById('test1');
+        const router1 = new KylinRouter(test1Host, {
+            routes: {
+                name: 'root',
+                path: '/',
+                view: '<div>根路由内容</div>'
+            }
+        });
+
+        router1.attach();
+        router1.push('/');
+
+        setTimeout(() => {
+            const outlet = test1Host.querySelector('kylin-outlet');
+            console.log('测试1 - 根路由自动创建 outlet:', outlet ? '✅ 成功' : '❌ 失败');
+        }, 100);
+
+        // 测试场景2：嵌套路由
+        const test2Host = document.getElementById('test2');
+        const router2 = new KylinRouter(test2Host, {
+            routes: {
+                name: 'root',
+                path: '/',
+                view: '<div>父路由 <kylin-outlet></kylin-outlet></div>',
+                children: [
+                    {
+                        name: 'child',
+                        path: 'child',
+                        view: '<div>子路由内容</div>'
+                    }
+                ]
+            }
+        });
+
+        router2.attach();
+        router2.push('/child');
+
+        setTimeout(() => {
+            const parentOutlet = test2Host.querySelector('kylin-outlet');
+            const childOutlet = parentOutlet?.querySelector('kylin-outlet');
+            console.log('测试2 - 子路由使用父路由提供的 outlet:', childOutlet ? '✅ 成功' : '❌ 失败');
+        }, 100);
+    </script>
+</body>
+</html>

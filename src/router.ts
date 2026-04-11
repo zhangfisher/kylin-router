@@ -851,17 +851,35 @@ export class KylinRouter extends Mixin(
                 return;
             }
 
+            // 设置 RouteItem.el 指向当前 outlet
+            route.el = new WeakRef(outlet);
+
             // 检查当前层是否已加载组件
-            const loadResult = (route as any).viewContent;
+            let loadResult = (route as any).viewContent;
+
+            // 如果有 view 但还没有加载，先显示 loading
+            if (route.view && !loadResult) {
+                this.log(`渲染流程: 路由 ${route.name} 需要加载，先显示 loading`);
+                this._showLoadingInOutlet(outlet);
+
+                // 加载 view
+                loadResult = await this._loadViewForRoute(route);
+
+                if (!loadResult) {
+                    this.log(`渲染流程: 路由 ${route.name} 加载失败`);
+                    this._hideLoadingInOutlet(outlet);
+                    continue;
+                }
+            }
+
+            // 如果没有内容，跳过渲染
             if (!loadResult) {
                 this.log(`渲染流程: 路由 ${route.name} 无组件内容，跳过渲染`);
-                // 设置 RouteItem.el 即使没有内容也要设置
-                route.el = new WeakRef(outlet);
                 parentElement = outlet;
                 continue;
             }
 
-            // 渲染到 outlet
+            // 渲染到 outlet（会自动替换 loading）
             try {
                 await super.renderToOutlet(loadResult, outlet, {
                     mode: (route as any).renderMode,
@@ -869,11 +887,9 @@ export class KylinRouter extends Mixin(
                 this.log(`渲染流程: 路由 ${route.name} 渲染成功`);
             } catch (error) {
                 console.error(`渲染流程: 路由 ${route.name} 渲染失败:`, error);
+                this._hideLoadingInOutlet(outlet);
                 return;
             }
-
-            // 设置 RouteItem.el 指向当前 outlet
-            route.el = new WeakRef(outlet);
 
             // 如果有数据，设置 x-data
             if (route.data) {
@@ -887,6 +903,76 @@ export class KylinRouter extends Mixin(
         }
 
         this.log("渲染流程: 递归渲染完成");
+    }
+
+    /**
+     * 在 outlet 中显示 loading 状态
+     */
+    protected _showLoadingInOutlet(outlet: HTMLElement): void {
+        this.log("渲染流程: 显示 loading 状态");
+
+        // 创建 loading 元素
+        const loadingElement = document.createElement("kylin-loading");
+        loadingElement.setAttribute("data-role", "loading-indicator");
+
+        // 清空 outlet 并插入 loading
+        outlet.innerHTML = "";
+        outlet.appendChild(loadingElement);
+    }
+
+    /**
+     * 隐藏 outlet 中的 loading 状态
+     */
+    protected _hideLoadingInOutlet(outlet: HTMLElement): void {
+        this.log("渲染流程: 隐藏 loading 状态");
+
+        const loadingElement = outlet.querySelector("kylin-loading[data-role='loading-indicator']");
+        if (loadingElement) {
+            loadingElement.remove();
+        }
+    }
+
+    /**
+     * 为单个路由加载 view
+     * @param route - 路由项
+     * @returns 加载的内容或 null
+     */
+    protected async _loadViewForRoute(route: RouteItem): Promise<any> {
+        if (!route.view) {
+            return null;
+        }
+
+        this.log(`渲染流程: 加载路由 ${route.name} 的 view`);
+
+        try {
+            const view = route.view;
+            let loadResult;
+
+            if (isViewOptions(view)) {
+                loadResult = await this.viewLoader.loadView(
+                    typeof view.form === "string" || typeof view.form === "function"
+                        ? view.form
+                        : view.form,
+                    view,
+                );
+            } else if (typeof view === "string" || typeof view === "function") {
+                loadResult = await this.viewLoader.loadView(view, undefined);
+            } else {
+                loadResult = { success: true, content: view };
+            }
+
+            if (loadResult.success) {
+                this.log(`渲染流程: 路由 ${route.name} view 加载成功`);
+                (route as any).viewContent = loadResult.content;
+                return loadResult.content;
+            } else {
+                this.log(`渲染流程: 路由 ${route.name} view 加载失败`, loadResult.error);
+                return null;
+            }
+        } catch (error) {
+            console.error(`渲染流程: 路由 ${route.name} view 加载异常:`, error);
+            return null;
+        }
     }
 
     /**
