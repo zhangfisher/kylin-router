@@ -1,46 +1,54 @@
-# 任务：添加调试功能到 KylinRouter
+# Quick Task: Base URL Auto-Detection and Prefixing
 
-## 任务描述
+**Created:** 2026-04-11
+**Status:** In Progress
 
-为 KylinRouter 添加调试模式，方便开发时调试路由导航流程和钩子执行。
+## Task Description
 
-## 需要实现的功能
+处理路由的base参数，增加base URL的自动检测和前缀添加功能。
 
-1. **类型定义**: 在 `KylinRouterOptiopns` 中添加 `debug?: boolean` 选项
-2. **默认值**: 默认为 `false`
-3. **调试信息**: 当 `debug = true` 时，在以下场景打印调试信息：
-   - 路由导航开始/结束
-   - 各个钩子执行前后
-   - 路由匹配结果
-   - 参数提取结果
-   - 守卫执行结果
-   - 错误和异常
+## Requirements
 
-## 需要修改的文件
+### 1. 创建 getBaseUrl 工具函数
 
-1. **src/types.ts**
-   - 在 `KylinRouterOptiopns` 接口中添加 `debug?: boolean`
+- 文件位置：`src/utils/getBaseUrl.ts`
+- 功能：
+  - 读取当前页面的 pathname
+  - 如果是 .html 或 .htm 文件，只取路径部分
+  - 返回标准化后的 base URL
+- 示例：
+  - `/index.html` → `/`
+  - `/app/index.html` → `/app/`
+  - `/app/` → `/app/`
 
-2. **src/router.ts**
-   - 在构造函数中处理 debug 选项
-   - 添加调试日志属性和方法
-   - 在关键位置添加调试日志
+### 2. 设置 KylinRouter.options.base 默认值
 
-3. **src/features/hooks.ts**（如果存在）
-   - 在钩子执行前后添加调试日志
+- 修改 `src/router.ts`
+- 在构造函数中，如果未提供 base 参数，自动调用 `getBaseUrl()` 获取默认值
 
-## 调试信息格式
+### 3. kylin-link 组件自动添加 baseUrl
 
-使用统一的格式：
-```
-[Router Debug] 导航开始: from=/home to=/about
-[Router Debug] 钩子执行: onBeforeResolve
-[Router Debug] 路由匹配: matched=/about params={id: '123'}
-[Router Debug] 导航完成: to=/about
-```
+- 修改 `src/components/link/index.ts`
+- 在处理点击事件时，自动为相对路径添加 baseUrl 前缀
+- 检测是否为完整 URL（http://、https://、// 开头）
 
-## 预期效果
+### 4. loadView 和 loadData 自动添加 baseUrl
 
-- 开发者可以通过设置 `debug: true` 来调试路由问题
-- 不影响生产环境性能（默认关闭）
-- 提供清晰的路由导航流程可视化
+- 修改相关特性文件（如 ComponentLoader）
+- 在加载视图和数据时，自动为相对路径添加 baseUrl
+- 保持完整 URL 不变
+
+## Success Criteria
+
+- [ ] getBaseUrl 工具函数创建并能正确处理各种路径格式
+- [ ] KylinRouter.options.base 默认值自动设置
+- [ ] kylin-link 点击时自动添加 baseUrl
+- [ ] loadView 和 loadData 自动添加 baseUrl 前缀
+- [ ] 完整 URL 不受影响
+- [ ] 所有修改通过类型检查
+
+## Implementation Notes
+
+- 需要区分相对路径和绝对 URL
+- 使用 URL 构造函数或正则表达式检测完整 URL
+- 保持向后兼容性

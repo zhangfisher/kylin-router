@@ -7,9 +7,6 @@ import { KylinRouterElementBase } from "../base";
 export class KylinOutletElement extends KylinRouterElementBase {
     static styles = styles;
 
-    @property({ type: String, reflect: true })
-    path?: string;
-
     /**
      * 是否为模态 outlet
      * 模态 outlet 用于渲染模态路由内容
@@ -98,6 +95,8 @@ export class KylinOutletElement extends KylinRouterElementBase {
 
     /**
      * 处理路由变化事件
+     * 注意：渲染现在由 Router 的 _renderRouteHierarchy 控制
+     * 此方法主要用于数据更新等场景
      */
     private async _handleRouteChange(event: Event) {
         const customEvent = event as CustomEvent;
@@ -107,17 +106,12 @@ export class KylinOutletElement extends KylinRouterElementBase {
         const isModalRoute = (this.router as any).getModalConfig?.(route)?.modal;
 
         if (isModalRoute && !this.isModal) {
-            // 模态路由但不是模态 outlet，不渲染
+            // 模态路由但不是模态 outlet，不处理
             return;
         }
 
         if (!isModalRoute && this.isModal) {
-            // 普通路由但是模态 outlet，不渲染
-            return;
-        }
-
-        // 检查是否匹配当前 outlet 的 path
-        if (this.path && !this._matchesPath(route.path)) {
+            // 普通路由但是模态 outlet，不处理
             return;
         }
 
@@ -127,30 +121,8 @@ export class KylinOutletElement extends KylinRouterElementBase {
             return;
         }
 
-        // 获取组件加载结果
-        const loadResult = (this.router.routes.current.route as any).viewContent;
-        if (!loadResult) {
-            this._renderLoading();
-            return;
-        }
-
-        // 渲染组件（Task 5：已集成 Render 类）
-        try {
-            await (this.router as any).renderToOutlet(loadResult, this, {
-                mode: this.renderMode || (route as any).renderMode,
-            });
-        } catch (error) {
-            this._renderError(error instanceof Error ? error.message : "Render failed");
-        }
-    }
-
-    /**
-     * 检查路由路径是否匹配当前 outlet
-     */
-    private _matchesPath(routePath: string): boolean {
-        if (!this.path) return true;
-        // 支持精确匹配和前缀匹配
-        return routePath === this.path || routePath.startsWith(this.path + "/");
+        // 注意：实际的渲染由 Router 的 _renderRouteHierarchy 方法控制
+        // 这里不再主动触发渲染，只处理数据更新等逻辑（如果需要）
     }
 
     /**
