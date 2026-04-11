@@ -23,6 +23,7 @@ import {
     Modal,
 } from "./features";
 import { createHashHistoryFromLib } from "@/utils/hashUtils";
+import { findOutletInElement } from "@/utils/findOutletInElement";
 
 /**
  * 类型守卫：检查 view 是否为 ViewOptions
@@ -537,7 +538,14 @@ export class KylinRouter extends Mixin(
 
         this.log("渲染流程: 开始渲染组件");
         try {
-            await this.renderToOutlets();
+            // 使用新的递归渲染逻辑
+            const matchedRoutes = this.routes.current.matchedRoutes || [];
+            if (matchedRoutes.length > 0) {
+                await this._renderRouteHierarchy(matchedRoutes);
+            } else {
+                // 如果没有 matchedRoutes，回退到旧方法（向后兼容）
+                await this.renderToOutlets();
+            }
             this.log("渲染流程: 渲染完成");
         } catch (error) {
             console.error("渲染流程失败:", error);
@@ -768,6 +776,7 @@ export class KylinRouter extends Mixin(
     /**
      * 渲染到所有匹配的 outlet（Task 5：集成渲染流程）
      * 支持并行渲染策略（D-05）
+     * @deprecated 使用 _renderRouteHierarchy 替代
      */
     private async renderToOutlets(): Promise<void> {
         const route = this.routes.current.route;
@@ -806,6 +815,108 @@ export class KylinRouter extends Mixin(
 
         // 等待所有渲染完成（并行渲染）
         await Promise.all(renderPromises);
+    }
+
+    /**
+     * 递归渲染路由层级结构
+     * 按照路由分层逐层渲染，每层在父 outlet 内部查找或创建子 outlet
+     */
+    protected async _renderRouteHierarchy(
+        matchedRoutes: Array<{
+            route: RouteItem;
+            params: Record<string, string>;
+            remainingPath: string;
+        }>
+    ): Promise<void> {
+        if (!matchedRoutes || matchedRoutes.length === 0) {
+            this.log("渲染流程: 无匹配路由需要渲染");
+            return;
+        }
+
+        this.log(`渲染流程: 开始递归渲染 ${matchedRoutes.length} 层路由`);
+
+        let parentElement = this.host;
+
+        for (let i = 0; i < matchedRoutes.length; i++) {
+            const match = matchedRoutes[i];
+            const route = match.route;
+
+            this.log(`渲染流程: 渲染第 ${i + 1} 层 - ${route.name} (${route.path})`);
+
+            // 查找或创建 outlet
+            let outlet = this._findOrCreateOutlet(parentElement);
+            if (!outlet) {
+                console.error(`渲染流程: 无法为路由 ${route.name} 创建 outlet`);
+                return;
+            }
+
+            // 检查当前层是否已加载组件
+            const loadResult = (route as any).viewContent;
+            if (!loadResult) {
+                this.log(`渲染流程: 路由 ${route.name} 无组件内容，跳过渲染`);
+                // 设置 RouteItem.el 即使没有内容也要设置
+                route.el = new WeakRef(outlet);
+                parentElement = outlet;
+                continue;
+            }
+
+            // 渲染到 outlet
+            try {
+                await super.renderToOutlet(loadResult, outlet, {
+                    mode: (route as any).renderMode,
+                });
+                this.log(`渲染流程: 路由 ${route.name} 渲染成功`);
+            } catch (error) {
+                console.error(`渲染流程: 路由 ${route.name} 渲染失败:`, error);
+                return;
+            }
+
+            // 设置 RouteItem.el 指向当前 outlet
+            route.el = new WeakRef(outlet);
+
+            // 如果有数据，设置 x-data
+            if (route.data) {
+                const hash = this._generateRouteHash(route);
+                (outlet as any).addStore(hash, route.data);
+                this.log(`渲染流程: 路由 ${route.name} 数据已设置`);
+            }
+
+            // 下一层在当前 outlet 内部查找
+            parentElement = outlet;
+        }
+
+        this.log("渲染流程: 递归渲染完成");
+    }
+
+    /**
+     * 在父元素内部查找或创建 outlet
+     * @param parent - 父元素
+     * @returns 找到或创建的 outlet 元素
+     */
+    protected _findOrCreateOutlet(parent: HTMLElement): HTMLElement | null {
+        // 先尝试查找现有的 outlet
+        let outlet = findOutletInElement(parent);
+
+        if (outlet) {
+            this.log("渲染流程: 找到现有 outlet");
+            return outlet;
+        }
+
+        // 如果没有找到，自动创建一个
+        this.log("渲染流程: 未找到 outlet，自动创建");
+        const newOutlet = document.createElement("kylin-outlet");
+        parent.appendChild(newOutlet);
+
+        return newOutlet;
+    }
+
+    /**
+     * 生成路由哈希标识
+     * 用于 Alpine.js store 的命名
+     */
+    protected _generateRouteHash(route: RouteItem): string {
+        // 使用路由名称作为哈希
+        return `route-${route.name}`;
     }
 
     /**
