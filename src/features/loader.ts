@@ -9,6 +9,7 @@
 
 import type { KylinRouter } from "@/router";
 import type { RouteViewLoadResult, RouteViewOptions, RouteViewSource } from "@/types/routes";
+import { joinPath } from "@/utils/joinPath";
 
 /**
  * Loader 类 - 负责组件加载逻辑
@@ -49,7 +50,9 @@ export class ViewLoader {
         try {
             // 检测 view 类型，字符串代表url
             if (typeof view === "string") {
-                return await this.loadRemoteView(view, finalOptions, this.globalViewOptions);
+                // 自动添加 base URL 前缀
+                const prefixedUrl = this.prefixBaseUrl(view);
+                return await this.loadRemoteView(prefixedUrl, finalOptions, this.globalViewOptions);
             } else if (typeof view === "function") {
                 return await this.loadDynamicImport(view);
             } else if (view instanceof HTMLElement) {
@@ -73,6 +76,38 @@ export class ViewLoader {
                 error: error instanceof Error ? error : new Error(String(error)),
             };
         }
+    }
+
+    /**
+     * 为 URL 自动添加 base URL 前缀
+     * @param url - 原始 URL
+     * @returns 添加前缀后的 URL
+     */
+    private prefixBaseUrl(url: string): string {
+        // 如果是完整 URL（包含 :// 或以 // 开头），保持不变
+        if (url.includes("://") || url.startsWith("//")) {
+            return url;
+        }
+
+        // 获取 base URL
+        const baseUrl = this.router.options.base || "";
+        if (!baseUrl || baseUrl === "/") {
+            // base 为空或根路径，直接返回原 URL
+            return url;
+        }
+
+        // 如果 URL 以 / 开头（绝对路径），检查是否需要添加 base 前缀
+        if (url.startsWith("/")) {
+            // 检查是否已经包含 base 前缀
+            if (url.startsWith(baseUrl)) {
+                return url;
+            }
+            // 添加 base 前缀
+            return joinPath(baseUrl, url);
+        }
+
+        // 相对路径，直接添加 base 前缀
+        return joinPath(baseUrl, url);
     }
 
     /**
