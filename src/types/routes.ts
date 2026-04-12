@@ -339,12 +339,22 @@ export interface KylinRouteItem {
 /**
  * 路由配置类型
  * 支持多种配置形式
+ * 路由配置类型
+ * 支持多种配置形式：
+ * - 对象：具有一个根路由的路由配置
+ * - 数组：多个根路由 配置
+ * - 字符串：URL路径，从该路径加载路由表
+ * - 函数：动态返回路由配置
  */
 export type KylinRoutes =
     | KylinRouteItem[]
     | KylinRouteItem
     | string
-    | (() => KylinRoutes | Promise<KylinRoutes>);
+    | (() =>
+          | KylinRouteItem[]
+          | KylinRouteItem
+          | Promise<KylinRouteItem>
+          | Promise<KylinRouteItem[]>);
 
 /**
  * 路由匹配结果
@@ -370,7 +380,31 @@ export type KylinMatchedRouteItem = {
     query: Record<string, string>;
     state: Record<string, any>;
     /**
-     * 完整路由
+     * 完整路由路径
+     * 保留路由参数
+     * /user/:id/
+     *
+     *
      */
     path: string;
+    /**
+     * 经过路由参数处理的完整路由路径
+     *
+     * 如： route.path=/user/:id/
+     * 时url=/user/123
+     * 
+     * path和url的区别是：
+
+     * path是路由的原始路径， 包含路由参数
+
+     * url是经过路由参数处理后的路径， 路由参数已经被替换为实际的值
+     *
+     */
+    url: string;
+    /**
+     * 路由哈希
+     * 支持插值变量
+     * 默认值：${fullPath}
+     */
+    hash: string;
 };

@@ -11,6 +11,9 @@
  */
 
 import type { KylinRouteItem, KylinMatchedRouteItem } from "@/types";
+import { generateRouteHash } from "./hash";
+import { params } from "./params";
+import { joinPath } from "./joinPath";
 
 /**
  * 匹配选项
@@ -46,14 +49,6 @@ interface CompiledPattern {
 }
 
 /**
- * 路由匹配优先级评分
- * 数值越高优先级越高
- */
-const WILDCARD_PRIORITY = 0;
-const PARAMETRIC_BASE = 10;
-const STATIC_BASE = 20;
-
-/**
  * 规范化路径
  * 移除末尾斜杠并转换为小写
  *
@@ -65,7 +60,7 @@ function normalizePath(path: string): string {
     if (normalized === "") {
         normalized = "/";
     }
-    return normalized.toLowerCase();
+    return normalized.replace(/\/\/$/, "/").toLowerCase();
 }
 
 /**
@@ -107,28 +102,6 @@ function classifySegment(segment: string): "static" | "param" | "wildcard" {
     if (segment === "*") return "wildcard";
     if (segment.startsWith(":") || segment.startsWith("<")) return "param";
     return "static";
-}
-
-/**
- * 计算路由的匹配优先级分数
- * 按照 D-05: 具体路径优先于参数化路径，参数化路径优先于通配符
- */
-function calculatePriority(route: KylinRouteItem): number {
-    const segments = route.path.split("/").filter(Boolean);
-    if (segments.length === 0) return STATIC_BASE;
-
-    const lastSegment = segments[segments.length - 1] || "";
-    const classification = classifySegment(lastSegment);
-    const staticCount = segments.filter((s) => classifySegment(s) === "static").length;
-
-    switch (classification) {
-        case "wildcard":
-            return WILDCARD_PRIORITY;
-        case "param":
-            return PARAMETRIC_BASE + staticCount;
-        case "static":
-            return STATIC_BASE + staticCount;
-    }
 }
 
 /**
@@ -261,64 +234,74 @@ export function createRouteMatcher(
 /**
  * 递归匹配路由的内部函数
  *
- * @param pathname - 规范化后的路径
+ * @param path - 规范化后的路径
  * @param routes - 当前路由表
+ * @param parentMatchedRoute - 父路由的匹配结果，用于继承 path 和 params
+ * @param inputQuery - 输入 URL 的 query 参数
  * @param options - 匹配选项
- * @param parentPath - 父路由路径
- * @param parentParams - 父路由累积的参数
  * @returns 匹配的路由项数组
  */
 function _matchRoutesInternal(
-    pathname: string,
+    path: string,
     routes: KylinRouteItem[],
-    strict: boolean,
-    parentPath: string = "",
-    parentParams: Record<string, string> = {},
+    parentMatchedRoute: KylinMatchedRouteItem | null,
     inputQuery: Record<string, string> = {},
+    options: Required<MatchOptions>,
 ): KylinMatchedRouteItem[] {
-    const sortedRoutes = routes
-        .map((route, routeIndex) => ({ route, routeIndex, priority: calculatePriority(route) }))
-        .sort((a, b) => {
-            if (b.priority !== a.priority) {
-                return b.priority - a.priority;
-            }
-            return a.routeIndex - b.routeIndex;
-        })
-        .map((item) => item.route);
-
-    for (const route of sortedRoutes) {
+    const { strict } = options;
+    const parentPath = parentMatchedRoute?.path || "";
+    const parentParams = parentMatchedRoute?.params || {};
+    const parentUrl = parentMatchedRoute?.url || "";
+    for (const route of routes) {
         const isLeaf = !route.children || route.children.length === 0;
 
         // 通配符路由始终匹配
         if (route.path === "*") {
-            const fullPath = normalizePath(parentPath + pathname);
+            const fullPath = normalizePath(parentPath + path);
+            const query = { ...route.query, ...inputQuery };
             const match: KylinMatchedRouteItem = {
                 route,
                 params: Object.assign({}, route.params, parentParams),
-                query: { ...route.query, ...inputQuery },
+                query,
                 state: {},
                 path: fullPath || "/",
+                hash: generateRouteHash(route, fullPath, parentParams, query),
             };
             return [match];
         }
 
         const matcher = createRouteMatcher(route, true);
-        const matchResult = matcher(pathname);
+        const matchResult = matcher(path);
         if (!matchResult.matched) continue;
 
-        const matchedPath = pathname.slice(
-            0,
-            pathname.length - (matchResult.remainingPath?.length || 0),
-        );
-        const fullPath = normalizePath((parentPath + "/" + matchedPath).replace(/\/+/g, "/"));
+        const matchedUrl = path.slice(0, path.length - (matchResult.remainingPath?.length || 0));
+        const fullUrl = joinPath(parentUrl, matchedUrl);
+
+        const fullPath = joinPath(parentPath, route.path);
+
         const mergedParams = Object.assign({}, route.params, parentParams, matchResult.params);
+        const routeQuery = route.query || {};
+        const mergedQuery = { ...routeQuery, ...inputQuery };
+        const hashVars = {
+            name: route.name || "",
+            timestamp: String(Date.now()),
+            path: route.path,
+            fullPath: fullPath,
+            url: fullUrl,
+            query: new URLSearchParams(inputQuery).toString(),
+            fullQuery: new URLSearchParams(mergedQuery).toString(),
+            ...mergedParams,
+        };
+        const hash = generateRouteHash(route.hash, hashVars);
 
         const currentMatch: KylinMatchedRouteItem = {
             route,
             params: mergedParams,
-            query: { ...route.query },
+            query: { ...routeQuery },
             state: {},
-            path: fullPath || "/",
+            path: fullUrl,
+            url: fullUrl,
+            hash,
         };
 
         if (!matchResult.remainingPath) {
@@ -326,7 +309,7 @@ function _matchRoutesInternal(
                 continue;
             }
 
-            currentMatch.query = { ...route.query, ...inputQuery };
+            currentMatch.query = mergedQuery;
             return [currentMatch];
         }
 
@@ -335,10 +318,9 @@ function _matchRoutesInternal(
             const childMatches = _matchRoutesInternal(
                 childPath,
                 route.children,
-                strict,
-                fullPath,
-                mergedParams,
+                currentMatch,
                 inputQuery,
+                options,
             );
 
             if (childMatches.length > 0) {
@@ -370,7 +352,7 @@ function _matchRoutesInternal(
  *
  * 支持严格/非严格匹配，支持返回单个或多个匹配项
  *
- * @param pathname - 当前 URL 路径
+ * @param path - 当前 URL 路径
  * @param routes - 路由表配置
  * @param options - 匹配选项 { strict?: boolean }
  * @returns 匹配的路由项数组，包含匹配分支上的所有 KylinMatchedRouteItem
@@ -383,13 +365,19 @@ function _matchRoutesInternal(
  * matchRoute("/user", routes, { strict: false });
  */
 export function matchRoute(
-    pathname: string,
+    path: string,
     routes: KylinRouteItem[],
     options?: MatchOptions,
 ): KylinMatchedRouteItem[] {
-    const { pathname: pathWithoutQuery, query: inputQuery } = parseQueryString(pathname);
-    const normalized = normalizePath(pathWithoutQuery);
-    const strict = options?.strict ?? true;
+    const { pathname: pathWithoutQuery, query: inputQuery } = parseQueryString(path);
+    const normalizedPath = normalizePath(pathWithoutQuery);
 
-    return _matchRoutesInternal(normalized, routes, strict, "", {}, inputQuery);
+    const opts = Object.assign(
+        {
+            strict: true,
+        },
+        options,
+    );
+
+    return _matchRoutesInternal(normalizedPath, routes, null, inputQuery, opts);
 }
