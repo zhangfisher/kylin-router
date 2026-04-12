@@ -12,8 +12,8 @@
 
 import type { KylinRouteItem, KylinMatchedRouteItem } from "@/types";
 import { generateRouteHash } from "./hash";
-import { params } from "./params";
 import { joinPath } from "./joinPath";
+import { extractQueryParams } from "./extractQueryParams";
 
 /**
  * 匹配选项
@@ -80,17 +80,14 @@ function stripHash(pathname: string): string {
 
 /**
  * 解析 URL 查询参数
+ * 复用 extractQueryParams 函数来提取查询参数
  */
 function parseQueryString(pathname: string): { pathname: string; query: Record<string, string> } {
     const cleaned = stripHash(pathname);
     const [path, search = ""] = cleaned.split("?", 2);
-    const query: Record<string, string> = {};
 
-    if (search) {
-        new URLSearchParams(search).forEach((value, key) => {
-            query[key] = value;
-        });
-    }
+    // 复用 extractQueryParams 来解析查询参数
+    const query = search ? extractQueryParams("?" + search) : {};
 
     return { pathname: path, query };
 }
@@ -98,7 +95,8 @@ function parseQueryString(pathname: string): { pathname: string; query: Record<s
 /**
  * 分析路径段是静态、参数化还是通配符
  */
-function classifySegment(segment: string): "static" | "param" | "wildcard" {
+function classifySegment(segment: string): "static" | "param" | "wildcard" | "multi-wildcard" {
+    if (segment === "**") return "multi-wildcard";
     if (segment === "*") return "wildcard";
     if (segment.startsWith(":") || segment.startsWith("<")) return "param";
     return "static";
@@ -110,6 +108,8 @@ function classifySegment(segment: string): "static" | "param" | "wildcard" {
  *
  * 支持语法：
  * - 静态段: "user" -> "user"
+ * - 单段通配符: "*" -> 匹配单个段
+ * - 多段通配符: "**" -> 匹配零个或多个段（仅在路径末尾）
  * - 冒号参数: ":id" -> 捕获组
  * - 尖括号参数: "<id>" -> 捕获组
  * - 正则约束: ":id(\d+)" 或 "<id(\d+)>"
@@ -121,9 +121,23 @@ function compileSegments(pattern: string, fullMatch: boolean): CompiledPattern {
     const rawSegments = pattern.split("/").filter(Boolean);
     const regexParts: string[] = [];
 
-    for (const rawSegment of rawSegments) {
-        if (rawSegment === "*") {
+    for (let i = 0; i < rawSegments.length; i++) {
+        const rawSegment = rawSegments[i];
+
+        // 检查是否是多段通配符（** 仅允许在末尾）
+        if (rawSegment === "**") {
+            if (i !== rawSegments.length - 1) {
+                throw new Error("Multi-wildcard '**' can only appear at the end of a pattern");
+            }
+            // ** 匹配零个或多个段（包括斜杠）
             regexParts.push(".*");
+            continue;
+        }
+
+        // 检查是否是单段通配符
+        if (rawSegment === "*") {
+            // * 匹配单个段（不包括斜杠）
+            regexParts.push("[^/]+");
             continue;
         }
 
@@ -152,7 +166,23 @@ function compileSegments(pattern: string, fullMatch: boolean): CompiledPattern {
     }
 
     // 构建完整正则
-    const regexBody = regexParts.map((p) => "/" + p).join("");
+    let regexBody: string;
+
+    // 检查是否有 ** 通配符在末尾
+    const hasMultiWildcard = regexParts.length > 0 && regexParts[regexParts.length - 1] === ".*";
+
+    if (hasMultiWildcard) {
+        // 如果最后是 **，需要使其匹配零个或多个段
+        // 即使没有任何内容，也应该匹配
+        const beforeWildcard = regexParts
+            .slice(0, -1)
+            .map((p) => "/" + p)
+            .join("");
+        regexBody = beforeWildcard + "(?:/.*)?";
+    } else {
+        regexBody = regexParts.map((p) => "/" + p).join("");
+    }
+
     let regexStr: string;
 
     if (fullMatch) {
@@ -241,6 +271,32 @@ export function createRouteMatcher(
  * @param options - 匹配选项
  * @returns 匹配的路由项数组
  */
+
+/**
+ * 生成路由哈希和其变量的辅助函数
+ */
+function _generateRouteHashWithVars(
+    route: KylinRouteItem,
+    mergedParams: Record<string, string>,
+    mergedQuery: Record<string, string>,
+    inputQuery: Record<string, string>,
+    fullPath: string,
+    fullUrl: string,
+): { hashVars: Record<string, string>; hash: string } {
+    const hashVars = {
+        name: route.name || "",
+        timestamp: String(Date.now()),
+        path: route.path,
+        fullPath: fullPath,
+        url: fullUrl,
+        query: new URLSearchParams(inputQuery).toString(),
+        fullQuery: new URLSearchParams(mergedQuery).toString(),
+        ...mergedParams,
+    };
+    const hash = generateRouteHash(route.hash, hashVars);
+    return { hashVars, hash };
+}
+
 function _matchRoutesInternal(
     path: string,
     routes: KylinRouteItem[],
@@ -252,54 +308,39 @@ function _matchRoutesInternal(
     const parentPath = parentMatchedRoute?.path || "";
     const parentParams = parentMatchedRoute?.params || {};
     const parentUrl = parentMatchedRoute?.url || "";
+
+    // 第一遍：匹配所有非通配符路由
     for (const route of routes) {
+        // 跳过纯通配符，留到最后处理（优先级最低）
+        if (route.path === "*") continue;
+
         const isLeaf = !route.children || route.children.length === 0;
-
-        // 通配符路由始终匹配
-        if (route.path === "*") {
-            const fullPath = normalizePath(parentPath + path);
-            const query = { ...route.query, ...inputQuery };
-            const match: KylinMatchedRouteItem = {
-                route,
-                params: Object.assign({}, route.params, parentParams),
-                query,
-                state: {},
-                path: fullPath || "/",
-                hash: generateRouteHash(route, fullPath, parentParams, query),
-            };
-            return [match];
-        }
-
         const matcher = createRouteMatcher(route, true);
         const matchResult = matcher(path);
         if (!matchResult.matched) continue;
 
         const matchedUrl = path.slice(0, path.length - (matchResult.remainingPath?.length || 0));
         const fullUrl = joinPath(parentUrl, matchedUrl);
-
         const fullPath = joinPath(parentPath, route.path);
 
         const mergedParams = Object.assign({}, route.params, parentParams, matchResult.params);
         const routeQuery = route.query || {};
         const mergedQuery = { ...routeQuery, ...inputQuery };
-        const hashVars = {
-            name: route.name || "",
-            timestamp: String(Date.now()),
-            path: route.path,
-            fullPath: fullPath,
-            url: fullUrl,
-            query: new URLSearchParams(inputQuery).toString(),
-            fullQuery: new URLSearchParams(mergedQuery).toString(),
-            ...mergedParams,
-        };
-        const hash = generateRouteHash(route.hash, hashVars);
+        const { hash } = _generateRouteHashWithVars(
+            route,
+            mergedParams,
+            mergedQuery,
+            inputQuery,
+            fullPath,
+            fullUrl,
+        );
 
         const currentMatch: KylinMatchedRouteItem = {
             route,
             params: mergedParams,
             query: { ...routeQuery },
             state: {},
-            path: fullUrl,
+            path: fullPath,
             url: fullUrl,
             hash,
         };
@@ -342,6 +383,34 @@ function _matchRoutesInternal(
             currentMatch.query = { ...route.query, ...inputQuery };
             return [currentMatch];
         }
+    }
+
+    // 第二遍：只有在没有其他路由匹配时，才尝试纯通配符 "*"
+    for (const route of routes) {
+        if (route.path !== "*") continue;
+
+        const mergedParams = Object.assign({}, route.params, parentParams);
+        const query = { ...route.query, ...inputQuery };
+        const fullPath = joinPath(parentPath, route.path);
+        const fullUrl = joinPath(parentUrl, path);
+        const { hash } = _generateRouteHashWithVars(
+            route,
+            mergedParams,
+            query,
+            inputQuery,
+            fullPath,
+            fullUrl,
+        );
+        const match: KylinMatchedRouteItem = {
+            route,
+            params: mergedParams,
+            query,
+            state: {},
+            path: fullPath,
+            url: fullUrl,
+            hash,
+        };
+        return [match];
     }
 
     return [];

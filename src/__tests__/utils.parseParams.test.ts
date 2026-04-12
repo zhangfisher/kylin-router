@@ -1,9 +1,6 @@
 import { describe, it, expect } from "bun:test";
-import {
-    parsePathParams,
-    extractQueryParams,
-    compilePathPattern,
-} from "@/utils/parseParams";
+import { parsePathParams, compilePathPattern } from "@/utils/parseParams";
+import { extractQueryParams } from "@/utils/extractQueryParams";
 
 describe("parsePathParams", () => {
     describe("冒号语法参数", () => {
@@ -28,10 +25,7 @@ describe("parsePathParams", () => {
 
     describe("尖括号语法参数", () => {
         it("应该提取尖括号语法参数 /user/<id>/post/<post>", () => {
-            const params = parsePathParams(
-                "/user/<id>/post/<post>",
-                "/user/123/post/456"
-            );
+            const params = parsePathParams("/user/<id>/post/<post>", "/user/123/post/456");
 
             expect(params).toEqual({ id: "123", post: "456" });
         });

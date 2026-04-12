@@ -20,9 +20,7 @@
  * @param pattern - 路由模式字符串
  * @returns 编译后的正则表达式和参数名列表
  */
-export function compilePathPattern(
-    pattern: string
-): { regex: RegExp; paramNames: string[] } {
+export function compilePathPattern(pattern: string): { regex: RegExp; paramNames: string[] } {
     const paramNames: string[] = [];
     const segments = pattern.split("/").filter(Boolean);
     const regexParts: string[] = [];
@@ -50,11 +48,7 @@ export function compilePathPattern(
         }
 
         // 静态段 - 转义正则特殊字符并转为小写
-        regexParts.push(
-            segment
-                .toLowerCase()
-                .replace(/[.+^${}()|[\]\\]/g, "\\$&")
-        );
+        regexParts.push(segment.toLowerCase().replace(/[.+^${}()|[\]\\]/g, "\\$&"));
     }
 
     const regexBody = regexParts.map((p) => "/" + p).join("");
@@ -73,10 +67,7 @@ export function compilePathPattern(
  * @param pathname - 实际路径，如 /user/123
  * @returns 参数对象，如 { id: '123' }；不匹配时返回空对象
  */
-export function parsePathParams(
-    pattern: string,
-    pathname: string
-): Record<string, string> {
+export function parsePathParams(pattern: string, pathname: string): Record<string, string> {
     const { regex, paramNames } = compilePathPattern(pattern);
 
     // 规范化 pathname（移除末尾斜杠）
@@ -93,33 +84,6 @@ export function parsePathParams(
         if (value !== undefined) {
             params[name] = value;
         }
-    });
-
-    return params;
-}
-
-/**
- * 提取查询参数
- *
- * 使用 URLSearchParams API 解析查询字符串
- *
- * @param search - location.search 字符串，如 ?id=123&name=test
- * @returns 查询参数对象；空字符串返回空对象
- */
-export function extractQueryParams(
-    search: string
-): Record<string, string> {
-    if (!search) {
-        return {};
-    }
-
-    const searchParams = new URLSearchParams(
-        search.startsWith("?") ? search.slice(1) : search
-    );
-
-    const params: Record<string, string> = {};
-    searchParams.forEach((value, key) => {
-        params[key] = value;
     });
 
     return params;

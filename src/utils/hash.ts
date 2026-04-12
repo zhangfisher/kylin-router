@@ -5,6 +5,7 @@
 
 import type { KylinRouteItem } from "@/types/routes";
 import { params as replaceParams } from "./params";
+import { quickHash } from "./quickHash";
 
 export type RouteHashVars =
     | "name" // 路由名称
@@ -29,18 +30,8 @@ export type RouteHashVars =
 export function generateRouteHash(hash: string | undefined, vars: Record<string, string>): string {
     // 使用默认值 "{path}" 如果未指定 hash
     const hashPattern = (hash || "{fullPath}").replace(/\s+/g, ""); // 移除所有空白字符
-
     // 使用插值函数生成 hash
-    let result = replaceParams(hashPattern, vars);
-
-    // 确保不以数字开头（Alpine.js store 名称限制）
-    if (result && /^[0-9]/.test(result)) {
-        result = "s_" + result;
-    }
-    // 转义特殊字符，确保是有效的 Alpine.js store 名称
-    // 替换非字母数字字符为下划线（保留连字符和下划线）
-    result = result.replace(/[^a-zA-Z0-9_-]/g, "_");
-    if (result.startsWith("_")) result = "h" + result;
-
-    return result.replace(/__/g, "_");
+    const result = quickHash(replaceParams(hashPattern, vars));
+    const isNotNumPreifx = isNaN(parseInt(result.substring(0, 1)));
+    return isNotNumPreifx ? result : "h" + result;
 }

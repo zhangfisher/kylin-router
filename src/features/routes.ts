@@ -11,7 +11,7 @@
 import type { KylinRouter } from "@/router";
 import type { KylinRoutes, KylinRouteItem } from "@/types";
 import { matchRoute } from "@/utils/matchRoute";
-import { extractQueryParams } from "@/utils/parseParams";
+import { extractQueryParams } from "@/utils/extractQueryParams";
 
 /** 导航回调函数类型 */
 export interface NavigationCallbacks {

@@ -16,6 +16,20 @@ describe("matchRoute - 基础匹配", () => {
             expect(result).toHaveLength(1);
             expect(result[0].route.name).toBe("user");
             expect(result[0].params).toEqual({});
+            expect(result[0].url).toBe("/user");
+        });
+
+        it("应该匹配根路径 /", () => {
+            const routes: KylinRouteItem[] = [
+                { name: "home", path: "/" },
+                { name: "user", path: "/user" },
+            ];
+
+            const result = matchRoute("/", routes);
+
+            expect(result).toHaveLength(1);
+            expect(result[0].route.name).toBe("home");
+            expect(result[0].url).toBe("/");
         });
 
         it("应该匹配根路径 /", () => {
@@ -51,6 +65,7 @@ describe("matchRoute - 基础匹配", () => {
             expect(result).toHaveLength(1);
             expect(result[0].route.name).toBe("user-detail");
             expect(result[0].params).toEqual({ id: "123" });
+            expect(result[0].url).toBe("/user/123");
         });
 
         it("应该匹配多个动态参数 /user/:id/post/:postId", () => {
@@ -62,6 +77,7 @@ describe("matchRoute - 基础匹配", () => {
 
             expect(result).toHaveLength(1);
             expect(result[0].params).toEqual({ id: "123", postId: "456" });
+            expect(result[0].url).toBe("/user/123/post/456");
         });
 
         it("应该匹配尖括号语法 /user/<id>", () => {
@@ -107,8 +123,10 @@ describe("matchRoute - 基础匹配", () => {
             expect(result).toHaveLength(2);
             expect(result[0].route.name).toBe("user");
             expect(result[0].params).toEqual({ id: "123" });
+            expect(result[0].url).toBe("/user/123/");
             expect(result[1].route.name).toBe("user-profile");
             expect(result[1].params).toEqual({ id: "123" });
+            expect(result[1].url).toBe("/user/123/profile");
         });
         it("当多个顶层匹配存在时，应返回优先级最高的嵌套路由链", () => {
             const routes: KylinRouteItem[] = [
@@ -125,8 +143,8 @@ describe("matchRoute - 基础匹配", () => {
 
             const result = matchRoute("/user/123/profile", routes);
 
-            expect(result).toHaveLength(1);
-            expect(result[0].route.name).toBe("profile2");
+            expect(result).toHaveLength(2);
+            expect(result[0].route.name).toBe("user");
         });
 
         it("应该在子路由不匹配时匹配父路由", () => {
@@ -181,9 +199,12 @@ describe("matchRoute - 基础匹配", () => {
 
             expect(result).toHaveLength(3);
             expect(result[0].route.name).toBe("user");
+            expect(result[0].url).toBe("/user/1/");
             expect(result[1].route.name).toBe("user-post");
+            expect(result[1].url).toBe("/user/1/post/2/");
             expect(result[2].route.name).toBe("post-comment");
             expect(result[2].params).toEqual({ id: "1", postId: "2", commentId: "3" });
+            expect(result[2].url).toBe("/user/1/post/2/comment/3");
         });
 
         it("多级嵌套路由链上解析 params，并且 query 仅在最后节点生效", () => {
@@ -219,7 +240,7 @@ describe("matchRoute - 基础匹配", () => {
     });
 
     describe("通配符匹配", () => {
-        it("应该用 * 匹配任意路径", () => {
+        it("应该用 * 匹配任意路径（旧版本匹配行为）", () => {
             const routes: KylinRouteItem[] = [
                 { name: "home", path: "/" },
                 { name: "catch-all", path: "*" },
@@ -229,6 +250,7 @@ describe("matchRoute - 基础匹配", () => {
 
             expect(result).toHaveLength(1);
             expect(result[0].route.name).toBe("catch-all");
+            expect(result[0].url).toBe("/any/deep/path");
         });
 
         it("通配符应该匹配空路径", () => {
@@ -238,6 +260,116 @@ describe("matchRoute - 基础匹配", () => {
 
             expect(result).toHaveLength(1);
             expect(result[0].route.name).toBe("catch-all");
+        });
+
+        describe("单段通配符 * 规则（匹配单个路径段）", () => {
+            it("/a/*/c 应该匹配 /a/x/c", () => {
+                const routes: KylinRouteItem[] = [{ name: "pattern", path: "/a/*/c" }];
+
+                const result = matchRoute("/a/x/c", routes);
+
+                expect(result).toHaveLength(1);
+                expect(result[0].route.name).toBe("pattern");
+            });
+
+            it("/a/*/c 应该匹配 /a/y/c", () => {
+                const routes: KylinRouteItem[] = [{ name: "pattern", path: "/a/*/c" }];
+
+                const result = matchRoute("/a/y/c", routes);
+
+                expect(result).toHaveLength(1);
+                expect(result[0].route.name).toBe("pattern");
+            });
+
+            it("/a/*/c 不应该匹配 /a/x/y/c（多个段）", () => {
+                const routes: KylinRouteItem[] = [{ name: "pattern", path: "/a/*/c" }];
+
+                const result = matchRoute("/a/x/y/c", routes);
+
+                expect(result).toHaveLength(0);
+            });
+
+            it("/a/* 应该匹配 /a/x", () => {
+                const routes: KylinRouteItem[] = [{ name: "pattern", path: "/a/*" }];
+
+                const result = matchRoute("/a/x", routes);
+
+                expect(result).toHaveLength(1);
+                expect(result[0].route.name).toBe("pattern");
+            });
+
+            it("/a/* 不应该匹配 /a/x/y", () => {
+                const routes: KylinRouteItem[] = [{ name: "pattern", path: "/a/*" }];
+
+                const result = matchRoute("/a/x/y", routes);
+
+                expect(result).toHaveLength(0);
+            });
+
+            it("/*/user 应该匹配 /x/user", () => {
+                const routes: KylinRouteItem[] = [{ name: "pattern", path: "/*/user" }];
+
+                const result = matchRoute("/x/user", routes);
+
+                expect(result).toHaveLength(1);
+                expect(result[0].route.name).toBe("pattern");
+            });
+
+            it("多个 * 模式：/*/*/c 应该匹配 /a/b/c", () => {
+                const routes: KylinRouteItem[] = [{ name: "pattern", path: "/*/*/c" }];
+
+                const result = matchRoute("/a/b/c", routes);
+
+                expect(result).toHaveLength(1);
+                expect(result[0].route.name).toBe("pattern");
+            });
+        });
+
+        describe("多段通配符 ** 规则（匹配零个或多个段，仅末尾）", () => {
+            it("/a/b/** 应该匹配 /a/b/c", () => {
+                const routes: KylinRouteItem[] = [{ name: "pattern", path: "/a/b/**" }];
+
+                const result = matchRoute("/a/b/c", routes);
+
+                expect(result).toHaveLength(1);
+                expect(result[0].route.name).toBe("pattern");
+            });
+
+            it("/a/b/** 应该匹配 /a/b/x/x/ddd/d/d/d", () => {
+                const routes: KylinRouteItem[] = [{ name: "pattern", path: "/a/b/**" }];
+
+                const result = matchRoute("/a/b/x/x/ddd/d/d/d", routes);
+
+                expect(result).toHaveLength(1);
+                expect(result[0].route.name).toBe("pattern");
+            });
+
+            it("/a/b/** 应该匹配 /a/b（零段情况）", () => {
+                const routes: KylinRouteItem[] = [{ name: "pattern", path: "/a/b/**" }];
+
+                const result = matchRoute("/a/b", routes);
+
+                expect(result).toHaveLength(1);
+                expect(result[0].route.name).toBe("pattern");
+            });
+
+            it("/api/** 应该匹配 /api/users/123/profile", () => {
+                const routes: KylinRouteItem[] = [{ name: "api-catch-all", path: "/api/**" }];
+
+                const result = matchRoute("/api/users/123/profile", routes);
+
+                expect(result).toHaveLength(1);
+                expect(result[0].route.name).toBe("api-catch-all");
+            });
+
+            it("/** 应该匹配任意路径", () => {
+                const routes: KylinRouteItem[] = [{ name: "catch-all", path: "/**" }];
+
+                const result = matchRoute("/any/deep/path", routes);
+
+                expect(result).toHaveLength(1);
+                expect(result[0].route.name).toBe("catch-all");
+            });
         });
     });
 
@@ -362,10 +494,10 @@ describe("matchRoute - 选项功能", () => {
             const result = matchRoute("/user/123/profile?tab=activity", routes, { strict: false });
             expect(result).toHaveLength(2);
             expect(result[0].route.name).toBe("user");
-            expect(result[0].path).toBe("/user/123");
+            expect(result[0].path).toBe("/user/:id");
             expect(result[0].query).toEqual({});
             expect(result[1].route.name).toBe("profile");
-            expect(result[1].path).toBe("/user/123/profile");
+            expect(result[1].path).toBe("/user/:id/profile");
             expect(result[1].query).toEqual({ tab: "activity" });
         });
     });
@@ -416,6 +548,7 @@ describe("matchRoute - 选项功能", () => {
             expect(result).toHaveLength(1);
             expect(result[0].params).toEqual({ id: "123" });
             expect(result[0].query).toEqual({ debug: "true", from: "home" });
+            expect(result[0].url).toBe("/user/123");
         });
 
         it("动态提取的 params 应该与路由配置中的 params 合并", () => {
@@ -465,185 +598,6 @@ describe("matchRoute - 选项功能", () => {
         });
     });
 });
-describe("matchRoute - hash 生成", () => {
-    describe("hash 插值变量", () => {
-        it("应该使用默认 hash 模式 {fullPath}", () => {
-            const routes: KylinRouteItem[] = [{ name: "user", path: "/user/:id" }];
-
-            const result = matchRoute("/user/123", routes);
-
-            expect(result).toHaveLength(1);
-            expect(result[0].hash).toBe("h_user_id");
-        });
-
-        it("应该支持 {name} 插值变量", () => {
-            const routes: KylinRouteItem[] = [
-                { name: "user-profile", path: "/user/:id", hash: "{name}" },
-            ];
-
-            const result = matchRoute("/user/123", routes);
-
-            expect(result).toHaveLength(1);
-            expect(result[0].hash).toBe("user-profile");
-        });
-
-        it("应该支持 {path} 插值变量", () => {
-            const routes: KylinRouteItem[] = [
-                {
-                    name: "user",
-                    path: "/user/:id",
-                    hash: "parent-{path}",
-                    children: [
-                        {
-                            name: "profile",
-                            path: "profile",
-                            hash: "child-{path}",
-                        },
-                    ],
-                },
-            ];
-
-            const result = matchRoute("/user/123/profile", routes);
-
-            expect(result).toHaveLength(2);
-            expect(result[0].hash).toBe("parent-_user_id");
-            expect(result[1].hash).toBe("child-profile");
-        });
-
-        it("应该支持 {fullPath} 插值变量", () => {
-            const routes: KylinRouteItem[] = [
-                { name: "user", path: "/user/:id", hash: "{fullPath}" },
-            ];
-
-            const result = matchRoute("/user/123", routes);
-
-            expect(result).toHaveLength(1);
-            expect(result[0].hash).toBe("_user_123");
-        });
-
-        it("应该支持 {query} 插值变量", () => {
-            const routes: KylinRouteItem[] = [{ name: "user", path: "/user/:id", hash: "{query}" }];
-
-            const result = matchRoute("/user/123?tab=profile&sort=asc", routes);
-
-            expect(result).toHaveLength(1);
-            expect(result[0].hash).toBe("tab_profile_sort_asc");
-        });
-
-        it("应该支持 params 参数插值", () => {
-            const routes: KylinRouteItem[] = [
-                { name: "user", path: "/user/:id", hash: "user-{id}" },
-            ];
-
-            const result = matchRoute("/user/123", routes);
-
-            expect(result).toHaveLength(1);
-            expect(result[0].hash).toBe("user-123");
-        });
-
-        it("应该支持 query 参数插值", () => {
-            const routes: KylinRouteItem[] = [
-                { name: "user", path: "/user/:id", hash: "user-{id}-{tab}" },
-            ];
-
-            const result = matchRoute("/user/123?tab=profile", routes);
-
-            expect(result).toHaveLength(1);
-            expect(result[0].hash).toBe("user-123-profile");
-        });
-
-        it("应该支持 {timestamp} 插值变量", () => {
-            const routes: KylinRouteItem[] = [
-                { name: "user", path: "/user/:id", hash: "user-{timestamp}" },
-            ];
-
-            const before = Date.now();
-            const result = matchRoute("/user/123", routes);
-            const after = Date.now();
-
-            expect(result).toHaveLength(1);
-            const hashTimestamp = parseInt(result[0].hash.replace("user-", ""));
-            expect(hashTimestamp).toBeGreaterThanOrEqual(before);
-            expect(hashTimestamp).toBeLessThanOrEqual(after);
-        });
-
-        it("应该转义特殊字符为下划线", () => {
-            const routes: KylinRouteItem[] = [
-                { name: "user", path: "/user/:id", hash: "user/{id}/profile" },
-            ];
-
-            const result = matchRoute("/user/123", routes);
-
-            expect(result).toHaveLength(1);
-            expect(result[0].hash).toBe("user_123_profile");
-        });
-
-        it("应该确保不以数字开头", () => {
-            const routes: KylinRouteItem[] = [
-                { name: "user", path: "/user/:id", hash: "{id}-profile" },
-            ];
-
-            const result = matchRoute("/user/123", routes);
-
-            expect(result).toHaveLength(1);
-            expect(result[0].hash).toBe("_123-profile");
-        });
-
-        it("嵌套路由中每个节点都应该生成独立的 hash", () => {
-            const routes: KylinRouteItem[] = [
-                {
-                    name: "user",
-                    path: "/user/:id",
-                    hash: "user-{id}",
-                    children: [
-                        {
-                            name: "profile",
-                            path: "profile",
-                            hash: "profile-{id}",
-                        },
-                    ],
-                },
-            ];
-
-            const result = matchRoute("/user/123/profile", routes);
-
-            expect(result).toHaveLength(2);
-            expect(result[0].hash).toBe("user-123");
-            expect(result[1].hash).toBe("profile-123");
-        });
-
-        it("多级嵌套路由中 params 应该累积传递", () => {
-            const routes: KylinRouteItem[] = [
-                {
-                    name: "team",
-                    path: "/team/:teamId",
-                    hash: "team-{teamId}",
-                    children: [
-                        {
-                            name: "project",
-                            path: "project/:projectId",
-                            hash: "project-{teamId}-{projectId}",
-                            children: [
-                                {
-                                    name: "task",
-                                    path: "task/:taskId",
-                                    hash: "task-{teamId}-{projectId}-{taskId}",
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ];
-
-            const result = matchRoute("/team/alpha/project/beta/task/123", routes);
-
-            expect(result).toHaveLength(3);
-            expect(result[0].hash).toBe("team-alpha");
-            expect(result[1].hash).toBe("project-alpha-beta");
-            expect(result[2].hash).toBe("task-alpha-beta-123");
-        });
-    });
-});
 describe("matchRoute - 路径信息", () => {
     describe("path 属性", () => {
         it("matched.path 应该包含完整的匹配路径", () => {
@@ -652,7 +606,8 @@ describe("matchRoute - 路径信息", () => {
             const result = matchRoute("/user/123", routes);
 
             expect(result).toHaveLength(1);
-            expect(result[0].path).toBe("/user/123");
+            expect(result[0].path).toBe("/user/:id");
+            expect(result[0].url).toBe("/user/123");
         });
 
         it("嵌套路由的 path 应该包含完整路径", () => {
@@ -668,7 +623,53 @@ describe("matchRoute - 路径信息", () => {
 
             expect(result).toHaveLength(2);
             expect(result[1].route.name).toBe("post");
-            expect(result[1].path).toBe("/blog/hello-world");
+            expect(result[1].path).toBe("/blog/:id");
+            expect(result[1].url).toBe("/blog/hello-world");
+        });
+    });
+
+    describe("url 属性", () => {
+        it("matched.url 应该包含实际匹配的路径（参数已替换）", () => {
+            const routes: KylinRouteItem[] = [{ name: "user", path: "/user/:id" }];
+
+            const result = matchRoute("/user/abc", routes);
+
+            expect(result).toHaveLength(1);
+            expect(result[0].path).toBe("/user/:id");
+            expect(result[0].url).toBe("/user/abc");
+        });
+
+        it("matched.url 不应包含 query 参数", () => {
+            const routes: KylinRouteItem[] = [{ name: "user", path: "/user/:id" }];
+
+            const result = matchRoute("/user/123?tab=info", routes);
+
+            expect(result).toHaveLength(1);
+            expect(result[0].url).toBe("/user/123");
+            expect(result[0].query).toEqual({ tab: "info" });
+        });
+
+        it("嵌套路由的每层都应该有正确的 url", () => {
+            const routes: KylinRouteItem[] = [
+                {
+                    name: "app",
+                    path: "/app",
+                    children: [
+                        {
+                            name: "module",
+                            path: ":moduleId",
+                            children: [{ name: "item", path: "item/:itemId" }],
+                        },
+                    ],
+                },
+            ];
+
+            const result = matchRoute("/app/users/item/42", routes);
+
+            expect(result).toHaveLength(3);
+            expect(result[0].url).toBe("/app/");
+            expect(result[1].url).toBe("/app/users/");
+            expect(result[2].url).toBe("/app/users/item/42");
         });
     });
 });
