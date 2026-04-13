@@ -412,7 +412,6 @@ function _matchRoutesInternal(
         };
         return [match];
     }
-
     return [];
 }
 

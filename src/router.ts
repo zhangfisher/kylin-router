@@ -7,6 +7,7 @@ import type {
     ModalState,
     KylinRouteViewSource,
     KylinRouteViewOptions,
+    KylinMatchedRouteItem,
 } from "./types/index";
 import { HookTypeValues, type HookType } from "./types/index";
 import { Mixin } from "ts-mixer";
@@ -39,6 +40,7 @@ import { HookManager } from "./features/hooks";
 import { RouteRegistry } from "./features/routes";
 import { AlpineManager } from "./features/alpine";
 import { getRouteViewOptions } from "./utils/getRouteViewOptions";
+import { matchRoute } from "./utils";
 
 /**
  *
@@ -203,51 +205,12 @@ export class KylinRouter extends Mixin(
     protected _matchRoute(
         pathname: string,
         search: string,
-    ): { fromRoute: KylinRouteItem; toRoute: KylinRouteItem } {
-        // 调试日志：导航开始
-        this.log(`导航开始: from=${this.routes.current.route?.name || "(initial)"} to=${pathname}`);
-
-        // 保存当前路由状态（用于 from 参数和 afterLeave 守卫）
-        const fromRoute = this.routes.current.route || {
-            name: "",
-            path: "",
-            params: {},
-            query: {},
-        };
-
-        // 保存完整的当前路由状态（包括 matchedRoutes）
-        this.previous = this.routes.current.route
-            ? {
-                  ...this.routes.current.route,
-                  matchedRoutes: [...(this.routes.current.matchedRoutes || [])],
-                  params: { ...this.routes.current.params },
-                  query: { ...this.routes.current.query },
-              }
-            : undefined;
-
-        // 先执行路由匹配，获取目标路由信息
-        this.routes.matchAndUpdateState(pathname, search);
-
-        // 调试日志：路由匹配结果
-        this.log(
-            `路由匹配: name=${this.routes.current.route?.name || "(not found)"} params=`,
-            this.routes.current.params,
-        );
-
-        // 构造目标路由对象（用于 to 参数）
-        const toRoute = this.routes.current.route || {
-            name: "",
-            path: pathname,
-            params: {},
-            query: {},
-        };
-
-        // 将匹配的参数和查询参数合并到目标路由对象
-        if (this.routes.current.route) {
-            toRoute.params = this.routes.current.params || {};
-            toRoute.query = this.routes.current.query || {};
-        }
-
+    ): {
+        fromRoute: KylinMatchedRouteItem[] | undefined;
+        toRoute: KylinMatchedRouteItem[] | undefined;
+    } {
+        const fromRoute = this.routes.current;
+        const toRoute = matchRoute(pathname + "?" + search, this.routes.routes);
         return { fromRoute, toRoute };
     }
 
@@ -477,7 +440,6 @@ export class KylinRouter extends Mixin(
         if (!this.routes.current.route) {
             return;
         }
-
         this.log("渲染流程: 开始渲染组件");
         try {
             // 使用新的递归渲染逻辑
@@ -643,7 +605,7 @@ export class KylinRouter extends Mixin(
         }
 
         // 触发 navigation/start 事件
-        this.emit("navigation/start", {
+        this.emit("navigation:start", {
             path,
             navigationType: "push",
         });
@@ -658,7 +620,7 @@ export class KylinRouter extends Mixin(
         this._pendingNavigationType = "replace";
         this.log(`导航方法: replace(${path})`);
         // 触发 navigation/start 事件
-        this.emit("navigation/start", {
+        this.emit("navigation:start", {
             path,
             navigationType: "replace",
         });
@@ -680,7 +642,7 @@ export class KylinRouter extends Mixin(
         }
 
         // 触发 navigation/start 事件
-        this.emit("navigation/start", {
+        this.emit("navigation:start", {
             path: undefined,
             navigationType: "pop",
         });
@@ -691,7 +653,7 @@ export class KylinRouter extends Mixin(
         this._pendingNavigationType = "pop";
         this.log("导航方法: forward()");
         // 触发 navigation/start 事件
-        this.emit("navigation/start", {
+        this.emit("navigation:start", {
             path: undefined,
             navigationType: "pop",
         });
@@ -702,7 +664,7 @@ export class KylinRouter extends Mixin(
         this._pendingNavigationType = "pop";
         this.log(`导航方法: go(${delta})`);
         // 触发 navigation/start 事件
-        this.emit("navigation/start", {
+        this.emit("navigation:start", {
             path: undefined,
             navigationType: "pop",
         });

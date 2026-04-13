@@ -3,10 +3,10 @@
  */
 
 import type { KylinRoutes, KylinRouteItem } from "./routes";
-import type { BeforeEachHook, RenderEachHook } from "./hooks";
 import type { TemplateResult } from "lit";
 import type { KylinRouteViewOptions } from "./routes";
-import type { KylinRouteDataOptions } from "./hooks";
+import type { KylinRouteDataOptions } from "./data";
+import type { AfterRenderHook, AfterRouteHook, BeforeRenderHook, BeforeRouteHook } from "./hooks";
 
 /**
  * 重试策略配置
@@ -62,14 +62,7 @@ export type KylinRouterOptiopns = {
     notFound?: KylinRouteItem;
     /** 起始路径 */
     home?: string;
-    /** 导航解析前钩子 */
-    onBeforeResolve?: BeforeEachHook;
-    /** 全局前置守卫 */
-    onBeforeEach?: BeforeEachHook;
-    /** 全局后置钩子 */
-    onAfterEach?: (to: KylinRouteItem, from: KylinRouteItem) => void | Promise<void>;
-    /** 全局 renderEach 钩子，用于数据预加载 */
-    onRenderEach?: RenderEachHook | RenderEachHook[];
+
     /** 是否启用调试模式，启用后会输出详细的导航日志（默认 false） */
     debug?: boolean;
     /** 宿主元素或选择器字符串（可选，用于 attach 方法） */
@@ -84,4 +77,8 @@ export type KylinRouterOptiopns = {
     dataOptions?: Omit<KylinRouteDataOptions, "from">;
     /** Alpine.js 全局 store 初始数据 */
     data?: Record<string, any>;
+    beforeRoute?: BeforeRouteHook | BeforeRouteHook[];
+    afterRoute?: AfterRouteHook | AfterRouteHook[];
+    beforeRender?: BeforeRenderHook | BeforeRenderHook[];
+    afterRender?: AfterRenderHook | AfterRenderHook[];
 };

@@ -189,7 +189,12 @@ describe("matchRoute - 基础匹配", () => {
                         {
                             name: "user-post",
                             path: "post/:postId",
-                            children: [{ name: "post-comment", path: "comment/:commentId" }],
+                            children: [
+                                {
+                                    name: "post-comment",
+                                    path: "comment/:commentId",
+                                },
+                            ],
                         },
                     ],
                 },

@@ -9,7 +9,7 @@
 
 import type { KylinRouter } from "@/router";
 import type { KylinRouteItem } from "@/types";
-import type { KylinRouteDataOptions } from "@/types/hooks";
+import type { KylinRouteDataOptions } from "@/types/data";
 import { params } from "@/utils/params";
 import { joinPath } from "@/utils/joinPath";
 

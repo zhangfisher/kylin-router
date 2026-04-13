@@ -9,7 +9,7 @@
  */
 
 import type { KylinRouter } from "@/router";
-import type { KylinRoutes, KylinRouteItem } from "@/types";
+import type { KylinRoutes, KylinRouteItem, KylinMatchedRouteItem } from "@/types";
 import { matchRoute } from "@/utils/matchRoute";
 import { extractQueryParams } from "@/utils/extractQueryParams";
 
@@ -28,24 +28,7 @@ export class RouteRegistry {
     public notFound?: KylinRouteItem;
 
     /** 当前路由状态 */
-    public current: {
-        route: KylinRouteItem | null;
-        params: Record<string, string>;
-        query: Record<string, string>;
-        remainingPath: string;
-        /** 匹配的路由链（从根到叶子节点） */
-        matchedRoutes: Array<{
-            route: KylinRouteItem;
-            params: Record<string, string>;
-            remainingPath: string;
-        }>;
-    } = {
-        route: null,
-        params: {},
-        query: {},
-        remainingPath: "",
-        matchedRoutes: [],
-    };
+    public current?: KylinMatchedRouteItem[];
 
     /** 导航回调函数 */
     private _callbacks?: NavigationCallbacks;
@@ -76,7 +59,7 @@ export class RouteRegistry {
                 this.routes = [];
                 result.then((loaded) => {
                     this.routes = this._normalizeRoutes(loaded);
-                    this.matchCurrentLocation();
+                    this.router.emit("routes:loaded");
                 });
                 return;
             }
@@ -135,9 +118,9 @@ export class RouteRegistry {
         }
         const removed = removeRouteByName(this.routes, name);
         // 如果删除了路由且当前正在访问该路由，触发重定向
-        if (removed && this.current.route && this.current.route.name === name) {
-            this.redirectToDefaultOrNotFound();
-        }
+        // if (removed && this.current.route && this.current.route.name === name) {
+        //     this.redirectToDefaultOrNotFound();
+        // }
     }
 
     /**
@@ -164,77 +147,6 @@ export class RouteRegistry {
         // 规范化并合并到路由表
         const newRoutes = this._normalizeRoutes(loaded);
         this.routes.push(...newRoutes);
-    }
-
-    /**
-     * 执行初始路由匹配
-     * 在构造函数中调用，匹配当前 URL 的路由
-     */
-    matchCurrentLocation(): void {
-        if (!this._callbacks) {
-            throw new Error("RouteRegistry: callbacks not set. Call setCallbacks() first.");
-        }
-
-        const location = this._callbacks.getLocation();
-        const pathname = location.pathname;
-        const search = location.search;
-
-        // 设置导航状态
-        this._callbacks.setIsNavigating(true);
-
-        // 执行路由匹配
-        const matched = matchRoute(pathname, this.routes, this.router.options.base);
-
-        if (matched) {
-            this.current.route = matched.route;
-            this.current.params = matched.params;
-            this.current.remainingPath = matched.remainingPath;
-            this.current.matchedRoutes = matched.matchedRoutes || [];
-        } else if (this.notFound) {
-            this.current.route = this.notFound;
-            this.current.params = {};
-            this.current.remainingPath = pathname;
-            this.current.matchedRoutes = [];
-        } else {
-            this.current.route = null;
-            this.current.params = {};
-            this.current.remainingPath = pathname;
-            this.current.matchedRoutes = [];
-        }
-
-        // 提取查询参数
-        this.current.query = extractQueryParams(search);
-
-        // 重置导航状态
-        this._callbacks.setIsNavigating(false);
-    }
-
-    /**
-     * 匹配路由并更新状态
-     * 在 onRouteUpdate 中调用
-     */
-    matchAndUpdateState(pathname: string, search: string): void {
-        const matched = matchRoute(pathname, this.routes);
-
-        if (matched) {
-            this.current.route = matched.route;
-            this.current.params = matched.params;
-            this.current.remainingPath = matched.remainingPath;
-            this.current.matchedRoutes = matched.matchedRoutes || [];
-        } else if (this.notFound) {
-            this.current.route = this.notFound;
-            this.current.params = {};
-            this.current.remainingPath = pathname;
-            this.current.matchedRoutes = [];
-        } else {
-            this.current.route = null;
-            this.current.params = {};
-            this.current.remainingPath = pathname;
-            this.current.matchedRoutes = [];
-        }
-
-        // 提取查询参数
-        this.current.query = extractQueryParams(search);
     }
 
     /**

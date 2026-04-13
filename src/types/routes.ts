@@ -2,10 +2,13 @@
  * 路由配置相关类型定义
  */
 
-import type { RenderEachHook, KylinRouteDataOptions, KylinRouteDataSource } from "./hooks";
+import type { AfterRenderHook, BeforeRenderHook, BeforeRouteHook, RenderEachHook } from "./hooks";
+import type { KylinRouteDataOptions } from "./data";
+import type { KylinRouteDataSource } from "./data";
 import type { TemplateResult } from "lit";
 import type { ErrorBoundaryConfig, RetryConfig } from "./config";
 import type { ModalConfig } from "./modals";
+import { AfterRouteHook } from "./hooks";
 
 // 重新导出 RouteData 以保持向后兼容
 export type { KylinRouteDataSource as RouteData };
@@ -260,7 +263,12 @@ export interface KylinRouteItem {
      * hash: "posts-{query.category}" // 生成类似 "posts-tech" 的哈希
      */
     hash?: string;
-
+    /**
+     * 是否预加载视图
+     *
+     * - true: 在初始化时自动加载视图数据
+     */
+    preload?: boolean;
     /**
      * 内部属性：视图模板缓存
      * 用于存储已加载的视图内容，避免重复加载
@@ -286,34 +294,10 @@ export interface KylinRouteItem {
     children?: KylinRouteItem[];
     meta?: Record<string, any>;
 
-    /**
-     * 路由级守卫：在进入该路由前执行
-     * @param to - 目标路由
-     * @param from - 来源路由
-     * @returns boolean | Promise<boolean> - true 继续导航，false 取消导航
-     * @returns string - 重定向路径
-     */
-    beforeEnter?: (
-        to: KylinRouteItem,
-        from: KylinRouteItem,
-    ) => boolean | string | Promise<boolean | string>;
-
-    /**
-     * 路由级守卫：在离开该路由后执行
-     * @param to - 目标路由
-     * @param from - 来源路由（当前路由）
-     */
-    afterLeave?: (to: KylinRouteItem, from: KylinRouteItem) => void | Promise<void>;
-
-    /**
-     * 路由级 renderEach 钩子，用于数据预加载
-     * 在组件加载后、渲染前执行
-     * @param to - 目标路由
-     * @param from - 来源路由
-     * @param next - 控制钩子流程的回调函数，可以传递预加载的数据
-     * @param router - 路由器实例
-     */
-    renderEach?: RenderEachHook | RenderEachHook[];
+    beforeRoute?: BeforeRouteHook | BeforeRouteHook[];
+    afterRoute?: AfterRouteHook | AfterRouteHook[];
+    beforeRender?: BeforeRenderHook | BeforeRenderHook[];
+    afterRender?: AfterRenderHook | AfterRenderHook[];
 
     /**
      * 错误边界配置
