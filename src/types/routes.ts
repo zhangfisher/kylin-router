@@ -2,13 +2,12 @@
  * 路由配置相关类型定义
  */
 
-import type { AfterRenderHook, BeforeRenderHook, BeforeRouteHook, RenderEachHook } from "./hooks";
+import type { AfterRenderHook, BeforeRenderHook, BeforeRouteHook } from "./hooks";
 import type { KylinRouteDataOptions } from "./data";
 import type { KylinRouteDataSource } from "./data";
 import type { TemplateResult } from "lit";
 import type { ErrorBoundaryConfig, RetryConfig } from "./config";
 import type { ModalConfig } from "./modals";
-import { AfterRouteHook } from "./hooks";
 
 // 重新导出 RouteData 以保持向后兼容
 export type { KylinRouteDataSource as RouteData };
@@ -108,7 +107,7 @@ export interface KylinRouteViewOptions {
     /**
      * 视图源
      */
-    form: KylinRouteViewSource;
+    from: KylinRouteViewSource;
     /**
      * 是否允许不安全的 HTML（如 script 标签）
      * 默认为 false，会移除潜在的危险内容

@@ -51,7 +51,7 @@ export interface LoadingConfig {
 /**
  * 路由器配置选项
  */
-export type KylinRouterOptiopns = {
+export type KylinRouterOptions = {
     /** 路由模式：'history' 使用 BrowserHistory，'hash' 使用 HashHistory（默认 'history'） */
     mode?: "hash" | "history";
     /** 基础路径，用于 Hash 模式（默认 ''） */
@@ -77,6 +77,9 @@ export type KylinRouterOptiopns = {
     dataOptions?: Omit<KylinRouteDataOptions, "from">;
     /** Alpine.js 全局 store 初始数据 */
     data?: Record<string, any>;
+    hookOptions?: {
+        timeout?: number;
+    };
     beforeRoute?: BeforeRouteHook | BeforeRouteHook[];
     afterRoute?: AfterRouteHook | AfterRouteHook[];
     beforeRender?: BeforeRenderHook | BeforeRenderHook[];

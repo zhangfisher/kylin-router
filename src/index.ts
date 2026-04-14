@@ -8,11 +8,11 @@ export * from "./utils";
 export * from "./router";
 
 // 导出路由器类型
-export type { KylinRouterOptiopns } from "./types";
+export type { KylinRouterOptions as KylinRouterOptiopns } from "./types";
 
 // 导入 KylinRouter 类以创建工厂函数
 import { KylinRouter } from "./router";
-import type { KylinRouterOptiopns as KylinRouterOptionsType } from "./types";
+import type { KylinRouterOptions as KylinRouterOptionsType } from "./types";
 
 /**
  * 创建路由器实例的工厂函数
@@ -22,7 +22,7 @@ import type { KylinRouterOptiopns as KylinRouterOptionsType } from "./types";
  */
 export function createRouter(
     host: HTMLElement,
-    options: KylinRouterOptionsType | KylinRouterOptionsType["routes"]
+    options: KylinRouterOptionsType | KylinRouterOptionsType["routes"],
 ): KylinRouter {
     const router = new KylinRouter(host, options);
     return router;

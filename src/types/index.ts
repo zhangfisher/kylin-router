@@ -25,3 +25,5 @@ export type {
     KylinRouteViewContext as RenderContext,
     KylinRenderOptions as RenderOptions,
 } from "./routes";
+
+export * from "./utils";

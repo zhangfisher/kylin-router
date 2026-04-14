@@ -12,9 +12,16 @@ import type {
     RouteViewLoadResult,
     KylinRouteViewOptions,
     KylinRouteViewSource,
+    KylinRouteItem,
 } from "@/types/routes";
 import { joinPath } from "@/utils/joinPath";
 
+/**
+ * 类型守卫：检查 view 是否为 ViewOptions
+ */
+function isViewOptions(view: any): view is KylinRouteViewOptions {
+    return typeof view === "object" && view !== null && "form" in view;
+}
 /**
  * Loader 类 - 负责组件加载逻辑
  */
@@ -23,11 +30,14 @@ export class ViewLoader {
     protected abortController?: AbortController;
     router: KylinRouter;
     /** 全局视图加载配置 */
-    protected globalViewOptions?: Omit<KylinRouteViewOptions, "form">;
+    protected options?: Omit<KylinRouteViewOptions, "form">;
 
-    constructor(router: KylinRouter, globalViewOptions?: Omit<KylinRouteViewOptions, "form">) {
+    constructor(router: KylinRouter) {
         this.router = router;
-        this.globalViewOptions = globalViewOptions;
+        this.options = Object.assign(
+            { allowUnsafe: true, timepout: 5000, cache: 0 },
+            this.router.options.viewOptions,
+        );
     }
 
     /**
@@ -36,34 +46,38 @@ export class ViewLoader {
      * @param options - 视图加载选项（可选）
      * @returns 加载结果的 Promise
      */
-    async loadView(
-        view: KylinRouteViewSource,
-        options?: KylinRouteViewOptions,
-    ): Promise<RouteViewLoadResult> {
+    async loadView(route: KylinRouteItem): Promise<RouteViewLoadResult> {
+        const view = route.view;
         // 取消之前的加载请求
         if (this.abortController) {
             this.abortController.abort();
         }
         this.abortController = new AbortController();
 
-        // 合并全局选项和路由级选项（路由级优先）
-        const finalOptions: KylinRouteViewOptions | undefined = options
-            ? { ...this.globalViewOptions, ...options }
-            : undefined;
+        const viewOptions = {
+            ...this.options,
+            ...(isViewOptions(route.view)
+                ? route.view
+                : {
+                      from: route.view,
+                  }),
+        } as KylinRouteViewOptions;
+
+        const from = viewOptions.from;
 
         try {
             // 检测 view 类型，字符串代表url
-            if (typeof view === "string") {
+            if (typeof from === "string") {
                 // 自动添加 base URL 前缀
-                const prefixedUrl = this.prefixBaseUrl(view);
-                return await this.loadRemoteView(prefixedUrl, finalOptions, this.globalViewOptions);
-            } else if (typeof view === "function") {
-                return await this.loadDynamicImport(view);
-            } else if (view instanceof HTMLElement) {
+                const prefixedUrl = this.prefixBaseUrl(from);
+                return await this.loadRemoteView(prefixedUrl, viewOptions, this.options);
+            } else if (typeof from === "function") {
+                return await this.loadDynamicImport(from);
+            } else if (from instanceof HTMLElement) {
                 // HTMLElement 类型，直接返回
                 return {
                     success: true,
-                    content: view,
+                    content: from,
                     error: null,
                 };
             } else {

@@ -45,4 +45,8 @@ export type KylinRouterEvents = {
     "view:error": {
         route: KylinRouteItem;
     };
+    /**
+     * rvtf
+     */
+    "hook:error": KylinRouteItem;
 };
