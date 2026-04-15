@@ -296,11 +296,9 @@ export class KylinRouter extends Mixin(
      * 并发加载路由视图组件
      * @returns 是否继续导航（false 表示取消或版本过期）
      */
-    protected async _loadRouteView(route: KylinMatchedRouteItem): Promise<boolean> {
-        this.log("组件加载: 开始加载组件");
-
+    protected async _loadRouteViews(routes: KylinMatchedRouteItem[]): Promise<boolean> {
         // 检查路由视图模板是否已经加载
-        if (route.route._viewTemplate) {
+        if (route.route._view) {
         } else {
             async () => {
                 const viewOptions = Object.assign(
@@ -322,13 +320,13 @@ export class KylinRouter extends Mixin(
                     const loadResult = await this.viewLoader.loadView(viewFrom, undefined);
                     if (loadResult.success) {
                         this.log("组件加载: 成功", loadResult.content);
-                        if (!route.route._viewTemplate)
-                            route.route._viewTemplate = {
+                        if (!route.route._view)
+                            route.route._view = {
                                 content: "",
                                 timestamp: Date.now(),
                                 duration: 0,
                             };
-                        route.route._viewTemplate!.content = loadResult.content;
+                        route.route._view!.content = loadResult.content;
                     } else {
                         this.log("组件加载: 失败", loadResult.error);
                         this.isNavigating = false;
@@ -346,7 +344,7 @@ export class KylinRouter extends Mixin(
      * 加载路由数据
      * @returns 是否继续导航（false 表示版本过期）
      */
-    protected async _loadRouteData(route: KylinMatchedRouteItem): Promise<boolean> {
+    protected async _loadRouteData(route: KylinMatchedRouteItem): Promise<any> {
         // if (!this.routes.current.route?.data) {
         //     return true;
         // }
@@ -398,23 +396,6 @@ export class KylinRouter extends Mixin(
     }
 
     /**
-     * 执行 renderEach 钩子（数据预加载）
-     * @param fromRoute - 来源路由
-     * @param currentVersion - 当前导航版本号
-     * @returns 是否继续导航（false 表示版本过期）
-     */
-    protected async _executeRenderEachHook(fromRoute: KylinRouteItem): Promise<boolean> {
-        if (!this.routes.current.route) {
-            return true;
-        }
-
-        this.log("钩子执行: renderEach");
-        await this.hooks.executeRenderEach(this.routes.current.route, fromRoute);
-
-        return true;
-    }
-
-    /**
      * 执行渲染步骤
      */
     protected async _renderRoute(): Promise<void> {
@@ -447,7 +428,7 @@ export class KylinRouter extends Mixin(
         fromRoute: KylinRouteItem,
     ): Promise<void> {
         // 触发 route/change 事件（用于后续的组件渲染）
-        this.emit("route/change", {
+        this.emit("route:change", {
             route: this.routes.current.route || undefined,
             params: this.routes.current.params,
             query: this.routes.current.query,
@@ -484,7 +465,7 @@ export class KylinRouter extends Mixin(
         }
 
         // 触发 navigation/end 事件
-        this.emit("navigation/end", {
+        this.emit("navigation:end", {
             location: location,
             navigationType: this._pendingNavigationType || "pop",
         });
@@ -492,11 +473,6 @@ export class KylinRouter extends Mixin(
         // 重置导航状态
         this.isNavigating = false;
         this._pendingNavigationType = undefined;
-
-        // 调试日志：导航完成
-        this.log(
-            `导航完成: route=${this.routes.current.route?.name || "(not found)"} path=${pathname}`,
-        );
     }
 
     /**
@@ -517,14 +493,9 @@ export class KylinRouter extends Mixin(
         }
 
         // 并发加载组件和数据（使用 Promise.allSettled）
+        const viewLoaded = await this._loadRouteView(toRoute);
         const resourcesLoaded = await this._loadRouteResources(toRoute);
         if (!resourcesLoaded) {
-            return;
-        }
-
-        // 执行 renderEach 钩子（数据预加载）
-        const renderEachCompleted = await this._executeRenderEachHook(fromRoute);
-        if (!renderEachCompleted) {
             return;
         }
 
@@ -728,7 +699,7 @@ export class KylinRouter extends Mixin(
 
             // 检查当前层是否已加载组件
             const viewOptions = getRouteViewOptions(route, this);
-            let viewTemplate = route._viewTemplate;
+            let viewTemplate = route._view;
 
             if (viewTemplate) {
             }
@@ -804,72 +775,6 @@ export class KylinRouter extends Mixin(
         const loadingElement = outlet.querySelector("kylin-loading[data-role='loading-indicator']");
         if (loadingElement) {
             loadingElement.remove();
-        }
-    }
-
-    /**
-     * 为单个路由加载 view
-     * @param route - 路由项
-     * @returns 加载的内容或 null
-     */
-    protected async _loadViewForRoute(route: KylinRouteItem): Promise<any> {
-        if (!route.view) {
-            return null;
-        }
-
-        this.log(`渲染流程: 加载路由 ${route.name} 的 view`);
-
-        try {
-            // 检查缓存
-            const cache = this._getValidCache(route);
-            if (cache !== null) {
-                this.log(`渲染流程: 路由 ${route.name} 使用缓存内容`);
-                (route as any).viewContent = cache;
-                return cache;
-            }
-
-            // 无有效缓存，执行加载逻辑
-            const view = route.view;
-            let loadResult;
-            let cacheDuration = 0; // 默认不缓存
-
-            if (isViewOptions(view)) {
-                // 提取缓存配置
-                cacheDuration = view.cache || 0;
-
-                loadResult = await this.viewLoader.loadView(
-                    typeof view.form === "string" || typeof view.form === "function"
-                        ? view.form
-                        : view.form,
-                    view,
-                );
-            } else if (typeof view === "string" || typeof view === "function") {
-                loadResult = await this.viewLoader.loadView(view, undefined);
-            } else {
-                loadResult = { success: true, content: view };
-            }
-
-            if (loadResult.success) {
-                this.log(`渲染流程: 路由 ${route.name} view 加载成功`);
-                const content = loadResult.content;
-
-                // 设置到 viewContent
-                (route as any).viewContent = content;
-
-                // 如果需要缓存，保存到 _viewTemplate
-                if (cacheDuration > 0) {
-                    this._setCache(route, content, cacheDuration);
-                    this.log(`渲染流程: 路由 ${route.name} 内容已缓存 ${cacheDuration}ms`);
-                }
-
-                return content;
-            } else {
-                this.log(`渲染流程: 路由 ${route.name} view 加载失败`, loadResult.error);
-                return null;
-            }
-        } catch (error) {
-            console.error(`渲染流程: 路由 ${route.name} view 加载异常:`, error);
-            return null;
         }
     }
 

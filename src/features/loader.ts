@@ -8,13 +8,15 @@
  */
 
 import type { KylinRouter } from "@/router";
+import type { KylinRouterOptions } from "@/types/config";
 import type {
     RouteViewLoadResult,
     KylinRouteViewOptions,
-    KylinRouteViewSource,
     KylinRouteItem,
+    KylinMatchedRouteItem,
 } from "@/types/routes";
 import { joinPath } from "@/utils/joinPath";
+import { asyncSignal } from "asyncsignal";
 
 /**
  * 类型守卫：检查 view 是否为 ViewOptions
@@ -30,14 +32,43 @@ export class ViewLoader {
     protected abortController?: AbortController;
     router: KylinRouter;
     /** 全局视图加载配置 */
-    protected options?: Omit<KylinRouteViewOptions, "form">;
+    protected options: Required<Omit<KylinRouteViewOptions, "form">>;
 
     constructor(router: KylinRouter) {
         this.router = router;
         this.options = Object.assign(
             { allowUnsafe: true, timepout: 5000, cache: 0 },
             this.router.options.viewOptions,
-        );
+        ) as Required<Omit<KylinRouteViewOptions, "form">>;
+    }
+    /**
+     * 判断视图缓存是否过期
+     * @param view
+     * @returns
+     */
+    private _viewIsExpired(view: KylinRouteItem["_view"]) {
+        if (view) {
+            if (this.options.cache > 0 && view.timestamp > 0) {
+                return Date.now() - view.timestamp > this.options.cache;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    async loadViews(routes: KylinMatchedRouteItem[]): Promise<RouteViewLoadResult> {
+        routes.forEach((matched) => {
+            if (matched.route._view) {
+                if (this._viewIsExpired(matched.route._view)) {
+                }
+                const signal = asyncSignal();
+                this.loadView(matched.route)
+                    .then((result) => {})
+                    .catch((e) => {});
+            }
+        });
     }
 
     /**
@@ -52,7 +83,7 @@ export class ViewLoader {
         if (this.abortController) {
             this.abortController.abort();
         }
-        this.abortController = new AbortController();
+        const abortController = new AbortController();
 
         const viewOptions = {
             ...this.options,
@@ -63,37 +94,31 @@ export class ViewLoader {
                   }),
         } as KylinRouteViewOptions;
 
-        const from = viewOptions.from;
+        const from =
+            typeof viewOptions.from === "function"
+                ? await viewOptions.from(route)
+                : viewOptions.from;
 
+        let result: any;
+        const signal = asyncSignal();
         try {
             // 检测 view 类型，字符串代表url
             if (typeof from === "string") {
                 // 自动添加 base URL 前缀
                 const prefixedUrl = this.prefixBaseUrl(from);
-                return await this.loadRemoteView(prefixedUrl, viewOptions, this.options);
-            } else if (typeof from === "function") {
-                return await this.loadDynamicImport(from);
+                this.loadRemoteView(prefixedUrl, viewOptions, abortController.signal)
+                    .then((result) => {
+                        route._view = {
+                            loading: signal,
+                            value: result,
+                            timestamp: Date.now(),
+                        };
+                    })
+                    .catch((e) => {});
             } else if (from instanceof HTMLElement) {
-                // HTMLElement 类型，直接返回
-                return {
-                    success: true,
-                    content: from,
-                    error: null,
-                };
-            } else {
-                return {
-                    success: false,
-                    content: null,
-                    error: new Error(`Invalid view type: ${typeof view}`),
-                };
+                result = from;
             }
-        } catch (error) {
-            return {
-                success: false,
-                content: null,
-                error: error instanceof Error ? error : new Error(String(error)),
-            };
-        }
+        } catch (error) {}
     }
 
     /**
@@ -129,129 +154,49 @@ export class ViewLoader {
     }
 
     /**
-     * 动态导入加载 - 处理函数形式的组件
-     * @param importFn - 动态导入函数（如 () => import('./MyComponent.js')）
-     * @returns 加载结果的 Promise
-     */
-    private async loadDynamicImport(
-        importFn: () => Promise<HTMLElement> | HTMLElement,
-    ): Promise<RouteViewLoadResult> {
-        try {
-            // 调用动态导入函数
-            const result = importFn();
-
-            // 处理同步返回的 HTMLElement
-            if (result instanceof HTMLElement) {
-                return {
-                    success: true,
-                    content: result,
-                    error: null,
-                };
-            }
-
-            // 处理异步返回的 Promise
-            const module = await result;
-
-            // 提取默认导出或命名导出
-            const component = (module as any).default || module;
-
-            if (!component) {
-                return {
-                    success: false,
-                    content: null,
-                    error: new Error("Dynamic import has no default or named export"),
-                };
-            }
-
-            // 返回组件类或构造函数
-            return {
-                success: true,
-                content: component,
-                error: null,
-            };
-        } catch (error) {
-            return {
-                success: false,
-                content: null,
-                error: error instanceof Error ? error : new Error(String(error)),
-            };
-        }
-    }
-
-    /**
      * 远程 HTML 加载 - 从 URL 获取 HTML 内容
      * @param url - 远程 HTML 的 URL
      * @param routeOptions - 路由级加载选项
      * @param globalOptions - 全局加载选项
      * @returns 加载结果的 Promise
      */
-    private async loadRemoteView(
+    private loadRemoteView(
         url: string,
-        routeOptions?: KylinRouteViewOptions,
-        globalOptions?: Omit<KylinRouteViewOptions, "form">,
-    ): Promise<RouteViewLoadResult> {
-        // 合并选项：路由级优先
-        const timeout = routeOptions?.timeout ?? globalOptions?.timeout ?? 5000;
-        const allowUnsafe = routeOptions?.allowUnsafe ?? globalOptions?.allowUnsafe ?? false;
-        const selector = routeOptions?.selector ?? globalOptions?.selector;
-
-        try {
-            // 使用 Promise.race 实现超时机制
-            const response = await Promise.race([
-                fetch(url, {
-                    signal: this.abortController?.signal,
-                }),
-                new Promise<Response>((_, reject) =>
-                    setTimeout(() => reject(new Error("Load timeout")), timeout),
-                ),
-            ]);
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+        viewOptions: KylinRouteViewOptions,
+        abortSignal: AbortSignal,
+    ): Promise<string> {
+        let tmId: any;
+        return new Promise<string>((resolve, reject) => {
+            const { timeout = 0, selector, allowUnsafe } = viewOptions;
+            if (timeout > 0) {
+                tmId = setTimeout(() => {
+                    reject(new Error("Load timeout"));
+                }, timeout);
             }
-
-            // 检查内容大小（D-32: 限制 1MB）
-            const contentLength = response.headers.get("content-length");
-            if (contentLength && parseInt(contentLength) > 1024 * 1024) {
-                throw new Error("Response too large (max 1MB)");
-            }
-
-            let html = await response.text();
-
-            // 检查内容大小（如果没有 content-length 头）
-            if (html.length > 1024 * 1024) {
-                throw new Error("Response too large (max 1MB)");
-            }
-
-            // 智能内容提取（D-02）
-            html = this.extractContent(html, selector);
-
-            // 安全性检查（D-15, D-29）
-            if (!allowUnsafe) {
-                html = this.sanitizeHTML(html);
-            }
-
-            return {
-                success: true,
-                content: html,
-                error: null,
-            };
-        } catch (error) {
-            // 处理 AbortError（请求被取消）
-            if (error instanceof Error && error.name === "AbortError") {
-                return {
-                    success: false,
-                    content: null,
-                    error: new Error("Request cancelled"),
-                };
-            }
-
-            return {
-                success: false,
-                content: null,
-                error: error instanceof Error ? error : new Error(String(error)),
-            };
-        }
+            fetch(url, {
+                signal: abortSignal,
+            })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error(
+                            `Load view ${url} error: ${response.status} ${response.statusText}`,
+                        );
+                    }
+                    response.text().then((html) => {
+                        html = this.extractContent(html, selector);
+                        if (!allowUnsafe) {
+                            html = this.sanitizeHTML(html);
+                        }
+                        resolve(html);
+                    });
+                })
+                .catch((e) => {
+                    reject(e);
+                })
+                .finally(() => {
+                    clearTimeout(tmId);
+                });
+        });
     }
 
     /**

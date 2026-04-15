@@ -2,13 +2,13 @@
  * 路由配置相关类型定义
  */
 
-import type { AfterRenderHook, BeforeRenderHook, BeforeRouteHook } from "./hooks";
+import type { AfterRenderHook, AfterRouteHook, BeforeRenderHook, BeforeRouteHook } from "./hooks";
 import type { KylinRouteDataOptions } from "./data";
 import type { KylinRouteDataSource } from "./data";
 import type { TemplateResult } from "lit";
 import type { ErrorBoundaryConfig, RetryConfig } from "./config";
 import type { ModalConfig } from "./modals";
-
+import type { IAsyncSignal } from "asyncsignal";
 // 重新导出 RouteData 以保持向后兼容
 export type { KylinRouteDataSource as RouteData };
 
@@ -39,7 +39,7 @@ export type TemplateData = Record<string, any>;
  * - HTMLElement: 直接使用指定的HTMLElement元素作为视图内容
  * - () => Promise<any>: 通过函数动态加载视图，支持动态导入和异步加载
  */
-export type KylinRouteViewSource = string | HTMLElement | (() => Promise<any>);
+export type KylinRouteViewSource = string | HTMLElement | ((route: KylinRouteItem) => Promise<any>);
 /**
  * 渲染上下文接口
  * 提供模板渲染时所需的上下文数据
@@ -222,12 +222,28 @@ export interface KylinRouteItem {
     view?: KylinRouteViewSource | KylinRouteViewOptions;
 
     /**
+     * 内部属性：视图模板缓存
+     * 用于存储已加载的视图内容，避免重复加载
+     * 包含缓存内容和缓存时间戳
+     * @internal
+     */
+    _view?: {
+        loading: IAsyncSignal;
+        value: any /** 缓存的内容 */;
+        timestamp: number /** 加载时间戳 */;
+    };
+    /**
      *
      * 在导航到此路由时预加载的数据，可以是以下类型：
      *
      * 这些数据会被作为路由视图渲染时使用的变量
      */
     data?: KylinRouteDataSource | KylinRouteDataOptions;
+    _data?: {
+        loading: boolean;
+        value: any;
+        timestamp: number;
+    };
     /**
      * 是否缓存此路由对应的组件实例，默认为 false
      *
@@ -268,20 +284,6 @@ export interface KylinRouteItem {
      * - true: 在初始化时自动加载视图数据
      */
     preload?: boolean;
-    /**
-     * 内部属性：视图模板缓存
-     * 用于存储已加载的视图内容，避免重复加载
-     * 包含缓存内容和缓存时间戳
-     * @internal
-     */
-    _viewTemplate?: {
-        /** 缓存的内容 */
-        content: any;
-        /** 缓存的时间戳 */
-        timestamp: number;
-        /** 缓存有效期（毫秒） */
-        duration: number;
-    };
 
     roles?: string[];
     /**
