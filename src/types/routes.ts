@@ -228,7 +228,8 @@ export interface KylinRouteItem {
      * @internal
      */
     _view?: {
-        loading: IAsyncSignal;
+        loading: boolean;
+        signal: IAsyncSignal;
         value: any /** 缓存的内容 */;
         timestamp: number /** 加载时间戳 */;
     };

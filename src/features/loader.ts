@@ -82,9 +82,7 @@ export class ViewLoader {
         // 取消之前的加载请求
         if (this.abortController) {
             this.abortController.abort();
-        }
-        const abortController = new AbortController();
-
+        } 
         const viewOptions = {
             ...this.options,
             ...(isViewOptions(route.view)
@@ -100,7 +98,12 @@ export class ViewLoader {
                 : viewOptions.from;
 
         let result: any;
-        const signal = asyncSignal();
+        route._view = {
+            loading: true,
+            signal:asyncSignal(),
+            value: "",
+            timestamp: Date.now(),
+        };
         try {
             // 检测 view 类型，字符串代表url
             if (typeof from === "string") {
@@ -114,7 +117,12 @@ export class ViewLoader {
                             timestamp: Date.now(),
                         };
                     })
-                    .catch((e) => {});
+                    .catch((e) => {
+                        route._view.signal.reject(e);
+                    }).finally(()=>{
+                        route._view?.loading=false
+                        
+                    })
             } else if (from instanceof HTMLElement) {
                 result = from;
             }
