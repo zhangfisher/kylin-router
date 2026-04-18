@@ -1,5 +1,5 @@
 export * from "./context";
-export * from "./data";
+export * from "./dataLoader";
 export * from "./hooks";
 export * from "./keepAlive";
 export * from "./transition";
@@ -9,4 +9,4 @@ export * from "./modal";
 export * from "./redirect";
 export * from "./routes";
 export * from "./emitter";
-export * from "./loader";
+export * from "./viewLoader";

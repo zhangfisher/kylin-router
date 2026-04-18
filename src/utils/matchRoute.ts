@@ -11,7 +11,7 @@
  */
 
 import type { KylinRouteItem, KylinMatchedRouteItem } from "@/types";
-import { generateRouteHash } from "./hash";
+import { generateRouteHash } from "./generateRouteHash";
 import { joinPath } from "./joinPath";
 import { extractQueryParams } from "./extractQueryParams";
 
@@ -90,16 +90,6 @@ function parseQueryString(pathname: string): { pathname: string; query: Record<s
     const query = search ? extractQueryParams("?" + search) : {};
 
     return { pathname: path, query };
-}
-
-/**
- * 分析路径段是静态、参数化还是通配符
- */
-function classifySegment(segment: string): "static" | "param" | "wildcard" | "multi-wildcard" {
-    if (segment === "**") return "multi-wildcard";
-    if (segment === "*") return "wildcard";
-    if (segment.startsWith(":") || segment.startsWith("<")) return "param";
-    return "static";
 }
 
 /**

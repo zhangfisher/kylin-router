@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
-import { ViewLoader } from "@/features/loader";
+import { ViewLoader } from "@/features/viewLoader";
 import type { RouteViewLoadResult, KylinRouteViewOptions } from "@/types/routes";
 
 /**

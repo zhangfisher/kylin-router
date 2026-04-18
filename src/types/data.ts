@@ -11,10 +11,12 @@
  * @param () => Record<string, any> | Promise<Record<string, any>> - 支持同步或异步函数返回数据
  */
 
+import type { KylinMatchedRouteItem } from "./routes";
+
 export type KylinRouteDataSource =
     | string
     | Record<string, any>
-    | (() => Record<string, any> | Promise<Record<string, any>>);
+    | ((route: KylinMatchedRouteItem) => Record<string, any> | Promise<Record<string, any>>);
 
 export type KylinRouteDataOptions = {
     /**
@@ -26,10 +28,6 @@ export type KylinRouteDataOptions = {
      */
     from: KylinRouteDataSource;
     /**
-     * 用于取消加载
-     */
-    signal?: AbortSignal;
-    /**
      * 加载超时时间，单位毫秒
      * 默认：5000ms
      */
@@ -38,28 +36,22 @@ export type KylinRouteDataOptions = {
      *
      * 默认情况下，data会被转为为所有outlet的x-data属性
      *
-     * 如果scope=<string>，则在全局$store创建一个store
+     * 如果store=<string>，则在全局$store创建一个store
      *
-     * 如scope="auth"
+     * 如store="auth"
      *
      * 则会使用Alpine.store("auth",data)
      *
      * 这样在整个应用中，就可以使用$store.auth来访问数据了
      *
      */
-    scope?: string;
+    store?: string;
     /**
-     * 缓存
-     *
-     * - undefined: 不启用缓存
-     * - string: 启用缓存数据时指定缓存键，支持字符串插值,可以用插值变量
-     *    - path: 当前路由完整路径，保持路径中的参数，如path="/users/:id"
-     *    - basepath: 当前路由完整路径，
-     *    - url: 当前访问时的url，如path="/users/123d"
-     *    - query和params中的所有成员值,如,path="/users/:id"时，"{id}"中的id就是该参数
-     * - boolean: true代表启用默认的缓存策略，cacheKey="{path}"
+     * 视图缓存时间（毫秒）
+     * 默认为 0，表示不缓存
+     * 大于 0 表示缓存指定毫秒数，超时后失效
      */
-    cache?: string | boolean;
+    cache?: number;
     /**
      * 当启用缓存时，缓存的过期时间
      * 默认0代表不过期。

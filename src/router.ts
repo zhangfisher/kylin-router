@@ -9,7 +9,6 @@ import type {
     KylinRouteViewOptions,
     KylinMatchedRouteItem,
 } from "./types/index";
-import { HookTypeValues, type HookType } from "./types/index";
 import { Mixin } from "ts-mixer";
 import {
     Context,
@@ -171,6 +170,9 @@ export class KylinRouter extends Mixin(
     get debug() {
         return this.options.debug;
     }
+    store() {
+        return;
+    }
     /**
      * 调试日志输出方法
      * @param message - 日志消息
@@ -298,43 +300,6 @@ export class KylinRouter extends Mixin(
      */
     protected async _loadRouteViews(routes: KylinMatchedRouteItem[]): Promise<boolean> {
         // 检查路由视图模板是否已经加载
-        if (route.route._view) {
-        } else {
-            async () => {
-                const viewOptions = Object.assign(
-                    {
-                        allowUnsafe: true,
-                        timepout: 5000,
-                        cache: 0,
-                    },
-                    isViewOptions(route.route.view)
-                        ? route.route.view
-                        : {
-                              from: route.route.view,
-                          },
-                );
-                const viewFrom = viewOptions.from;
-                if (typeof viewFrom === "string" || typeof viewFrom === "function") {
-                    // ViewSource 类型：string 或 function，使用默认选项加载
-                    this.log("组件加载: ViewSource 类型（string/function）");
-                    const loadResult = await this.viewLoader.loadView(viewFrom, undefined);
-                    if (loadResult.success) {
-                        this.log("组件加载: 成功", loadResult.content);
-                        if (!route.route._view)
-                            route.route._view = {
-                                content: "",
-                                timestamp: Date.now(),
-                                duration: 0,
-                            };
-                        route.route._view!.content = loadResult.content;
-                    } else {
-                        this.log("组件加载: 失败", loadResult.error);
-                        this.isNavigating = false;
-                        return false;
-                    }
-                }
-            };
-        }
 
         // 并发加载该路由下的视图模板
         return true;
@@ -344,31 +309,7 @@ export class KylinRouter extends Mixin(
      * 加载路由数据
      * @returns 是否继续导航（false 表示版本过期）
      */
-    protected async _loadRouteData(route: KylinMatchedRouteItem): Promise<any> {
-        // if (!this.routes.current.route?.data) {
-        //     return true;
-        // }
-        // this.log("数据加载: 开始加载路由数据");
-        // try {
-        //     const dataResult = await this.dataLoader.loadData(this.routes.current.route, {
-        //         signal: this.abortController.signal,
-        //     });
-        //     if (dataResult.success && dataResult.data) {
-        //         this.log("数据加载: 成功", dataResult.data);
-        //         // 将加载的数据存储到 route.data
-        //         (this.routes.current.route as any).data = dataResult.data;
-        //     } else {
-        //         this.log("数据加载: 失败", dataResult.error);
-        //         // 数据加载失败不阻塞导航流程，继续使用空数据
-        //         (this.routes.current.route as any).data = {};
-        //     }
-        // } catch (error) {
-        //     console.error("数据加载异常:", error);
-        //     // 数据加载异常不阻塞导航流程
-        //     (this.routes.current.route as any).data = {};
-        // }
-        // return true;
-    }
+    protected async _loadRouteData(route: KylinMatchedRouteItem): Promise<any> {}
 
     /**
      * 并发加载路由资源（组件和数据）
@@ -380,8 +321,8 @@ export class KylinRouter extends Mixin(
         this.log("资源加载: 开始并发加载组件和数据");
 
         const results = await Promise.allSettled([
-            this._loadRouteView(route),
-            this._loadRouteData(route),
+            this._loadRouteViews(route),
+            this._loadRouteDatas(route),
         ]);
 
         const [viewResult] = results;
@@ -428,7 +369,7 @@ export class KylinRouter extends Mixin(
         fromRoute: KylinRouteItem,
     ): Promise<void> {
         // 触发 route/change 事件（用于后续的组件渲染）
-        this.emit("route:change", {
+        this.emit("route:updated", {
             route: this.routes.current.route || undefined,
             params: this.routes.current.params,
             query: this.routes.current.query,
@@ -491,13 +432,9 @@ export class KylinRouter extends Mixin(
         if (!shouldContinue) {
             return;
         }
-
-        // 并发加载组件和数据（使用 Promise.allSettled）
-        const viewLoaded = await this._loadRouteView(toRoute);
-        const resourcesLoaded = await this._loadRouteResources(toRoute);
-        if (!resourcesLoaded) {
-            return;
-        }
+        // 加载路由视图和数据
+        this.viewLoader.loadViews(toRoute);
+        this.dataLoader.loadDatas(toRoute);
 
         // 执行渲染步骤
         await this._renderRoute();
@@ -849,15 +786,6 @@ export class KylinRouter extends Mixin(
     }
 
     /**
-     * 生成路由哈希标识
-     * 用于 Alpine.js store 的命名
-     */
-    protected _generateRouteHash(route: KylinRouteItem): string {
-        // 使用路由名称作为哈希
-        return `route-${route.name}`;
-    }
-
-    /**
      * 确保 host 元素内部有至少一个 outlet
      * 如果没有，自动创建并插入一个默认 outlet
      */
@@ -925,7 +853,7 @@ export class KylinRouter extends Mixin(
         this.viewLoader = new ViewLoader(this);
 
         // 初始化数据加载器，传递全局数据选项
-        this.dataLoader = new DataLoader(this, this.options.dataOptions);
+        this.dataLoader = new DataLoader(this);
 
         // 开始监听路由变化
         this._cleanups.push(this.history.listen(this.onRouteUpdate.bind(this)));

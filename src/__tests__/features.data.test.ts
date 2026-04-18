@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
-import { DataLoader } from "../features/data";
+import { DataLoader } from "../features/dataLoader";
 import type { KylinRouter } from "../router";
 import type { KylinRouteItem } from "../types";
 

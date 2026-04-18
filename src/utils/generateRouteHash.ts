@@ -3,7 +3,6 @@
  * 用于生成唯一的路由标识符，支持字符串插值
  */
 
-import type { KylinRouteItem } from "@/types/routes";
 import { params as replaceParams } from "./params";
 import { quickHash } from "./quickHash";
 

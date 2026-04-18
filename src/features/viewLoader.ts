@@ -8,21 +8,16 @@
  */
 
 import type { KylinRouter } from "@/router";
-import type { KylinRouterOptions } from "@/types/config";
-import type {
-    RouteViewLoadResult,
-    KylinRouteViewOptions,
-    KylinRouteItem,
-    KylinMatchedRouteItem,
-} from "@/types/routes";
-import { joinPath } from "@/utils/joinPath";
-import { asyncSignal } from "asyncsignal";
+import type { KylinRouteViewOptions, KylinRouteItem, KylinMatchedRouteItem } from "@/types/routes";
+import { asyncSignal, type IAsyncSignal } from "asyncsignal";
+import { getRouteVars } from "@/utils/getRouteVars";
+import { prefixBaseUrl } from "@/utils/prefixBaseUrl";
 
 /**
  * 类型守卫：检查 view 是否为 ViewOptions
  */
 function isViewOptions(view: any): view is KylinRouteViewOptions {
-    return typeof view === "object" && view !== null && "form" in view;
+    return typeof view === "object" && view !== null && "from" in view;
 }
 /**
  * Loader 类 - 负责组件加载逻辑
@@ -32,14 +27,14 @@ export class ViewLoader {
     protected abortController?: AbortController;
     router: KylinRouter;
     /** 全局视图加载配置 */
-    protected options: Required<Omit<KylinRouteViewOptions, "form">>;
+    protected options: Required<Omit<KylinRouteViewOptions, "from">>;
 
     constructor(router: KylinRouter) {
         this.router = router;
         this.options = Object.assign(
             { allowUnsafe: true, timepout: 5000, cache: 0 },
             this.router.options.viewOptions,
-        ) as Required<Omit<KylinRouteViewOptions, "form">>;
+        ) as Required<Omit<KylinRouteViewOptions, "from">>;
     }
     /**
      * 判断视图缓存是否过期
@@ -48,26 +43,43 @@ export class ViewLoader {
      */
     private _viewIsExpired(view: KylinRouteItem["_view"]) {
         if (view) {
-            if (this.options.cache > 0 && view.timestamp > 0) {
-                return Date.now() - view.timestamp > this.options.cache;
-            } else {
-                return false;
-            }
+            return Date.now() - view.timestamp > this.options.cache;
         } else {
-            return false;
+            return true;
         }
     }
 
-    async loadViews(routes: KylinMatchedRouteItem[]): Promise<RouteViewLoadResult> {
+    private _getRouteViewOptions(matched: KylinMatchedRouteItem) {
+        if (!matched.route._viewOptions) {
+            matched.route._viewOptions = Object.assign(
+                {
+                    cache: 0,
+                    allowUnsafe: true,
+                    timeout: 5000,
+                },
+                {
+                    ...this.options,
+                    ...(isViewOptions(matched.route.view)
+                        ? matched.route.view
+                        : {
+                              from: matched.route.view,
+                          }),
+                },
+            ) as Required<KylinRouteViewOptions>;
+        }
+        return matched.route._viewOptions;
+    }
+
+    async loadViews(routes: KylinMatchedRouteItem[]) {
         routes.forEach((matched) => {
-            if (matched.route._view) {
-                if (this._viewIsExpired(matched.route._view)) {
-                }
-                const signal = asyncSignal();
-                this.loadView(matched.route)
-                    .then((result) => {})
-                    .catch((e) => {});
+            const viewOptions = this._getRouteViewOptions(matched);
+            // 如果视图过期缓存，
+            if (
+                (viewOptions.cache > 0 && this._viewIsExpired(matched.route._view)) ||
+                (matched.route._view && matched.route._view.value == undefined)
+            ) {
             }
+            this.loadView(matched);
         });
     }
 
@@ -77,90 +89,74 @@ export class ViewLoader {
      * @param options - 视图加载选项（可选）
      * @returns 加载结果的 Promise
      */
-    async loadView(route: KylinRouteItem): Promise<RouteViewLoadResult> {
-        const view = route.view;
-        // 取消之前的加载请求
-        if (this.abortController) {
-            this.abortController.abort();
-        } 
+    loadView(matched: KylinMatchedRouteItem) {
         const viewOptions = {
             ...this.options,
-            ...(isViewOptions(route.view)
-                ? route.view
+            ...(isViewOptions(matched.route.view)
+                ? matched.route.view
                 : {
-                      from: route.view,
+                      from: matched.route.view,
                   }),
         } as KylinRouteViewOptions;
 
-        const from =
+        const viewSource =
             typeof viewOptions.from === "function"
-                ? await viewOptions.from(route)
-                : viewOptions.from;
+                ? viewOptions.from(matched)
+                : () => viewOptions.from;
 
-        let result: any;
-        route._view = {
-            loading: true,
-            signal:asyncSignal(),
-            value: "",
-            timestamp: Date.now(),
-        };
-        try {
-            // 检测 view 类型，字符串代表url
-            if (typeof from === "string") {
-                // 自动添加 base URL 前缀
-                const prefixedUrl = this.prefixBaseUrl(from);
-                this.loadRemoteView(prefixedUrl, viewOptions, abortController.signal)
-                    .then((result) => {
-                        route._view = {
-                            loading: signal,
-                            value: result,
-                            timestamp: Date.now(),
-                        };
-                    })
-                    .catch((e) => {
-                        route._view.signal.reject(e);
-                    }).finally(()=>{
-                        route._view?.loading=false
-                        
-                    })
-            } else if (from instanceof HTMLElement) {
-                result = from;
-            }
-        } catch (error) {}
+        if (!matched.route._view) {
+            matched.route._view = {
+                value: null,
+                timestamp: 0,
+                signal: null,
+                error: null,
+            };
+        }
+        const _view = matched.route._view as Exclude<KylinRouteItem["_view"], undefined>;
+
+        // 如果信号已存在且正在进行中，则取消
+        if (_view.signal?.isPending) {
+            _view.signal.abort();
+        }
+        Promise.resolve(viewSource)
+            .then((from) => {
+                // 开始新的加载
+                _view.signal = asyncSignal();
+                // 检测 view 类型，字符串代表url
+                if (typeof from === "string") {
+                    // 进行URL处理和插值
+                    const url = prefixBaseUrl(
+                        from.params(getRouteVars(matched)),
+                        this.router.options.base,
+                    );
+                    this.loadRemoteView(url, viewOptions, _view.signal!)
+                        .then((result) => {
+                            // 加载后的的是一个字符串模板
+                            if (typeof result === "string") {
+                                _view.value = result;
+                                _view.timestamp = Date.now();
+                                _view.signal?.resolve(result);
+                            }
+                        })
+                        .catch((e) => {
+                            _view.signal?.reject(e);
+                            _view.error = e;
+                        })
+                        .finally(() => {
+                            _view.signal?.destroy();
+                            _view.signal = null;
+                        });
+                } else if (from instanceof HTMLElement) {
+                    _view.value = from;
+                    _view.timestamp = 0; // 静态HTML不需要超时处理
+                    _view.signal?.destroy();
+                    _view.signal = null;
+                }
+            })
+            .catch((err) => {
+                _view.error = err;
+            });
     }
-
-    /**
-     * 为 URL 自动添加 base URL 前缀
-     * @param url - 原始 URL
-     * @returns 添加前缀后的 URL
-     */
-    private prefixBaseUrl(url: string): string {
-        // 如果是完整 URL（包含 :// 或以 // 开头），保持不变
-        if (url.includes("://") || url.startsWith("//")) {
-            return url;
-        }
-
-        // 获取 base URL
-        const baseUrl = this.router.options.base || "";
-        if (!baseUrl || baseUrl === "/") {
-            // base 为空或根路径，直接返回原 URL
-            return url;
-        }
-
-        // 如果 URL 以 / 开头（绝对路径），检查是否需要添加 base 前缀
-        if (url.startsWith("/")) {
-            // 检查是否已经包含 base 前缀
-            if (url.startsWith(baseUrl)) {
-                return url;
-            }
-            // 添加 base 前缀
-            return joinPath(baseUrl, url);
-        }
-
-        // 相对路径，直接添加 base 前缀
-        return joinPath(baseUrl, url);
-    }
-
     /**
      * 远程 HTML 加载 - 从 URL 获取 HTML 内容
      * @param url - 远程 HTML 的 URL
@@ -171,10 +167,10 @@ export class ViewLoader {
     private loadRemoteView(
         url: string,
         viewOptions: KylinRouteViewOptions,
-        abortSignal: AbortSignal,
-    ): Promise<string> {
+        signal: IAsyncSignal,
+    ): Promise<string | undefined> {
         let tmId: any;
-        return new Promise<string>((resolve, reject) => {
+        return new Promise<string | undefined>((resolve, reject) => {
             const { timeout = 0, selector, allowUnsafe } = viewOptions;
             if (timeout > 0) {
                 tmId = setTimeout(() => {
@@ -182,7 +178,7 @@ export class ViewLoader {
                 }, timeout);
             }
             fetch(url, {
-                signal: abortSignal,
+                signal: signal.getAbortSignal(),
             })
                 .then((response) => {
                     if (!response.ok) {
@@ -199,7 +195,11 @@ export class ViewLoader {
                     });
                 })
                 .catch((e) => {
-                    reject(e);
+                    if (e.name === "AbortError") {
+                        resolve(undefined);
+                    } else {
+                        reject(e);
+                    }
                 })
                 .finally(() => {
                     clearTimeout(tmId);
@@ -272,10 +272,5 @@ export class ViewLoader {
     /**
      * 清理 AbortController
      */
-    cleanup(): void {
-        if (this.abortController) {
-            this.abortController.abort();
-            this.abortController = undefined;
-        }
-    }
+    cleanup(): void {}
 }

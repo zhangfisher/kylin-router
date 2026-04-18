@@ -80,7 +80,7 @@ export class AlpineManager {
             get routes() {
                 return router.routes;
             },
-        } as KylinAlpineStore);
+        } as unknown as KylinAlpineStore);
         // 通过$store.data.xxx访问全局数据
         Alpine.store("data", initialData);
         // 启动 Alpine.js（如果还未启动）

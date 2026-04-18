@@ -39,7 +39,10 @@ export type TemplateData = Record<string, any>;
  * - HTMLElement: 直接使用指定的HTMLElement元素作为视图内容
  * - () => Promise<any>: 通过函数动态加载视图，支持动态导入和异步加载
  */
-export type KylinRouteViewSource = string | HTMLElement | ((route: KylinRouteItem) => Promise<any>);
+export type KylinRouteViewSource =
+    | string
+    | HTMLElement
+    | ((route: KylinRouteItem) => Promise<string | HTMLElement>);
 /**
  * 渲染上下文接口
  * 提供模板渲染时所需的上下文数据
@@ -90,16 +93,6 @@ export interface KylinRenderOptions {
 // ============================================================================
 
 /**
- * 组件加载器函数类型
- * 用于加载本地组件或远程 HTML 内容
- * @param view - 视图配置，可以是字符串（URL 或元素名）或函数（动态导入）
- * @returns 加载结果的 Promise
- */
-export type KylinRouteViewLoader = (
-    view: string | (() => Promise<any>),
-) => Promise<RouteViewLoadResult>;
-
-/**
  * 视图加载配置选项
  * 当 view 需要特殊配置时使用
  */
@@ -125,38 +118,12 @@ export interface KylinRouteViewOptions {
      * 如果提供，将从加载的 HTML 中提取匹配该选择器的内容
      */
     selector?: string;
-
     /**
      * 视图缓存时间（毫秒）
      * 默认为 0，表示不缓存
      * 大于 0 表示缓存指定毫秒数，超时后失效
      */
     cache?: number;
-}
-
-/**
- * 组件加载结果类型
- * 表示组件加载操作的最终状态和结果
- */
-export interface RouteViewLoadResult {
-    /**
-     * 是否加载成功
-     */
-    success: boolean;
-
-    /**
-     * 加载的内容
-     * - string:  Alpinejs模板
-     * - HTMLElement: HTML 元素
-     * - null: 加载失败时为 null
-     */
-    content: string | HTMLElement | null;
-
-    /**
-     * 加载错误信息
-     * 加载成功时为 null，失败时包含错误详情
-     */
-    error: Error | null;
 }
 
 /**
@@ -228,11 +195,12 @@ export interface KylinRouteItem {
      * @internal
      */
     _view?: {
-        loading: boolean;
-        signal: IAsyncSignal;
+        signal: IAsyncSignal | null;
         value: any /** 缓存的内容 */;
+        error?: Error | null; // 加载错误信息
         timestamp: number /** 加载时间戳 */;
     };
+    _viewOptions: Required<KylinRouteViewOptions>;
     /**
      *
      * 在导航到此路由时预加载的数据，可以是以下类型：
@@ -240,11 +208,16 @@ export interface KylinRouteItem {
      * 这些数据会被作为路由视图渲染时使用的变量
      */
     data?: KylinRouteDataSource | KylinRouteDataOptions;
+    /**
+     * 缓存数据
+     */
     _data?: {
-        loading: boolean;
-        value: any;
-        timestamp: number;
+        signal: IAsyncSignal | null;
+        value: any /** 缓存的内容 */;
+        error?: Error | null; // 加载错误信息
+        timestamp: number /** 加载时间戳 */;
     };
+    _dataOptions: Required<KylinRouteDataOptions>;
     /**
      * 是否缓存此路由对应的组件实例，默认为 false
      *

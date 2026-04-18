@@ -12,7 +12,7 @@ export type KylinRouterEvents = {
      * 路由表加载完成
      */
     "routes:loaded": undefined;
-    "route:change": {
+    "route:updated": {
         route: KylinRouteItem | undefined;
         params: Record<string, string>;
         query: Record<string, string>;

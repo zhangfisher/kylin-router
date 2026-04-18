@@ -7,7 +7,7 @@
 
 import { html } from "lit";
 import { triggerEvent } from "@/utils/triggerEvent";
-import { generateRouteHash } from "@/utils/hash";
+import { generateRouteHash } from "@/utils/generateRouteHash";
 import type { KylinRouter } from "@/router";
 import type { KylinRouteItem } from "@/types";
 import type {

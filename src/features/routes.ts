@@ -59,7 +59,7 @@ export class RouteRegistry {
                 this.routes = [];
                 result.then((loaded) => {
                     this.routes = this._normalizeRoutes(loaded);
-                    this.router.emit("routes:loaded");
+                    this.router.emit("routes:loaded", undefined);
                 });
                 return;
             }

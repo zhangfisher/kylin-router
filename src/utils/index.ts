@@ -1,6 +1,6 @@
 export * from "./emitter";
 export * from "./findOutletInElement";
-export * from "./hash";
+export * from "./generateRouteHash";
 export * from "./hashUtils";
 export * from "./joinPath";
 export * from "./matchRoute";
