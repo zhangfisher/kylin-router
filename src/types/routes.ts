@@ -42,7 +42,7 @@ export type TemplateData = Record<string, any>;
 export type KylinRouteViewSource =
     | string
     | HTMLElement
-    | ((route: KylinRouteItem) => Promise<string | HTMLElement>);
+    | ((route: KylinMatchedRouteItem) => Promise<string | HTMLElement>);
 /**
  * 渲染上下文接口
  * 提供模板渲染时所需的上下文数据
