@@ -192,6 +192,9 @@ export interface KylinRouteItem {
      * 内部属性：视图模板缓存
      * 用于存储已加载的视图内容，避免重复加载
      * 包含缓存内容和缓存时间戳
+     *
+     * 同一视图的视图数据是一样的
+     *
      * @internal
      */
     _view?: {
@@ -210,13 +213,19 @@ export interface KylinRouteItem {
     data?: KylinRouteDataSource | KylinRouteDataOptions;
     /**
      * 缓存数据
+     *
+     * 不同url可能数据是不同的，比如/posts/:id
+     * 调用不同的id参数时，需要分别进行加载和缓存
      */
-    _data?: {
-        signal: IAsyncSignal | null;
-        value: any /** 缓存的内容 */;
-        error?: Error | null; // 加载错误信息
-        timestamp: number /** 加载时间戳 */;
-    };
+    _data?: Record<
+        string,
+        {
+            signal: IAsyncSignal | null;
+            value: any /** 缓存数据 */;
+            error?: Error | null; // 加载错误信息
+            timestamp: number /** 加载时间戳 */;
+        }
+    >;
     _dataOptions: Required<KylinRouteDataOptions>;
     /**
      * 是否缓存此路由对应的组件实例，默认为 false
