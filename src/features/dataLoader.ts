@@ -15,6 +15,7 @@ import { prefixBaseUrl } from "@/utils/prefixBaseUrl";
 import type { KylinRouteDataOptions } from "@/types/data";
 import { generateRouteHash } from "@/utils";
 import { getRouteHash } from "@/utils/getRouteHash";
+import { quickHash } from "@/utils/quickHash";
 
 /**
  * 类型守卫：检查 view 是否为 ViewOptions
@@ -51,9 +52,13 @@ export class DataLoader {
      * @param view
      * @returns
      */
-    private _dataIsExpired(view: KylinRouteItem["_data"]) {
-        if (view) {
-            return Date.now() - view.timestamp > this.options.cache;
+    private _dataIsExpired(
+        dataItem: DataCacheItem | undefined,
+        dataOptions: KylinRouteDataOptions,
+    ) {
+        if (!dataItem) return true;
+        if ((dataOptions.cache || 0) > 0) {
+            return Date.now() - dataItem.timestamp > dataOptions.cache!;
         } else {
             return true;
         }
@@ -66,12 +71,29 @@ export class DataLoader {
         routes.forEach((matched) => {
             // 必须有指定data参数,如果没有则跳过
             if (!matched.route.data) return;
-            if (matched.route._data && this._dataIsExpired(matched.route._data)) {
-            }
             this.loadData(matched);
         });
     }
-
+    private _getDataFromCache(url: string, dataOptions: Required<KylinRouteDataOptions>) {
+        const routeHash = quickHash(url);
+        const useCache = dataOptions.cache || 0 > 0;
+        let data: DataCacheItem = this.cache.get(routeHash) as DataCacheItem;
+        if (!data) {
+            data = {
+                value: undefined,
+                timestamp: 0,
+                signal: asyncSignal(),
+            };
+            this.cache.set(routeHash, data);
+        }
+        if (useCache) {
+            const isExpired = this._dataIsExpired(data!, dataOptions);
+            if (isExpired) {
+                data.value = undefined;
+            }
+        }
+        return data;
+    }
     /**
      * 主加载方法 - 根据 view 类型分发到不同加载策略
      * @param view - 视图源配置（ViewSource）
@@ -83,68 +105,55 @@ export class DataLoader {
             ...this.options,
             ...(isDataOptions(matched.route.data)
                 ? matched.route.data
-                : {
-                      from: matched.route.data,
-                  }),
-        } as KylinRouteDataOptions;
+                : { from: matched.route.data }),
+        } as Required<KylinRouteDataOptions>;
 
         const dataSource =
             typeof dataOptions.from === "function"
                 ? dataOptions.from(matched)
                 : () => dataOptions.from;
 
-        if (!matched.route._data) {
-            matched.route._data = {
-                value: null,
-                timestamp: 0,
-                signal: null,
-                error: null,
-            };
-        }
-
-        const _data = matched.route._data as Exclude<KylinRouteItem["_data"], undefined>;
-
-        // 如果信号已存在且正在进行中，则取消
-        if (_data.signal?.isPending) {
-            _data.signal.abort();
-        }
         Promise.resolve(dataSource)
             .then((from) => {
-                // 开始新的加载
-                _data.signal = asyncSignal();
-                // 检测 view 类型，字符串代表url
+                // 进行URL处理和插值
+                const url = prefixBaseUrl(
+                    from.params(getRouteVars(matched)),
+                    this.router.options.base,
+                );
+                // 读取缓存数据
+                let data = this._getDataFromCache(url, dataOptions);
+                if (data) {
+                    data.signal?.abort();
+                } else {
+                    data = {
+                        signal: asyncSignal(),
+                        timestamp: Date.now(),
+                        value: null,
+                    };
+                }
+                // 检测 from 类型，字符串代表url,并且支持变量插值
                 if (typeof from === "string") {
-                    // 进行URL处理和插值
-                    const url = prefixBaseUrl(
-                        from.params(getRouteVars(matched)),
-                        this.router.options.base,
-                    );
-                    this.loadRemoteView(url, dataOptions, _data.signal!)
+                    this.loadRemoteData(url, dataOptions, data.signal!)
                         .then((result) => {
                             // 加载后的的是一个字符串模板
                             if (typeof result === "string") {
-                                _data.value = result;
-                                _data.timestamp = Date.now();
-                                _data.signal?.resolve();
+                                data.value = result;
+                                data.timestamp = Date.now();
+                                data.signal?.resolve();
                             }
                         })
                         .catch((e) => {
-                            _data.signal?.reject(e);
-                            _data.error = e;
+                            data.signal?.reject(e);
+                            data.error = e;
                         })
                         .finally(() => {
-                            _data.signal?.destroy();
-                            _data.signal = null;
+                            data.signal?.destroy();
+                            data.signal = null;
                         });
-                } else if (from instanceof HTMLElement) {
-                    _data.value = from;
-                    _data.timestamp = 0; // 静态HTML不需要超时处理
-                    _data.signal?.destroy();
-                    _data.signal = null;
                 }
             })
             .catch((err) => {
-                _data.error = err;
+                data.error = err;
             });
     }
     /**
@@ -154,14 +163,14 @@ export class DataLoader {
      * @param globalOptions - 全局加载选项
      * @returns 加载结果的 Promise
      */
-    private loadRemoteView(
+    private loadRemoteData(
         url: string,
-        viewOptions: KylinRouteViewOptions,
+        dataOptions: KylinRouteDataOptions,
         signal: IAsyncSignal,
     ): Promise<string | undefined> {
         let tmId: any;
         return new Promise<string | undefined>((resolve, reject) => {
-            const { timeout = 0, selector, allowUnsafe } = viewOptions;
+            const { timeout = 0 } = dataOptions;
             if (timeout > 0) {
                 tmId = setTimeout(() => {
                     reject(new Error("Load timeout"));
@@ -176,12 +185,8 @@ export class DataLoader {
                             `Load view ${url} error: ${response.status} ${response.statusText}`,
                         );
                     }
-                    response.text().then((html) => {
-                        html = this.extractContent(html, selector);
-                        if (!allowUnsafe) {
-                            html = this.sanitizeHTML(html);
-                        }
-                        resolve(html);
+                    response.json().then((data) => {
+                        resolve(data);
                     });
                 })
                 .catch((e) => {
