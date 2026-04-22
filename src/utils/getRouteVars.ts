@@ -5,17 +5,16 @@ import type { KylinMatchedRouteItem } from "@/types";
  * @param {KylinMatchedRouteItem} route - 路由匹配项对象
  * @returns {Object} 包含路由名称、哈希、路径、URL以及合并后的参数、查询和元数据的对象
  */
-export function getRouteVars(route: KylinMatchedRouteItem) {
+export function getRouteVars(route: KylinMatchedRouteItem): Record<string, any> {
     return {
         name: route.route.name,
-        hash: route.hash,
         path: route.path,
+        curPath: route.path,
         url: route.url,
-        ...route.route.params,
-        ...route.route.query,
+        timestamp: Date.now(),
+        query: new URLSearchParams(route.query).toString(),
         ...route.route.meta,
         ...route.params,
-        ...route.query,
         ...route.state,
     };
 }

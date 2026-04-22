@@ -3,10 +3,19 @@ import { getRouteVars } from "./getRouteVars";
 import { params as replaceParams } from "./params";
 import { quickHash } from "./quickHash";
 
-export function getRouteHash(route: KylinMatchedRouteItem): string {
-    const hash = (route.route.hash || "{fullPath}").replace(/\s+/g, ""); // 移除所有空白字符
+/**
+ * 生成路由哈希和其变量的辅助函数
+ *  "name" // 路由名称
+     "path" // 当前路由路径
+     "curPath" // 当前完整路径
+    "url" // 当前完整路径
+     "query" // 路由查询字符串
+     "timestamp";
+
+ */
+export function getRouteHash(route: KylinMatchedRouteItem) {
+    const hash = route.route.hash || "{path}";
     const vars = getRouteVars(route);
-    // 使用插值函数生成 hash
     const result = quickHash(replaceParams(hash, vars));
     const isNotNumPreifx = isNaN(parseInt(result.substring(0, 1)));
     return isNotNumPreifx ? result : "h" + result;

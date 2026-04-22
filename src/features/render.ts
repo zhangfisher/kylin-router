@@ -7,7 +7,7 @@
 
 import { html } from "lit";
 import { triggerEvent } from "@/utils/triggerEvent";
-import { generateRouteHash } from "@/utils/generateRouteHash";
+import { replaceHashVars } from "@/utils/generateRouteHash";
 import type { KylinRouter } from "@/router";
 import type { KylinRouteItem } from "@/types";
 import type {
@@ -54,7 +54,7 @@ export class Render {
         const isKylinOutlet = outlet.tagName.toLowerCase() === "kylin-outlet";
 
         // 生成路由哈希
-        const hash = generateRouteHash(
+        const hash = replaceHashVars(
             route,
             this.history.location.pathname,
             this.routes.current.params,

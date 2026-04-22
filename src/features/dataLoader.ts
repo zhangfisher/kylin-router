@@ -8,14 +8,13 @@
  */
 
 import type { KylinRouter } from "@/router";
-import type { KylinRouteViewOptions, KylinRouteItem, KylinMatchedRouteItem } from "@/types/routes";
+import type { KylinMatchedRouteItem } from "@/types/routes";
 import { asyncSignal, type IAsyncSignal } from "asyncsignal";
 import { getRouteVars } from "@/utils/getRouteVars";
 import { prefixBaseUrl } from "@/utils/prefixBaseUrl";
 import type { KylinRouteDataOptions } from "@/types/data";
-import { generateRouteHash } from "@/utils";
-import { getRouteHash } from "@/utils/getRouteHash";
 import { quickHash } from "@/utils/quickHash";
+import { generateRouteHash } from "@/utils/generateRouteHash";
 
 /**
  * 类型守卫：检查 view 是否为 ViewOptions
@@ -47,6 +46,27 @@ export class DataLoader {
             this.router.options.dataOptions,
         ) as Required<Omit<KylinRouteDataOptions, "from">>;
     }
+
+    private _getRouteDataOptions(matched: KylinMatchedRouteItem) {
+        if (!matched.route._dataOptions) {
+            matched.route._dataOptions = Object.assign(
+                {
+                    cache: 0,
+                    allowUnsafe: true,
+                    timeout: 5000,
+                },
+                {
+                    ...this.options,
+                    ...(isDataOptions(matched.route.data)
+                        ? matched.route.data
+                        : {
+                              from: matched.route.data,
+                          }),
+                },
+            ) as Required<KylinRouteDataOptions>;
+        }
+        return matched.route._dataOptions;
+    }
     /**
      * 判断视图缓存是否过期
      * @param view
@@ -64,16 +84,45 @@ export class DataLoader {
         }
     }
     /**
+     * 从缓存获取数据
+     */
+    private _getRouteDataCache(
+        matched: KylinMatchedRouteItem,
+        dataOptions: Required<KylinRouteDataOptions>,
+    ) {
+        if (!matched.route._data) {
+            matched.route._data = {};
+        }
+        // 每一个数据项均需要唯一标识
+        const hash = generateRouteHash(dataOptions.hash || "{url}", getRouteVars(matched));
+        return matched.route._data[hash];
+    }
+    /**
      * 并发加载匹配路由的数据
      * @param routes
      */
     async loadDatas(routes: KylinMatchedRouteItem[]) {
         routes.forEach((matched) => {
-            // 必须有指定data参数,如果没有则跳过
-            if (!matched.route.data) return;
-            this.loadData(matched);
+            const dataOptions = this._getRouteDataOptions(matched);
+            const dataCache = this._getRouteDataCache(matched, dataOptions);
+            if (dataOptions.cache > 0) {
+                // 是否启用缓存
+                if (this._dataIsExpired(dataCache, dataOptions)) {
+                    dataCache.value = null;
+                    dataCache.timestamp = 0;
+                } else {
+                    dataCache.signal = asyncSignal.resolve(dataCache.value);
+                    return; // 因为数据已存在，所以不再加载
+                }
+            }
+            // 如果数据正在加载中，则取消之前的加载
+            if (dataCache && dataCache.signal?.isPending()) {
+                dataCache.signal.abort();
+            }
+            this.loadData(matched, dataOptions);
         });
     }
+    getData(matched: KylinMatchedRouteItem) {}
     private _getDataFromCache(url: string, dataOptions: Required<KylinRouteDataOptions>) {
         const routeHash = quickHash(url);
         const useCache = dataOptions.cache || 0 > 0;
@@ -100,14 +149,7 @@ export class DataLoader {
      * @param options - 视图加载选项（可选）
      * @returns 加载结果的 Promise
      */
-    loadData(matched: KylinMatchedRouteItem) {
-        const dataOptions = {
-            ...this.options,
-            ...(isDataOptions(matched.route.data)
-                ? matched.route.data
-                : { from: matched.route.data }),
-        } as Required<KylinRouteDataOptions>;
-
+    loadData(matched: KylinMatchedRouteItem, dataOptions: Required<KylinRouteDataOptions>) {
         const dataSource =
             typeof dataOptions.from === "function"
                 ? dataOptions.from(matched)

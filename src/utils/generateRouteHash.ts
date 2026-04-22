@@ -26,9 +26,9 @@ export type RouteHashVars =
  * @param query - 当前查询参数
  * @returns 生成的哈希字符串
  */
-export function generateRouteHash(hash: string | undefined, vars: Record<string, string>): string {
+export function generateRouteHash(hash: string | undefined, vars: Record<string, any>): string {
     // 使用默认值 "{path}" 如果未指定 hash
-    const hashPattern = (hash || "{fullPath}").replace(/\s+/g, ""); // 移除所有空白字符
+    const hashPattern = (hash || "{path}").replace(/\s+/g, ""); // 移除所有空白字符
     // 使用插值函数生成 hash
     const result = quickHash(replaceParams(hashPattern, vars));
     const isNotNumPreifx = isNaN(parseInt(result.substring(0, 1)));

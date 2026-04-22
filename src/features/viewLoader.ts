@@ -69,17 +69,40 @@ export class ViewLoader {
         }
         return matched.route._viewOptions;
     }
-
+    /**
+     * 初始化路由视图缓存
+     * @param matched
+     */
+    private _initRouteViewCache(matched: KylinMatchedRouteItem) {
+        if (typeof matched.route._view !== "object") {
+            matched.route._view = {
+                value: null,
+                timestamp: 0,
+                signal: null,
+                error: null,
+            };
+        }
+    }
     async loadViews(routes: KylinMatchedRouteItem[]) {
         routes.forEach((matched) => {
             const viewOptions = this._getRouteViewOptions(matched);
-            // 如果视图过期缓存，
-            if (
-                (viewOptions.cache > 0 && this._viewIsExpired(matched.route._view)) ||
-                (matched.route._view && matched.route._view.value == undefined)
-            ) {
+            this._initRouteViewCache(matched);
+            const _view = matched.route._view!;
+            // 如果视图过期缓存
+            if (viewOptions.cache > 0) {
+                if (this._viewIsExpired(_view)) {
+                    _view.value = null; // 清空缓存
+                } else if (_view.value) {
+                    // 使用缓存的视图, 在渲染时可以通过await _view.signal.signal()来获取视图内容
+                    _view.signal = asyncSignal.resolve(_view.value);
+                    return;
+                }
             }
-            this.loadView(matched);
+            // 如果信号已存在且正在进行中，则取消
+            if (_view.signal?.isPending()) {
+                _view.signal.abort();
+            }
+            this.loadView(matched, viewOptions);
         });
     }
 
@@ -89,35 +112,14 @@ export class ViewLoader {
      * @param options - 视图加载选项（可选）
      * @returns 加载结果的 Promise
      */
-    loadView(matched: KylinMatchedRouteItem) {
-        const viewOptions = {
-            ...this.options,
-            ...(isViewOptions(matched.route.view)
-                ? matched.route.view
-                : {
-                      from: matched.route.view,
-                  }),
-        } as KylinRouteViewOptions;
-
+    loadView(matched: KylinMatchedRouteItem, viewOptions: Required<KylinRouteViewOptions>) {
         const viewSource =
             typeof viewOptions.from === "function"
                 ? viewOptions.from(matched)
                 : () => viewOptions.from;
 
-        if (!matched.route._view) {
-            matched.route._view = {
-                value: null,
-                timestamp: 0,
-                signal: null,
-                error: null,
-            };
-        }
         const _view = matched.route._view as Exclude<KylinRouteItem["_view"], undefined>;
 
-        // 如果信号已存在且正在进行中，则取消
-        if (_view.signal?.isPending) {
-            _view.signal.abort();
-        }
         Promise.resolve(viewSource)
             .then((from) => {
                 // 开始新的加载

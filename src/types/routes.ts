@@ -369,10 +369,5 @@ export type KylinMatchedRouteItem = {
      *
      */
     url: string;
-    /**
-     * 路由哈希
-     * 支持插值变量
-     * 默认值：${fullPath}
-     */
     hash: string;
 };

@@ -69,4 +69,5 @@ export type KylinRouteDataOptions = {
      * - false: 默认值，不预加载
      */
     preload?: boolean;
+    hash?: string;
 };

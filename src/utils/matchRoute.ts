@@ -11,9 +11,9 @@
  */
 
 import type { KylinRouteItem, KylinMatchedRouteItem } from "@/types";
-import { generateRouteHash } from "./generateRouteHash";
 import { joinPath } from "./joinPath";
 import { extractQueryParams } from "./extractQueryParams";
+import { getRouteHash } from "./getRouteHash";
 
 /**
  * 匹配选项
@@ -251,42 +251,6 @@ export function createRouteMatcher(
     };
 }
 
-/**
- * 递归匹配路由的内部函数
- *
- * @param path - 规范化后的路径
- * @param routes - 当前路由表
- * @param parentMatchedRoute - 父路由的匹配结果，用于继承 path 和 params
- * @param inputQuery - 输入 URL 的 query 参数
- * @param options - 匹配选项
- * @returns 匹配的路由项数组
- */
-
-/**
- * 生成路由哈希和其变量的辅助函数
- */
-function _generateRouteHashWithVars(
-    route: KylinRouteItem,
-    mergedParams: Record<string, string>,
-    mergedQuery: Record<string, string>,
-    inputQuery: Record<string, string>,
-    fullPath: string,
-    fullUrl: string,
-): { hashVars: Record<string, string>; hash: string } {
-    const hashVars = {
-        name: route.name || "",
-        timestamp: String(Date.now()),
-        path: route.path,
-        fullPath: fullPath,
-        url: fullUrl,
-        query: new URLSearchParams(inputQuery).toString(),
-        fullQuery: new URLSearchParams(mergedQuery).toString(),
-        ...mergedParams,
-    };
-    const hash = generateRouteHash(route.hash, hashVars);
-    return { hashVars, hash };
-}
-
 function _matchRoutesInternal(
     path: string,
     routes: KylinRouteItem[],
@@ -316,24 +280,18 @@ function _matchRoutesInternal(
         const mergedParams = Object.assign({}, route.params, parentParams, matchResult.params);
         const routeQuery = route.query || {};
         const mergedQuery = { ...routeQuery, ...inputQuery };
-        const { hash } = _generateRouteHashWithVars(
-            route,
-            mergedParams,
-            mergedQuery,
-            inputQuery,
-            fullPath,
-            fullUrl,
-        );
 
         const currentMatch: KylinMatchedRouteItem = {
             route,
             params: mergedParams,
-            query: { ...routeQuery },
+            query: mergedQuery,
             state: {},
             path: fullPath,
             url: fullUrl,
-            hash,
+            hash: "",
         };
+
+        currentMatch.hash = getRouteHash(currentMatch);
 
         if (!matchResult.remainingPath) {
             if (strict && route.children && route.children.length > 0) {
@@ -383,14 +341,6 @@ function _matchRoutesInternal(
         const query = { ...route.query, ...inputQuery };
         const fullPath = joinPath(parentPath, route.path);
         const fullUrl = joinPath(parentUrl, path);
-        const { hash } = _generateRouteHashWithVars(
-            route,
-            mergedParams,
-            query,
-            inputQuery,
-            fullPath,
-            fullUrl,
-        );
         const match: KylinMatchedRouteItem = {
             route,
             params: mergedParams,
@@ -398,8 +348,9 @@ function _matchRoutesInternal(
             state: {},
             path: fullPath,
             url: fullUrl,
-            hash,
+            hash: "",
         };
+        match.hash = getRouteHash(match);
         return [match];
     }
     return [];

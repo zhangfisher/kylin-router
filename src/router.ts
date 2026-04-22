@@ -440,7 +440,7 @@ export class KylinRouter extends Mixin(
         await this._renderRoute();
 
         // 完成导航流程：触发事件、执行钩子、重置状态
-        await this._finalizeNavigation(location, pathname, toRoute, fromRoute);
+        //await this._finalizeNavigation(location, pathname, toRoute, fromRoute);
     }
 
     /**
