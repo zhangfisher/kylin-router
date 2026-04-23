@@ -217,15 +217,11 @@ export interface KylinRouteItem {
      * 不同url可能数据是不同的，比如/posts/:id
      * 调用不同的id参数时，需要分别进行加载和缓存
      */
-    _data?: Record<
-        string,
-        {
-            signal: IAsyncSignal | null;
-            value: any /** 缓存数据 */;
-            error?: Error | null; // 加载错误信息
-            timestamp: number /** 加载时间戳 */;
-        }
-    >;
+    _data?: {
+        signal: IAsyncSignal | null;
+        error?: Error | null; // 加载错误信息
+        timestamp: number /** 加载时间戳 */;
+    };
     _dataOptions: Required<KylinRouteDataOptions>;
     /**
      * 是否缓存此路由对应的组件实例，默认为 false

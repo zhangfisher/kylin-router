@@ -26,7 +26,6 @@ function isDataOptions(data: any): data is KylinRouteDataOptions {
 export type DataCacheItem = {
     value: any;
     timestamp: number;
-    signal: IAsyncSignal | null;
 };
 /**
  * Loader 类 - 负责加载路由数据
@@ -89,13 +88,25 @@ export class DataLoader {
     private _getRouteDataCache(
         matched: KylinMatchedRouteItem,
         dataOptions: Required<KylinRouteDataOptions>,
-    ) {
-        if (!matched.route._data) {
-            matched.route._data = {};
-        }
+    ): [string, DataCacheItem | undefined] {
         // 每一个数据项均需要唯一标识
-        const hash = generateRouteHash(dataOptions.hash || "{url}", getRouteVars(matched));
-        return matched.route._data[hash];
+        const hash = this._getRouteDataHash(dataOptions, matched);
+        return [hash, this.cache.get(hash)];
+    }
+    private _getRouteDataHash(
+        dataOptions: Required<KylinRouteDataOptions>,
+        matched: KylinMatchedRouteItem,
+    ) {
+        return generateRouteHash(dataOptions.hash || "{url}", getRouteVars(matched));
+    }
+    private _initRouteDataLoadIndicator(matched: KylinMatchedRouteItem) {
+        if (typeof matched.route._data !== "object") {
+            matched.route._data = {
+                timestamp: 0,
+                signal: null,
+                error: null,
+            };
+        }
     }
     /**
      * 并发加载匹配路由的数据
@@ -103,45 +114,27 @@ export class DataLoader {
      */
     async loadDatas(routes: KylinMatchedRouteItem[]) {
         routes.forEach((matched) => {
+            this._initRouteDataLoadIndicator(matched);
             const dataOptions = this._getRouteDataOptions(matched);
-            const dataCache = this._getRouteDataCache(matched, dataOptions);
-            if (dataOptions.cache > 0) {
+            const [hash, dataCache] = this._getRouteDataCache(matched, dataOptions);
+            const _data = matched.route._data!;
+            if (dataOptions.cache > 0 && this.cache.has(hash)) {
                 // 是否启用缓存
                 if (this._dataIsExpired(dataCache, dataOptions)) {
-                    dataCache.value = null;
-                    dataCache.timestamp = 0;
+                    this.cache.delete(hash);
                 } else {
-                    dataCache.signal = asyncSignal.resolve(dataCache.value);
+                    // 将缓存的数据返回给加载信号
+                    _data.signal = asyncSignal.resolve(dataCache);
+                    _data.error = null;
                     return; // 因为数据已存在，所以不再加载
                 }
             }
             // 如果数据正在加载中，则取消之前的加载
-            if (dataCache && dataCache.signal?.isPending()) {
-                dataCache.signal.abort();
+            if (_data.signal?.isPending()) {
+                _data.signal.abort();
             }
             this.loadData(matched, dataOptions);
         });
-    }
-    getData(matched: KylinMatchedRouteItem) {}
-    private _getDataFromCache(url: string, dataOptions: Required<KylinRouteDataOptions>) {
-        const routeHash = quickHash(url);
-        const useCache = dataOptions.cache || 0 > 0;
-        let data: DataCacheItem = this.cache.get(routeHash) as DataCacheItem;
-        if (!data) {
-            data = {
-                value: undefined,
-                timestamp: 0,
-                signal: asyncSignal(),
-            };
-            this.cache.set(routeHash, data);
-        }
-        if (useCache) {
-            const isExpired = this._dataIsExpired(data!, dataOptions);
-            if (isExpired) {
-                data.value = undefined;
-            }
-        }
-        return data;
     }
     /**
      * 主加载方法 - 根据 view 类型分发到不同加载策略
@@ -154,7 +147,9 @@ export class DataLoader {
             typeof dataOptions.from === "function"
                 ? dataOptions.from(matched)
                 : () => dataOptions.from;
-
+        const _data = matched.route._data!;
+        const hash = this._getRouteDataHash(dataOptions, matched);
+        _data.signal = asyncSignal();
         Promise.resolve(dataSource)
             .then((from) => {
                 // 进行URL处理和插值
@@ -162,40 +157,34 @@ export class DataLoader {
                     from.params(getRouteVars(matched)),
                     this.router.options.base,
                 );
-                // 读取缓存数据
-                let data = this._getDataFromCache(url, dataOptions);
-                if (data) {
-                    data.signal?.abort();
-                } else {
-                    data = {
-                        signal: asyncSignal(),
-                        timestamp: Date.now(),
-                        value: null,
-                    };
-                }
                 // 检测 from 类型，字符串代表url,并且支持变量插值
                 if (typeof from === "string") {
-                    this.loadRemoteData(url, dataOptions, data.signal!)
+                    this.loadRemoteData(url, dataOptions, _data.signal!)
                         .then((result) => {
                             // 加载后的的是一个字符串模板
-                            if (typeof result === "string") {
-                                data.value = result;
-                                data.timestamp = Date.now();
-                                data.signal?.resolve();
+                            if (result !== undefined) {
+                                _data.timestamp = Date.now();
+                                // 缓存数据
+                                if (dataOptions.cache > 0) {
+                                    this.cache.set(hash, {
+                                        value: result,
+                                        timestamp: Date.now(),
+                                    });
+                                }
+                                _data.signal?.resolve(result);
                             }
                         })
                         .catch((e) => {
-                            data.signal?.reject(e);
-                            data.error = e;
-                        })
-                        .finally(() => {
-                            data.signal?.destroy();
-                            data.signal = null;
+                            _data.signal!.reject(e);
+                            _data.error = e;
+                            this.cache.delete(hash);
                         });
                 }
             })
-            .catch((err) => {
-                data.error = err;
+            .catch((e) => {
+                _data.signal!.reject(e);
+                _data.error = e;
+                this.cache.delete(hash);
             });
     }
     /**
@@ -209,9 +198,9 @@ export class DataLoader {
         url: string,
         dataOptions: KylinRouteDataOptions,
         signal: IAsyncSignal,
-    ): Promise<string | undefined> {
+    ): Promise<any> {
         let tmId: any;
-        return new Promise<string | undefined>((resolve, reject) => {
+        return new Promise<any>((resolve, reject) => {
             const { timeout = 0 } = dataOptions;
             if (timeout > 0) {
                 tmId = setTimeout(() => {
