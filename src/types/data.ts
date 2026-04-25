@@ -12,26 +12,14 @@
  */
 
 import type { KylinMatchedRouteItem } from "./routes";
+import type { BaseLoaderOptions } from "@/features/baseLoader";
 
 export type KylinRouteDataSource =
     | string
     | Record<string, any>
     | ((route: KylinMatchedRouteItem) => Record<string, any> | Promise<Record<string, any>>);
 
-export type KylinRouteDataOptions = {
-    /**
-     * 数据来源
-     *
-     * - string: 一个URL地址，从该地址读取数据，返回一个{}
-     * - {}: 静态数据
-     * - Function: 返回{}的函数
-     */
-    from: KylinRouteDataSource;
-    /**
-     * 加载超时时间，单位毫秒
-     * 默认：5000ms
-     */
-    timeout?: number;
+export interface KylinRouteDataOptions extends BaseLoaderOptions<KylinRouteDataSource> {
     /**
      *
      * 默认情况下，data会被转为为所有outlet的x-data属性
@@ -46,12 +34,6 @@ export type KylinRouteDataOptions = {
      *
      */
     store?: string;
-    /**
-     * 视图缓存时间（毫秒）
-     * 默认为 0，表示不缓存
-     * 大于 0 表示缓存指定毫秒数，超时后失效
-     */
-    cache?: number;
     /**
      * 当启用缓存时，缓存的过期时间
      * 默认0代表不过期。
@@ -69,5 +51,4 @@ export type KylinRouteDataOptions = {
      * - false: 默认值，不预加载
      */
     preload?: boolean;
-    hash?: string;
-};
+}

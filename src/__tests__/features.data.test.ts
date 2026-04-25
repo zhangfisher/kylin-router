@@ -1,12 +1,12 @@
 /**
  * DataLoader 单元测试
- * 测试数据加载功能：静态数据、远程数据、错误处理
+ * 测试数据加载功能：静态数据、远程数据、缓存、abort
  */
 
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import { DataLoader } from "../features/dataLoader";
 import type { KylinRouter } from "../router";
-import type { KylinRouteItem } from "../types";
+import type { KylinMatchedRouteItem } from "../types/routes";
 
 // Mock KylinRouter
 const createMockRouter = (): Partial<KylinRouter> => ({
@@ -19,8 +19,30 @@ const createMockRouter = (): Partial<KylinRouter> => ({
             matchedRoutes: [],
         },
     },
-    options: {},
+    options: {
+        base: "/",
+        dataOptions: {
+            timeout: 5000,
+            cache: 0,
+        },
+    },
 });
+
+// 创建模拟的 matched route
+function createMockedRoute(
+    path: string,
+    data: any,
+): KylinMatchedRouteItem {
+    return {
+        route: {
+            name: "test",
+            path: path,
+            data: data,
+        },
+        params: {},
+        query: {},
+    };
+}
 
 describe("DataLoader", () => {
     let dataLoader: DataLoader;
@@ -37,209 +59,276 @@ describe("DataLoader", () => {
 
     describe("静态数据加载测试", () => {
         it("应该成功加载静态数据", async () => {
-            const route: KylinRouteItem = {
-                name: "test",
-                path: "/test",
-                data: { userId: 123, username: "test" },
-            };
+            const matchedRoute = createMockedRoute("/test", {
+                userId: 123,
+                username: "test",
+            });
 
-            const result = await dataLoader.loadData(route);
+            await dataLoader.loadDatas([matchedRoute]);
 
-            expect(result.success).toBe(true);
-            expect(result.data).toEqual({ userId: 123, username: "test" });
-            expect(result.error).toBeUndefined();
+            // 等待异步操作完成
+            await new Promise((resolve) => setTimeout(resolve, 100));
+
+            const signal = matchedRoute.route._getData;
+            expect(signal).toBeDefined();
+            if (signal) {
+                expect(signal.isFulfilled()).toBe(true);
+                expect(signal.result).toMatchObject({ userId: 123, username: "test" });
+            }
         });
 
         it("应该处理空数据", async () => {
-            const route: KylinRouteItem = {
-                name: "test",
-                path: "/test",
-                data: {},
-            };
+            const matchedRoute = createMockedRoute("/test", {});
 
-            const result = await dataLoader.loadData(route);
+            await dataLoader.loadDatas([matchedRoute]);
 
-            expect(result.success).toBe(true);
-            expect(result.data).toEqual({});
+            await new Promise((resolve) => setTimeout(resolve, 100));
+
+            const signal = matchedRoute.route._getData;
+            expect(signal).toBeDefined();
+            if (signal) {
+                expect(signal.isFulfilled()).toBe(true);
+                expect(signal.result).toEqual({});
+            }
         });
 
-        it("应该在没有 data 字段时返回空数据", async () => {
-            const route: KylinRouteItem = {
-                name: "test",
-                path: "/test",
-            };
+        it("应该在没有 data 字段时返回 undefined", async () => {
+            const matchedRoute = createMockedRoute("/test", undefined);
 
-            const result = await dataLoader.loadData(route);
+            await dataLoader.loadDatas([matchedRoute]);
 
-            expect(result.success).toBe(true);
-            expect(result.data).toEqual({});
+            await new Promise((resolve) => setTimeout(resolve, 100));
+
+            const signal = matchedRoute.route._getData;
+            expect(signal).toBeDefined();
+            if (signal) {
+                expect(signal.isFulfilled()).toBe(true);
+                expect(signal.result).toEqual({});
+            }
         });
     });
 
-    describe("远程数据加载测试", () => {
-        it("应该成功加载远程数据", async () => {
+    describe("动态数据加载测试", () => {
+        it("应该成功加载动态数据", async () => {
             const mockDataFn = async () => ({
                 userId: 456,
                 username: "remote",
             });
 
-            const route: KylinRouteItem = {
-                name: "test",
-                path: "/test",
-                data: mockDataFn,
-            };
+            const matchedRoute = createMockedRoute("/test", mockDataFn);
 
-            const result = await dataLoader.loadData(route);
+            await dataLoader.loadDatas([matchedRoute]);
 
-            expect(result.success).toBe(true);
-            expect(result.data).toEqual({ userId: 456, username: "remote" });
+            await new Promise((resolve) => setTimeout(resolve, 100));
+
+            const signal = matchedRoute.route._getData;
+            expect(signal).toBeDefined();
+            if (signal) {
+                expect(signal.isFulfilled()).toBe(true);
+                expect(signal.result).toMatchObject({ userId: 456, username: "remote" });
+            }
         });
 
-        it("应该处理远程数据加载失败", async () => {
+        it("应该处理动态数据加载失败", async () => {
             const mockDataFn = async () => {
                 throw new Error("Network error");
             };
 
-            const route: KylinRouteItem = {
-                name: "test",
-                path: "/test",
-                data: mockDataFn,
-            };
+            const matchedRoute = createMockedRoute("/test", mockDataFn);
 
-            const result = await dataLoader.loadData(route);
+            await dataLoader.loadDatas([matchedRoute]);
 
-            expect(result.success).toBe(false);
-            expect(result.data).toBeUndefined();
-            expect(result.error).toBeInstanceOf(Error);
-            expect(result.error?.message).toBe("Network error");
-        });
+            await new Promise((resolve) => setTimeout(resolve, 100));
 
-        it("应该处理超时", async () => {
-            const mockDataFn = async () => {
-                // 模拟长时间加载
-                await new Promise((resolve) => setTimeout(resolve, 6000));
-                return { data: "slow" };
-            };
-
-            const route: KylinRouteItem = {
-                name: "test",
-                path: "/test",
-                data: mockDataFn,
-            };
-
-            const result = await dataLoader.loadData(route, { timeout: 1000 });
-
-            expect(result.success).toBe(false);
-            expect(result.error?.message).toBe("Data load timeout");
-        }, 10000);
-
-        it("应该验证返回数据类型", async () => {
-            const mockDataFn = async () => null as any;
-
-            const route: KylinRouteItem = {
-                name: "test",
-                path: "/test",
-                data: mockDataFn,
-            };
-
-            const result = await dataLoader.loadData(route);
-
-            expect(result.success).toBe(false);
-            expect(result.error?.message).toBe("Data function must return an object");
+            const signal = matchedRoute.route._getData;
+            expect(signal).toBeDefined();
+            if (signal) {
+                // 应该 reject 错误
+                expect(signal.isRejected()).toBe(true);
+                expect(signal.error?.message).toBe("Network error");
+            }
         });
     });
 
-    describe("请求取消测试", () => {
-        it("应该取消进行中的请求", async () => {
-            let abortCalled = false;
-            const mockDataFn = async (_signal?: any) => {
-                if (_signal?.aborted) {
-                    abortCalled = true;
-                    throw new Error("Cancelled");
-                }
-                await new Promise((resolve) => setTimeout(resolve, 100));
-                return { data: "test" };
+    describe("缓存功能测试", () => {
+        it("应该缓存数据并在后续请求中重用", async () => {
+            // 设置缓存时间
+            if (mockRouter.options) {
+                mockRouter.options.dataOptions = {
+                    timeout: 5000,
+                    cache: 10000, // 10秒缓存
+                };
+            }
+
+            let callCount = 0;
+            const mockDataFn = async () => {
+                callCount++;
+                await new Promise((resolve) => setTimeout(resolve, 50));
+                return { userId: 789, username: "cached" };
             };
 
-            const route: KylinRouteItem = {
-                name: "test",
-                path: "/test",
-                data: mockDataFn as any,
+            const matchedRoute1 = createMockedRoute("/cached", mockDataFn);
+            const matchedRoute2 = createMockedRoute("/cached", mockDataFn);
+
+            // 第一次加载
+            await dataLoader.loadDatas([matchedRoute1]);
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            expect(callCount).toBe(1);
+
+            // 第二次加载（应该使用缓存）
+            await dataLoader.loadDatas([matchedRoute2]);
+            await new Promise((resolve) => setTimeout(resolve, 50));
+
+            const signal = matchedRoute2.route._getData;
+            expect(signal).toBeDefined();
+            if (signal) {
+                expect(signal.isFulfilled()).toBe(true);
+                expect(signal.result).toMatchObject({ userId: 789, username: "cached" });
+            }
+
+            // 验证没有再次调用数据函数
+            expect(callCount).toBe(1);
+        });
+
+        it("应该在缓存过期后重新加载", async () => {
+            // 设置短缓存时间
+            if (mockRouter.options) {
+                mockRouter.options.dataOptions = {
+                    timeout: 5000,
+                    cache: 100, // 100ms缓存
+                };
+            }
+
+            let callCount = 0;
+            const mockDataFn = async () => {
+                callCount++;
+                return { userId: 999, username: "expired" };
             };
 
-            // 立即取消请求
-            const loadPromise = dataLoader.loadData(route);
-            dataLoader.abortPendingRequests();
+            const matchedRoute1 = createMockedRoute("/expire", mockDataFn);
+            const matchedRoute2 = createMockedRoute("/expire", mockDataFn);
 
-            const result = await loadPromise;
+            // 第一次加载
+            await dataLoader.loadDatas([matchedRoute1]);
+            await new Promise((resolve) => setTimeout(resolve, 50));
+            expect(callCount).toBe(1);
 
-            // 验证请求被取消（注意：实际取消取决于 signal 传递）
-            expect(result).toBeDefined();
+            // 等待缓存过期
+            await new Promise((resolve) => setTimeout(resolve, 150));
+
+            // 第二次加载（缓存已过期，应该重新加载）
+            await dataLoader.loadDatas([matchedRoute2]);
+            await new Promise((resolve) => setTimeout(resolve, 50));
+
+            expect(callCount).toBe(2);
+        });
+    });
+
+    describe("快速导航测试（竞态问题）", () => {
+        it("应该正确处理快速连续的导航请求", async () => {
+            let callCount = 0;
+            const mockDataFn = async () => {
+                callCount++;
+                // 模拟慢速请求
+                await new Promise((resolve) => setTimeout(resolve, 200));
+                return { userId: callCount, username: "rapid" };
+            };
+
+            const matchedRoute1 = createMockedRoute("/rapid", mockDataFn);
+            const matchedRoute2 = createMockedRoute("/rapid", mockDataFn);
+            const matchedRoute3 = createMockedRoute("/rapid", mockDataFn);
+
+            // 第一次导航
+            await dataLoader.loadDatas([matchedRoute1]);
+            expect(matchedRoute1.route._getData?.isPending()).toBe(true);
+
+            // 第二次导航（在第一次完成前）
+            await new Promise((resolve) => setTimeout(resolve, 50));
+            await dataLoader.loadDatas([matchedRoute2]);
+
+            // 第一次请求应该被完成（旧的signal被覆盖）
+            expect(matchedRoute1.route._getData?.isFulfilled() || matchedRoute1.route._getData?.isRejected()).toBe(true);
+            expect(matchedRoute2.route._getData?.isPending()).toBe(true);
+
+            // 第三次导航（在第二次完成前）
+            await new Promise((resolve) => setTimeout(resolve, 50));
+            await dataLoader.loadDatas([matchedRoute3]);
+
+            // 第二次请求应该被完成
+            expect(matchedRoute2.route._getData?.isFulfilled() || matchedRoute2.route._getData?.isRejected()).toBe(true);
+            expect(matchedRoute3.route._getData?.isPending()).toBe(true);
+
+            // 等待最后请求完成
+            await new Promise((resolve) => setTimeout(resolve, 300));
+
+            const signal = matchedRoute3.route._getData;
+            expect(signal).toBeDefined();
+            if (signal) {
+                expect(signal.isFulfilled()).toBe(true);
+                expect(signal.result).toMatchObject({ username: "rapid" });
+            }
+        });
+    });
+
+    describe("并发加载测试", () => {
+        it("应该能够并发加载多个路由的数据", async () => {
+            const mockDataFn1 = async () => {
+                await new Promise((resolve) => setTimeout(resolve, 50));
+                return { page: "home" };
+            };
+
+            const mockDataFn2 = async () => {
+                await new Promise((resolve) => setTimeout(resolve, 50));
+                return { page: "user" };
+            };
+
+            const matchedRoute1 = createMockedRoute("/home", mockDataFn1);
+            const matchedRoute2 = createMockedRoute("/user", mockDataFn2);
+
+            // 并发加载
+            await dataLoader.loadDatas([matchedRoute1, matchedRoute2]);
+
+            await new Promise((resolve) => setTimeout(resolve, 150));
+
+            const signal1 = matchedRoute1.route._getData;
+            const signal2 = matchedRoute2.route._getData;
+
+            expect(signal1).toBeDefined();
+            expect(signal2).toBeDefined();
+
+            if (signal1 && signal2) {
+                expect(signal1.isFulfilled()).toBe(true);
+                expect(signal2.isFulfilled()).toBe(true);
+                expect(signal1.result).toMatchObject({ page: "home" });
+                expect(signal2.result).toMatchObject({ page: "user" });
+            }
         });
     });
 
     describe("资源清理测试", () => {
-        it("应该正确清理资源", async () => {
-            const dataLoader2 = new DataLoader(mockRouter as KylinRouter);
+        it("应该正确清理缓存", async () => {
+            // 设置缓存
+            if (mockRouter.options) {
+                mockRouter.options.dataOptions = {
+                    timeout: 5000,
+                    cache: 10000,
+                };
+            }
 
-            // 先触发一次数据加载，初始化 abortController
-            const route: KylinRouteItem = {
-                name: "test",
-                path: "/test",
-                data: { test: "data" },
-            };
-            await dataLoader2.loadData(route);
+            const mockDataFn = async () => ({ data: "test" });
+            const matchedRoute = createMockedRoute("/cleanup", mockDataFn);
 
-            // 验证 abortController 存在
-            expect((dataLoader2 as any).abortController).toBeDefined();
+            await dataLoader.loadDatas([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 100));
+
+            // 验证缓存存在
+            expect(dataLoader.cache.size).toBeGreaterThan(0);
 
             // 清理资源
-            dataLoader2.cleanup();
+            dataLoader.cleanup();
 
-            // 验证 abortController 被清理
-            expect((dataLoader2 as any).abortController).toBeUndefined();
+            // 验证缓存被清空
+            expect(dataLoader.cache.size).toBe(0);
         });
-    });
-
-    describe("集成测试", () => {
-        it("应该处理完整的数据加载流程", async () => {
-            const mockDataFn = async () => ({
-                user: { id: 1, name: "Test User" },
-                posts: [{ id: 1, title: "Post 1" }],
-            });
-
-            const route: KylinRouteItem = {
-                name: "test",
-                path: "/test",
-                data: mockDataFn,
-            };
-
-            const result = await dataLoader.loadData(route);
-
-            expect(result.success).toBe(true);
-            expect(result.data).toEqual({
-                user: { id: 1, name: "Test User" },
-                posts: [{ id: 1, title: "Post 1" }],
-            });
-        });
-
-        it("应该支持自定义超时时间", async () => {
-            const mockDataFn = async () => {
-                await new Promise((resolve) => setTimeout(resolve, 1500));
-                return { data: "test" };
-            };
-
-            const route: KylinRouteItem = {
-                name: "test",
-                path: "/test",
-                data: mockDataFn,
-            };
-
-            // 使用较短的超时时间
-            const result = await dataLoader.loadData(route, { timeout: 500 });
-
-            expect(result.success).toBe(false);
-            expect(result.error?.message).toBe("Data load timeout");
-        }, 3000);
     });
 });

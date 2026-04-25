@@ -636,7 +636,7 @@ export class KylinRouter extends Mixin(
 
             // 检查当前层是否已加载组件
             const viewOptions = getRouteViewOptions(route, this);
-            let viewTemplate = route._view;
+            let viewTemplate = route._getView;
 
             if (viewTemplate) {
             }

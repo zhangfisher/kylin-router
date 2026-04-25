@@ -9,6 +9,7 @@ import type { TemplateResult } from "lit";
 import type { ErrorBoundaryConfig, RetryConfig } from "./config";
 import type { ModalConfig } from "./modals";
 import type { IAsyncSignal } from "asyncsignal";
+import type { BaseLoaderOptions } from "@/features/baseLoader";
 // 重新导出 RouteData 以保持向后兼容
 export type { KylinRouteDataSource as RouteData };
 
@@ -42,7 +43,7 @@ export type TemplateData = Record<string, any>;
 export type KylinRouteViewSource =
     | string
     | HTMLElement
-    | ((route: KylinMatchedRouteItem) => Promise<string | HTMLElement>);
+    | ((route: KylinMatchedRouteItem) => string | HTMLElement | Promise<string | HTMLElement>);
 /**
  * 渲染上下文接口
  * 提供模板渲染时所需的上下文数据
@@ -96,11 +97,7 @@ export interface KylinRenderOptions {
  * 视图加载配置选项
  * 当 view 需要特殊配置时使用
  */
-export interface KylinRouteViewOptions {
-    /**
-     * 视图源
-     */
-    from: KylinRouteViewSource;
+export interface KylinRouteViewOptions extends BaseLoaderOptions<string | HTMLElement> {
     /**
      * 是否允许不安全的 HTML（如 script 标签）
      * 默认为 false，会移除潜在的危险内容
@@ -108,22 +105,10 @@ export interface KylinRouteViewOptions {
     allowUnsafe?: boolean;
 
     /**
-     * 加载超时时间（毫秒）
-     * 默认为 5000ms（5秒）
-     */
-    timeout?: number;
-
-    /**
      * 自定义内容提取选择器
      * 如果提供，将从加载的 HTML 中提取匹配该选择器的内容
      */
     selector?: string;
-    /**
-     * 视图缓存时间（毫秒）
-     * 默认为 0，表示不缓存
-     * 大于 0 表示缓存指定毫秒数，超时后失效
-     */
-    cache?: number;
 }
 
 /**
@@ -197,12 +182,7 @@ export interface KylinRouteItem {
      *
      * @internal
      */
-    _view?: {
-        signal: IAsyncSignal | null;
-        value: any /** 缓存的内容 */;
-        error?: Error | null; // 加载错误信息
-        timestamp: number /** 加载时间戳 */;
-    };
+    _getView?: IAsyncSignal | null;
     _viewOptions: Required<KylinRouteViewOptions>;
     /**
      *
@@ -217,11 +197,7 @@ export interface KylinRouteItem {
      * 不同url可能数据是不同的，比如/posts/:id
      * 调用不同的id参数时，需要分别进行加载和缓存
      */
-    _data?: {
-        signal: IAsyncSignal | null;
-        error?: Error | null; // 加载错误信息
-        timestamp: number /** 加载时间戳 */;
-    };
+    _getData?: IAsyncSignal | null;
     _dataOptions: Required<KylinRouteDataOptions>;
     /**
      * 是否缓存此路由对应的组件实例，默认为 false
