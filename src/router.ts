@@ -203,120 +203,16 @@ export class KylinRouter extends Mixin(
     }
 
     /**
-     * 执行全局前置守卫（beforeEach）
-     * @param toRoute - 目标路由
-     * @param fromRoute - 来源路由
-     * @returns 是否继续导航（false 表示取消）
-     */
-    protected async _runBeforeRouteHooks(
-        toRoute: KylinMatchedRouteItem[],
-        fromRoute: KylinMatchedRouteItem[] | undefined,
-    ): Promise<boolean> {
-        this.logger.debug(`钩子执行: beforeEach`);
-        try {
-            const beforeRouteResult = await this.hooks.runBeforeRoute(toRoute, fromRoute);
-
-            if (beforeRouteResult === false) {
-                // 取消导航
-                this.logger.debug("钩子结果: beforeRoute  取消导航");
-                this.isNavigating = false;
-                return false;
-            }
-
-            if (typeof beforeRouteResult === "string") {
-                // 重定向
-                this.logger.debug(`钩子结果: beforeEach 重定向到 ${beforeRouteResult}`);
-                this._redirectCount++;
-                if (this._redirectCount > 10) {
-                    console.error("Maximum redirect limit reached. Possible infinite loop.");
-                    this.isNavigating = false;
-                    this._redirectCount = 0;
-                    return false;
-                }
-                this.replace(beforeRouteResult);
-                return false;
-            }
-        } catch (error) {
-            console.error("Error in beforeEach hooks:", error);
-            this.logger.debug("钩子错误: beforeEach 执行出错", error);
-            // 钩子出错时取消导航
-            this.isNavigating = false;
-
-            // 回退到之前的路由或根路径
-            const fallback = this.previous?.path || "/";
-            if (this.location.pathname !== fallback) {
-                this.replace(fallback);
-            }
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * 执行路由级前置守卫（beforeEnter）
-     * @param fromRoute - 来源路由
-     * @returns 是否继续导航（false 表示取消）
-     */
-    protected async _executeBeforeEnterGuards(fromRoute: KylinRouteItem): Promise<boolean> {
-        // 获取匹配的路由链（包含嵌套路由）
-        const matchedRoutes = this.routes.current.matchedRoutes || [];
-
-        // 执行路由级 beforeEnter 守卫（父优先）
-        if (this.routes.current.route && matchedRoutes.length > 0) {
-            const beforeEnterResult = await this.hooks.executeRouteGuards(
-                matchedRoutes,
-                this.routes.current.route,
-                fromRoute,
-                "beforeEnter",
-            );
-
-            if (beforeEnterResult === false) {
-                // 取消导航，不触发 afterEach
-                this.logger.debug("守卫结果: beforeEnter 取消导航");
-                this.isNavigating = false;
-                this._pendingNavigationType = undefined;
-                return false;
-            }
-
-            if (typeof beforeEnterResult === "string") {
-                // 重定向
-                this.replace(beforeEnterResult);
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     *
-     * 并发加载路由视图组件
-     * @returns 是否继续导航（false 表示取消或版本过期）
-     */
-    protected async _loadRouteViews(routes: KylinMatchedRouteItem[]): Promise<boolean> {
-        // 检查路由视图模板是否已经加载
-
-        // 并发加载该路由下的视图模板
-        return true;
-    }
-
-    /**
-     * 加载路由数据
-     * @returns 是否继续导航（false 表示版本过期）
-     */
-    protected async _loadRouteData(route: KylinMatchedRouteItem): Promise<any> {}
-
-    /**
      * 执行渲染步骤
      */
-    protected async _renderRoute(): Promise<void> {
+    protected async _renderRoute(
+        toRoute: KylinMatchedRouteItem[],
+        fromRoute: KylinMatchedRouteItem[] | undefined,
+    ): Promise<void> {
         this.logger.debug("渲染流程: 开始渲染组件");
         try {
             // 使用新的递归渲染逻辑
-            if (matchedRoutes.length > 0) {
-                await this._renderRoutes(matchedRoutes);
-            }
+
             this.logger.debug("渲染流程: 渲染完成");
         } catch (error) {
             console.error("渲染流程失败:", error);
@@ -410,10 +306,7 @@ export class KylinRouter extends Mixin(
         this.dataLoader.loadDatas(toRoute);
 
         // 执行渲染步骤
-        await this._renderRoute();
-
-        // 完成导航流程：触发事件、执行钩子、重置状态
-        //await this._finalizeNavigation(location, pathname, toRoute, fromRoute);
+        await this._renderRoute(toRoute, fromRoute);
     }
 
     /**

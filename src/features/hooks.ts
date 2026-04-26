@@ -7,11 +7,12 @@
 import type { KylinRouter } from "@/router";
 import type {
     KylinRouterHooks,
-    KylinMatchedRouteItem,
     KylinRouterHookType,
     KylinRouterOptions,
     BeforeRouteHook,
     AfterRouteHook,
+    BeforeRenderHook,
+    AfterRenderHook,
 } from "@/types";
 import type { ArrayItem } from "@/types/utils";
 
@@ -103,48 +104,17 @@ export class HookManager {
         }
     }
 
-    async runBeforeRoute(
-        to: KylinMatchedRouteItem[],
-        from: KylinMatchedRouteItem[],
-        args: any[] = [],
-    ) {
-        // 先执行全局路由守护
-        const hooks = [
-            ...this.hooks["beforeRoute"],
-            ...to.map((r) => r.route.beforeRoute || []),
-        ] as BeforeRouteHook[];
-        return this._runHooks<boolean | string>(hooks, [to, from, ...args]);
+    async runBeforeRoute(args: Parameters<BeforeRouteHook>[0]): Promise<boolean | string> {
+        return this._runHooks<boolean | string>("beforeRoute", args);
     }
-    /**
-     * 并发执行
-     * @param to
-     * @param from
-     * @returns
-     */
-    async runAfterRoute(to: KylinMatchedRouteItem[], from: KylinMatchedRouteItem[], args: any[]) {
-        const hooks = [
-            ...this.hooks["afterRoute"],
-            ...to.map((r) => r.route.afterRoute || []),
-        ] as AfterRouteHook[];
-        return this._runHooks<void>(hooks, [to, from, ...args], {
-            mode: "parallel",
-        });
+    async runAfterRoute(args: Parameters<AfterRouteHook>[0]) {
+        return this._runHooks<boolean | string>("afterRoute", args, { mode: "parallel" });
     }
-    async runBeforeRender(to: KylinMatchedRouteItem[], from: KylinMatchedRouteItem[], args: any[]) {
-        // 先执行全局路由守护
-        const hooks = [
-            ...this.hooks["beforeRoute"],
-            ...to.map((r) => r.route.beforeRoute || []),
-        ] as BeforeRouteHook[];
-        return this._runHooks<boolean | string>(hooks, [to, from, ...args]);
+    async runBeforeRender(args: Parameters<BeforeRenderHook>[0]) {
+        return this._runHooks<boolean | string>("beforeRender", args);
     }
-    async runAfterRender(to: KylinMatchedRouteItem[], from: KylinMatchedRouteItem[], args: any[]) {
-        // 先执行全局路由守护
-        const hooks = [
-            ...this.hooks["beforeRoute"],
-            ...to.map((r) => r.route.beforeRoute || []),
-        ] as BeforeRouteHook[];
-        return this._runHooks<boolean | string>(hooks, [to, from, ...args]);
+    async runAfterRender(args: Parameters<AfterRenderHook>[0]) {
+        return this._runHooks<boolean | string>("afterRender", args, { mode: "parallel" });
     }
     /**
      * 串行运行hooks函数
@@ -155,17 +125,20 @@ export class HookManager {
      *  - onError: 当执行出错的中断后续执行
      */
     private async _runHooks<R = any>(
-        hooks: Function[],
-        args: any[],
+        name: KylinRouterHookType,
+        args: Record<string, any>,
         options?: { mode?: "serial" | "parallel"; ignoreErrors?: boolean },
     ): Promise<R> {
         const { mode, ignoreErrors } = Object.assign(
             {
                 mode: "serial",
-                ignoreErrors: false,
+                ignoreErrors: true,
             },
             options,
         );
+        const { to } = args;
+        const hooks = [...this.hooks[name], ...to.map((r: any) => r.route[name] || [])] as any[];
+
         if (mode === "serial") {
             for (const hook of hooks) {
                 try {
@@ -180,7 +153,7 @@ export class HookManager {
                     this.router.logger.error(`Error executing hook: ${e.message}`);
                     throw e;
                 }
-            } // 重定向路径
+            }
         } else {
             return (await Promise.allSettled(
                 // oxlint-disable-next-line typescript/await-thenable
@@ -198,7 +171,7 @@ export class HookManager {
      */
     private _runHook<T extends KylinRouterHookType>(
         hook: ArrayItem<KylinRouterHooks[T]>,
-        args: Parameters<ArrayItem<KylinRouterHooks[T]>>,
+        args: Parameters<ArrayItem<KylinRouterHooks[T]>>[0],
     ): ReturnType<ArrayItem<KylinRouterHooks[T]>> {
         return new Promise((resolve, reject) => {
             const timeout =
@@ -207,7 +180,7 @@ export class HookManager {
                           reject(new Error(`Hook timeout after ${this.options.timeout}ms`));
                       }, this.options.timeout)
                     : 0;
-            Promise.resolve((hook as any).apply(this.router, args))
+            Promise.resolve((hook as any).apply(this.router, [args]))
                 .then((result) => {
                     clearTimeout(timeout);
                     resolve(result);

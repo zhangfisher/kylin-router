@@ -19,10 +19,13 @@ import type { KylinRouteDataSource } from "./data";
  * @param router - 路由器实例
  * @returns 可以返回 void 或 Promise<void>，通过 next 回调控制导航
  */
-export type BeforeRouteHook = (args: {
-    to: KylinMatchedRouteItem[];
+export type BeforeRouteHookArgs = {
     from: KylinMatchedRouteItem[] | undefined;
-}) => boolean | string | Promise<boolean | string>;
+    to: KylinMatchedRouteItem[];
+};
+export type BeforeRouteHook = (
+    args: BeforeRouteHookArgs,
+) => boolean | string | Promise<boolean | string>;
 
 /**
  * afterEach 钩子函数类型
@@ -32,11 +35,11 @@ export type BeforeRouteHook = (args: {
  * @param router - 路由器实例
  * @returns 可以返回 void 或 Promise<void>
  */
-export type AfterRouteHook = (args: {
+export type AfterRouteHookArgs = {
+    from: KylinMatchedRouteItem[];
     to: KylinMatchedRouteItem[];
-    from: KylinMatchedRouteItem[] | undefined;
-}) => void | Promise<void>;
-
+};
+export type AfterRouteHook = (args: AfterRouteHookArgs) => void | Promise<void>;
 /**
  * renderEach 钩子函数类型
  * 在组件加载后、渲染前执行，用于数据预取
@@ -46,18 +49,20 @@ export type AfterRouteHook = (args: {
  * @param router - 路由器实例
  * @returns 可以返回 void、Promise<void>、RouteData 或 Promise<RouteData>
  */
-export type BeforeRenderHook = (args: {
-    to: KylinMatchedRouteItem[];
+export type BeforeRenderHookArgs = {
     from: KylinMatchedRouteItem[];
+    to: KylinMatchedRouteItem[];
     view: string;
     data: KylinRouteDataSource | undefined;
-}) => void | Promise<void>;
+};
+export type BeforeRenderHook = (args: BeforeRenderHookArgs) => void | Promise<void>;
 
-export type AfterRenderHook = (args: {
-    to: KylinMatchedRouteItem[];
+export type AfterRenderHookArgs = {
     from: KylinMatchedRouteItem[];
+    to: KylinMatchedRouteItem[];
     el: HTMLElement | undefined;
-}) => void | Promise<void>;
+};
+export type AfterRenderHook = (args: AfterRenderHookArgs) => void | Promise<void>;
 
 /**
  * 钩子集合对象类型
