@@ -12,6 +12,8 @@ import type { KylinMatchedRouteItem } from "@/types/routes";
 import type { KylinRouteDataOptions } from "@/types/data";
 import { isPlainObject } from "flex-tools/typecheck/isPlainObject";
 import { RouteDataLoaderBase } from "./baseLoader";
+import type { IAsyncSignal } from "asyncsignal";
+import Alpine from "alpinejs";
 
 /**
  * DataLoader 类 - 负责加载路由数据
@@ -51,6 +53,24 @@ export class DataLoader extends RouteDataLoaderBase<
         return (_response as any).json();
     }
 
+    protected onLoadSuccess(
+        data: Record<string, any>,
+        hash: string,
+        options: KylinRouteDataOptions,
+        _signal: IAsyncSignal,
+    ) {
+        const { store } = options;
+        try {
+            if (typeof store === "string") {
+                Alpine.store(store, data);
+            } else {
+                Alpine.data(hash, () => data);
+            }
+        } catch (e: any) {
+            this.router.logger.error(`Failed to create route dataObject : ${e.message}`);
+        }
+    }
+
     /**
      * 验证数据类型
      * DataLoader 接受 Record<string, any> 类型的数据
@@ -78,11 +98,6 @@ export class DataLoader extends RouteDataLoaderBase<
     async loadDatas(routes: KylinMatchedRouteItem[]) {
         return this.loadRoutes(routes);
     }
-
-
-    // ========================================
-    // 重写钩子方法处理特殊情况
-    // ========================================
 
     /**
      * 重写数据源解析以处理 undefined/null

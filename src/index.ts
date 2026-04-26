@@ -6,6 +6,7 @@ import "./utils/params";
 export * from "./components";
 export * from "./utils";
 export * from "./router";
+export * from "./logger";
 
 // 导出路由器类型
 export type { KylinRouterOptions as KylinRouterOptiopns } from "./types";

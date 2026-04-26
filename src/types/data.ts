@@ -22,7 +22,8 @@ export type KylinRouteDataSource =
 export interface KylinRouteDataOptions extends BaseLoaderOptions<KylinRouteDataSource> {
     /**
      *
-     * 默认情况下，data会被转为为所有outlet的x-data属性
+     * 默认情况下，data会被转为为所有outlet的x-data属性，
+     * 即使用Alpine.data(data)创建一个局部数据对象
      *
      * 如果store=<string>，则在全局$store创建一个store
      *
@@ -35,20 +36,8 @@ export interface KylinRouteDataOptions extends BaseLoaderOptions<KylinRouteDataS
      */
     store?: string;
     /**
-     * 当启用缓存时，缓存的过期时间
-     * 默认0代表不过期。
-     */
-    expires?: number;
-    /**
      * 当加载失败时提供一些默认值
      * 加载成功后可以使用Object.assign(default,data)合并，以避免加载数据的缺失
      */
     default?: Record<string, any>;
-    /**
-     * 是否预加载
-     *
-     * - true: 在路由实例创建时自动预加载进缓存，这可以加速数据加载
-     * - false: 默认值，不预加载
-     */
-    preload?: boolean;
 }

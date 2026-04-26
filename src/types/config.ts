@@ -7,6 +7,7 @@ import type { TemplateResult } from "lit";
 import type { KylinRouteViewOptions } from "./routes";
 import type { KylinRouteDataOptions } from "./data";
 import type { AfterRenderHook, AfterRouteHook, BeforeRenderHook, BeforeRouteHook } from "./hooks";
+import type { KylinRouterLogger } from "@/logger";
 
 /**
  * 重试策略配置
@@ -69,13 +70,16 @@ export type KylinRouterOptions = {
     host?: HTMLElement | string;
     /** 全局错误组件：字符串路径或动态导入函数 */
     defaultErrorComponent?: string | (() => Promise<any>);
+    /** 日志记录器配置 */
+    logger?: KylinRouterLogger;
     /** 全局加载模板 */
     defaultLoadingTemplate?: TemplateResult | string;
     /** 全局视图加载配置 */
     viewOptions?: Omit<KylinRouteViewOptions, "form">;
     /** 全局数据加载配置 */
     dataOptions?: Omit<KylinRouteDataOptions, "from">;
-    /** Alpine.js 全局 store 初始数据 */
+    /**
+     * Alpine.js 全局 store 初始数据 */
     data?: Record<string, any>;
     hookOptions?: {
         timeout?: number;

@@ -5,8 +5,6 @@ import type {
     KylinRouterOptions,
     KylinRouteItem,
     ModalState,
-    KylinRouteViewSource,
-    KylinRouteViewOptions,
     KylinMatchedRouteItem,
 } from "./types/index";
 import { Mixin } from "ts-mixer";
@@ -28,8 +26,9 @@ import { getBaseUrl } from "@/utils/getBaseUrl";
 import { HookManager } from "./features/hooks";
 import { RouteRegistry } from "./features/routes";
 import { AlpineManager } from "./features/alpine";
-import { getRouteViewOptions } from "./utils/getRouteViewOptions";
+
 import { matchRoute } from "./utils";
+import { createLogger, type KylinRouterLogger } from "./logger";
 
 /**
  *
@@ -68,7 +67,7 @@ export class KylinRouter extends Mixin(
 
     /** 数据加载器 */
     protected dataLoader!: DataLoader;
-
+    private _logger?: KylinRouterLogger;
     /** 是否正在导航 */
     isNavigating: boolean = false;
 
@@ -170,18 +169,15 @@ export class KylinRouter extends Mixin(
     get debug() {
         return this.options.debug;
     }
-    store() {
-        return;
-    }
-    /**
-     * 调试日志输出方法
-     * @param message - 日志消息
-     * @param data - 附加数据（可选）
-     */
-    protected log(message: string, data?: any): void {
-        if (this.debug) {
-            console.log(`[KylinRouter] ${message}`, data || "");
+    get logger() {
+        if (!this._logger) {
+            if (this.options.logger) {
+                this._logger = this.options.logger;
+            } else {
+                this._logger = createLogger();
+            }
         }
+        return this._logger!;
     }
 
     get location() {
@@ -216,20 +212,20 @@ export class KylinRouter extends Mixin(
         toRoute: KylinMatchedRouteItem[],
         fromRoute: KylinMatchedRouteItem[] | undefined,
     ): Promise<boolean> {
-        this.log(`钩子执行: beforeEach`);
+        this.logger.debug(`钩子执行: beforeEach`);
         try {
             const beforeRouteResult = await this.hooks.runBeforeRoute(toRoute, fromRoute);
 
             if (beforeRouteResult === false) {
                 // 取消导航
-                this.log("钩子结果: beforeRoute  取消导航");
+                this.logger.debug("钩子结果: beforeRoute  取消导航");
                 this.isNavigating = false;
                 return false;
             }
 
             if (typeof beforeRouteResult === "string") {
                 // 重定向
-                this.log(`钩子结果: beforeEach 重定向到 ${beforeRouteResult}`);
+                this.logger.debug(`钩子结果: beforeEach 重定向到 ${beforeRouteResult}`);
                 this._redirectCount++;
                 if (this._redirectCount > 10) {
                     console.error("Maximum redirect limit reached. Possible infinite loop.");
@@ -242,7 +238,7 @@ export class KylinRouter extends Mixin(
             }
         } catch (error) {
             console.error("Error in beforeEach hooks:", error);
-            this.log("钩子错误: beforeEach 执行出错", error);
+            this.logger.debug("钩子错误: beforeEach 执行出错", error);
             // 钩子出错时取消导航
             this.isNavigating = false;
 
@@ -277,7 +273,7 @@ export class KylinRouter extends Mixin(
 
             if (beforeEnterResult === false) {
                 // 取消导航，不触发 afterEach
-                this.log("守卫结果: beforeEnter 取消导航");
+                this.logger.debug("守卫结果: beforeEnter 取消导航");
                 this.isNavigating = false;
                 this._pendingNavigationType = undefined;
                 return false;
@@ -312,45 +308,19 @@ export class KylinRouter extends Mixin(
     protected async _loadRouteData(route: KylinMatchedRouteItem): Promise<any> {}
 
     /**
-     * 并发加载路由资源（组件和数据）
-     * 使用 Promise.allSettled 确保即使其中一个失败也能继续
-     * @param currentVersion - 当前导航版本号
-     * @returns 是否继续导航（false 表示版本过期或组件加载失败）
-     */
-    protected async _loadRouteResources(route: KylinMatchedRouteItem): Promise<boolean> {
-        this.log("资源加载: 开始并发加载组件和数据");
-
-        const results = await Promise.allSettled([
-            this._loadRouteViews(route),
-            this._loadRouteDatas(route),
-        ]);
-
-        const [viewResult] = results;
-
-        // 处理组件加载结果
-        if (viewResult.status === "rejected" || !viewResult.value) {
-            this.log("资源加载: 组件加载失败");
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * 执行渲染步骤
      */
     protected async _renderRoute(): Promise<void> {
-        this.log("渲染流程: 开始渲染组件");
+        this.logger.debug("渲染流程: 开始渲染组件");
         try {
             // 使用新的递归渲染逻辑
-            const matchedRoutes = this.routes.current.matchedRoutes || [];
             if (matchedRoutes.length > 0) {
-                await this._renderRouteHierarchy(matchedRoutes);
+                await this._renderRoutes(matchedRoutes);
             }
-            this.log("渲染流程: 渲染完成");
+            this.logger.debug("渲染流程: 渲染完成");
         } catch (error) {
             console.error("渲染流程失败:", error);
-            this.log("渲染流程: 渲染失败", error);
+            this.logger.debug("渲染流程: 渲染失败", error);
             // 渲染失败不阻塞导航流程
         }
     }
@@ -377,7 +347,7 @@ export class KylinRouter extends Mixin(
         });
 
         // 执行 afterEach 钩子
-        this.log("钩子执行: afterEach");
+        this.logger.debug("钩子执行: afterEach");
         try {
             await this.hooks.executeHooks(
                 HookTypeValues.AFTER_EACH as HookType,
@@ -386,7 +356,7 @@ export class KylinRouter extends Mixin(
             );
         } catch (error) {
             console.error("Error in afterEach hooks:", error);
-            this.log("钩子错误: afterEach 执行出错", error);
+            this.logger.debug("钩子错误: afterEach 执行出错", error);
             // afterEach 钩子出错不影响导航流程
         }
 
@@ -428,7 +398,10 @@ export class KylinRouter extends Mixin(
         const { fromRoute, toRoute } = this._matchRoute(pathname, search);
 
         // 执行全局前置守卫（beforeEach）
-        const shouldContinue = await this._runBeforeRouteHooks(toRoute, fromRoute);
+        const shouldContinue = await this.hooks.runBeforeRoute({
+            from: fromRoute,
+            to: toRoute,
+        });
         if (!shouldContinue) {
             return;
         }
@@ -473,12 +446,12 @@ export class KylinRouter extends Mixin(
     push(path: string, state?: unknown) {
         this._ensureAttached();
         this._pendingNavigationType = "push";
-        this.log(`导航方法: push(${path})`);
+        this.logger.debug(`导航方法: push(${path})`);
 
         // 检查是否为模态路由（! 前缀）
         if (path.startsWith("!")) {
             const modalPath = path.slice(1); // 移除 ! 前缀
-            this.log(`检测到模态路由: ${modalPath}`);
+            this.logger.debug(`检测到模态路由: ${modalPath}`);
             // 直接触发模态路由，不进入 history
             this.openModal({ route: modalPath });
             return;
@@ -498,7 +471,7 @@ export class KylinRouter extends Mixin(
     replace(path: string, state?: unknown) {
         this._ensureAttached();
         this._pendingNavigationType = "replace";
-        this.log(`导航方法: replace(${path})`);
+        this.logger.debug(`导航方法: replace(${path})`);
         // 触发 navigation/start 事件
         this.emit("navigation:start", {
             path,
@@ -513,7 +486,7 @@ export class KylinRouter extends Mixin(
     back() {
         this._ensureAttached();
         this._pendingNavigationType = "pop";
-        this.log("导航方法: back()");
+        this.logger.debug("导航方法: back()");
 
         // 如果有打开的模态，先关闭模态（D-20）
         if (this.modalState.stack.length > 0) {
@@ -531,7 +504,7 @@ export class KylinRouter extends Mixin(
     forward() {
         this._ensureAttached();
         this._pendingNavigationType = "pop";
-        this.log("导航方法: forward()");
+        this.logger.debug("导航方法: forward()");
         // 触发 navigation/start 事件
         this.emit("navigation:start", {
             path: undefined,
@@ -542,7 +515,7 @@ export class KylinRouter extends Mixin(
     go(delta: number) {
         this._ensureAttached();
         this._pendingNavigationType = "pop";
-        this.log(`导航方法: go(${delta})`);
+        this.logger.debug(`导航方法: go(${delta})`);
         // 触发 navigation/start 事件
         this.emit("navigation:start", {
             path: undefined,
@@ -563,14 +536,14 @@ export class KylinRouter extends Mixin(
         // 查找所有 outlet 元素
         const outlets = this.findOutlets();
         if (outlets.length === 0) {
-            this.log("渲染流程: 未找到 outlet 元素");
+            this.logger.debug("渲染流程: 未找到 outlet 元素");
             return;
         }
 
         // 获取组件加载结果
         const loadResult = (route as any).viewContent;
         if (!loadResult) {
-            this.log("渲染流程: 无组件内容可渲染");
+            this.logger.debug("渲染流程: 无组件内容可渲染");
             return;
         }
 
@@ -594,105 +567,31 @@ export class KylinRouter extends Mixin(
         // 等待所有渲染完成（并行渲染）
         await Promise.all(renderPromises);
     }
-    private _isViewExpires(route: KylinRouteItem) {}
-
     /**
      * 递归渲染路由层级结构
      * 按照路由分层逐层渲染，每层在父 outlet 内部查找或创建子 outlet
      */
-    protected async _renderRouteHierarchy(
+    protected async _renderRoutes(
         this: KylinRouter,
-        matchedRoutes: Array<{
-            route: KylinRouteItem;
-            params: Record<string, string>;
-            remainingPath: string;
-        }>,
+        matchedRoutes: KylinMatchedRouteItem[],
     ): Promise<void> {
         if (!matchedRoutes || matchedRoutes.length === 0) {
-            this.log("渲染流程: 无匹配路由需要渲染");
+            this.logger.debug("渲染流程: 无匹配路由需要渲染");
             return;
         }
 
-        this.log(`渲染流程: 开始递归渲染 ${matchedRoutes.length} 层路由`);
+        this.logger.debug(`渲染流程: 开始递归渲染 ${matchedRoutes.length} 层路由`);
 
-        let parentElement = this.host;
+        for (let i = 0; i < matchedRoutes.length; i++) {}
 
-        for (let i = 0; i < matchedRoutes.length; i++) {
-            const match = matchedRoutes[i];
-            const route = match.route;
-
-            this.log(`渲染流程: 渲染第 ${i + 1} 层 - ${route.name} (${route.path})`);
-
-            // 查找或创建 outlet（只有根路由才自动创建）
-            const isRootRoute = i === 0;
-            let outlet = this._findOrCreateOutlet(parentElement, isRootRoute);
-            if (!outlet) {
-                this.log(`渲染流程: 路由 ${route.name} 无法找到 <kylin-outlet>`);
-                return;
-            }
-
-            // 设置 RouteItem.el 指向当前 outlet
-            route.el = new WeakRef(outlet);
-
-            // 检查当前层是否已加载组件
-            const viewOptions = getRouteViewOptions(route, this);
-            let viewTemplate = route._getView;
-
-            if (viewTemplate) {
-            }
-            // 如果有 view 但还没有加载，先显示 loading
-            if (!viewTemplate) {
-                this.log(`渲染流程: 路由 ${route.name} 需要加载，先显示 loading`);
-                this._showLoadingInOutlet(outlet);
-
-                // 加载 view
-                loadResult = await this._loadViewForRoute(route);
-
-                if (!loadResult) {
-                    this.log(`渲染流程: 路由 ${route.name} 加载失败`);
-                    this._hideLoadingInOutlet(outlet);
-                    continue;
-                }
-            }
-
-            // 如果没有内容，跳过渲染
-            if (!loadResult) {
-                this.log(`渲染流程: 路由 ${route.name} 无组件内容，跳过渲染`);
-                parentElement = outlet;
-                continue;
-            }
-
-            // 渲染到 outlet（会自动替换 loading）
-            try {
-                await super.renderToOutlet(loadResult, outlet, {
-                    mode: (route as any).renderMode,
-                });
-                this.log(`渲染流程: 路由 ${route.name} 渲染成功`);
-            } catch (error) {
-                console.error(`渲染流程: 路由 ${route.name} 渲染失败:`, error);
-                this._hideLoadingInOutlet(outlet);
-                return;
-            }
-
-            // 如果有数据，设置 x-data
-            if (route.data) {
-                const hash = this._generateRouteHash(route);
-                (outlet as any).addStore(hash, route.data);
-                this.log(`渲染流程: 路由 ${route.name} 数据已设置`);
-            }
-
-            // 下一层在当前 outlet 内部查找
-            parentElement = outlet;
-        }
-
-        this.log("渲染流程: 递归渲染完成");
+        this.logger.debug("渲染流程: 递归渲染完成");
     }
 
     /**
      * 在 outlet 中显示 loading 状态
      */
     protected _showLoadingInOutlet(outlet: HTMLElement): void {
-        this.log("渲染流程: 显示 loading 状态");
+        this.logger.debug("渲染流程: 显示 loading 状态");
 
         // 创建 loading 元素
         const loadingElement = document.createElement("kylin-loading");
@@ -707,7 +606,7 @@ export class KylinRouter extends Mixin(
      * 隐藏 outlet 中的 loading 状态
      */
     protected _hideLoadingInOutlet(outlet: HTMLElement): void {
-        this.log("渲染流程: 隐藏 loading 状态");
+        this.logger.debug("渲染流程: 隐藏 loading 状态");
 
         const loadingElement = outlet.querySelector("kylin-loading[data-role='loading-indicator']");
         if (loadingElement) {
@@ -731,7 +630,7 @@ export class KylinRouter extends Mixin(
 
         // 检查缓存是否过期
         if (elapsed > cache.duration) {
-            this.log(
+            this.logger.debug(
                 `渲染流程: 路由 ${route.name} 缓存已过期 (${elapsed}ms > ${cache.duration}ms)`,
             );
             return null;
@@ -768,20 +667,20 @@ export class KylinRouter extends Mixin(
         let outlet = findOutletInElement(parent);
 
         if (outlet) {
-            this.log("渲染流程: 找到现有 outlet");
+            this.logger.debug("渲染流程: 找到现有 outlet");
             return outlet;
         }
 
         // 如果没有找到且允许创建，自动创建一个（仅根路由）
         if (allowCreate) {
-            this.log("渲染流程: 未找到 outlet，自动创建");
+            this.logger.debug("渲染流程: 未找到 outlet，自动创建");
             const newOutlet = document.createElement("kylin-outlet");
             parent.appendChild(newOutlet);
             return newOutlet;
         }
 
         // 子路由找不到 outlet，返回 null
-        this.log("渲染流程: 未找到 outlet，且不允许自动创建");
+        this.logger.debug("渲染流程: 未找到 outlet，且不允许自动创建");
         return null;
     }
 
@@ -792,14 +691,14 @@ export class KylinRouter extends Mixin(
     protected _ensureDefaultOutlet(): void {
         const existingOutlet = findOutletInElement(this.host);
         if (existingOutlet) {
-            this.log("自动插入 outlet: host 内部已有 outlet，跳过创建");
+            this.logger.debug("自动插入 outlet: host 内部已有 outlet，跳过创建");
             return;
         }
 
-        this.log("自动插入 outlet: host 内部没有 outlet，自动创建");
+        this.logger.debug("自动插入 outlet: host 内部没有 outlet，自动创建");
         const defaultOutlet = document.createElement("kylin-outlet");
         this.host.appendChild(defaultOutlet);
-        this.log("自动插入 outlet: 默认 outlet 已创建并插入");
+        this.logger.debug("自动插入 outlet: 默认 outlet 已创建并插入");
     }
 
     /**
@@ -884,7 +783,7 @@ export class KylinRouter extends Mixin(
         if (!hasMatchedRoute && this.options.home) {
             // 构造完整的 home 路径（base + home）
             const fullPath = this.base + this.options.home;
-            this.log(`自动导航到 home 路径: ${fullPath}（当前路径: ${currentPath}）`);
+            this.logger.debug(`自动导航到 home 路径: ${fullPath}（当前路径: ${currentPath}）`);
             this.replace(fullPath);
         }
     }

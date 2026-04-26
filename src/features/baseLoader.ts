@@ -40,6 +40,12 @@ export interface BaseLoaderOptions<Data = any> {
     timeout?: number;
     /** 缓存哈希标识模板 */
     hash?: string;
+    /**
+     * 是否预加载
+     * - true: 在路由实例创建时自动预加载进缓存，这可以加速数据加载
+     * - false: 默认值，不预加载
+     */
+    preload?: boolean;
 }
 
 /**
@@ -197,8 +203,8 @@ export abstract class RouteDataLoaderBase<
         const source = this.resolveDataSource(matched, options);
 
         // 成功和错误处理
-        const onSuccess = (data: TData) => this.handleLoadSuccess(data, hash, options, signal);
-        const onError = (error: any) => this.handleLoadError(error, hash, signal);
+        const onSuccess = (data: TData) => this.onLoadSuccess(data, hash, options, signal);
+        const onError = (error: any) => this.onLoadError(error, hash, signal);
 
         // 根据数据源类型分发
         Promise.resolve(source)
@@ -235,32 +241,6 @@ export abstract class RouteDataLoaderBase<
      * ViewLoader: 只缓存字符串类型
      */
     protected abstract shouldCacheData(data: TData): boolean;
-
-    // ========================================
-    // 钩子方法（子类可选覆盖）
-    // ========================================
-
-    /**
-     * 加载成功后的额外处理
-     * ViewLoader 可以覆盖来进行 HTML 清理
-     */
-    protected hookAfterLoadSuccess(data: TData, options: TOptions): TData {
-        return data;
-    }
-
-    /**
-     * 缓存前的额外处理
-     */
-    protected hookBeforeCache(data: TData, options: TOptions): void {
-        // 默认不做处理
-    }
-
-    /**
-     * 清理资源
-     */
-    protected hookCleanup(): void {
-        // 默认不做处理
-    }
 
     // ========================================
     // 私有方法（基类内部使用）
@@ -345,7 +325,7 @@ export abstract class RouteDataLoaderBase<
                     reject(new Error("Load timeout"));
                 }, timeout);
             }
-
+            signal.meta.url = url;
             fetch(url, { signal: signal.getAbortSignal() })
                 .then((response) => {
                     if (!response.ok) {
@@ -359,28 +339,23 @@ export abstract class RouteDataLoaderBase<
         });
     }
 
-    private handleLoadSuccess(
+    protected onLoadSuccess(
         data: TData,
         hash: string,
         options: TOptions,
         signal: IAsyncSignal,
     ): void {
-        // 后处理钩子
-        const processedData = this.hookAfterLoadSuccess(data, options);
-
         // 缓存
-        if ((options.cache || 0) > 0 && this.shouldCacheData(processedData)) {
-            this.hookBeforeCache(processedData, options);
+        if ((options.cache || 0) > 0 && this.shouldCacheData(data)) {
             this.cache.set(hash, {
-                value: processedData,
+                value: data,
                 timestamp: Date.now(),
             } as CacheItem<TData>);
         }
-
-        signal.resolve(processedData);
+        signal.resolve(data);
     }
 
-    private handleLoadError(error: any, hash: string, signal: IAsyncSignal): void {
+    protected onLoadError(error: any, hash: string, signal: IAsyncSignal): void {
         if (error.name === "AbortError") {
             signal.resolve(undefined);
         } else {
@@ -415,6 +390,5 @@ export abstract class RouteDataLoaderBase<
      */
     public cleanup(): void {
         this.cache.clear();
-        this.hookCleanup();
     }
 }
