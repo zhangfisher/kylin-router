@@ -1,5 +1,5 @@
 export * from "./emitter";
-export * from "./findOutletInElement";
+export * from "./findOutlet";
 export * from "./generateRouteHash";
 export * from "./hashUtils";
 export * from "./joinPath";

@@ -172,7 +172,6 @@ export interface KylinRouteItem {
      *    - selector: 自定义内容提取选择器
      */
     view?: KylinRouteViewSource | KylinRouteViewOptions;
-
     /**
      * 内部属性：视图模板缓存
      * 用于存储已加载的视图内容，避免重复加载

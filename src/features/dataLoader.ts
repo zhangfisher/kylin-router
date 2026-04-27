@@ -66,6 +66,7 @@ export class DataLoader extends RouteDataLoaderBase<
             } else {
                 Alpine.data(hash, () => data);
             }
+            _signal.meta.hash = hash;
         } catch (e: any) {
             this.router.logger.error(`Failed to create route dataObject : ${e.message}`);
         }

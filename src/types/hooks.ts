@@ -52,7 +52,7 @@ export type AfterRouteHook = (args: AfterRouteHookArgs) => void | Promise<void>;
 export type BeforeRenderHookArgs = {
     from: KylinMatchedRouteItem[];
     to: KylinMatchedRouteItem[];
-    view: string;
+    view: HTMLElement;
     data: KylinRouteDataSource | undefined;
 };
 export type BeforeRenderHook = (args: BeforeRenderHookArgs) => void | Promise<void>;

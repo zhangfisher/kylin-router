@@ -19,15 +19,26 @@ export class KylinOutletElement extends KylinRouterElementBase {
     @property({ type: String, reflect: true })
     mode?: "replace" | "append";
 
-    @property({ type: String, reflect: true })
-    layout?: "stack" | "tabs";
-
     /**
      * 启用 keepalive 缓存
      * 当启用时，视图会被缓存而不是销毁
      */
     @property({ type: Boolean, reflect: true })
     keepalive: boolean = false;
+
+    /**
+     * 加载状态
+     * 当为 true 时，显示加载指示器
+     */
+    @property({ type: Boolean, reflect: true })
+    loading: boolean = false;
+
+    /**
+     * 布局模式
+     * 控制多个 viewContainer 的布局方式
+     */
+    @property({ type: String, reflect: true })
+    layout: "stack" | "tabs" | "hori" | "vert" = "stack";
 
     /**
      *  重写 createRenderRoot，使组件不使用 Shadow DOM，以便样式和事件能够穿透到组件内部
@@ -48,6 +59,36 @@ export class KylinOutletElement extends KylinRouterElementBase {
 
     disconnectedCallback() {
         super.disconnectedCallback();
+    }
+
+    // 监听属性变化
+    protected updated(changedProperties: Map<string, any>) {
+        super.updated(changedProperties);
+
+        if (changedProperties.has("loading")) {
+            if (this.loading) {
+                this._showLoadingIndicator();
+            } else {
+                this._hideLoadingIndicator();
+            }
+        }
+    }
+
+    private _showLoadingIndicator(): void {
+        // 显示加载指示器
+        const loadingElement = this.querySelector("kylin-loading");
+        if (!loadingElement) {
+            const indicator = document.createElement("kylin-loading");
+            this.appendChild(indicator);
+        }
+    }
+
+    private _hideLoadingIndicator(): void {
+        // 隐藏加载指示器
+        const loadingElement = this.querySelector("kylin-loading");
+        if (loadingElement) {
+            loadingElement.remove();
+        }
     }
 
     /**
@@ -71,6 +112,39 @@ export class KylinOutletElement extends KylinRouterElementBase {
                 (this.router as any).closeModal();
             }
         });
+    }
+
+    /**
+     * 根据 layout 属性显示指定的 viewContainer
+     * @param hash - 要显示的 viewContainer 的 hash
+     */
+    showViewContainer(hash: string): void {
+        // 获取所有 viewContainer
+        const allContainers = Array.from(this.querySelectorAll("[id]")) as HTMLElement[];
+
+        if (this.layout === "stack") {
+            // stack 模式：只显示一个，隐藏其他
+            allContainers.forEach(container => {
+                if (container.id === hash) {
+                    container.style.display = "";
+                } else {
+                    container.style.display = "none";
+                }
+            });
+        } else if (this.layout === "tabs") {
+            // tabs 模式：显示 tab 导航和内容区域
+            // TODO: 实现 tabs 布局逻辑
+        } else if (this.layout === "hori") {
+            // hori 模式：水平排列
+            allContainers.forEach(container => {
+                container.style.display = container.id === hash ? "block" : "none";
+            });
+        } else if (this.layout === "vert") {
+            // vert 模式：垂直排列
+            allContainers.forEach(container => {
+                container.style.display = container.id === hash ? "block" : "none";
+            });
+        }
     }
 
     /**
