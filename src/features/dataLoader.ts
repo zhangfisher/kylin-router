@@ -99,20 +99,4 @@ export class DataLoader extends RouteDataLoaderBase<
     async loadDatas(routes: KylinMatchedRouteItem[]) {
         return this.loadRoutes(routes);
     }
-
-    /**
-     * 重写数据源解析以处理 undefined/null
-     */
-    protected resolveDataSource(
-        _matched: KylinMatchedRouteItem,
-        options: Required<KylinRouteDataOptions>,
-    ): any {
-        // 处理 undefined 或 null 的情况
-        if (options.from === undefined || options.from === null) {
-            return {};
-        }
-
-        const source = this.getDataSource(options);
-        return typeof source === "function" ? source(_matched) : source;
-    }
 }

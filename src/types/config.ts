@@ -63,7 +63,6 @@ export type KylinRouterOptions = {
     notFound?: KylinRouteItem;
     /** 起始路径 */
     home?: string;
-
     /** 是否启用调试模式，启用后会输出详细的导航日志（默认 false） */
     debug?: boolean;
     /** 宿主元素或选择器字符串（可选，用于 attach 方法） */

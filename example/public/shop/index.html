@@ -66,7 +66,7 @@
             // 创建路由器
             const app = document.getElementById("app");
             const router = createRouter(app, {
-                base: "/public/shop", // 配置基础路径
+                base: "/shop", // 配置基础路径
                 home: "/", // 配置首页路径
                 routes: [
                     // 首页
@@ -79,7 +79,7 @@
                     // 产品页面（包含左侧边栏和 outlet）
                     {
                         path: "products",
-                        view: ".pages/products.html",
+                        view: "pages/products.html",
                         children: [
                             // 产品列表（默认显示）
                             {
@@ -213,6 +213,16 @@
                 alpineApp.loginForm.username = username;
                 alpineApp.loginForm.password = password;
                 await alpineApp.login();
+
+                // 登录成功后返回首页
+                if (alpineApp.isLoggedIn) {
+                    router.home();
+                }
+            };
+
+            // 暴露返回首页方法
+            window.goHome = () => {
+                router.home();
             };
         </script>
     </body>

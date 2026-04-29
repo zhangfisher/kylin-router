@@ -205,26 +205,47 @@ export class KylinRouter extends Mixin(
      * 执行路由匹配和参数提取
      */
     async onRouteUpdate(location: Update) {
+        console.log("[KylinRouter] onRouteUpdate 被调用", {
+            pathname: location.location.pathname,
+            search: location.location.search,
+        });
+
         const pathname = location.location.pathname;
         const search = location.location.search;
+        let fromRoute: KylinMatchedRouteItem[] | undefined, toRoute: KylinMatchedRouteItem[];
+        try {
+            // 执行路由匹配并获取导航上下文
+            const matched = this._matchRoute(pathname, search);
+            fromRoute = matched.fromRoute;
+            toRoute = matched.toRoute;
 
-        // 执行路由匹配并获取导航上下文
-        const { fromRoute, toRoute } = this._matchRoute(pathname, search);
+            console.log("[KylinRouter] 路由匹配完成", {
+                fromRouteCount: fromRoute?.length || 0,
+                toRouteCount: toRoute?.length || 0,
+            });
 
-        // 执行全局前置守卫（beforeEach）
-        const shouldContinue = await this.hooks.runBeforeRoute({
-            from: fromRoute,
-            to: toRoute,
-        });
-        if (!shouldContinue) {
-            return;
+            // 执行全局前置守卫（beforeEach）
+            const shouldContinue = await this.hooks.runBeforeRoute({
+                from: fromRoute,
+                to: toRoute,
+            });
+            if (!shouldContinue) {
+                this.logger.debug("[KylinRouter] beforeEach 守卫返回 false，取消导航");
+                return;
+            }
+
+            // 加载路由视图和数据
+            this.viewLoader.loadViews(toRoute);
+            this.dataLoader.loadDatas(toRoute);
+
+            // 执行渲染步骤
+            await this._renderRoute(toRoute, fromRoute);
+        } finally {
+            // 无论是成功还是失败，都执行后置守卫（afterEach）
+            this.hooks.runAfterRoute({
+                to: toRoute!,
+            });
         }
-        // 加载路由视图和数据
-        this.viewLoader.loadViews(toRoute);
-        this.dataLoader.loadDatas(toRoute);
-
-        // 执行渲染步骤
-        await this._renderRoute(toRoute, fromRoute);
     }
 
     /**
@@ -280,9 +301,10 @@ export class KylinRouter extends Mixin(
         }
     }
     replace(path: string, state?: unknown) {
+        console.log("[KylinRouter] replace() 方法被调用:", path);
         this._ensureAttached();
         this._pendingNavigationType = "replace";
-        this.logger.debug(`导航方法: replace(${path})`);
+        console.log("[KylinRouter] 准备执行 history.replace:", path);
         // 触发 navigation/start 事件
         this.emit("navigation:start", {
             path,
@@ -294,6 +316,19 @@ export class KylinRouter extends Mixin(
             this.history.replace(path);
         }
     }
+
+    /**
+     * 导航到主页
+     * 主页路径由 options.home 指定（默认为 "/"）
+     */
+    home() {
+        console.log("[KylinRouter] home() 方法被调用");
+        this._ensureAttached();
+        const homePath = this.options.home || "/";
+        console.log("[KylinRouter] 准备导航到主页:", homePath);
+        this.replace(homePath);
+    }
+
     back() {
         this._ensureAttached();
         this._pendingNavigationType = "pop";
@@ -336,6 +371,8 @@ export class KylinRouter extends Mixin(
     }
 
     attach(): void {
+        console.log("[KylinRouter] attach() 开始执行");
+
         if (this.attached) {
             throw new Error("[KylinRouter] Already attached to a host element");
         }
@@ -356,6 +393,11 @@ export class KylinRouter extends Mixin(
         });
         this.routes.initRoutes(this.options.routes, this.options.notFound);
 
+        console.log("[KylinRouter] 路由表已初始化", {
+            routesCount: this.routes.routes?.length || 0,
+            home: this.options.home,
+        });
+
         // 初始化钩子管理器
         this.hooks = new HookManager(this);
 
@@ -365,8 +407,12 @@ export class KylinRouter extends Mixin(
         // 初始化数据加载器，传递全局数据选项
         this.dataLoader = new DataLoader(this);
 
+        console.log("[KylinRouter] 加载器已初始化");
+
         // 开始监听路由变化
         this._cleanups.push(this.history.listen(this.onRouteUpdate.bind(this)));
+
+        console.log("[KylinRouter] history 监听器已设置");
 
         // 设置 context provider
         this.attachContextProvider();
@@ -383,20 +429,10 @@ export class KylinRouter extends Mixin(
         // 标记为已绑定
         this.attached = true;
 
-        // 执行初始路由匹配
-        this.routes.matchCurrentLocation();
+        console.log("[KylinRouter] 已标记为 attached，准备导航到主页");
 
-        // 自动导航到 home 路径
-        // 如果当前没有匹配到路由，或者当前路径是 base 路径本身，则导航到 home
-        const currentPath = this.history.location.pathname;
-        const hasMatchedRoute = this.routes.current.route !== null;
-
-        if (!hasMatchedRoute && this.options.home) {
-            // 构造完整的 home 路径（base + home）
-            const fullPath = this.base + this.options.home;
-            this.logger.debug(`自动导航到 home 路径: ${fullPath}（当前路径: ${currentPath}）`);
-            this.replace(fullPath);
-        }
+        // 自动导航到主页
+        this.home();
     }
     /**
      * 解除 router 与 host 的绑定并清理所有监听器

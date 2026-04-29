@@ -25,10 +25,11 @@ export class ViewLoader extends RouteDataLoaderBase<
     constructor(router: KylinRouter) {
         super(
             router,
-            "view", // loadType
+            "view",
             Object.assign(
                 {
                     allowUnsafe: true,
+                    datatype: "text",
                 },
                 router.options.viewOptions,
             ) as Required<Omit<KylinRouteViewOptions, "from">>,
@@ -112,20 +113,25 @@ export class ViewLoader extends RouteDataLoaderBase<
             };
 
             // 合并选项
-            const mergedOptions = Object.assign(
-                {},
-                this.options,
-                options || {},
-                { from: viewSource },
-            ) as Required<KylinRouteViewOptions>;
+            const mergedOptions = Object.assign({}, this.options, options || {}, {
+                from: viewSource,
+            }) as Required<KylinRouteViewOptions>;
 
             // 执行加载
-            this.executeLoad(tempMatched, mergedOptions, this._getRouteHash(mergedOptions, tempMatched));
+            this.startLoad(
+                tempMatched,
+                mergedOptions,
+                this._getRouteHash(mergedOptions, tempMatched),
+            );
 
             // 等待加载完成
             const signal = this.getLoadSignal(tempMatched);
             if (!signal) {
-                return { success: false, content: null, error: new Error("Failed to create load signal") };
+                return {
+                    success: false,
+                    content: null,
+                    error: new Error("Failed to create load signal"),
+                };
             }
 
             // 等待 signal 完成
@@ -190,5 +196,4 @@ export class ViewLoader extends RouteDataLoaderBase<
         // 返回原始内容
         return html;
     }
-
 }

@@ -137,7 +137,7 @@ export class HookManager {
             options,
         );
         const { to } = args;
-        const hooks = [...this.hooks[name], ...to.map((r: any) => r.route[name] || [])] as any[];
+        const hooks = [...this.hooks[name], ...to.flatMap((r: any) => r.route[name] || [])] as any[];
 
         if (mode === "serial") {
             for (const hook of hooks) {

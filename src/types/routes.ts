@@ -181,7 +181,7 @@ export interface KylinRouteItem {
      *
      * @internal
      */
-    _getView?: IAsyncSignal | null;
+    _getView?: IAsyncSignal<string | HTMLElement> | null;
     _viewOptions: Required<KylinRouteViewOptions>;
     /**
      *
@@ -196,7 +196,7 @@ export interface KylinRouteItem {
      * 不同url可能数据是不同的，比如/posts/:id
      * 调用不同的id参数时，需要分别进行加载和缓存
      */
-    _getData?: IAsyncSignal | null;
+    _getData?: IAsyncSignal<Record<string, any>> | null;
     _dataOptions: Required<KylinRouteDataOptions>;
     /**
      * 是否缓存此路由对应的组件实例，默认为 false

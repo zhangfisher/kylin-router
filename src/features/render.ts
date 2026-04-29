@@ -16,10 +16,6 @@ import type { KylinRouter } from "@/router";
 import type { KylinMatchedRouteItem } from "@/types";
 
 export class Render {
-    // ============================================================================
-    // 新渲染系统方法 - 支持 viewContainer 和嵌套路由
-    // ============================================================================
-
     /**
      * 执行渲染步骤 - 新的渲染系统
      * 支持逐级嵌套路由渲染、beforeRender/afterRender 钩子、layout 布局等
@@ -29,10 +25,10 @@ export class Render {
         toRoute: KylinMatchedRouteItem[],
         fromRoute: KylinMatchedRouteItem[] | undefined,
     ): Promise<void> {
-        this.logger.debug("渲染流程: 开始渲染组件");
         try {
             // 1. 找到根元素下的第一个 outlet
             let currentOutlet = this._findOrCreateOutlet(this.host, false);
+
             if (!currentOutlet) {
                 this.logger.debug("渲染流程: 未找到 outlet，跳过渲染");
                 return;
@@ -44,10 +40,10 @@ export class Render {
                 const route = matched.route;
 
                 // 获取异步信号
-                const viewSignal = (route as any)._getView;
-                const dataSignal = (route as any)._getData;
+                const getView = (route as any)._getView;
+                const getData = (route as any)._getData;
 
-                if (!viewSignal) {
+                if (!getView) {
                     this.logger.debug(`渲染流程: 路由 ${matched.path} 缺少视图信号，跳过`);
                     continue;
                 }
@@ -56,11 +52,18 @@ export class Render {
                     // 3. 显示加载状态
                     this._showLoadingInOutlet(currentOutlet);
 
-                    // 4. 并发等待视图和数据加载完成
+                    const r1 = await getView();
+                    debugger;
+                    const r2 = await (getData?.() || Promise.resolve(undefined));
+                    debugger;
+                    // 🔧 测试：检查 getView() 返回的是什么
                     const loadResults = await Promise.allSettled([
-                        viewSignal.promise,
-                        dataSignal?.promise || Promise.resolve(undefined)
+                        getView(),
+                        getData?.() || Promise.resolve(undefined),
                     ]);
+                    debugger;
+                    const viewStatus = loadResults[0].status;
+                    const dataStatus = loadResults[1]?.status;
 
                     const viewResult = loadResults[0];
                     const dataResult = loadResults[1];
@@ -72,10 +75,10 @@ export class Render {
                         // 6. 获取数据和 hash（如果有）
                         let data: Record<string, any> | undefined;
                         let hash = matched.hash;
-                        if (dataSignal && dataResult?.status === "fulfilled" && dataResult.value) {
+                        if (getData && dataResult?.status === "fulfilled" && dataResult.value) {
                             data = dataResult.value;
                             // 从 dataSignal.meta.hash 读取 hash
-                            hash = dataSignal.meta.hash || matched.hash;
+                            hash = getData.meta.hash || matched.hash;
                         }
 
                         // 7. 创建或更新视图容器（还未插入到 DOM）
@@ -83,77 +86,56 @@ export class Render {
                             currentOutlet,
                             view,
                             hash,
-                            data
+                            data,
                         );
 
                         // 8. 执行 beforeRender 钩子（同步等待）
-                        // 此时 viewContainer 已创建并填充内容，但还未插入 DOM
-                        // 钩子函数有机会修改 viewContainer 和 data
-                        try {
-                            await this.hooks.runBeforeRender({
-                                from: fromRoute || [],
-                                to: toRoute.slice(0, i + 1),
-                                view: viewContainer,
-                                data: data,
-                            });
-                        } catch (hookError) {
-                            this.logger.error("渲染流程: beforeRender 钩子执行失败", hookError);
-                            // 钩子失败不阻止渲染流程
-                        }
+                        await this._runBeforeRender(
+                            fromRoute || [],
+                            toRoute.slice(0, i + 1),
+                            viewContainer,
+                            data,
+                        );
 
                         // 9. 将容器插入到 outlet（此时才真正渲染到 DOM）
-                        const existingContainer = currentOutlet.querySelector(`[id="${hash}"]`) as HTMLElement;
-                        if (!existingContainer) {
-                            // 新容器：追加到 outlet
-                            currentOutlet.appendChild(viewContainer);
-                            this.logger.debug(`渲染流程: 创建并插入新视图容器 (id: ${hash})`);
-                        } else {
-                            // 已存在容器：替换内容
-                            existingContainer.replaceWith(viewContainer);
-                            this.logger.debug(`渲染流程: 更新现有视图容器 (id: ${hash})`);
-                        }
+                        this._renderViewToOutlet(currentOutlet, viewContainer, hash);
 
-                        // 10. 根据 layout 属性显示/隐藏 viewContainer
-                        if (currentOutlet instanceof HTMLElement && "showViewContainer" in currentOutlet) {
-                            (currentOutlet as any).showViewContainer(hash);
-                        }
-
-                        // 11. 隐藏加载状态
+                        // 10. 隐藏加载状态
                         this._hideLoadingInOutlet(currentOutlet);
 
-                        // 12. 异步执行 afterRender 钩子（不等待）
-                        this.hooks.runAfterRender({
-                            from: fromRoute || [],
-                            to: toRoute.slice(0, i + 1),
-                            el: viewContainer,
-                        }).catch((hookError) => {
-                            this.logger.error("渲染流程: afterRender 钩子执行失败", hookError);
-                        });
+                        // 11. 异步执行 afterRender 钩子（不等待）
+                        this._runAfterRender(
+                            fromRoute || [],
+                            toRoute.slice(0, i + 1),
+                            viewContainer,
+                        );
 
-                        // 13. 查找下一级 outlet
+                        // 12. 查找下一级 outlet
                         if (i < toRoute.length - 1) {
                             const nextOutlet = this._findNextLevelOutlet(currentOutlet, hash);
                             if (nextOutlet) {
                                 currentOutlet = nextOutlet;
                             } else {
-                                this.logger.debug(`渲染流程: 路由 ${matched.path} 未找到子 outlet，停止嵌套渲染`);
+                                this.logger.debug(
+                                    `渲染流程: 路由 ${matched.path} 未找到子 outlet，停止嵌套渲染`,
+                                );
                                 break;
                             }
                         }
                     } else if (viewResult.status === "rejected") {
                         // 14. 处理视图加载错误
-                        await this._renderViewToOutlet(
+                        await this._renderErrorViewToOutlet(
                             currentOutlet,
                             matched.hash,
-                            viewResult.reason
+                            viewResult.reason,
                         );
                     }
                 } catch (error) {
                     this.logger.error(`渲染流程: 路由 ${matched.path} 渲染失败`, error);
-                    await this._renderViewToOutlet(
+                    await this._renderErrorViewToOutlet(
                         currentOutlet,
                         matched.hash,
-                        error as Error
+                        error as Error,
                     );
                 }
             }
@@ -213,6 +195,56 @@ export class Render {
     }
 
     /**
+     * 执行 beforeRender 钩子
+     * @param from - 来源路由
+     * @param to - 目标路由
+     * @param view - 视图容器
+     * @param data - 路由数据
+     */
+    protected async _runBeforeRender(
+        this: KylinRouter,
+        from: KylinMatchedRouteItem[],
+        to: KylinMatchedRouteItem[],
+        view: HTMLElement,
+        data?: Record<string, any>,
+    ): Promise<void> {
+        try {
+            await this.hooks.runBeforeRender({
+                from,
+                to,
+                view,
+                data,
+            });
+        } catch (hookError) {
+            this.logger.error("渲染流程: beforeRender 钩子执行失败", hookError);
+            // 钩子失败不阻止渲染流程
+        }
+    }
+
+    /**
+     * 执行 afterRender 钩子（异步，不等待）
+     * @param from - 来源路由
+     * @param to - 目标路由
+     * @param el - 视图元素
+     */
+    protected _runAfterRender(
+        this: KylinRouter,
+        from: KylinMatchedRouteItem[],
+        to: KylinMatchedRouteItem[],
+        el: HTMLElement,
+    ): void {
+        this.hooks
+            .runAfterRender({
+                from,
+                to,
+                el,
+            })
+            .catch((hookError) => {
+                this.logger.error("渲染流程: afterRender 钩子执行失败", hookError);
+            });
+    }
+
+    /**
      * 在指定路由的 viewContainer 内部查找下一级 outlet
      * @param parentOutlet - 父 outlet 元素
      * @param currentHash - 当前路由的 hash（用于定位对应的 viewContainer）
@@ -221,10 +253,12 @@ export class Render {
     protected _findNextLevelOutlet(
         this: KylinRouter,
         parentOutlet: HTMLElement,
-        currentHash: string
+        currentHash: string,
     ): HTMLElement | null {
         // 1. 先找到当前路由对应的 viewContainer
-        const currentViewContainer = parentOutlet.querySelector(`[id="${currentHash}"]`) as HTMLElement;
+        const currentViewContainer = parentOutlet.querySelector(
+            `[id="${currentHash}"]`,
+        ) as HTMLElement;
 
         if (!currentViewContainer) {
             this.logger.debug(`渲染流程: 未找到当前路由的 viewContainer (hash: ${currentHash})`);
@@ -245,12 +279,45 @@ export class Render {
     }
 
     /**
+     * 将视图容器插入到 outlet
+     * 处理容器的新增或替换逻辑，并根据 layout 属性显示/隐藏
+     * @param outlet - 目标 outlet 元素
+     * @param viewContainer - 要插入的视图容器
+     * @param hash - 路由哈希（用作容器 id）
+     */
+    protected _renderViewToOutlet(
+        this: KylinRouter,
+        outlet: HTMLElement,
+        viewContainer: HTMLElement,
+        hash: string,
+    ): void {
+        // 查找现有容器
+        const existingContainer = outlet.querySelector(`[id="${hash}"]`) as HTMLElement;
+
+        if (!existingContainer) {
+            // 新容器：追加到 outlet
+            outlet.appendChild(viewContainer);
+            this.logger.debug(`渲染流程: 创建并插入新视图容器 (id: ${hash})`);
+        } else {
+            // 已存在容器：替换内容
+            existingContainer.replaceWith(viewContainer);
+            this.logger.debug(`渲染流程: 更新现有视图容器 (id: ${hash})`);
+        }
+
+        // 根据 layout 属性显示/隐藏 viewContainer
+        if (outlet instanceof HTMLElement && "showViewContainer" in outlet) {
+            (outlet as any).showViewContainer(hash);
+        }
+    }
+
+    /**
      * 渲染错误视图到 outlet
+     * 仅在视图加载失败时调用
      * @param outlet - 目标 outlet 元素
      * @param hash - 路由哈希（用作容器 id）
      * @param error - 错误信息
      */
-    protected async _renderViewToOutlet(
+    protected async _renderErrorViewToOutlet(
         this: KylinRouter,
         outlet: HTMLElement,
         hash: string,

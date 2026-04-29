@@ -11,7 +11,6 @@
 import type { KylinRouter } from "@/router";
 import type { KylinRoutes, KylinRouteItem, KylinMatchedRouteItem } from "@/types";
 import { matchRoute } from "@/utils/matchRoute";
-import { extractQueryParams } from "@/utils/extractQueryParams";
 
 /** 导航回调函数类型 */
 export interface NavigationCallbacks {
@@ -150,21 +149,7 @@ export class RouteRegistry {
     }
 
     /**
-     * 当当前路由被删除或不可访问时，重定向到 404
-     */
-    protected redirectToDefaultOrNotFound(): void {
-        if (this.notFound) {
-            this.current.route = this.notFound;
-            this.current.params = {};
-            if (this._callbacks) {
-                const location = this._callbacks.getLocation();
-                this.current.remainingPath = location.pathname;
-            }
-        }
-    }
-    /**
      * 将路由配置规范化为 RouteItem[]
-     * 按照 D-17: 支持多种路由配置格式（对象数组、单个对象）
      */
     private _normalizeRoutes(routes: KylinRoutes): KylinRouteItem[] {
         if (Array.isArray(routes)) {

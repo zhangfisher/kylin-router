@@ -36,7 +36,6 @@ export type BeforeRouteHook = (
  * @returns 可以返回 void 或 Promise<void>
  */
 export type AfterRouteHookArgs = {
-    from: KylinMatchedRouteItem[];
     to: KylinMatchedRouteItem[];
 };
 export type AfterRouteHook = (args: AfterRouteHookArgs) => void | Promise<void>;
