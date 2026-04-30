@@ -97,13 +97,12 @@ export interface KylinRenderOptions {
  * 视图加载配置选项
  * 当 view 需要特殊配置时使用
  */
-export interface KylinRouteViewOptions extends BaseLoaderOptions<string | HTMLElement> {
+export interface KylinRouteViewOptions extends BaseLoaderOptions<string> {
     /**
      * 是否允许不安全的 HTML（如 script 标签）
      * 默认为 false，会移除潜在的危险内容
      */
     allowUnsafe?: boolean;
-
     /**
      * 自定义内容提取选择器
      * 如果提供，将从加载的 HTML 中提取匹配该选择器的内容
@@ -189,7 +188,7 @@ export interface KylinRouteItem {
      *
      * 这些数据会被作为路由视图渲染时使用的变量
      */
-    data?: KylinRouteDataSource | KylinRouteDataOptions;
+    data?: KylinRouteDataSource | KylinRouteDataOptions | true;
     /**
      * 缓存数据
      *

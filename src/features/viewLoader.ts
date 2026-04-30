@@ -10,18 +10,13 @@
 import type { KylinRouter } from "@/router";
 import type { KylinMatchedRouteItem, KylinRouteViewOptions } from "@/types/routes";
 import { RouteDataLoaderBase } from "./baseLoader";
-import type { IAsyncSignal } from "asyncsignal";
 import { sanitizeHTML } from "@/utils/sanitizeHTML";
 
 /**
  * ViewLoader 类 - 负责加载视图组件
  * 继承自 RouteDataLoaderBase 基类
  */
-export class ViewLoader extends RouteDataLoaderBase<
-    "view",
-    KylinRouteViewOptions,
-    string | HTMLElement
-> {
+export class ViewLoader extends RouteDataLoaderBase<"view", KylinRouteViewOptions, string> {
     constructor(router: KylinRouter) {
         super(
             router,
@@ -34,27 +29,6 @@ export class ViewLoader extends RouteDataLoaderBase<
                 router.options.viewOptions,
             ) as Required<Omit<KylinRouteViewOptions, "from">>,
         );
-    }
-
-    // ========================================
-    // 实现抽象方法
-    // ========================================
-
-    /**
-     * 处理远程加载的响应
-     * ViewLoader 使用 response.text() 解析 HTML 内容
-     */
-    protected async processRemoteResponse(
-        response: Response,
-        options: KylinRouteViewOptions,
-        _signal: IAsyncSignal,
-    ): Promise<string | HTMLElement> {
-        let html = await response.text();
-        html = this.extractContent(html, options.selector);
-        if (!options.allowUnsafe) {
-            html = sanitizeHTML(html);
-        }
-        return html;
     }
 
     /**
@@ -155,45 +129,41 @@ export class ViewLoader extends RouteDataLoaderBase<
         }
     }
 
-    // ========================================
-    // 保留 ViewLoader 特有方法
-    // ========================================
-
     /**
      * 智能内容提取 - 从 HTML 中提取有效内容
      * @param html - 原始 HTML 字符串
      * @param selector - 自定义选择器（可选）
      * @returns 提取后的内容
      */
-    private extractContent(html: string, selector?: string): string {
-        // 如果提供了自定义选择器，使用它
-        if (selector) {
-            const doc = new DOMParser().parseFromString(html, "text/html");
-            const element = doc.querySelector(selector);
-            return element ? element.innerHTML : html;
+    protected onHandleData(html: string, options: KylinRouteViewOptions): string {
+        const { selector, allowUnsafe } = options;
+        let htmlResult: string = html;
+        try {
+            // 如果提供了自定义选择器，使用它
+            if (selector) {
+                const doc = new DOMParser().parseFromString(html, "text/html");
+                const element = doc.querySelector(selector);
+                return element ? element.innerHTML : html;
+            }
+            // 检查是否包含完整的 HTML 文档
+            if (html.includes("<html") || html.includes("<HTML")) {
+                const doc = new DOMParser().parseFromString(html, "text/html");
+                // 提取 body 内容
+                const body = doc.body;
+                htmlResult = body ? body.innerHTML : html;
+            }
+            // 检查是否有 data-outlet 属性的元素（D-02）
+            const outletMatch = html.match(/<[^>]+data-outlet[^>]*>([\s\S]*?)<\/[^>]+>/);
+            if (outletMatch) {
+                htmlResult = outletMatch[1];
+            }
+            htmlResult = html;
+        } catch (e: any) {
+            this.router.logger.error(`视图内容提取失败: ${e.message}`);
         }
-
-        // 检查是否包含完整的 HTML 文档
-        if (html.includes("<html") || html.includes("<HTML")) {
-            const doc = new DOMParser().parseFromString(html, "text/html");
-            // 提取 body 内容
-            const body = doc.body;
-            return body ? body.innerHTML : html;
+        if (!allowUnsafe) {
+            htmlResult = sanitizeHTML(htmlResult);
         }
-
-        // 检查是否有 data-outlet 属性的元素（D-02）
-        const outletMatch = html.match(/<[^>]+data-outlet[^>]*>([\s\S]*?)<\/[^>]+>/);
-        if (outletMatch) {
-            return outletMatch[1];
-        }
-
-        // 检查是否有 body 标签（但没有 html 标签）
-        const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-        if (bodyMatch) {
-            return bodyMatch[1];
-        }
-
-        // 返回原始内容
-        return html;
+        return htmlResult;
     }
 }

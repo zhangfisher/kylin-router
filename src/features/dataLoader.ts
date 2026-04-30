@@ -14,6 +14,7 @@ import { isPlainObject } from "flex-tools/typecheck/isPlainObject";
 import { RouteDataLoaderBase } from "./baseLoader";
 import type { IAsyncSignal } from "asyncsignal";
 import Alpine from "alpinejs";
+import { getJsonFileFromUrl } from "@/utils/getJsonFileFromUrl";
 
 /**
  * DataLoader 类 - 负责加载路由数据
@@ -86,6 +87,23 @@ export class DataLoader extends RouteDataLoaderBase<
      */
     protected shouldCacheData(_data: Record<string, any>): boolean {
         return true;
+    }
+    /**
+     *
+     * @param matched
+     * @param options
+     */
+    getSource(matched: KylinMatchedRouteItem, options: KylinRouteDataOptions) {
+        const source = super.getSource(matched, options);
+        // 如果data=true,则从视图配置中获取数据源
+        if ((source as any) === true) {
+            const viewSrc = matched.route.view;
+            const viewUrl = typeof viewSrc === "function" ? viewSrc : viewSrc;
+            if (viewUrl === "string") {
+                return getJsonFileFromUrl(viewUrl);
+            }
+        }
+        return source;
     }
 
     // ========================================
