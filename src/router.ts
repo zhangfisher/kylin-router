@@ -236,7 +236,7 @@ export class KylinRouter extends Mixin(
 
             // 加载路由视图和数据
             this.viewLoader.loadViews(toRoute);
-            this.dataLoader.loadDatas(toRoute);
+            // this.dataLoader.loadDatas(toRoute);
 
             // 执行渲染步骤
             await this._renderRoute(toRoute, fromRoute);

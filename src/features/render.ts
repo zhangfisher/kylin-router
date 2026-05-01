@@ -14,6 +14,7 @@
 import { findOutlet } from "@/utils/findOutlet";
 import type { KylinRouter } from "@/router";
 import type { KylinMatchedRouteItem } from "@/types";
+import type { KylinOutlet } from "@/components/outlet";
 
 export class Render {
     /**
@@ -52,19 +53,11 @@ export class Render {
                     // 3. 显示加载状态
                     this._showLoadingInOutlet(currentOutlet);
 
-                    const r1 = await getView();
-                    debugger;
-                    const r2 = await (getData?.() || Promise.resolve(undefined));
-                    debugger;
                     // 🔧 测试：检查 getView() 返回的是什么
                     const loadResults = await Promise.allSettled([
                         getView(),
                         getData?.() || Promise.resolve(undefined),
                     ]);
-                    debugger;
-                    const viewStatus = loadResults[0].status;
-                    const dataStatus = loadResults[1]?.status;
-
                     const viewResult = loadResults[0];
                     const dataResult = loadResults[1];
 
@@ -287,7 +280,7 @@ export class Render {
      */
     protected _renderViewToOutlet(
         this: KylinRouter,
-        outlet: HTMLElement,
+        outlet: KylinOutlet,
         viewContainer: HTMLElement,
         hash: string,
     ): void {
@@ -297,16 +290,10 @@ export class Render {
         if (!existingContainer) {
             // 新容器：追加到 outlet
             outlet.appendChild(viewContainer);
-            this.logger.debug(`渲染流程: 创建并插入新视图容器 (id: ${hash})`);
         } else {
             // 已存在容器：替换内容
-            existingContainer.replaceWith(viewContainer);
-            this.logger.debug(`渲染流程: 更新现有视图容器 (id: ${hash})`);
-        }
 
-        // 根据 layout 属性显示/隐藏 viewContainer
-        if (outlet instanceof HTMLElement && "showViewContainer" in outlet) {
-            (outlet as any).showViewContainer(hash);
+            existingContainer.replaceWith(viewContainer);
         }
     }
 

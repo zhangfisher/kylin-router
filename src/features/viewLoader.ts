@@ -31,22 +31,6 @@ export class ViewLoader extends RouteDataLoaderBase<"view", KylinRouteViewOption
         );
     }
 
-    /**
-     * 验证数据类型
-     * ViewLoader 接受字符串或 HTMLElement
-     */
-    protected validateDataType(data: unknown): data is string | HTMLElement {
-        return typeof data === "string" || data instanceof HTMLElement;
-    }
-
-    /**
-     * 判断是否应该缓存
-     * ViewLoader 只缓存字符串类型的视图
-     */
-    protected shouldCacheData(data: string | HTMLElement): boolean {
-        return typeof data === "string";
-    }
-
     // ========================================
     // 保持公共 API
     // ========================================

@@ -4,24 +4,17 @@ import { KylinRouterElementBase } from "../base";
 import { html } from "lit";
 
 @customElement("kylin-outlet")
-export class KylinOutletElement extends KylinRouterElementBase {
+export class KylinOutlet extends KylinRouterElementBase {
     static styles = styles;
-
-    /**
-     * 是否为模态 outlet
-     * 模态 outlet 用于渲染模态路由内容
-     */
-    @property({ type: Boolean, reflect: true })
-    isModal: boolean = false;
-    /**
-     * 渲染模式，覆盖默认的渲染模式
-     */
-    @property({ type: String, reflect: true })
-    mode?: "replace" | "append";
 
     /**
      * 启用 keepalive 缓存
      * 当启用时，视图会被缓存而不是销毁
+     *
+     * - false: 视图将被缓存而不是销毁
+     * - true: 视图缓存
+     *
+     *
      */
     @property({ type: Boolean, reflect: true })
     keepalive: boolean = false;
@@ -33,12 +26,17 @@ export class KylinOutletElement extends KylinRouterElementBase {
     @property({ type: Boolean, reflect: true })
     loading: boolean = false;
 
+    @property({ type: String, reflect: true })
+    view?: string;
+
     /**
      * 布局模式
      * 控制多个 viewContainer 的布局方式
      */
     @property({ type: String, reflect: true })
     layout: "stack" | "tabs" | "hori" | "vert" = "stack";
+
+    private mutationObserver: MutationObserver | null = null;
 
     /**
      *  重写 createRenderRoot，使组件不使用 Shadow DOM，以便样式和事件能够穿透到组件内部
@@ -51,14 +49,17 @@ export class KylinOutletElement extends KylinRouterElementBase {
 
     connectedCallback() {
         super.connectedCallback();
-        // 如果是模态 outlet，设置特殊行为
-        if (this.isModal) {
-            this.setupModalBehavior();
-        }
+        // 设置 MutationObserver 监听 DOM 变化
+        this._setupMutationObserver();
     }
 
     disconnectedCallback() {
         super.disconnectedCallback();
+        // 断开 MutationObserver
+        if (this.mutationObserver) {
+            this.mutationObserver.disconnect();
+            this.mutationObserver = null;
+        }
     }
 
     // 监听属性变化
@@ -92,26 +93,38 @@ export class KylinOutletElement extends KylinRouterElementBase {
     }
 
     /**
-     * 设置模态 outlet 的特殊行为
+     * 设置 MutationObserver 监听 DOM 变化
      */
-    private setupModalBehavior() {
-        // 模态 outlet 的特殊样式和定位
-        this.style.position = "relative";
-        this.style.zIndex = "1";
+    private _setupMutationObserver(): void {
+        this.mutationObserver = new MutationObserver((mutations) => {
+            this.onSlotChange(mutations);
+        });
 
-        // 设置模态关闭监听
-        this._setupModalCloseListener();
+        // 配置观察选项 - 只观察直接子节点的变化
+        const config = {
+            childList: true, // 观察子节点的变化
+            subtree: false, // 不观察后代节点，只观察直接子节点
+            attributes: false, // 不观察属性变化
+            characterData: false, // 不观察文本内容变化
+        };
+
+        // 开始观察
+        this.mutationObserver.observe(this, config);
     }
 
     /**
-     * 设置模态关闭监听器
+     * Slot change 事件处理函数
+     * 当插槽内容发生变化时调用
+     * @param mutations - MutationRecord 数组，包含变化的详细信息
      */
-    private _setupModalCloseListener() {
-        this.addEventListener("close-modal", () => {
-            if (this.router) {
-                (this.router as any).closeModal();
-            }
-        });
+    protected onSlotChange(mutations: MutationRecord[]): void {
+        // 过滤掉无关的变化，只处理实际的子节点增删
+        const relevantMutations = mutations.filter(
+            (mutation) => mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0,
+        );
+        if (relevantMutations.length === 0) {
+            return; // 没有相关变化，不触发事件
+        }
     }
 
     /**
@@ -124,7 +137,7 @@ export class KylinOutletElement extends KylinRouterElementBase {
 
         if (this.layout === "stack") {
             // stack 模式：只显示一个，隐藏其他
-            allContainers.forEach(container => {
+            allContainers.forEach((container) => {
                 if (container.id === hash) {
                     container.style.display = "";
                 } else {
@@ -136,12 +149,12 @@ export class KylinOutletElement extends KylinRouterElementBase {
             // TODO: 实现 tabs 布局逻辑
         } else if (this.layout === "hori") {
             // hori 模式：水平排列
-            allContainers.forEach(container => {
+            allContainers.forEach((container) => {
                 container.style.display = container.id === hash ? "block" : "none";
             });
         } else if (this.layout === "vert") {
             // vert 模式：垂直排列
-            allContainers.forEach(container => {
+            allContainers.forEach((container) => {
                 container.style.display = container.id === hash ? "block" : "none";
             });
         }
@@ -177,16 +190,6 @@ export class KylinOutletElement extends KylinRouterElementBase {
             viewContainer.appendChild(template);
         }
     }
-    private createViewPart(
-        template: string | HTMLElement,
-        data: Record<string, any> | undefined,
-        hash: string,
-    ) {
-        // 创建新的视图容器
-        const viewPart = document.createElement("div");
-        viewPart.setAttribute("x-data", hash);
-        viewPart.setAttribute("id", hash);
-    }
     render() {
         return html``;
     }
@@ -194,6 +197,6 @@ export class KylinOutletElement extends KylinRouterElementBase {
 
 declare global {
     interface HTMLElementTagNameMap {
-        "kylin-outlet": KylinOutletElement;
+        "kylin-outlet": KylinOutlet;
     }
 }

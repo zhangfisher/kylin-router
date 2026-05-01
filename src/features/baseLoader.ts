@@ -17,6 +17,15 @@ import { generateRouteHash } from "@/utils/generateRouteHash";
  */
 export type LoadType = "data" | "view";
 
+/**
+ * 基础加载器数据来源类型
+ *
+ * - string: URL,支持插值
+ * - Data: 直接的数据对象
+ * - (route) => Data 函数返回数据
+ * - true: 简化配置，当data=true时，则自动使用与view同名地址的JSON.
+ *         例如view="pages/a.html"时，data=true会自动加载"pages/a.json"
+ */
 export type BaseLoaderSource<Data = any> =
     | true
     | string
@@ -121,8 +130,17 @@ export abstract class RouteDataLoaderBase<
      * 获取路由的加载信号
      * 根据 signalKey 自动访问 _getData 或 _getView
      */
-    protected getLoadSignal(matched: KylinMatchedRouteItem): IAsyncSignal | undefined {
-        return (matched.route as any)[this._signalKey] as IAsyncSignal | undefined;
+    protected getLoadSignal(
+        matched: KylinMatchedRouteItem,
+        created: boolean = false,
+    ): IAsyncSignal | undefined {
+        const signal = (matched.route as any)[this._signalKey] as IAsyncSignal | undefined;
+        if (!signal && created) {
+            const signal = asyncSignal();
+            (matched.route as any)[this._signalKey] = signal;
+            return signal;
+        }
+        return signal;
     }
 
     /**
@@ -158,12 +176,11 @@ export abstract class RouteDataLoaderBase<
      */
     protected loadRoute(matched: KylinMatchedRouteItem): void {
         const options = this.getRouteOptions(matched);
+
         const source = this.getSource(matched, options);
+        if (!source) return;
 
         const [hash, cacheItem] = this.getRouteCache(matched, options);
-
-        // 1. 确保 signal 存在
-        this.ensureLoadSignal(matched);
 
         // 2. 缓存优先策略
         if (this.tryUseCache(matched, hash, cacheItem, options)) {
@@ -185,14 +202,14 @@ export abstract class RouteDataLoaderBase<
         options: Required<TOptions>,
         hash: string,
     ): void {
-        let signal = this.getLoadSignal(matched);
+        let signal = this.getLoadSignal(matched, true);
         if (!signal) {
             signal = asyncSignal();
             (matched.route as any)[this._signalKey] = signal;
         }
 
         // 获取数据源
-        const source = this.getSource(matched, options);
+        const source = this.getSource(matched, options)!;
 
         // 成功和错误处理
         const onSuccess = (data: TData) => {
@@ -204,7 +221,6 @@ export abstract class RouteDataLoaderBase<
         };
         try {
             if (typeof source === "string") {
-                // URL字符串：远程加载
                 const url = prefixBaseUrl(
                     source.params(getRouteVars(matched)),
                     this.router.options.base,
@@ -218,13 +234,6 @@ export abstract class RouteDataLoaderBase<
             onError(e);
         }
     }
-
-    /**
-     * 判断是否应该缓存
-     * DataLoader: 所有类型都可缓存
-     * ViewLoader: 只缓存字符串类型
-     */
-    protected abstract shouldCacheData(data: TData): boolean;
 
     // ========================================
     // 私有方法（基类内部使用）
@@ -240,13 +249,6 @@ export abstract class RouteDataLoaderBase<
 
     protected _getRouteHash(options: TOptions, matched: KylinMatchedRouteItem): string {
         return generateRouteHash(options.hash || "{url}", getRouteVars(matched));
-    }
-
-    private ensureLoadSignal(matched: KylinMatchedRouteItem): void {
-        if (!this.getLoadSignal(matched)) {
-            const signal = asyncSignal();
-            (matched.route as any)[this._signalKey] = signal;
-        }
     }
 
     /**
@@ -296,7 +298,15 @@ export abstract class RouteDataLoaderBase<
         options: TOptions,
     ): string | TData | undefined {
         const source = options.from;
-        return typeof source === "function" ? (source as any)(matched) : source;
+        return typeof source === "function"
+            ? (source as any)(matched)
+            : typeof source === "boolean"
+              ? this.getAutoUrl(matched, source)
+              : source;
+    }
+
+    protected getAutoUrl(_matched: KylinMatchedRouteItem, _source: boolean): string | undefined {
+        return undefined;
     }
 
     private async loadRemote(url: string, options: TOptions, signal: IAsyncSignal): Promise<TData> {
@@ -342,7 +352,7 @@ export abstract class RouteDataLoaderBase<
         signal: IAsyncSignal,
     ): void {
         // 缓存
-        if ((options.cache || 0) > 0 && this.shouldCacheData(data)) {
+        if ((options.cache || 0) > 0) {
             this.cache.set(hash, {
                 value: data,
                 timestamp: Date.now(),

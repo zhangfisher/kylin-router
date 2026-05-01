@@ -8,7 +8,7 @@ export type KylinRouterLogger = {
 
 export function createLogger(): KylinRouterLogger {
     function createLog(level: keyof KylinRouterLogger, output: (...args: any[]) => void) {
-        return (message: string | Error, args: any[] = []) => {
+        return (message: string | Error, ...args: any[]) => {
             output(
                 `[${level.toUpperCase()}] ${
                     typeof message === "string" ? message.params(...args) : message.message
