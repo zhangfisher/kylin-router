@@ -371,8 +371,6 @@ export class KylinRouter extends Mixin(
     }
 
     attach(): void {
-        console.log("[KylinRouter] attach() 开始执行");
-
         if (this.attached) {
             throw new Error("[KylinRouter] Already attached to a host element");
         }
@@ -381,33 +379,22 @@ export class KylinRouter extends Mixin(
 
         // 初始化路由表注册器
         this.routes = new RouteRegistry(this);
-        this.routes.setCallbacks({
-            push: this.push.bind(this),
-            getLocation: () => ({
-                pathname: this.history.location.pathname,
-                search: this.history.location.search,
-            }),
-            setIsNavigating: (value) => {
-                this.isNavigating = value;
-            },
-        });
-        this.routes.initRoutes(this.options.routes, this.options.notFound);
 
-        console.log("[KylinRouter] 路由表已初始化", {
-            routesCount: this.routes.routes?.length || 0,
-            home: this.options.home,
-        });
+        this.routes
+            .load(() => {})
+            .then(() => {})
+            .catch((e) => {});
 
         // 初始化钩子管理器
         this.hooks = new HookManager(this);
+
+        this.routes.initRoutes(this.options.routes, this.options.notFound).then(() => {});
 
         // 初始化组件加载器，传递全局视图选项
         this.viewLoader = new ViewLoader(this);
 
         // 初始化数据加载器，传递全局数据选项
         this.dataLoader = new DataLoader(this);
-
-        console.log("[KylinRouter] 加载器已初始化");
 
         // 开始监听路由变化
         this._cleanups.push(this.history.listen(this.onRouteUpdate.bind(this)));

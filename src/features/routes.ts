@@ -9,7 +9,7 @@
  */
 
 import type { KylinRouter } from "@/router";
-import type { KylinRoutes, KylinRouteItem, KylinMatchedRouteItem } from "@/types";
+import type { KylinRouteItem, KylinMatchedRouteItem } from "@/types";
 import { matchRoute } from "@/utils/matchRoute";
 
 /** 导航回调函数类型 */
@@ -48,27 +48,19 @@ export class RouteRegistry {
      * 支持 RouteItem[]、单个 RouteItem、string（URL）、函数（同步/异步）格式
      * 按照 D-17: 支持多种路由配置格式
      */
-    initRoutes(rawRoutes: KylinRoutes, notFound?: KylinRouteItem): void {
-        this.notFound = notFound;
-
-        if (typeof rawRoutes === "function") {
-            const result = rawRoutes();
-            if (result instanceof Promise) {
-                // 异步加载：先设空路由表，异步加载完成后更新
-                this.routes = [];
-                result.then((loaded) => {
-                    this.routes = this._normalizeRoutes(loaded);
-                    this.router.emit("routes:loaded", undefined);
-                });
-                return;
+    async load(): Promise<void> {
+        const routeArgs = this.router.options.routes || [];
+        const toArray = async (arg: any): Promise<KylinRouteItem[]> => {
+            if (typeof arg === "function") {
+                arg = await arg();
+            } else if (typeof arg === "string") {
+                arg = await fetch(arg).then((res) => res.json());
             }
-            this.routes = this._normalizeRoutes(result);
-        } else if (typeof rawRoutes === "string") {
-            // URL 字符串：先设空路由表，后续通过 loadRemoteRoutes 加载
-            this.routes = [];
-        } else {
-            this.routes = this._normalizeRoutes(rawRoutes);
-        }
+            return Array.isArray(arg) ? arg : [arg];
+        };
+
+        this.routes = this._normalizeRoutes(await toArray(routeArgs));
+        this.router.emit("routes:loaded", undefined);
     }
 
     /**
@@ -123,39 +115,7 @@ export class RouteRegistry {
     }
 
     /**
-     * 动态加载远程路由表并合并到现有路由表
-     * 支持 RouteItem[]、函数、异步函数格式
-     * 按照 D-17: 统一格式转换
-     */
-    protected async loadRemoteRoutes(
-        source: KylinRouteItem[] | KylinRouteItem | (() => KylinRoutes | Promise<KylinRoutes>),
-    ): Promise<void> {
-        let loaded: KylinRoutes;
-
-        if (typeof source === "function") {
-            loaded = await source();
-        } else {
-            loaded = source;
-        }
-
-        // 验证格式
-        if (loaded === null || loaded === undefined) {
-            throw new Error("远程路由表加载失败：返回的数据为空");
-        }
-
-        // 规范化并合并到路由表
-        const newRoutes = this._normalizeRoutes(loaded);
-        this.routes.push(...newRoutes);
-    }
-
-    /**
      * 将路由配置规范化为 RouteItem[]
      */
-    private _normalizeRoutes(routes: KylinRoutes): KylinRouteItem[] {
-        if (Array.isArray(routes)) {
-            return routes;
-        }
-        // 单个路由对象包装为数组
-        return [routes as KylinRouteItem];
-    }
+    private _normalizeRoutes(routes: KylinRouteItem[]): void {}
 }

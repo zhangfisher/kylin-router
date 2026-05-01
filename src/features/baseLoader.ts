@@ -207,10 +207,9 @@ export abstract class RouteDataLoaderBase<
             signal = asyncSignal();
             (matched.route as any)[this._signalKey] = signal;
         }
-
+        signal.meta.hash = hash;
         // 获取数据源
         const source = this.getSource(matched, options)!;
-
         // 成功和错误处理
         const onSuccess = (data: TData) => {
             this.onLoadSuccess(data, hash, options, signal);

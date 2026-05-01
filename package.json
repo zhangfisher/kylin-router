@@ -1,35 +1,35 @@
 {
-  "name": "kylin-router",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "test": "bun test",
-    "test:watch": "bun test --watch"
-  },
-  "dependencies": {
-    "@lit/context": "^1.1.6",
-    "alpinejs": "^3.15.11",
-    "async": "^3.2.6",
-    "asyncsignal": "^0.0.12",
-    "flex-tools": "^1.6.4",
-    "history": "^5.3.0",
-    "lit": "^3.3.2",
-    "mitt": "^3.0.1",
-    "ts-mixer": "^6.0.4"
-  },
-  "devDependencies": {
-    "@types/alpinejs": "^3.13.11",
-    "@types/bun": "^1.3.12",
-    "@types/node": "^25.6.0",
-    "happy-dom": "^20.9.0",
-    "oxfmt": "^0.45.0",
-    "oxlint": "^1.60.0",
-    "oxlint-tsgolint": "^0.21.1",
-    "typescript": "^6.0.3",
-    "vite": "^8.0.8"
-  }
+    "name": "kylin-router",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build",
+        "preview": "vite preview",
+        "test": "bun test",
+        "test:watch": "bun test --watch"
+    },
+    "dependencies": {
+        "@lit/context": "^1.1.6",
+        "alpinejs": "^3.15.11",
+        "async": "^3.2.6",
+        "asyncsignal": "^0.0.12",
+        "flex-tools": "^1.6.4",
+        "history": "^5.3.0",
+        "lit": "^3.3.2",
+        "mitt": "^3.0.1",
+        "ts-mixer": "^6.0.4"
+    },
+    "devDependencies": {
+        "@types/alpinejs": "^3.13.11",
+        "@types/bun": "^1.3.12",
+        "@types/node": "^25.6.0",
+        "happy-dom": "^20.9.0",
+        "oxfmt": "^0.45.0",
+        "oxlint": "^1.60.0",
+        "oxlint-tsgolint": "^0.21.1",
+        "typescript": "^6.0.3",
+        "vite": "^8.0.8"
+    }
 }
