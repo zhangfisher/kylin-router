@@ -3,15 +3,19 @@ import type { KylinRouteItem } from "./index";
 import type { ModalStackItem } from "./routes";
 
 export type KylinRouterEvents = {
+    /**
+     * 路由表加载完成
+     */
+    "routes:loaded": undefined;
+    /**
+     * 路由表挂载到DOM元素
+     */
+    "routes:attached": undefined;
     "navigation:start": { path?: string; navigationType?: "push" | "replace" | "pop" };
     "navigation:end": {
         location: Update;
         navigationType: "push" | "replace" | "pop";
     };
-    /**
-     * 路由表加载完成
-     */
-    "routes:loaded": undefined;
     "route:updated": {
         route: KylinRouteItem | undefined;
         params: Record<string, string>;
@@ -45,8 +49,5 @@ export type KylinRouterEvents = {
     "view:error": {
         route: KylinRouteItem;
     };
-    /**
-     * rvtf
-     */
     "hook:error": KylinRouteItem;
 };

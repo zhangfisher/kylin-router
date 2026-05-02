@@ -73,6 +73,9 @@ export class KylinOutlet extends KylinRouterElementBase {
                 this._hideLoadingIndicator();
             }
         }
+        if (changedProperties.has("view")) {
+            this.showViewContainer(this.view!);
+        }
     }
 
     private _showLoadingIndicator(): void {
@@ -126,7 +129,20 @@ export class KylinOutlet extends KylinRouterElementBase {
             return; // 没有相关变化，不触发事件
         }
     }
-
+    /**
+     * 根据 hash 获取 viewContainer
+     * @param hash - viewContainer 的 hash
+     * @returns viewContainer 元素
+     */
+    getViewContainer(hash: string): HTMLElement | null {
+        return this.querySelector(`[id="${hash}"]`);
+    }
+    /**
+     * 获取所有 viewContainer
+     */
+    getViewContainers(): HTMLElement[] {
+        return Array.from(this.querySelectorAll(":scope > .view[id]")) as HTMLElement[];
+    }
     /**
      * 根据 layout 属性显示指定的 viewContainer
      * @param hash - 要显示的 viewContainer 的 hash

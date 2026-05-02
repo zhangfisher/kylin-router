@@ -205,11 +205,6 @@ export class KylinRouter extends Mixin(
      * 执行路由匹配和参数提取
      */
     async onRouteUpdate(location: Update) {
-        console.log("[KylinRouter] onRouteUpdate 被调用", {
-            pathname: location.location.pathname,
-            search: location.location.search,
-        });
-
         const pathname = location.location.pathname;
         const search = location.location.search;
         let fromRoute: KylinMatchedRouteItem[] | undefined, toRoute: KylinMatchedRouteItem[];
@@ -219,18 +214,13 @@ export class KylinRouter extends Mixin(
             fromRoute = matched.fromRoute;
             toRoute = matched.toRoute;
 
-            console.log("[KylinRouter] 路由匹配完成", {
-                fromRouteCount: fromRoute?.length || 0,
-                toRouteCount: toRoute?.length || 0,
-            });
-
             // 执行全局前置守卫（beforeEach）
             const shouldContinue = await this.hooks.runBeforeRoute({
                 from: fromRoute,
                 to: toRoute,
             });
             if (!shouldContinue) {
-                this.logger.debug("[KylinRouter] beforeEach 守卫返回 false，取消导航");
+                this.logger.debug("beforeEach 守卫返回 false，取消导航");
                 return;
             }
 
@@ -241,7 +231,6 @@ export class KylinRouter extends Mixin(
             // 执行渲染步骤
             await this._renderRoute(toRoute, fromRoute);
         } finally {
-            // 无论是成功还是失败，都执行后置守卫（afterEach）
             this.hooks.runAfterRoute({
                 to: toRoute!,
             });
@@ -322,17 +311,14 @@ export class KylinRouter extends Mixin(
      * 主页路径由 options.home 指定（默认为 "/"）
      */
     home() {
-        console.log("[KylinRouter] home() 方法被调用");
         this._ensureAttached();
         const homePath = this.options.home || "/";
-        console.log("[KylinRouter] 准备导航到主页:", homePath);
         this.replace(homePath);
     }
 
     back() {
         this._ensureAttached();
         this._pendingNavigationType = "pop";
-        this.logger.debug("导航方法: back()");
 
         // 如果有打开的模态，先关闭模态（D-20）
         if (this.modalState.stack.length > 0) {
@@ -350,7 +336,6 @@ export class KylinRouter extends Mixin(
     forward() {
         this._ensureAttached();
         this._pendingNavigationType = "pop";
-        this.logger.debug("导航方法: forward()");
         // 触发 navigation/start 事件
         this.emit("navigation:start", {
             path: undefined,
@@ -361,7 +346,6 @@ export class KylinRouter extends Mixin(
     go(delta: number) {
         this._ensureAttached();
         this._pendingNavigationType = "pop";
-        this.logger.debug(`导航方法: go(${delta})`);
         // 触发 navigation/start 事件
         this.emit("navigation:start", {
             path: undefined,
@@ -372,54 +356,50 @@ export class KylinRouter extends Mixin(
 
     attach(): void {
         if (this.attached) {
-            throw new Error("[KylinRouter] Already attached to a host element");
+            throw new Error("Already attached to a host element");
         }
 
         this.history = this.mode === "hash" ? createHashHistory() : createBrowserHistory();
 
         // 初始化路由表注册器
         this.routes = new RouteRegistry(this);
-
-        this.routes
-            .load(() => {})
-            .then(() => {})
-            .catch((e) => {});
-
         // 初始化钩子管理器
         this.hooks = new HookManager(this);
+        this.routes
+            .load()
+            .then(() => {
+                // 初始化组件加载器，传递全局视图选项
+                this.viewLoader = new ViewLoader(this);
+                // 初始化数据加载器，传递全局数据选项
+                this.dataLoader = new DataLoader(this);
+                // 开始监听路由变化
+                this._cleanups.push(this.history.listen(this.onRouteUpdate.bind(this)));
 
-        this.routes.initRoutes(this.options.routes, this.options.notFound).then(() => {});
+                console.log("[KylinRouter] history 监听器已设置");
 
-        // 初始化组件加载器，传递全局视图选项
-        this.viewLoader = new ViewLoader(this);
+                // 设置 context provider
+                this.attachContextProvider();
 
-        // 初始化数据加载器，传递全局数据选项
-        this.dataLoader = new DataLoader(this);
+                // 初始化模态容器
+                // this._initModals();
 
-        // 开始监听路由变化
-        this._cleanups.push(this.history.listen(this.onRouteUpdate.bind(this)));
+                // 初始化 Alpine.js
+                this.alpineManager = new AlpineManager(this);
 
-        console.log("[KylinRouter] history 监听器已设置");
+                // 自动插入默认 outlet（如果 host 内部没有 outlet）
+                this._ensureDefaultOutlet();
 
-        // 设置 context provider
-        this.attachContextProvider();
+                // 标记为已绑定
+                this.attached = true;
 
-        // 初始化模态容器
-        this._initModals();
+                this.emit("routes:attached", undefined);
 
-        // 初始化 Alpine.js
-        this.alpineManager = new AlpineManager(this);
-
-        // 自动插入默认 outlet（如果 host 内部没有 outlet）
-        this._ensureDefaultOutlet();
-
-        // 标记为已绑定
-        this.attached = true;
-
-        console.log("[KylinRouter] 已标记为 attached，准备导航到主页");
-
-        // 自动导航到主页
-        this.home();
+                // 自动导航到主页
+                this.home();
+            })
+            .catch((e) => {
+                this.logger.error("路由表加载失败:{}", e);
+            });
     }
     /**
      * 解除 router 与 host 的绑定并清理所有监听器

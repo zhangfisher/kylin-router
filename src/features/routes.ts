@@ -10,6 +10,7 @@
 
 import type { KylinRouter } from "@/router";
 import type { KylinRouteItem, KylinMatchedRouteItem } from "@/types";
+import { joinPath } from "@/utils";
 import { matchRoute } from "@/utils/matchRoute";
 
 /** 导航回调函数类型 */
@@ -43,10 +44,8 @@ export class RouteRegistry {
     }
 
     /**
-     * 初始化路由表
+     * 加载路由表
      *
-     * 支持 RouteItem[]、单个 RouteItem、string（URL）、函数（同步/异步）格式
-     * 按照 D-17: 支持多种路由配置格式
      */
     async load(): Promise<void> {
         const routeArgs = this.router.options.routes || [];
@@ -59,15 +58,10 @@ export class RouteRegistry {
             return Array.isArray(arg) ? arg : [arg];
         };
 
-        this.routes = this._normalizeRoutes(await toArray(routeArgs));
+        this._normalizeRoutes(await toArray(routeArgs));
         this.router.emit("routes:loaded", undefined);
     }
 
-    /**
-     * 动态添加路由到路由表
-     * 如果 name 已存在则覆盖旧路由（后者覆盖策略）
-     * 按照 D-11: 后者覆盖策略、D-38: 统一优先级规则
-     */
     public add(route: KylinRouteItem): void {
         const existingIndex = this.routes.findIndex((r) => r.name === route.name);
         if (existingIndex !== -1) {
@@ -90,7 +84,6 @@ export class RouteRegistry {
      * 动态删除指定名称的路由
      * 支持递归删除嵌套路由
      * 如果删除的是当前访问的路由，自动重定向到默认路由或 404
-     * 按照 D-10: 静默处理不存在的路由、D-39: 当前路由删除后重定向
      */
     public remove(name: string): void {
         function removeRouteByName(routes: KylinRouteItem[], name: string): boolean {
@@ -115,7 +108,24 @@ export class RouteRegistry {
     }
 
     /**
-     * 将路由配置规范化为 RouteItem[]
+     * 规范化路由配置
      */
-    private _normalizeRoutes(routes: KylinRouteItem[]): void {}
+    private _normalizeRoutes(routes: KylinRouteItem[]): void {
+        routes.forEach((route) => {
+            route.path = joinPath(this.router.base || "", route.path);
+        });
+    }
+    /**
+     * 遍历路由表
+     * @param callback
+     */
+    forEach(callback: (route: KylinRouteItem, parent: KylinRouteItem | null) => void): void {
+        function forEachRoute(route: KylinRouteItem, parent: KylinRouteItem | null): void {
+            callback(route, parent);
+            if (route.children) {
+                route.children.forEach((child) => forEachRoute(child, route));
+            }
+        }
+        this.routes.forEach((route) => forEachRoute(route, null));
+    }
 }

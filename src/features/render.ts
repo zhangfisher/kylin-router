@@ -13,7 +13,7 @@
 
 import { findOutlet } from "@/utils/findOutlet";
 import type { KylinRouter } from "@/router";
-import type { KylinMatchedRouteItem } from "@/types";
+import type { KylinMatchedRouteItem, KylinRouteItem } from "@/types";
 import type { KylinOutlet } from "@/components/outlet";
 
 export class Render {
@@ -30,18 +30,27 @@ export class Render {
             let currentOutlet: KylinOutlet | null = null;
             for (let i = 0; i < toRoute.length; i++) {
                 const matched = toRoute[i];
-                const route = matched.route;
+                const route = matched.route as Required<KylinRouteItem>;
                 const viewHash = matched.hash;
-                debugger;
+
                 currentOutlet = this._findOutlet(currentOutlet || this.host, viewHash);
-                // 如果没有kylin-outlet，则停止渲染
                 if (!currentOutlet) {
-                    this.logger.debug(`渲染流程: 未找到${matched.url} outlet，跳过渲染`);
+                    this.logger.debug(`未找到${matched.url} outlet，跳过渲染`);
                     break;
                 }
+                // 如果当前路由启用keepAlive,且视图容器已经存在，则跳过渲染。避免重复渲染
+                if (route.keepAlive) {
+                    const viewContainer = currentOutlet.getViewContainer(viewHash);
+                    if (viewContainer) {
+                        // 切换视图
+                        currentOutlet.view = viewHash;
+                        continue;
+                    }
+                } // 如果没有启用KeepAlive,则每次路由时均创建新的视图容器
+
                 // 获取异步信号
-                const getView = (route as any)._getView;
-                const getData = (route as any)._getData;
+                const getView = route._getView;
+                const getData = route._getData;
 
                 if (!getView) {
                     continue;
@@ -53,7 +62,7 @@ export class Render {
 
                     // 🔧 测试：检查 getView() 返回的是什么
                     const loadResults = await Promise.allSettled([
-                        getView(),
+                        getView!(),
                         getData?.() || Promise.resolve(undefined),
                     ]);
                     const viewResult = loadResults[0];
