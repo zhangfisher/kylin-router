@@ -78,6 +78,11 @@ export type KylinRouterOptions = {
     /** 全局数据加载配置 */
     dataOptions?: Omit<KylinRouteDataOptions, "from">;
     /**
+     * 全局路由参数配置
+     * KylinRouteItem中的配置项可以覆盖全局配置
+     */
+    routeOptions?: Partial<Pick<KylinRouteItem, "cache" | "keepAlive" | "preload" | "timeout">>;
+    /**
      * Alpine.js 全局 store 初始数据 */
     data?: Record<string, any>;
     hookOptions?: {

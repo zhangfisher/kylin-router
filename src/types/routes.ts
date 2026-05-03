@@ -206,7 +206,10 @@ export interface KylinRouteItem {
      * 可以避免用户离开后数据丢失或者需要重新加载的问题。
      */
     keepAlive?: boolean;
-
+    /** 缓存时间（毫秒），0 表示不缓存 */
+    cache?: number;
+    /** 加载超时时间（毫秒） */
+    timeout?: number;
     /**
      * 在load(url)方法加载HTML时，是否显示全局Loading组件，默认为 true
      * - true：显示全局Loading组件，直到HTML内容加载完成后才隐藏

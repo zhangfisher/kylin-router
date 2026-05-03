@@ -15,13 +15,31 @@ import { findOutlet } from "@/utils/findOutlet";
 import type { KylinRouter } from "@/router";
 import type { KylinMatchedRouteItem, KylinRouteItem } from "@/types";
 import type { KylinOutlet } from "@/components/outlet";
+import type { IAsyncSignal } from "asyncsignal";
+
+type RouteSignalReuslt<T = any> = {
+    value: T;
+    error: Error;
+    hash: string;
+};
 
 export class Render {
+    private async _getRouteSignals(matched: KylinMatchedRouteItem): Promise<RouteSignalReuslt[]> {
+        const route = matched.route as Required<KylinRouteItem>;
+        const signals = [route._getView?.(), route._getData?.() || Promise.resolve(undefined)];
+        const loadResults = await Promise.allSettled(signals as Promise<any>[]);
+        const toResult = (result: PromiseSettledResult<any>, signal: IAsyncSignal | null) => ({
+            value: result.status === "fulfilled" ? result.value : null,
+            error: result.status === "rejected" ? result.reason : null,
+            hash: signal?.meta.hash,
+        });
+        return loadResults.map((result, index) => toResult(result, signals[index] as any));
+    }
     /**
      * 执行渲染步骤 - 新的渲染系统
      * 支持逐级嵌套路由渲染、beforeRender/afterRender 钩子、layout 布局等
      */
-    protected async _renderRoute(
+    protected async _renderRoutes(
         this: KylinRouter,
         toRoute: KylinMatchedRouteItem[],
         fromRoute: KylinMatchedRouteItem[] | undefined,
@@ -42,89 +60,41 @@ export class Render {
                 if (route.keepAlive) {
                     const viewContainer = currentOutlet.getViewContainer(viewHash);
                     if (viewContainer) {
-                        // 切换视图
+                        // 切换视图到此，避免重复渲染
                         currentOutlet.view = viewHash;
                         continue;
                     }
                 } // 如果没有启用KeepAlive,则每次路由时均创建新的视图容器
 
-                // 获取异步信号
-                const getView = route._getView;
-                const getData = route._getData;
-
-                if (!getView) {
-                    continue;
-                }
-
                 try {
                     // 3. 显示加载状态
                     this._showLoadingInOutlet(currentOutlet!);
 
-                    // 🔧 测试：检查 getView() 返回的是什么
-                    const loadResults = await Promise.allSettled([
-                        getView!(),
-                        getData?.() || Promise.resolve(undefined),
-                    ]);
-                    const viewResult = loadResults[0];
-                    const dataResult = loadResults[1];
+                    const [view, data] = await this._getRouteSignals(matched);
 
-                    // 5. 处理视图加载结果
-                    if (viewResult.status === "fulfilled") {
-                        const view = viewResult.value;
-
-                        // 6. 获取数据和 hash（如果有）
-                        let data: Record<string, any> | undefined;
-                        let hash = matched.hash;
-                        if (getData && dataResult?.status === "fulfilled" && dataResult.value) {
-                            data = dataResult.value;
-                            // 从 dataSignal.meta.hash 读取 hash
-                            hash = getData.meta.hash || matched.hash;
-                        }
-
-                        // 7. 创建或更新视图容器（还未插入到 DOM）
-                        const viewContainer = this._createOrUpdateViewContainer(
-                            currentOutlet!,
-                            view,
-                            hash,
-                            data,
+                    if (view.error) {
+                        await this._renderErrorViewToOutlet(
+                            currentOutlet,
+                            matched.hash,
+                            view.error,
                         );
-
+                    } else {
+                        // 7. 创建或更新视图容器（还未插入到 DOM）
+                        const viewContainer = this._createViewContainer(currentOutlet!, view, data);
                         // 8. 执行 beforeRender 钩子（同步等待）
                         await this._runBeforeRender(
                             fromRoute || [],
                             toRoute.slice(0, i + 1),
                             viewContainer,
-                            data,
+                            data.value,
                         );
-
-                        // 9. 将容器插入到 outlet（此时才真正渲染到 DOM）
-                        this._renderViewToOutlet(currentOutlet!, viewContainer, hash);
-
-                        // 10. 隐藏加载状态
-                        this._hideLoadingInOutlet(currentOutlet!);
-
+                        currentOutlet.appendChild(viewContainer);
+                        currentOutlet.view = viewHash;
                         // 11. 异步执行 afterRender 钩子（不等待）
                         this._runAfterRender(
                             fromRoute || [],
                             toRoute.slice(0, i + 1),
                             viewContainer,
-                        );
-
-                        // 12. 查找下一级 outlet
-                        if (i < toRoute.length - 1) {
-                            const nextOutlet = this._findNextLevelOutlet(currentOutlet!, hash);
-                            if (nextOutlet) {
-                                currentOutlet = nextOutlet;
-                            } else {
-                                break;
-                            }
-                        }
-                    } else if (viewResult.status === "rejected") {
-                        // 14. 处理视图加载错误
-                        await this._renderErrorViewToOutlet(
-                            currentOutlet,
-                            matched.hash,
-                            viewResult.reason,
                         );
                     }
                 } catch (error) {
@@ -133,6 +103,8 @@ export class Render {
                         matched.hash,
                         error as Error,
                     );
+                } finally {
+                    this._hideLoadingInOutlet(currentOutlet!);
                 }
             }
         } catch (error) {
@@ -148,38 +120,38 @@ export class Render {
      * @param data - 路由数据
      * @returns 视图容器元素（已创建或更新，但未插入 DOM）
      */
-    protected _createOrUpdateViewContainer(
+    protected _createViewContainer(
         this: KylinRouter,
         outlet: KylinOutlet,
-        view: string | HTMLElement,
-        hash: string,
-        data?: Record<string, any>,
+        view: RouteSignalReuslt<string | HTMLElement>,
+        data?: RouteSignalReuslt<Record<string, any>>,
     ): HTMLElement {
         // 查找现有容器
-        let viewContainer = outlet.querySelector(`[id="${hash}"]`) as HTMLElement;
+        let viewContainer = outlet.querySelector(`[id="${view.hash}"]`) as HTMLElement;
 
         if (!viewContainer) {
             // 创建新容器
             viewContainer = document.createElement("div");
-            viewContainer.id = hash;
+            viewContainer.classList.add("kylin-view");
+            viewContainer.id = view.hash;
         } else {
             // 将更新现有容器
-            this.logger.debug(`渲染流程: 更新现有视图容器 (id: ${hash})`);
+            this.logger.debug(`渲染流程: 更新现有视图容器 (id: ${view.hash})`);
         }
 
         // 更新 x-data 属性
         if (data) {
-            viewContainer.setAttribute("x-data", hash);
+            viewContainer.setAttribute("x-data", data.hash);
         } else {
             viewContainer.removeAttribute("x-data");
         }
 
         // 插入视图内容到容器
-        if (typeof view === "string") {
-            viewContainer.innerHTML = view;
-        } else if (view instanceof HTMLElement) {
+        if (typeof view.value === "string") {
+            viewContainer.innerHTML = view.value;
+        } else if (view.value instanceof HTMLElement) {
             viewContainer.innerHTML = "";
-            viewContainer.appendChild(view);
+            viewContainer.appendChild(view.value);
         }
 
         return viewContainer;
@@ -275,19 +247,18 @@ export class Render {
     protected _renderViewToOutlet(
         this: KylinRouter,
         outlet: KylinOutlet,
-        viewContainer: HTMLElement,
+        view: HTMLElement,
         hash: string,
     ): void {
         // 查找现有容器
-        const existingContainer = outlet.querySelector(`[id="${hash}"]`) as HTMLElement;
+        const viewContainer = outlet.querySelector(`[id="${hash}"]`) as HTMLElement;
 
-        if (!existingContainer) {
+        if (viewContainer) {
+            // 已存在容器：替换内容
+            viewContainer.replaceWith(viewContainer);
+        } else {
             // 新容器：追加到 outlet
             outlet.appendChild(viewContainer);
-        } else {
-            // 已存在容器：替换内容
-
-            existingContainer.replaceWith(viewContainer);
         }
     }
 

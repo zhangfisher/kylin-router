@@ -141,7 +141,7 @@ export class KylinOutlet extends KylinRouterElementBase {
      * 获取所有 viewContainer
      */
     getViewContainers(): HTMLElement[] {
-        return Array.from(this.querySelectorAll(":scope > .view[id]")) as HTMLElement[];
+        return Array.from(this.querySelectorAll(":scope > .kylin-view[id]")) as HTMLElement[];
     }
     /**
      * 根据 layout 属性显示指定的 viewContainer
@@ -149,30 +149,19 @@ export class KylinOutlet extends KylinRouterElementBase {
      */
     showViewContainer(hash: string): void {
         // 获取所有 viewContainer
-        const allContainers = Array.from(this.querySelectorAll("[id]")) as HTMLElement[];
-
-        if (this.layout === "stack") {
-            // stack 模式：只显示一个，隐藏其他
-            allContainers.forEach((container) => {
-                if (container.id === hash) {
-                    container.style.display = "";
-                } else {
-                    container.style.display = "none";
-                }
-            });
-        } else if (this.layout === "tabs") {
-            // tabs 模式：显示 tab 导航和内容区域
-            // TODO: 实现 tabs 布局逻辑
-        } else if (this.layout === "hori") {
-            // hori 模式：水平排列
-            allContainers.forEach((container) => {
-                container.style.display = container.id === hash ? "block" : "none";
-            });
-        } else if (this.layout === "vert") {
-            // vert 模式：垂直排列
-            allContainers.forEach((container) => {
-                container.style.display = container.id === hash ? "block" : "none";
-            });
+        const viewContainers = this.getViewContainers();
+        if (viewContainers.length === 0) return;
+        let hasActive: boolean = false;
+        viewContainers.forEach((view) => {
+            if (view.id === hash) {
+                hasActive = true;
+                view.classList.add("active");
+            } else {
+                view.classList.remove("active");
+            }
+        });
+        if (!hasActive) {
+            viewContainers[0].classList.add("active");
         }
     }
 

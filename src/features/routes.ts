@@ -113,6 +113,17 @@ export class RouteRegistry {
     private _normalizeRoutes(routes: KylinRouteItem[]): void {
         routes.forEach((route) => {
             route.path = joinPath(this.router.base || "", route.path);
+            if (this.router.options.routeOptions) {
+                const routeOptions = this.router.options.routeOptions;
+                const overrideItems = ["keepAlive", "cache", "timeout", "preload"];
+                overrideItems.forEach((item) => {
+                    // @ts-ignore
+                    if (route[item] !== undefined && routeOptions[item] !== undefined) {
+                        // @ts-ignore
+                        route[item] = routeOptions[item];
+                    }
+                });
+            }
         });
     }
     /**
