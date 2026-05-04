@@ -12,7 +12,7 @@ import type { KylinRouterLogger } from "@/logger";
 /**
  * 重试策略配置
  */
-export interface RetryConfig {
+export interface RetryOptions {
     /** 最大重试次数（默认 3） */
     max?: number;
     /** 重试延迟，单位毫秒（默认 1000） */
@@ -26,7 +26,7 @@ export interface RetryConfig {
 /**
  * 错误边界配置
  */
-export interface ErrorBoundaryConfig {
+export interface ErrorBoundaryOptions {
     /** 错误组件：字符串路径或动态导入函数 */
     component?: string | (() => Promise<any>);
     /** 回退 UI：错误时显示的 HTML 字符串 */
@@ -34,13 +34,13 @@ export interface ErrorBoundaryConfig {
     /** 错误回调函数 */
     onError?: (error: Error, errorInfo: any) => void;
     /** 是否重试：true 表示使用默认重试策略，对象表示自定义重试策略 */
-    retry?: boolean | RetryConfig;
+    retry?: boolean | RetryOptions;
 }
 
 /**
  * 加载状态配置
  */
-export interface LoadingConfig {
+export interface LoadingOptions {
     /** 自定义加载模板 */
     template?: TemplateResult | string;
     /** 加载超时时间，单位毫秒 */
@@ -71,8 +71,6 @@ export type KylinRouterOptions = {
     defaultErrorComponent?: string | (() => Promise<any>);
     /** 日志记录器配置 */
     logger?: KylinRouterLogger;
-    /** 全局加载模板 */
-    defaultLoadingTemplate?: TemplateResult | string;
     /** 全局视图加载配置 */
     viewOptions?: Omit<KylinRouteViewOptions, "form">;
     /** 全局数据加载配置 */
@@ -83,11 +81,19 @@ export type KylinRouterOptions = {
      */
     routeOptions?: Partial<Pick<KylinRouteItem, "cache" | "keepAlive" | "preload" | "timeout">>;
     /**
-     * Alpine.js 全局 store 初始数据 */
+     * Alpine.js 全局 store 初始数据
+     **/
     data?: Record<string, any>;
+    /**
+     * 钩子函数配置
+     */
     hookOptions?: {
         timeout?: number;
     };
+    /**
+     * 路由导航后的钩子函数
+     * 可以是函数或函数数组
+     */
     beforeRoute?: BeforeRouteHook | BeforeRouteHook[];
     afterRoute?: AfterRouteHook | AfterRouteHook[];
     beforeRender?: BeforeRenderHook | BeforeRenderHook[];

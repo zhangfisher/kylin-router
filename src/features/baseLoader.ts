@@ -10,7 +10,6 @@ import type { KylinMatchedRouteItem } from "@/types/routes";
 import { asyncSignal, type IAsyncSignal } from "asyncsignal";
 import { getRouteVars } from "@/utils/getRouteVars";
 import { prefixBaseUrl } from "@/utils/prefixBaseUrl";
-import { generateRouteHash } from "@/utils/generateRouteHash";
 
 /**
  * 加载器类型标识
@@ -48,8 +47,6 @@ export interface BaseLoaderOptions<Data = any> {
     cache?: number;
     /** 加载超时时间（毫秒） */
     timeout?: number;
-    /** 缓存哈希标识模板 */
-    hash?: string;
     /**
      * 是否预加载
      * - true: 在路由实例创建时自动预加载进缓存，这可以加速数据加载
@@ -58,9 +55,7 @@ export interface BaseLoaderOptions<Data = any> {
     preload?: boolean;
     /**
      * 当从远程url加载数据时，指定数据类型
-     *
      * 决定response.text()或response.json()的调用
-     *
      */
     datatype?: "json" | "text";
 }
@@ -180,10 +175,10 @@ export abstract class RouteDataLoaderBase<
         const source = this.getSource(matched, options);
         if (!source) return;
 
-        const [hash, cacheItem] = this.getRouteCache(matched, options);
+        const cacheItem = this.getRouteCache(matched);
 
         // 2. 缓存优先策略
-        if (this.tryUseCache(matched, hash, cacheItem, options)) {
+        if (this.tryUseCache(matched, cacheItem, options)) {
             return;
         }
 
@@ -191,18 +186,15 @@ export abstract class RouteDataLoaderBase<
         this.abortPendingLoad(matched);
 
         // 4. 执行加载
-        this.startLoad(matched, options, hash);
+        this.startLoad(matched, options);
     }
 
     /**
      * 执行加载
      */
-    protected startLoad(
-        matched: KylinMatchedRouteItem,
-        options: Required<TOptions>,
-        hash: string,
-    ): void {
+    protected startLoad(matched: KylinMatchedRouteItem, options: Required<TOptions>): void {
         let signal = this.getLoadSignal(matched, true);
+        const hash = matched.hash;
         if (!signal) {
             signal = asyncSignal();
             (matched.route as any)[this._signalKey] = signal;
@@ -225,7 +217,7 @@ export abstract class RouteDataLoaderBase<
                     this.router.options.base,
                 );
                 // 从远程加载数据
-                this.loadRemote(url, options, signal).then(onSuccess).catch(onError);
+                this.loadRemote(url, options, signal, matched).then(onSuccess).catch(onError);
             } else {
                 onSuccess(source);
             }
@@ -234,20 +226,12 @@ export abstract class RouteDataLoaderBase<
         }
     }
 
-    // ========================================
-    // 私有方法（基类内部使用）
-    // ========================================
-
     private _isCacheExpired(cacheItem: CacheItem<TData> | undefined, options: TOptions): boolean {
         if (!cacheItem) return true;
         if ((options.cache || 0) > 0) {
             return Date.now() - cacheItem.timestamp > options.cache!;
         }
         return true;
-    }
-
-    protected _getRouteHash(options: TOptions, matched: KylinMatchedRouteItem): string {
-        return generateRouteHash(options.hash || "{url}", getRouteVars(matched));
     }
 
     /**
@@ -260,7 +244,6 @@ export abstract class RouteDataLoaderBase<
      */
     private tryUseCache(
         matched: KylinMatchedRouteItem,
-        hash: string,
         cacheItem: CacheItem<TData> | undefined,
         options: TOptions,
     ): boolean {
@@ -268,8 +251,8 @@ export abstract class RouteDataLoaderBase<
         if ((options.cache || 0) > 0 && cacheItem && !this._isCacheExpired(cacheItem, options)) {
             signal.resolve(cacheItem.value);
             return true;
-        } else if ((options.cache || 0) > 0 && this.cache.has(hash)) {
-            this.cache.delete(hash);
+        } else if ((options.cache || 0) > 0 && this.cache.has(matched.hash)) {
+            this.cache.delete(matched.hash);
         }
 
         return false;
@@ -308,7 +291,12 @@ export abstract class RouteDataLoaderBase<
         return undefined;
     }
 
-    private async loadRemote(url: string, options: TOptions, signal: IAsyncSignal): Promise<TData> {
+    private async loadRemote(
+        url: string,
+        options: TOptions,
+        signal: IAsyncSignal,
+        matched: KylinMatchedRouteItem,
+    ): Promise<TData> {
         let timeoutId: any;
         const { timeout = 0 } = options;
 
@@ -328,7 +316,7 @@ export abstract class RouteDataLoaderBase<
                         throw new Error(`Load ${url} error: ${response.status}`);
                     }
                     const result = await response[this.options.datatype as "json" | "text"]();
-                    return this.onHandleData(result, options) as TData;
+                    return this.onHandleData(result, options, signal, matched) as TData;
                 })
                 .then(resolve)
                 .catch(reject)
@@ -341,9 +329,15 @@ export abstract class RouteDataLoaderBase<
      * @param {TOptions} _options - 处理选项（未使用，保留用于扩展）
      * @returns {TData} 处理后的数据，默认直接返回原始数据
      */
-    protected onHandleData(data: TData, _options: TOptions): TData {
+    protected onHandleData(
+        data: TData,
+        _options: TOptions,
+        _signal: IAsyncSignal,
+        _matched: KylinMatchedRouteItem,
+    ): TData {
         return data;
     }
+
     protected onLoadSuccess(
         data: TData,
         hash: string,
@@ -378,12 +372,8 @@ export abstract class RouteDataLoaderBase<
         ) as Required<TOptions>;
     }
 
-    protected getRouteCache(
-        matched: KylinMatchedRouteItem,
-        options: TOptions,
-    ): [string, CacheItem<TData> | undefined] {
-        const hash = this._getRouteHash(options, matched);
-        return [hash, this.cache.get(hash)];
+    protected getRouteCache(matched: KylinMatchedRouteItem): CacheItem<TData> | undefined {
+        return this.cache.get(matched.hash);
     }
 
     // ========================================

@@ -31,10 +31,6 @@ export class ViewLoader extends RouteDataLoaderBase<"view", KylinRouteViewOption
         );
     }
 
-    // ========================================
-    // 保持公共 API
-    // ========================================
-
     /**
      * 并发加载匹配路由的视图
      * @param routes - 匹配的路由数组

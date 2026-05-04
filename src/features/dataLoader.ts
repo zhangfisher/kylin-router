@@ -11,9 +11,9 @@ import type { KylinRouter } from "@/router";
 import type { KylinMatchedRouteItem } from "@/types/routes";
 import type { KylinRouteDataOptions } from "@/types/data";
 import { RouteDataLoaderBase } from "./baseLoader";
-import type { IAsyncSignal } from "asyncsignal";
 import Alpine from "alpinejs";
 import { getJsonFileFromUrl } from "@/utils/getJsonFileFromUrl";
+import type { IAsyncSignal } from "asyncsignal";
 
 /**
  * DataLoader 类 - 负责加载路由数据
@@ -37,25 +37,19 @@ export class DataLoader extends RouteDataLoaderBase<
         );
     }
 
-    protected onLoadSuccess(
-        data: Record<string, any>,
-        hash: string,
-        options: KylinRouteDataOptions,
-        _signal: IAsyncSignal,
-    ) {
+    protected onHandleData(data: any, options: KylinRouteDataOptions, signal: IAsyncSignal) {
         const { store } = options;
         try {
             if (typeof store === "string") {
                 Alpine.store(store, data);
             } else {
-                Alpine.data(hash, () => data);
+                Alpine.data(signal.meta.hash, () => data);
             }
-            _signal.meta.hash = hash;
         } catch (e: any) {
             this.router.logger.error(`Failed to create route dataObject : ${e.message}`);
         }
+        return data;
     }
-
     /**
      * 当data=true时
      * @param matched

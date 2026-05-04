@@ -24,16 +24,22 @@ type RouteSignalReuslt<T = any> = {
 };
 
 export class Render {
-    private async _getRouteSignals(matched: KylinMatchedRouteItem): Promise<RouteSignalReuslt[]> {
+    private async _loadSignals(matched: KylinMatchedRouteItem): Promise<RouteSignalReuslt[]> {
         const route = matched.route as Required<KylinRouteItem>;
-        const signals = [route._getView?.(), route._getData?.() || Promise.resolve(undefined)];
-        const loadResults = await Promise.allSettled(signals as Promise<any>[]);
+        const signals = [route._getView, route._getData];
+
+        // 将信号转换为 Promise，处理 null/undefined 的情况
+        const promises = signals.map((signal) =>
+            signal ? Promise.resolve(signal()) : Promise.resolve(null),
+        );
+        const loadResults = await Promise.allSettled(promises);
+
         const toResult = (result: PromiseSettledResult<any>, signal: IAsyncSignal | null) => ({
             value: result.status === "fulfilled" ? result.value : null,
             error: result.status === "rejected" ? result.reason : null,
             hash: signal?.meta.hash,
         });
-        return loadResults.map((result, index) => toResult(result, signals[index] as any));
+        return loadResults.map((result, index) => toResult(result, signals[index]));
     }
     /**
      * 执行渲染步骤 - 新的渲染系统
@@ -52,6 +58,7 @@ export class Render {
                 const viewHash = matched.hash;
 
                 currentOutlet = this._findOutlet(currentOutlet || this.host, viewHash);
+
                 if (!currentOutlet) {
                     this.logger.debug(`未找到${matched.url} outlet，跳过渲染`);
                     break;
@@ -60,101 +67,44 @@ export class Render {
                 if (route.keepAlive) {
                     const viewContainer = currentOutlet.getViewContainer(viewHash);
                     if (viewContainer) {
-                        // 切换视图到此，避免重复渲染
+                        // 切换视图
                         currentOutlet.view = viewHash;
                         continue;
                     }
                 } // 如果没有启用KeepAlive,则每次路由时均创建新的视图容器
 
-                try {
-                    // 3. 显示加载状态
-                    this._showLoadingInOutlet(currentOutlet!);
+                const viewTask = currentOutlet.createView(viewHash);
 
-                    const [view, data] = await this._getRouteSignals(matched);
+                try {
+                    const [view, data] = await this._loadSignals(matched);
 
                     if (view.error) {
-                        await this._renderErrorViewToOutlet(
-                            currentOutlet,
-                            matched.hash,
-                            view.error,
-                        );
+                        viewTask.reject(view.error);
                     } else {
-                        // 7. 创建或更新视图容器（还未插入到 DOM）
-                        const viewContainer = this._createViewContainer(currentOutlet!, view, data);
-                        // 8. 执行 beforeRender 钩子（同步等待）
+                        //  执行 beforeRender 钩子（同步等待）
                         await this._runBeforeRender(
                             fromRoute || [],
                             toRoute.slice(0, i + 1),
-                            viewContainer,
+                            viewTask.container,
                             data.value,
                         );
-                        currentOutlet.appendChild(viewContainer);
-                        currentOutlet.view = viewHash;
-                        // 11. 异步执行 afterRender 钩子（不等待）
+                        //  创建或更新视图容器插入到 DOM
+                        viewTask.resolve(view.value, data.value);
+                        // 异步执行 afterRender 钩子（不等待）
                         this._runAfterRender(
                             fromRoute || [],
                             toRoute.slice(0, i + 1),
-                            viewContainer,
+                            viewTask.container,
                         );
                     }
-                } catch (error) {
-                    await this._renderErrorViewToOutlet(
-                        currentOutlet,
-                        matched.hash,
-                        error as Error,
-                    );
+                } catch {
                 } finally {
-                    this._hideLoadingInOutlet(currentOutlet!);
+                    viewTask.finally();
                 }
             }
         } catch (error) {
             this.logger.debug("渲染失败", error);
         }
-    }
-
-    /**
-     * 创建或更新视图容器（不插入 DOM）
-     * @param outlet - 父 outlet 元素
-     * @param view - 视图内容（字符串或 HTMLElement）
-     * @param hash - 路由哈希（用作容器 id）
-     * @param data - 路由数据
-     * @returns 视图容器元素（已创建或更新，但未插入 DOM）
-     */
-    protected _createViewContainer(
-        this: KylinRouter,
-        outlet: KylinOutlet,
-        view: RouteSignalReuslt<string | HTMLElement>,
-        data?: RouteSignalReuslt<Record<string, any>>,
-    ): HTMLElement {
-        // 查找现有容器
-        let viewContainer = outlet.querySelector(`[id="${view.hash}"]`) as HTMLElement;
-
-        if (!viewContainer) {
-            // 创建新容器
-            viewContainer = document.createElement("div");
-            viewContainer.classList.add("kylin-view");
-            viewContainer.id = view.hash;
-        } else {
-            // 将更新现有容器
-            this.logger.debug(`渲染流程: 更新现有视图容器 (id: ${view.hash})`);
-        }
-
-        // 更新 x-data 属性
-        if (data) {
-            viewContainer.setAttribute("x-data", data.hash);
-        } else {
-            viewContainer.removeAttribute("x-data");
-        }
-
-        // 插入视图内容到容器
-        if (typeof view.value === "string") {
-            viewContainer.innerHTML = view.value;
-        } else if (view.value instanceof HTMLElement) {
-            viewContainer.innerHTML = "";
-            viewContainer.appendChild(view.value);
-        }
-
-        return viewContainer;
     }
 
     /**
@@ -263,72 +213,6 @@ export class Render {
     }
 
     /**
-     * 渲染错误视图到 outlet
-     * 仅在视图加载失败时调用
-     * @param outlet - 目标 outlet 元素
-     * @param hash - 路由哈希（用作容器 id）
-     * @param error - 错误信息
-     */
-    protected async _renderErrorViewToOutlet(
-        this: KylinRouter,
-        outlet: KylinOutlet,
-        hash: string,
-        error: Error,
-    ): Promise<void> {
-        // 隐藏加载状态
-        this._hideLoadingInOutlet(outlet);
-        const errorView = this._createErrorView(error);
-        // 查找或创建错误容器
-        let errorContainer = outlet.querySelector(`[id="${hash}"]`) as HTMLElement;
-        if (!errorContainer) {
-            errorContainer = document.createElement("div");
-            errorContainer.id = hash;
-            outlet.appendChild(errorContainer);
-        }
-        errorContainer.innerHTML = errorView;
-    }
-
-    /**
-     * 创建错误视图
-     * @param error - 错误对象
-     * @returns 错误视图 HTML
-     */
-    protected _createErrorView(this: KylinRouter, error: Error): string {
-        const errorMessage = error?.message || "未知错误";
-        return `
-            <div style="padding: 20px; background: #fee; color: #c00; border-radius: 4px;">
-                <h3>渲染错误</h3>
-                <p>${errorMessage}</p>
-            </div>
-        `;
-    }
-
-    /**
-     * 在 outlet 中显示 loading 状态
-     * @param outlet - 目标 outlet 元素
-     */
-    protected _showLoadingInOutlet(this: KylinRouter, outlet: KylinOutlet): void {
-        // 创建 loading 元素
-        const loadingElement = document.createElement("kylin-loading");
-        loadingElement.setAttribute("data-role", "loading-indicator");
-
-        // 清空 outlet 并插入 loading
-        outlet.innerHTML = "";
-        outlet.appendChild(loadingElement);
-    }
-
-    /**
-     * 隐藏 outlet 中的 loading 状态
-     * @param outlet - 目标 outlet 元素
-     */
-    protected _hideLoadingInOutlet(this: KylinRouter, outlet: KylinOutlet): void {
-        const loadingElement = outlet.querySelector("kylin-loading[data-role='loading-indicator']");
-        if (loadingElement) {
-            loadingElement.remove();
-        }
-    }
-
-    /**
      * 在父元素内部查找或创建 outlet
      * @param parent - 父元素
      * @param allowCreate - 是否允许自动创建 outlet（仅根路由为 true）
@@ -344,9 +228,9 @@ export class Render {
 
         if (outlets.length > 0) {
             outlets.forEach((outlet) => {
-                // if (outlet.view === viewHash) {
-                //     return outlet as KylinOutlet;
-                // }
+                if (outlet.view === viewHash) {
+                    return outlet;
+                }
             });
 
             return outlets[0] as KylinOutlet;

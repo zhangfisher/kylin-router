@@ -26,8 +26,9 @@ import { HookManager } from "./features/hooks";
 import { RouteRegistry } from "./features/routes";
 import { AlpineManager } from "./features/alpine";
 
-import { matchRoute } from "./utils";
+import { joinPath, matchRoute } from "./utils";
 import { createLogger, type KylinRouterLogger } from "./logger";
+import { removePathPrefix } from "./utils/removePathPrefix";
 
 /**
  *
@@ -211,7 +212,7 @@ export class KylinRouter extends Mixin(
         let fromRoute: KylinMatchedRouteItem[] | undefined, toRoute: KylinMatchedRouteItem[];
         try {
             // 执行路由匹配并获取导航上下文
-            const matched = this._matchRoute(pathname, search);
+            const matched = this._matchRoute(removePathPrefix(pathname, this.options.base), search);
             fromRoute = matched.fromRoute;
             toRoute = matched.toRoute;
 
@@ -226,14 +227,15 @@ export class KylinRouter extends Mixin(
             }
 
             // 加载路由视图和数据
-            this.viewLoader.loadViews(toRoute);
             this.dataLoader.loadDatas(toRoute);
+            this.viewLoader.loadViews(toRoute);
             // 执行渲染
             await this._renderRoutes(toRoute, fromRoute);
         } finally {
             this.hooks.runAfterRoute({
                 to: toRoute!,
             });
+            this.routes.current = toRoute!;
         }
     }
 
@@ -263,16 +265,12 @@ export class KylinRouter extends Mixin(
             this.replace("/");
         }
     }
-
-    push(path: string, state?: unknown) {
+    push(path: string, state?: Record<string, any>) {
         this._ensureAttached();
         this._pendingNavigationType = "push";
-        this.logger.debug(`导航方法: push(${path})`);
-
         // 检查是否为模态路由（! 前缀）
         if (path.startsWith("!")) {
             const modalPath = path.slice(1); // 移除 ! 前缀
-            this.logger.debug(`检测到模态路由: ${modalPath}`);
             // 直接触发模态路由，不进入 history
             this.openModal({ route: modalPath });
             return;
@@ -289,11 +287,9 @@ export class KylinRouter extends Mixin(
             this.history.push(path);
         }
     }
-    replace(path: string, state?: unknown) {
-        console.log("[KylinRouter] replace() 方法被调用:", path);
+    replace(path: string, state?: Record<string, any>) {
         this._ensureAttached();
         this._pendingNavigationType = "replace";
-        console.log("[KylinRouter] 准备执行 history.replace:", path);
         // 触发 navigation/start 事件
         this.emit("navigation:start", {
             path,
@@ -312,7 +308,7 @@ export class KylinRouter extends Mixin(
      */
     home() {
         this._ensureAttached();
-        const homePath = this.options.home || "/";
+        const homePath = joinPath(this.options.base || "", this.options.home || "/");
         this.replace(homePath);
     }
 

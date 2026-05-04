@@ -13,9 +13,16 @@ import { quickHash } from "./quickHash";
      "timestamp";
 
  */
-export function getRouteHash(route: KylinMatchedRouteItem) {
-    const hash = route.route.hash || "{path}";
-    const vars = getRouteVars(route);
+export function getRouteHash(matched: KylinMatchedRouteItem) {
+    const hash = matched.route.hash || "{path}";
+    const vars = getRouteVars(matched);
+    const result = quickHash(replaceParams(hash, vars));
+    const isNotNumPreifx = isNaN(parseInt(result.substring(0, 1)));
+    return isNotNumPreifx ? result : "h" + result;
+}
+export function getRouteDataHash(matched: KylinMatchedRouteItem) {
+    const hash = matched.route._dataOptions?.hash || "{path}";
+    const vars = getRouteVars(matched);
     const result = quickHash(replaceParams(hash, vars));
     const isNotNumPreifx = isNaN(parseInt(result.substring(0, 1)));
     return isNotNumPreifx ? result : "h" + result;

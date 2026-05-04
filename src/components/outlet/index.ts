@@ -2,6 +2,7 @@ import { customElement, property } from "lit/decorators.js";
 import { styles } from "./styles";
 import { KylinRouterElementBase } from "../base";
 import { html } from "lit";
+import { OutletViewLoader } from "./view";
 
 @customElement("kylin-outlet")
 export class KylinOutlet extends KylinRouterElementBase {
@@ -62,15 +63,18 @@ export class KylinOutlet extends KylinRouterElementBase {
         }
     }
 
+    createView(hash: string) {
+        return new OutletViewLoader(this, hash);
+    }
+
     // 监听属性变化
     protected updated(changedProperties: Map<string, any>) {
         super.updated(changedProperties);
-
         if (changedProperties.has("loading")) {
             if (this.loading) {
-                this._showLoadingIndicator();
+                this._showLoading();
             } else {
-                this._hideLoadingIndicator();
+                this._hideLoading();
             }
         }
         if (changedProperties.has("view")) {
@@ -78,16 +82,17 @@ export class KylinOutlet extends KylinRouterElementBase {
         }
     }
 
-    private _showLoadingIndicator(): void {
+    private _showLoading(): void {
         // 显示加载指示器
         const loadingElement = this.querySelector("kylin-loading");
         if (!loadingElement) {
             const indicator = document.createElement("kylin-loading");
+            indicator.setAttribute("message", "Loading...");
             this.appendChild(indicator);
         }
     }
 
-    private _hideLoadingIndicator(): void {
+    private _hideLoading(): void {
         // 隐藏加载指示器
         const loadingElement = this.querySelector("kylin-loading");
         if (loadingElement) {
@@ -102,7 +107,6 @@ export class KylinOutlet extends KylinRouterElementBase {
         this.mutationObserver = new MutationObserver((mutations) => {
             this.onSlotChange(mutations);
         });
-
         // 配置观察选项 - 只观察直接子节点的变化
         const config = {
             childList: true, // 观察子节点的变化
@@ -110,7 +114,6 @@ export class KylinOutlet extends KylinRouterElementBase {
             attributes: false, // 不观察属性变化
             characterData: false, // 不观察文本内容变化
         };
-
         // 开始观察
         this.mutationObserver.observe(this, config);
     }

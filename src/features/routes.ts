@@ -10,7 +10,7 @@
 
 import type { KylinRouter } from "@/router";
 import type { KylinRouteItem, KylinMatchedRouteItem } from "@/types";
-import { joinPath } from "@/utils";
+
 import { matchRoute } from "@/utils/matchRoute";
 
 /** 导航回调函数类型 */
@@ -22,7 +22,7 @@ export interface NavigationCallbacks {
 
 export class RouteRegistry {
     /** 路由表配置 */
-    public routes!: KylinRouteItem[];
+    routes: KylinRouteItem[] = [];
 
     /** 404 路由配置 */
     public notFound?: KylinRouteItem;
@@ -30,17 +30,9 @@ export class RouteRegistry {
     /** 当前路由状态 */
     public current?: KylinMatchedRouteItem[];
 
-    /** 导航回调函数 */
-    private _callbacks?: NavigationCallbacks;
     router: KylinRouter;
     constructor(router: KylinRouter) {
         this.router = router;
-    }
-    /**
-     * 设置导航回调函数
-     */
-    setCallbacks(callbacks: NavigationCallbacks): void {
-        this._callbacks = callbacks;
     }
 
     /**
@@ -57,8 +49,8 @@ export class RouteRegistry {
             }
             return Array.isArray(arg) ? arg : [arg];
         };
-
-        this._normalizeRoutes(await toArray(routeArgs));
+        this.routes = await toArray(routeArgs);
+        this._normalizeRoutes(this.routes);
         this.router.emit("routes:loaded", undefined);
     }
 
@@ -111,11 +103,10 @@ export class RouteRegistry {
      * 规范化路由配置
      */
     private _normalizeRoutes(routes: KylinRouteItem[]): void {
+        const overrideItems = ["keepAlive", "cache", "timeout", "preload"];
         routes.forEach((route) => {
-            route.path = joinPath(this.router.base || "", route.path);
             if (this.router.options.routeOptions) {
                 const routeOptions = this.router.options.routeOptions;
-                const overrideItems = ["keepAlive", "cache", "timeout", "preload"];
                 overrideItems.forEach((item) => {
                     // @ts-ignore
                     if (route[item] !== undefined && routeOptions[item] !== undefined) {

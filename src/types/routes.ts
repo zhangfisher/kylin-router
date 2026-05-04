@@ -6,7 +6,7 @@ import type { AfterRenderHook, AfterRouteHook, BeforeRenderHook, BeforeRouteHook
 import type { KylinRouteDataOptions } from "./data";
 import type { KylinRouteDataSource } from "./data";
 import type { TemplateResult } from "lit";
-import type { ErrorBoundaryConfig, RetryConfig } from "./config";
+import type { ErrorBoundaryOptions, RetryOptions } from "./config";
 import type { ModalConfig } from "./modals";
 import type { IAsyncSignal } from "asyncsignal";
 import type { BaseLoaderOptions } from "@/features/baseLoader";
@@ -220,14 +220,14 @@ export interface KylinRouteItem {
     loading?: boolean | string | HTMLElement;
 
     /**
+     * 视图哈希标识
+     
      * 路由哈希标识，用于 Alpine.js store 的命名和视图缓存
      * 支持字符串插值，可用变量：
      * - {path}: 路由路径
      * - {basepath}: 基础路径
      * - {url}: 完整 URL
-     * - {timestamp}: 时间戳
-     * - {query.*}: 查询参数
-     * - {params.*}: 路径参数
+     * - {timestamp}: 时间戳 
      * @default "{path}"
      * @example
      * hash: "user-{params.id}" // 生成类似 "user-123" 的哈希
@@ -240,8 +240,6 @@ export interface KylinRouteItem {
      * - true: 在初始化时自动加载视图数据
      */
     preload?: boolean;
-
-    roles?: string[];
     /**
      * 重定向到其他路由
      * 支持绝对路径和相对路径
@@ -259,7 +257,7 @@ export interface KylinRouteItem {
     /**
      * 错误边界配置
      */
-    errorBoundary?: ErrorBoundaryConfig;
+    errorBoundary?: ErrorBoundaryOptions;
     /**
      * 当导航到此出错进的回退路由
      */
@@ -267,7 +265,7 @@ export interface KylinRouteItem {
     /**
      * 重试策略配置
      */
-    retry?: RetryConfig;
+    retry?: RetryOptions;
 
     /**
      * 模态路由配置
@@ -342,5 +340,8 @@ export type KylinMatchedRouteItem = {
      *
      */
     url: string;
+    /**
+     * 计算后的路由视图哈希标识
+     */
     hash: string;
 };

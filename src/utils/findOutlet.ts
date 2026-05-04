@@ -1,9 +1,11 @@
+import type { KylinOutlet } from "@/components/outlet";
+
 /**
  * 在指定元素内部查找 kylin-outlet 元素
  * @param el - 要搜索的父元素
  * @returns 找到的 kylin-outlet 元素，如果未找到返回 null
  */
-export function findOutlet(el: HTMLElement): HTMLElement[] {
+export function findOutlet(el: HTMLElement): KylinOutlet[] {
     if (!el) return [];
 
     // 查找所有 kylin-outlet 元素
