@@ -48,66 +48,7 @@ export class ViewLoader extends RouteDataLoaderBase<"view", KylinRouteViewOption
     async loadView(
         viewSource: string | (() => Promise<any>),
         options?: Partial<KylinRouteViewOptions>,
-    ): Promise<{ success: boolean; content: string | HTMLElement | null; error?: Error }> {
-        try {
-            // 创建临时的匹配路由项用于加载
-            const tempMatched: KylinMatchedRouteItem = {
-                route: {
-                    name: "__temp__",
-                    path: "/__temp__",
-                    view: viewSource,
-                    ...options,
-                } as any,
-                params: {},
-                query: {},
-                state: {},
-                path: "/__temp__",
-                url: "/__temp__",
-                hash: "",
-            };
-
-            // 合并选项
-            const mergedOptions = Object.assign({}, this.options, options || {}, {
-                from: viewSource,
-            }) as Required<KylinRouteViewOptions>;
-
-            // 执行加载
-            this.startLoad(
-                tempMatched,
-                mergedOptions,
-                this._getRouteHash(mergedOptions, tempMatched),
-            );
-
-            // 等待加载完成
-            const signal = this.getLoadSignal(tempMatched);
-            if (!signal) {
-                return {
-                    success: false,
-                    content: null,
-                    error: new Error("Failed to create load signal"),
-                };
-            }
-
-            // 等待 signal 完成
-            const content = await new Promise<string | HTMLElement>((resolve, reject) => {
-                const checkSignal = () => {
-                    if (signal.isFulfilled()) {
-                        resolve(signal.result as string | HTMLElement);
-                    } else if (signal.isRejected()) {
-                        reject(signal.error);
-                    } else {
-                        // 继续等待
-                        setTimeout(checkSignal, 10);
-                    }
-                };
-                checkSignal();
-            });
-
-            return { success: true, content };
-        } catch (error) {
-            return { success: false, content: null, error: error as Error };
-        }
-    }
+    ) {}
 
     /**
      * 智能内容提取 - 从 HTML 中提取有效内容

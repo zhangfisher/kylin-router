@@ -62,8 +62,13 @@ export class KylinOutlet extends KylinRouterElementBase {
             this.mutationObserver = null;
         }
     }
-
-    createView(hash: string) {
+    /**
+     *
+     * @param hash
+     * @param options  {keeyAlive:boolean}
+     * @returns
+     */
+    createView(hash: string, options?: Record<string, any>) {
         return new OutletViewLoader(this, hash);
     }
 

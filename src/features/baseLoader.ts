@@ -199,16 +199,15 @@ export abstract class RouteDataLoaderBase<
             signal = asyncSignal();
             (matched.route as any)[this._signalKey] = signal;
         }
-        signal.meta.hash = hash;
         // 获取数据源
         const source = this.getSource(matched, options)!;
         // 成功和错误处理
         const onSuccess = (data: TData) => {
-            this.onLoadSuccess(data, hash, options, signal);
+            this.onLoadSuccess(matched, data, options, signal);
         };
 
         const onError = (error: any) => {
-            this.onLoadError(error, hash, signal);
+            this.onLoadError(matched, error, signal);
         };
         try {
             if (typeof source === "string") {
@@ -339,14 +338,14 @@ export abstract class RouteDataLoaderBase<
     }
 
     protected onLoadSuccess(
+        matched: KylinMatchedRouteItem,
         data: TData,
-        hash: string,
         options: TOptions,
         signal: IAsyncSignal,
     ): void {
         // 缓存
         if ((options.cache || 0) > 0) {
-            this.cache.set(hash, {
+            this.cache.set(matched.hash, {
                 value: data,
                 timestamp: Date.now(),
             } as CacheItem<TData>);
@@ -355,12 +354,12 @@ export abstract class RouteDataLoaderBase<
         signal.resolve(data);
     }
 
-    protected onLoadError(error: any, hash: string, signal: IAsyncSignal): void {
+    protected onLoadError(matched: KylinMatchedRouteItem, error: any, signal: IAsyncSignal): void {
         if (error.name === "AbortError") {
             signal.resolve(undefined);
         } else {
             signal.reject(error);
-            this.cache.delete(hash);
+            this.cache.delete(matched.hash);
         }
     }
 
@@ -375,10 +374,6 @@ export abstract class RouteDataLoaderBase<
     protected getRouteCache(matched: KylinMatchedRouteItem): CacheItem<TData> | undefined {
         return this.cache.get(matched.hash);
     }
-
-    // ========================================
-    // 公共方法
-    // ========================================
 
     /**
      * 清理资源
