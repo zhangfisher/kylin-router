@@ -43,6 +43,12 @@ export interface BaseLoaderOptions<Data = any> {
      * - (matched) => TData | Promise<TData>: 函数返回数据
      */
     from: BaseLoaderSource<Data>;
+    /**
+     * 加载器名称
+     * 可选：用于标识加载器的名称，
+     * 对于数据加载器，名称将Alpine.data(name)的键名，
+     */
+    name?: string;
     /** 缓存时间（毫秒），0 表示不缓存 */
     cache?: number;
     /** 加载超时时间（毫秒） */
@@ -91,7 +97,7 @@ export abstract class RouteDataLoaderBase<
     // 根据 TLoadType 精确推导的键名类型
     protected readonly _signalKey: `_get${Capitalize<TLoadType>}`;
     protected readonly _optionsKey: `_${TLoadType}Options`;
-    protected readonly _routeKey: TLoadType;
+    protected readonly _optionKey: TLoadType;
 
     constructor(
         router: KylinRouter,
@@ -114,7 +120,7 @@ export abstract class RouteDataLoaderBase<
         this._signalKey =
             `_get${type.charAt(0).toUpperCase() + type.slice(1)}` as `_get${Capitalize<TLoadType>}`;
         this._optionsKey = `_${type}Options` as `_${TLoadType}Options`;
-        this._routeKey = type;
+        this._optionKey = type;
     }
 
     // ========================================
@@ -125,7 +131,7 @@ export abstract class RouteDataLoaderBase<
      * 获取路由的加载信号
      * 根据 signalKey 自动访问 _getData 或 _getView
      */
-    protected getLoadSignal(
+    protected getSignal(
         matched: KylinMatchedRouteItem,
         created: boolean = false,
     ): IAsyncSignal | undefined {
@@ -170,6 +176,9 @@ export abstract class RouteDataLoaderBase<
      * 加载单个路由
      */
     protected loadRoute(matched: KylinMatchedRouteItem): void {
+        // @ts-ignore
+        if (!matched.route[this._optionKey]) return;
+
         const options = this.getRouteOptions(matched);
 
         const source = this.getSource(matched, options);
@@ -193,19 +202,14 @@ export abstract class RouteDataLoaderBase<
      * 执行加载
      */
     protected startLoad(matched: KylinMatchedRouteItem, options: Required<TOptions>): void {
-        let signal = this.getLoadSignal(matched, true);
-        const hash = matched.hash;
-        if (!signal) {
-            signal = asyncSignal();
-            (matched.route as any)[this._signalKey] = signal;
-        }
+        // 创建新的信号，确保每次加载都有一个信号，方便统一调用
+        let signal = this.getSignal(matched, true)!;
         // 获取数据源
         const source = this.getSource(matched, options)!;
         // 成功和错误处理
         const onSuccess = (data: TData) => {
             this.onLoadSuccess(matched, data, options, signal);
         };
-
         const onError = (error: any) => {
             this.onLoadError(matched, error, signal);
         };
@@ -246,7 +250,7 @@ export abstract class RouteDataLoaderBase<
         cacheItem: CacheItem<TData> | undefined,
         options: TOptions,
     ): boolean {
-        const signal = this.getLoadSignal(matched)!;
+        const signal = this.getSignal(matched)!;
         if ((options.cache || 0) > 0 && cacheItem && !this._isCacheExpired(cacheItem, options)) {
             signal.resolve(cacheItem.value);
             return true;
@@ -262,7 +266,7 @@ export abstract class RouteDataLoaderBase<
         // executeLoad 会复用现有的 signal（由 ensureLoadSignal 创建）
         // 旧的请求会继续执行，但结果会被忽略，因为我们使用新的 signal
         // fetch 的 AbortSignal 会在新的 signal 中创建，自动取消旧请求
-        const signal = this.getLoadSignal(matched);
+        const signal = this.getSignal(matched);
         if (signal?.isPending()) {
             signal.abort();
         }
@@ -364,7 +368,7 @@ export abstract class RouteDataLoaderBase<
     }
 
     private _mergeRouteOptions(matched: KylinMatchedRouteItem): Required<TOptions> {
-        const routeSource = (matched.route as any)[this._routeKey];
+        const routeSource = (matched.route as any)[this._optionKey];
         return Object.assign(
             { ...this.options },
             this.isOptionsObject(routeSource) ? routeSource : { from: routeSource },

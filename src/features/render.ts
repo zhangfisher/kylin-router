@@ -20,26 +20,26 @@ import type { IAsyncSignal } from "asyncsignal";
 type RouteSignalReuslt<T = any> = {
     value: T;
     error: Error;
-    hash: string;
 };
 
 export class Render {
-    private async _loadSignals(matched: KylinMatchedRouteItem): Promise<RouteSignalReuslt[]> {
+    private async _loadSignals(
+        matched: KylinMatchedRouteItem,
+    ): Promise<(RouteSignalReuslt | undefined)[]> {
         const route = matched.route as Required<KylinRouteItem>;
-        const signals = [route._getView, route._getData];
-
-        // 将信号转换为 Promise，处理 null/undefined 的情况
-        const promises = signals.map((signal) =>
-            signal ? Promise.resolve(signal()) : Promise.resolve(null),
-        );
-        const loadResults = await Promise.allSettled(promises);
-
-        const toResult = (result: PromiseSettledResult<any>, signal: IAsyncSignal | null) => ({
-            value: result.status === "fulfilled" ? result.value : null,
-            error: result.status === "rejected" ? result.reason : null,
-            hash: signal?.meta.hash,
-        });
-        return loadResults.map((result, index) => toResult(result, signals[index]));
+        const loadSignal = async (signal: IAsyncSignal | null) => {
+            if (!signal) return;
+            const data: Record<string, any> = {};
+            try {
+                data.value = await signal();
+            } catch (error) {
+                data.error = error;
+            }
+            return data as RouteSignalReuslt;
+        };
+        const data = await loadSignal(route._getData);
+        const view = await loadSignal(route._getView);
+        return [data, view];
     }
     /**
      * 执行渲染步骤 - 新的渲染系统
@@ -73,10 +73,13 @@ export class Render {
                     }
                 } // 如果没有启用KeepAlive,则每次路由时均创建新的视图容器
 
-                const viewTask = currentOutlet.createView(viewHash);
+                const viewTask = currentOutlet.createView({
+                    hash: viewHash,
+                    keepAlive: route.keepAlive,
+                });
 
                 try {
-                    const [view, data] = await this._loadSignals(matched);
+                    const [data, view] = await this._loadSignals(matched);
 
                     if (view.error) {
                         viewTask.reject(view.error);
@@ -86,10 +89,10 @@ export class Render {
                             fromRoute || [],
                             toRoute.slice(0, i + 1),
                             viewTask.container,
-                            data.value,
+                            data?.value,
                         );
                         //  创建或更新视图容器插入到 DOM
-                        viewTask.resolve(view.value, data.value);
+                        viewTask.resolve(view.value, data?.value);
                         // 异步执行 afterRender 钩子（不等待）
                         this._runAfterRender(
                             fromRoute || [],
