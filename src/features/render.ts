@@ -23,23 +23,23 @@ type RouteSignalReuslt<T = any> = {
 };
 
 export class Render {
-    private async _loadSignals(
-        matched: KylinMatchedRouteItem,
-    ): Promise<(RouteSignalReuslt | undefined)[]> {
+    private async _loadSignal(signal: IAsyncSignal | null) {
+        if (!signal) return;
+        const data: Record<string, any> = {};
+        try {
+            data.value = await signal();
+        } catch (error) {
+            data.error = error;
+        }
+        return data as RouteSignalReuslt;
+    }
+    private async _loadView(matched: KylinMatchedRouteItem) {
         const route = matched.route as Required<KylinRouteItem>;
-        const loadSignal = async (signal: IAsyncSignal | null) => {
-            if (!signal) return;
-            const data: Record<string, any> = {};
-            try {
-                data.value = await signal();
-            } catch (error) {
-                data.error = error;
-            }
-            return data as RouteSignalReuslt;
-        };
-        const data = await loadSignal(route._getData);
-        const view = await loadSignal(route._getView);
-        return [data, view];
+        return (await this._loadSignal(route._getView)) as RouteSignalReuslt;
+    }
+    private async _loadData(matched: KylinMatchedRouteItem) {
+        const route = matched.route as Required<KylinRouteItem>;
+        return await this._loadSignal(route._getData);
     }
     /**
      * 执行渲染步骤 - 新的渲染系统
@@ -79,7 +79,8 @@ export class Render {
                 });
 
                 try {
-                    const [data, view] = await this._loadSignals(matched);
+                    const data = await this._loadData(matched);
+                    const view = await this._loadView(matched)!;
 
                     if (view.error) {
                         viewTask.reject(view.error);
