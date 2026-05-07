@@ -75,33 +75,8 @@ export class KylinOutlet extends KylinRouterElementBase {
     // 监听属性变化
     protected updated(changedProperties: Map<string, any>) {
         super.updated(changedProperties);
-        if (changedProperties.has("loading")) {
-            if (this.loading) {
-                this._showLoading();
-            } else {
-                this._hideLoading();
-            }
-        }
         if (changedProperties.has("view")) {
             this.showViewContainer(this.view!);
-        }
-    }
-
-    private _showLoading(): void {
-        // 显示加载指示器
-        const loadingElement = this.querySelector("kylin-loading");
-        if (!loadingElement) {
-            const indicator = document.createElement("kylin-loading");
-            indicator.setAttribute("message", "Loading...");
-            this.appendChild(indicator);
-        }
-    }
-
-    private _hideLoading(): void {
-        // 隐藏加载指示器
-        const loadingElement = this.querySelector("kylin-loading");
-        if (loadingElement) {
-            loadingElement.remove();
         }
     }
 

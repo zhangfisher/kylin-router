@@ -81,13 +81,12 @@ export function params(str: string, ...args: any[]): string {
             if (typeof value === "function") {
                 value = value();
             }
-
             // 转换为字符串
             return String(value);
         });
 
         return result;
-    } catch (e: any) {
+    } catch {
         // 异常时返回原字符串
         return result;
     }

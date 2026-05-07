@@ -76,19 +76,10 @@ export class KylinRouterElementBase extends LitElement {
                 currentElement instanceof HTMLElement &&
                 currentElement.hasAttribute("data-kylin-router")
             ) {
-                console.log("[KylinRouterElementBase] 找到 router 宿主元素:", {
-                    element: currentElement,
-                    hasRouter: !!(currentElement as any).router,
-                    walk,
-                });
                 return (currentElement as any).router;
             }
             // 检查是否是 KylinRouterElementBase 且具有有效的 router 实例
             if (currentElement instanceof KylinRouterElementBase && currentElement.router) {
-                console.log("[KylinRouterElementBase] 找到父级 router 实例:", {
-                    element: currentElement,
-                    walk,
-                });
                 return currentElement.router;
             }
             currentElement = currentElement.parentElement;

@@ -10,6 +10,7 @@ import type { KylinMatchedRouteItem } from "@/types/routes";
 import { asyncSignal, type IAsyncSignal } from "asyncsignal";
 import { getRouteVars } from "@/utils/getRouteVars";
 import { prefixBaseUrl } from "@/utils/prefixBaseUrl";
+import { getSignalHash } from "@/utils/getSignalHash";
 
 /**
  * 加载器类型标识
@@ -64,6 +65,11 @@ export interface BaseLoaderOptions<Data = any> {
      * 决定response.text()或response.json()的调用
      */
     datatype?: "json" | "text";
+    /**
+     * 路由hash值，用于生成缓存键
+     * 例如："{path}"表示使用路由的路径作为hash值
+     */
+    hash?: string;
 }
 
 /**
@@ -251,11 +257,13 @@ export abstract class RouteDataLoaderBase<
         options: TOptions,
     ): boolean {
         const signal = this.getSignal(matched)!;
+        const hash = this._getHash(matched, options);
+
         if ((options.cache || 0) > 0 && cacheItem && !this._isCacheExpired(cacheItem, options)) {
             signal.resolve(cacheItem.value);
             return true;
-        } else if ((options.cache || 0) > 0 && this.cache.has(matched.hash)) {
-            this.cache.delete(matched.hash);
+        } else if ((options.cache || 0) > 0 && this.cache.has(hash)) {
+            this.cache.delete(hash);
         }
 
         return false;
@@ -272,6 +280,12 @@ export abstract class RouteDataLoaderBase<
         }
     }
 
+    private _getHash(matched: KylinMatchedRouteItem, options: TOptions) {
+        if (options.hash) {
+            return getSignalHash(options.hash, matched);
+        }
+        return getSignalHash(options.hash || "{path}", matched);
+    }
     /**
      * 获取数据源，根据配置的 from 选项返回静态数据或动态函数
      * @param matched - 匹配的路由项对象
@@ -313,6 +327,7 @@ export abstract class RouteDataLoaderBase<
                 }, timeout);
             }
             signal.meta.url = url;
+            signal.meta.hash = this._getHash(matched, options);
             fetch(url, { signal: signal.getAbortSignal() })
                 .then(async (response) => {
                     if (!response.ok) {
@@ -349,7 +364,8 @@ export abstract class RouteDataLoaderBase<
     ): void {
         // 缓存
         if ((options.cache || 0) > 0) {
-            this.cache.set(matched.hash, {
+            const hash = this._getHash(matched, options);
+            this.cache.set(hash, {
                 value: data,
                 timestamp: Date.now(),
             } as CacheItem<TData>);

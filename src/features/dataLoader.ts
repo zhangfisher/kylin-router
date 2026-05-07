@@ -42,8 +42,17 @@ export class DataLoader extends RouteDataLoaderBase<
         try {
             if (typeof store === "string") {
                 Alpine.store(store, data);
+                this.router.logger.debug(`[DataLoader] Store registered: ${store}`, data);
             } else {
-                Alpine.data(signal.meta.hash, () => data);
+                const hash = signal.meta.hash;
+                this.router.logger.debug(
+                    `[DataLoader] Registering Alpine.data with hash: ${hash}`,
+                    data,
+                );
+                Alpine.data(hash, () => data);
+                Alpine.store(hash, data);
+
+                this.router.logger.debug(`[DataLoader] Alpine.data registered successfully`);
             }
         } catch (e: any) {
             this.router.logger.error(`Failed to create route dataObject : ${e.message}`);

@@ -24,10 +24,13 @@ type RouteSignalReuslt<T = any> = {
 
 export class Render {
     private async _loadSignal(signal: IAsyncSignal | null) {
-        if (!signal) return;
+        if (!signal) {
+            return;
+        }
         const data: Record<string, any> = {};
         try {
-            data.value = await signal();
+            const result = await signal();
+            data.value = result;
         } catch (error) {
             data.error = error;
         }
@@ -56,6 +59,7 @@ export class Render {
                 const matched = toRoute[i];
                 const route = matched.route as Required<KylinRouteItem>;
                 const viewHash = matched.hash;
+                const dataHash = matched.route._getData?.meta?.hash;
 
                 currentOutlet = this._findOutlet(currentOutlet || this.host, viewHash);
 
@@ -74,13 +78,21 @@ export class Render {
                 } // 如果没有启用KeepAlive,则每次路由时均创建新的视图容器
 
                 const viewTask = currentOutlet.createView({
-                    hash: viewHash,
+                    viewHash: viewHash,
+                    dataHash: dataHash,
                     keepAlive: route.keepAlive,
                 });
 
                 try {
                     const data = await this._loadData(matched);
                     const view = await this._loadView(matched)!;
+
+                    // 调试日志
+                    this.logger.debug(`[渲染调试] 路由: ${matched.url}`);
+                    this.logger.debug(`[渲染调试] viewHash: ${viewHash}`);
+                    this.logger.debug(`[渲染调试] dataHash: ${dataHash}`);
+                    this.logger.debug(`[渲染调试] data.value:{}`, JSON.stringify(data?.value));
+                    this.logger.debug(`[渲染调试] data.error:{}`, JSON.stringify(data?.error));
 
                     if (view.error) {
                         viewTask.reject(view.error);

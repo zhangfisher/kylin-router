@@ -1,7 +1,5 @@
 import type { KylinMatchedRouteItem } from "@/types";
-import { getRouteVars } from "./getRouteVars";
-import { params as replaceParams } from "./params";
-import { quickHash } from "./quickHash";
+import { getSignalHash } from "./getSignalHash";
 
 /**
  * 生成路由哈希和其变量的辅助函数
@@ -15,8 +13,5 @@ import { quickHash } from "./quickHash";
  */
 export function getRouteHash(matched: KylinMatchedRouteItem) {
     const hash = matched.route.hash || "{path}";
-    const vars = getRouteVars(matched);
-    const result = quickHash(replaceParams(hash, vars));
-    const isNotNumPreifx = isNaN(parseInt(result.substring(0, 1)));
-    return isNotNumPreifx ? result : "h" + result;
+    return getSignalHash(hash, matched);
 }
