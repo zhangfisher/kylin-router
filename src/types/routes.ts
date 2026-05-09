@@ -108,6 +108,12 @@ export interface KylinRouteViewOptions extends BaseLoaderOptions<string> {
      * 如果提供，将从加载的 HTML 中提取匹配该选择器的内容
      */
     selector?: string;
+    /**
+     * 启用样式隔离（默认 true）
+     * - true: 启用 scoped CSS，为样式添加 data-v-xxx 属性前缀
+     * - false: 禁用样式隔离，样式全局生效
+     */
+    scopedStyle?: boolean;
 }
 
 /**
@@ -273,6 +279,17 @@ export interface KylinRouteItem {
      * - ModalConfig: 自定义模态配置
      */
     modal?: boolean | ModalConfig;
+
+    /**
+     * 是否为默认路由
+     * 当父路由路径完全匹配但没有其他子路由匹配时，会自动选择此路由
+     *
+     * 默认路由的判断标准（按优先级）：
+     * 1. path 为 "" 或 "/" 或 "./" （高优先级）
+     * 2. 或者显式设置 default: true （低优先级）
+     * 3. 当有多个默认路由时，按配置顺序选择第一个
+     */
+    default?: boolean;
 }
 
 /**

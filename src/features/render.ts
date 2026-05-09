@@ -57,6 +57,37 @@ export class Render {
             let currentOutlet: KylinOutlet | null = null;
             for (let i = 0; i < toRoute.length; i++) {
                 const matched = toRoute[i];
+
+                // 处理未匹配的路由（404）
+                if (!matched.route) {
+                    const notFoundConfig = (this as unknown as KylinRouter).options?.notFound;
+                    if (notFoundConfig) {
+                        // 创建临时的 404 路由项用于渲染
+                        const notFoundRoute: Required<KylinRouteItem> = {
+                            name: "404",
+                            path: matched.path,
+                            view: notFoundConfig,
+                            _viewOptions: {
+                                allowUnsafe: false,
+                                selector: undefined,
+                                scopedStyle: true,
+                            },
+                            _getView: null,
+                            _getData: null,
+                            _dataOptions: {
+                                allowUnsafe: false,
+                                selector: undefined,
+                                timeout: 5000,
+                            },
+                        };
+                        matched.route = notFoundRoute;
+                    } else {
+                        // 没有 404 配置时跳过渲染
+                        this.logger.debug(`未找到匹配路由且未配置 404 页面，跳过渲染: ${matched.url}`);
+                        continue;
+                    }
+                }
+
                 const route = matched.route as Required<KylinRouteItem>;
                 const viewHash = matched.hash;
                 const dataHash = matched.route._getData?.meta?.hash;
@@ -81,18 +112,12 @@ export class Render {
                     viewHash: viewHash,
                     dataHash: dataHash,
                     keepAlive: route.keepAlive,
+                    cssVars: matched.route._getView?.meta?.vBindVars || [],
                 });
 
                 try {
                     const data = await this._loadData(matched);
                     const view = await this._loadView(matched)!;
-
-                    // 调试日志
-                    this.logger.debug(`[渲染调试] 路由: ${matched.url}`);
-                    this.logger.debug(`[渲染调试] viewHash: ${viewHash}`);
-                    this.logger.debug(`[渲染调试] dataHash: ${dataHash}`);
-                    this.logger.debug(`[渲染调试] data.value:{}`, JSON.stringify(data?.value));
-                    this.logger.debug(`[渲染调试] data.error:{}`, JSON.stringify(data?.error));
 
                     if (view.error) {
                         viewTask.reject(view.error);

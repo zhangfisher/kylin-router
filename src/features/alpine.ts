@@ -6,6 +6,7 @@
 import Alpine from "alpinejs";
 import type { KylinRouter } from "@/router";
 import type { ModalOptions } from "@/types/modals";
+import { registerCssVarDirective } from "@/directives/cssVar";
 
 /**
  * Alpine.js 全局 store 接口
@@ -83,6 +84,10 @@ export class AlpineManager {
         } as unknown as KylinAlpineStore);
         // 通过$store.data.xxx访问全局数据
         Alpine.store("data", initialData);
+
+        // 注册自定义指令（必须在 Alpine.start() 之前）
+        registerCssVarDirective(Alpine);
+
         // 启动 Alpine.js（如果还未启动）
         if (!Alpine.version) {
             Alpine.start();

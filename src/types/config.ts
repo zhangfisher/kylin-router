@@ -2,7 +2,7 @@
  * 路由器配置相关类型定义
  */
 
-import type { KylinRoutes, KylinRouteItem } from "./routes";
+import type { KylinRoutes, KylinRouteItem, KylinRouteViewSource } from "./routes";
 import type { TemplateResult } from "lit";
 import type { KylinRouteViewOptions } from "./routes";
 import type { KylinRouteDataOptions } from "./data";
@@ -59,8 +59,8 @@ export type KylinRouterOptions = {
     base?: string;
     /** 路由配置 */
     routes: KylinRoutes;
-    /** 未匹配路由时的 404 路由配置 */
-    notFound?: KylinRouteItem;
+    /** 未匹配路由时的 404 页面配置 */
+    notFound?: KylinRouteViewSource | KylinRouteViewOptions;
     /** 起始路径 */
     home?: string;
     /** 是否启用调试模式，启用后会输出详细的导航日志（默认 false） */

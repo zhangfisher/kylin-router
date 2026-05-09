@@ -5,11 +5,17 @@ export type OutletViewLoaderOptions = {
     viewHash: string;
     dataHash: string | undefined;
     keepAlive?: boolean;
+    cssVars?: string[];
 };
 export class OutletViewLoader {
     outlet: KylinOutlet;
     container: HTMLElement;
     options: OutletViewLoaderOptions;
+    /**
+     * 标记容器是否为新建（未初始化 Alpine）
+     * 用于避免 Alpine 重复初始化
+     */
+    private _isNewContainer: boolean;
     constructor(outlet: KylinOutlet, options?: OutletViewLoaderOptions) {
         this.options = Object.assign(
             {
@@ -18,6 +24,7 @@ export class OutletViewLoader {
             options,
         );
         this.outlet = outlet;
+        this._isNewContainer = false;
         this.container = this._createContainer();
     }
     get viewHash() {
@@ -29,17 +36,25 @@ export class OutletViewLoader {
     private _createContainer() {
         let container = this._getContainer() as HTMLElement | null;
         if (container) {
-            if (this.options.keepAlive) return container;
+            if (this.options.keepAlive) {
+                // 复用已存在的容器，标记为非新建（已初始化过 Alpine）
+                this._isNewContainer = false;
+                return container;
+            }
             container.remove();
-        } else {
-            container = document.createElement("div");
-            container.setAttribute("id", this.viewHash);
-            container.classList.add("kylin-view");
-            // 注意：不在这里设置 x-data，等到 resolve 时再设置
-            // 增加Loading指示器
-            this._showLoading(container);
-            this.outlet.appendChild(container);
         }
+        // 创建新容器
+        this._isNewContainer = true;
+        container = document.createElement("div");
+        container.setAttribute("id", this.viewHash);
+        container.classList.add("kylin-view");
+
+        // 设置 scoped CSS 相关属性 自动注入 x-cssvar 指令
+        if (this.options.cssVars && this.options.cssVars.length > 0) {
+            container.setAttribute("x-cssvar", this.options.cssVars.join(", "));
+        }
+
+        this._showLoading(container);
         this.container = container;
         this._active();
         return container;
@@ -78,15 +93,6 @@ export class OutletViewLoader {
     }
 
     resolve(view: string | HTMLElement, data: Record<string, any> | undefined) {
-        console.log("[ViewLoader] resolve called:", {
-            viewHash: this.viewHash,
-            dataHash: this.dataHash,
-            hasData: !!data,
-            dataKeys: data ? Object.keys(data) : [],
-            containerId: this.container.id,
-            hasXData: this.container.hasAttribute("x-data"),
-        });
-
         // 先插入视图内容
         if (typeof view === "string") {
             this.container.innerHTML = view;
@@ -94,31 +100,18 @@ export class OutletViewLoader {
             this.container.innerHTML = "";
             this.container.appendChild(view);
         }
-
-        // 关键修改：不在容器上设置 x-data，而是在父元素（kylin-outlet）上设置
-        // 这样 Alpine 可以在 outlet 级别初始化，内部所有元素都能访问数据
-        if (data && this.dataHash) {
-            console.log("[ViewLoader] Setting x-data on parent outlet element");
-
-            // 在 kylin-outlet 上设置 x-data，直接使用 store 的名字
-            // Alpine 会自动查找同名的 store
-            const outletElement = this.outlet;
-            outletElement.setAttribute("x-data", this.dataHash);
-
-            console.log("[ViewLoader] Outlet x-data set to:", this.dataHash);
-            console.log("[ViewLoader] Calling Alpine.initTree on outlet");
-
-            // 在 outlet 上初始化 Alpine
-            Alpine.initTree(outletElement);
-            console.log("[ViewLoader] Alpine.initTree on outlet completed");
-
-            // 验证
-            const outletData = (outletElement as any)._x_dataStack;
-            console.log("[ViewLoader] Outlet _x_dataStack:", outletData);
-        } else {
-            console.log("[ViewLoader] No data or dataHash");
+        // 仅当容器不在 DOM 中时才插入（避免重复 appendChild）
+        if (this.container.parentElement !== this.outlet) {
+            this.outlet.appendChild(this.container);
         }
-
+        if (data && this.dataHash) {
+            this.container.setAttribute("x-data", this.dataHash);
+            // 仅对新容器初始化 Alpine，避免重复初始化导致 "Cannot redefine property" 错误
+            if (this._isNewContainer) {
+                Alpine.initTree(this.container);
+                this._isNewContainer = false; // 标记为已初始化
+            }
+        }
         this.outlet.view = this.viewHash;
         return this.container;
     }

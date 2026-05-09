@@ -26,9 +26,9 @@ export function joinPath(base: string, path: string): string {
     return `/${cleanPath}`;
   }
 
-  // 如果 path 为空，直接返回 base
+  // 如果 path 为空，确保返回有效路径
   if (!cleanPath) {
-    return cleanBase;
+    return cleanBase || "/";  // 如果 base 也为空，返回根路径
   }
 
   // 用单个斜杠连接

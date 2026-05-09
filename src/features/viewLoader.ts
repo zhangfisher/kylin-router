@@ -11,6 +11,8 @@ import type { KylinRouter } from "@/router";
 import type { KylinMatchedRouteItem, KylinRouteViewOptions } from "@/types/routes";
 import { RouteDataLoaderBase } from "./baseLoader";
 import { sanitizeHTML } from "@/utils/sanitizeHTML";
+import { scopeStyles } from "@/utils/scopeStyle";
+import type { IAsyncSignal } from "asyncsignal";
 
 /**
  * ViewLoader 类 - 负责加载视图组件
@@ -53,11 +55,16 @@ export class ViewLoader extends RouteDataLoaderBase<"view", KylinRouteViewOption
     /**
      * 智能内容提取 - 从 HTML 中提取有效内容
      * @param html - 原始 HTML 字符串
-     * @param selector - 自定义选择器（可选）
+     * @param options - 视图选项
+     * @param signal - 异步信号
      * @returns 提取后的内容
      */
-    protected onHandleData(html: string, options: KylinRouteViewOptions): string {
-        const { selector, allowUnsafe } = options;
+    protected onHandleData(
+        html: string,
+        options: KylinRouteViewOptions,
+        signal: IAsyncSignal,
+    ): string {
+        const { selector, allowUnsafe, scopedStyle } = options;
         let htmlResult: string = html;
         try {
             // 如果提供了自定义选择器，使用它
@@ -82,6 +89,16 @@ export class ViewLoader extends RouteDataLoaderBase<"view", KylinRouteViewOption
         } catch (e: any) {
             this.router.logger.error(`视图内容提取失败: ${e.message}`);
         }
+
+        // 应用样式隔离（默认启用）
+        if (scopedStyle !== false) {
+            const result = scopeStyles(htmlResult, signal.meta.hash);
+            htmlResult = result.html;
+
+            // 将 scopeId 和 v-bind 变量保存到 signal.meta
+            signal.meta.vBindVars = result.vBindVars;
+        }
+
         if (!allowUnsafe) {
             htmlResult = sanitizeHTML(htmlResult);
         }

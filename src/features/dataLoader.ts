@@ -14,6 +14,7 @@ import { RouteDataLoaderBase } from "./baseLoader";
 import Alpine from "alpinejs";
 import { getJsonFileFromUrl } from "@/utils/getJsonFileFromUrl";
 import type { IAsyncSignal } from "asyncsignal";
+import { cloneDeep } from "es-toolkit/object";
 
 /**
  * DataLoader 类 - 负责加载路由数据
@@ -41,18 +42,10 @@ export class DataLoader extends RouteDataLoaderBase<
         const { store } = options;
         try {
             if (typeof store === "string") {
-                Alpine.store(store, data);
-                this.router.logger.debug(`[DataLoader] Store registered: ${store}`, data);
+                Alpine.store(store, cloneDeep(data));
             } else {
                 const hash = signal.meta.hash;
-                this.router.logger.debug(
-                    `[DataLoader] Registering Alpine.data with hash: ${hash}`,
-                    data,
-                );
-                Alpine.data(hash, () => data);
-                Alpine.store(hash, data);
-
-                this.router.logger.debug(`[DataLoader] Alpine.data registered successfully`);
+                Alpine.data(hash, () => cloneDeep(data));
             }
         } catch (e: any) {
             this.router.logger.error(`Failed to create route dataObject : ${e.message}`);
