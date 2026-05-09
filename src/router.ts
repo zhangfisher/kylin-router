@@ -1,6 +1,7 @@
 import type { OutletRefs } from "@/utils/traverseOutlet";
 import { createBrowserHistory, createHashHistory } from "history";
 import type { Update } from "history";
+import { getDefaultErrorPages } from "@/utils/defaultErrorPages";
 import type {
     KylinRouterOptions,
     KylinRouteItem,
@@ -146,7 +147,7 @@ export class KylinRouter extends Mixin(
                       routes: options,
                   },
         );
-
+        this.options.errorPages = { ...getDefaultErrorPages(), ...this.options.errorPages };
         this.attach();
     }
     /**

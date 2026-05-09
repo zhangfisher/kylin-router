@@ -68,7 +68,7 @@ export class KylinOutlet extends KylinRouterElementBase {
      * @param options  {keeyAlive:boolean}
      * @returns
      */
-    createView(options?: OutletViewLoaderOptions) {
+    createViewContainer(options?: OutletViewLoaderOptions) {
         return new OutletViewLoader(this, options);
     }
 

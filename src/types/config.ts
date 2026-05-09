@@ -2,12 +2,30 @@
  * 路由器配置相关类型定义
  */
 
-import type { KylinRoutes, KylinRouteItem, KylinRouteViewSource } from "./routes";
+import type { KylinRoutes, KylinRouteItem, KylinMatchedRouteItem } from "./routes";
 import type { TemplateResult } from "lit";
 import type { KylinRouteViewOptions } from "./routes";
 import type { KylinRouteDataOptions } from "./data";
 import type { AfterRenderHook, AfterRouteHook, BeforeRenderHook, BeforeRouteHook } from "./hooks";
 import type { KylinRouterLogger } from "@/logger";
+
+/**
+ * 错误页面处理函数类型
+ * @param error - 错误对象，可能包含 status/statusCode 属性
+ * @param route - 当前匹配的路由项数组
+ * @returns 错误页面的 HTMLElement
+ */
+export type ErrorPageHandler = (
+    error: any,
+    route: KylinMatchedRouteItem[]
+) => HTMLElement;
+
+/**
+ * 错误页面配置类型
+ * - HTMLElement: 直接使用该元素作为错误页面
+ * - ErrorPageHandler: 动态生成错误页面的函数
+ */
+export type ErrorPageSource = HTMLElement | ErrorPageHandler;
 
 /**
  * 重试策略配置
@@ -59,8 +77,31 @@ export type KylinRouterOptions = {
     base?: string;
     /** 路由配置 */
     routes: KylinRoutes;
-    /** 未匹配路由时的 404 页面配置 */
-    notFound?: KylinRouteViewSource | KylinRouteViewOptions;
+    /**
+     * 错误页面配置
+     *
+     * 支持按错误状态码配置不同的错误页面：
+     * - '404': 未匹配路由时的页面
+     * - '500': 服务器错误页面
+     * - '*': 通用错误页面（兜底，当找不到对应状态码时使用）
+     *
+     * 每个错误页可以是 HTMLElement 或返回 HTMLElement 的函数
+     *
+     * @example
+     * ```ts
+     * errorPages: {
+     *   '404': (error, route) => {
+     *     const el = document.createElement('kylin-feedback');
+     *     el.type = 'error';
+     *     el.message = '404 - 页面未找到';
+     *     return el;
+     *   },
+     *   '500': document.createElement('div'), // 直接使用元素
+     *   '*': createDefaultErrorPage()        // 通用兜底
+     * }
+     * ```
+     */
+    errorPages?: Partial<Record<string, ErrorPageSource>>;
     /** 起始路径 */
     home?: string;
     /** 是否启用调试模式，启用后会输出详细的导航日志（默认 false） */

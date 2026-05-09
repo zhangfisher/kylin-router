@@ -115,11 +115,19 @@ export class OutletViewLoader {
         this.outlet.view = this.viewHash;
         return this.container;
     }
-    reject(error: any) {
-        this.container.innerHTML = `<div style="padding: 20px; background: #fee; color: #c00; border-radius: 4px;">
-            <h3>渲染错误</h3>
-            <p>${error.message}</p>
-        </div>`;
+    /**
+     * 拒绝视图加载，显示错误页面
+     * @param error - 错误对象
+     * @param errorElement - 已渲染的错误元素（从 router.options.errorPages 获取，必定存在）
+     */
+    reject(error: any, errorElement: HTMLElement) {
+        this.container.innerHTML = "";
+        this.container.appendChild(errorElement);
+
+        // 插入到 outlet（如果尚未插入）
+        if (this.container.parentElement !== this.outlet) {
+            this.outlet.appendChild(this.container);
+        }
     }
     finally() {
         this._hideLoading();

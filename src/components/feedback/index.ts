@@ -1,3 +1,4 @@
+// @ts-ignore
 import { parse as parseJson } from "really-relaxed-json";
 import { LitElement, html, type TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -49,24 +50,24 @@ const ACTION_ICONS = {
 };
 
 /**
- * 消息页面组件
+ * 反馈页面组件
  *
  * 用于显示各种类型的消息、错误和状态页面。
  * 支持自定义图标、内置类型、动作按钮等功能。
  *
  * @example
  * ```html
- * <kylin-message
+ * <kylin-feedback
  *   type="error"
  *   message="加载失败"
  *   description="无法获取资源，请稍后重试"
  *   retryable
  *   backable
- * ></kylin-message>
+ * ></kylin-feedback>
  * ```
  */
-@customElement("kylin-message")
-export class KylinMessageElement extends LitElement {
+@customElement("kylin-feedback")
+export class KylinFeedbackElement extends LitElement {
     static styles = styles;
 
     /**
@@ -134,7 +135,7 @@ export class KylinMessageElement extends LitElement {
             try {
                 parsed = parseJson(this.actions) as ActionConfig[];
             } catch {
-                console.warn("[kylin-message] Failed to parse actions:", this.actions);
+                console.warn("[kylin-feedback] Failed to parse actions:", this.actions);
                 return [];
             }
         } else {
@@ -236,9 +237,7 @@ export class KylinMessageElement extends LitElement {
      */
     private _renderActionButton(action: ActionConfig): TemplateResult {
         const title = action.title || action.name;
-        const iconHtml = action.icon
-            ? html`<span class="action-icon">${action.icon}</span>`
-            : "";
+        const iconHtml = action.icon ? html`<span class="action-icon">${action.icon}</span>` : "";
 
         return html`
             <button
@@ -253,9 +252,7 @@ export class KylinMessageElement extends LitElement {
 
     override render(): TemplateResult {
         const iconHtml = this._renderIcon();
-        const messageHtml = this.message
-            ? html`<div class="message">${this.message}</div>`
-            : "";
+        const messageHtml = this.message ? html`<div class="message">${this.message}</div>` : "";
         const descriptionHtml = this.description
             ? html`<div class="description">${this.description}</div>`
             : "";
@@ -271,16 +268,14 @@ export class KylinMessageElement extends LitElement {
                 : "";
 
         return html`
-            <div class="container">
-                ${iconHtml}${messageHtml}${descriptionHtml}${actionsHtml}
-            </div>
+            <div class="container">${iconHtml}${messageHtml}${descriptionHtml}${actionsHtml}</div>
         `;
     }
 }
 
 declare global {
     interface HTMLElementTagNameMap {
-        "kylin-message": KylinMessageElement;
+        "kylin-feedback": KylinFeedbackElement;
     }
 
     interface HTMLElementEventMap {
