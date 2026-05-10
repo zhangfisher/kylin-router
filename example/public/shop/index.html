@@ -8,7 +8,24 @@
         <link rel="stylesheet" href="index.css" />
     </head>
     <body>
-        <div id="app">
+        <div id="app" x-data="{
+            isLoggedIn: false,
+            isNavigating: false,
+            loginForm: { username: '', password: '' },
+            testUrl: '',
+            async login() {
+                // 模拟登录
+                await new Promise(resolve => setTimeout(resolve, 500));
+                this.isLoggedIn = this.loginForm.username === 'admin' && this.loginForm.password === 'admin';
+                if (!this.isLoggedIn) {
+                    alert('用户名或密码错误（提示：admin/admin）');
+                }
+            },
+            logout() {
+                this.isLoggedIn = false;
+                window.router.push('/');
+            }
+        }">
             <!-- 顶部导航栏 -->
             <nav class="top-nav">
                 <div class="container">
@@ -36,6 +53,10 @@
                         <kylin-link to="/store">
                             <span>🏪</span>
                             <span>商店</span>
+                        </kylin-link>
+                        <kylin-link to="/demo">
+                            <span>🎮</span>
+                            <span>演示</span>
                         </kylin-link>
                         <kylin-link to="/profile">
                             <span>👤</span>
@@ -201,7 +222,167 @@
                         view: "pages/login.html",
                         data: "data/login.json",
                     },
+
+                    // ==================== 新增功能演示路由 ====================
+
+                    // 功能演示页面
+                    {
+                        path: "demo",
+                        view: "pages/demo.html",
+                        data: "data/demo.json",
+                    },
+
+                    // 错误测试页面
+                    {
+                        path: "error-test",
+                        view: "pages/error-test.html",
+                    },
+
+                    // 订单表单（keepAlive 演示）
+                    {
+                        path: "order-form",
+                        keepAlive: true,
+                        view: "pages/order-form.html",
+                    },
+
+                    // 重型页面（预加载演示）
+                    {
+                        path: "heavy-page",
+                        preload: true,
+                        view: "pages/heavy-page.html",
+                        data: "data/heavy-page.json",
+                    },
+
+                    // ==================== 错误测试路由 ====================
+
+                    // 模拟 500 错误
+                    {
+                        path: "test-error-500",
+                        view: "pages/error-test.html",
+                        data: {
+                            from: async () => {
+                                throw { status: 500, message: "模拟的服务器内部错误" };
+                            },
+                        },
+                    },
+
+                    // 模拟超时错误
+                    {
+                        path: "test-timeout",
+                        view: "pages/error-test.html",
+                        data: {
+                            from: async () => {
+                                await new Promise((resolve) => setTimeout(resolve, 10000));
+                                return {};
+                            },
+                            timeout: 3000,
+                        },
+                    },
+
+                    // 模拟网络错误
+                    {
+                        path: "test-network-error",
+                        view: "pages/error-test.html",
+                        data: {
+                            from: async () => {
+                                throw { status: 0, message: "网络连接失败" };
+                            },
+                        },
+                    },
+
+                    // ==================== 模态路由 ====================
+
+                    // 产品预览模态（抽屉式）
+                    {
+                        path: "!preview/:id",
+                        modal: {
+                            type: "drawer",
+                            position: "right",
+                            backdrop: true,
+                            closeOnBackdropClick: true,
+                            closeOnEsc: true,
+                        },
+                        view: "pages/product-preview.html",
+                        data: {
+                            from: async (context) => {
+                                const response = await fetch("./data/products.json");
+                                const allProducts = await response.json();
+                                return allProducts.products.find(
+                                    (p) => p.id === context.params.id,
+                                ) || null;
+                            },
+                        },
+                    },
+
+                    // ==================== 重定向路由 ====================
+
+                    // 旧产品页重定向
+                    {
+                        path: "old-products",
+                        redirect: "/products",
+                    },
+
+                    // 旧产品详情重定向
+                    {
+                        path: "p/:id",
+                        redirect: "/product/:id",
+                    },
                 ],
+
+                // ==================== 全局钩子配置 ====================
+
+                // 导航前置守卫
+                beforeRoute: async ({ from, to }) => {
+                    console.log("[beforeRoute] 从", from?.[0]?.url, "导航到", to?.[0]?.url);
+
+                    // 对特定路由进行权限检查
+                    const protectedRoutes = ["/profile", "/order-form"];
+                    const targetPath = to?.[0]?.url;
+
+                    if (protectedRoutes.some((path) => targetPath?.startsWith(path))) {
+                        const alpineApp = document.getElementById("app")._x_dataStack?.[0];
+                        if (!alpineApp?.isLoggedIn) {
+                            console.log("[beforeRoute] 未登录，重定向到登录页");
+                            return "login";
+                        }
+                    }
+
+                    return true;
+                },
+
+                // 导航后置钩子
+                afterRoute: async ({ to }) => {
+                    console.log("[afterRoute] 导航完成到", to?.[0]?.url);
+
+                    // 更新页面标题
+                    const titles = {
+                        "/": "首页 - 麒麟手机商店",
+                        "/products": "产品 - 麒麟手机商店",
+                        "/services": "服务 - 麒麟手机商店",
+                        "/docs": "文档 - 麒麟手机商店",
+                        "/store": "商店 - 麒麟手机商店",
+                        "/demo": "功能演示 - 麒麟手机商店",
+                        "/error-test": "错误测试 - 麒麟手机商店",
+                        "/order-form": "创建订单 - 麒麟手机商店",
+                        "/profile": "个人中心 - 麒麟手机商店",
+                        "/login": "登录 - 麒麟手机商店",
+                    };
+
+                    const path = to?.[0]?.url || "/";
+                    document.title = titles[path] || "麒麟手机商店";
+                },
+
+                // 渲染前钩子
+                beforeRender: async ({ from, to, view, data }) => {
+                    console.log("[beforeRender] 即将渲染", to?.[0]?.url);
+                },
+
+                // 渲染后置钩子
+                afterRender: async ({ from, to, el }) => {
+                    console.log("[afterRender] 渲染完成", to?.[0]?.url);
+                    // 添加淡入动画
+                    el?.classList.add("fade-in");
+                },
             });
 
             // 暴露路由器实例
@@ -224,6 +405,91 @@
             window.goHome = () => {
                 router.home();
             };
+
+            // ==================== 事件监听 ====================
+
+            // 导航开始事件
+            router.on("navigation:start", ({ path, navigationType }) => {
+                console.log(`[navigation:start] ${navigationType} 到 ${path}`);
+                addEventLog("navigate", `${navigationType} → ${path || "主页"}`);
+            });
+
+            // 导航结束事件
+            router.on("navigation:end", ({ location, navigationType }) => {
+                console.log(`[navigation:end] ${navigationType} 完成`);
+            });
+
+            // 模态打开事件
+            router.on("modal:open", ({ route, stackItem }) => {
+                console.log("[modal:open] 模态打开:", route);
+                addEventLog("modal", `模态打开: ${route}`);
+            });
+
+            // 模态关闭事件
+            router.on("modal:close", ({ route, stackItem }) => {
+                console.log("[modal:close] 模态关闭:", route);
+                addEventLog("modal", `模态关闭: ${route}`);
+            });
+
+            // 数据加载开始
+            router.on("data:loading", ({ route }) => {
+                console.log("[data:loading] 数据加载中:", route[0]?.url);
+            });
+
+            // 数据加载完成
+            router.on("data:loaded", ({ route }) => {
+                console.log("[data:loaded] 数据加载完成:", route[0]?.url);
+            });
+
+            // 数据加载错误
+            router.on("data:error", ({ route, error }) => {
+                console.error("[data:error] 数据加载错误:", route[0]?.url, error);
+                addEventLog("error", `数据错误: ${route[0]?.url}`);
+            });
+
+            // 视图加载开始
+            router.on("view:loading", ({ route }) => {
+                console.log("[view:loading] 视图加载中:", route[0]?.url);
+            });
+
+            // 视图加载完成
+            router.on("view:loaded", ({ route }) => {
+                console.log("[view:loaded] 视图加载完成:", route[0]?.url);
+            });
+
+            // 视图加载错误
+            router.on("view:error", ({ route, error }) => {
+                console.error("[view:error] 视图加载错误:", route[0]?.url, error);
+                addEventLog("error", `视图错误: ${route[0]?.url}`);
+            });
+
+            // ==================== 辅助函数 ====================
+
+            // 添加事件日志
+            function addEventLog(type, message) {
+                const log = document.getElementById("event-log");
+                if (!log) return;
+
+                const time = new Date().toLocaleTimeString();
+                const item = document.createElement("div");
+                item.className = "event-log-item";
+                item.innerHTML = `
+                    <span class="event-time">${time}</span>
+                    <span class="event-type ${type}">${type}</span>
+                    <span class="event-message">${message}</span>
+                `;
+
+                // 限制日志条数
+                while (log.children.length > 50) {
+                    log.removeChild(log.firstChild);
+                }
+
+                log.appendChild(item);
+                log.scrollTop = log.scrollHeight;
+            }
+
+            // 暴露给全局
+            window.addEventLog = addEventLog;
         </script>
     </body>
 </html>

@@ -3,6 +3,7 @@ import { styles } from "./styles";
 import { KylinRouterElementBase } from "../base";
 import { html } from "lit";
 import { ViewContainer, type ViewContainerOptions } from "./viewContainer";
+import type { KylinMatchedRouteItem } from "@/types";
 
 @customElement("kylin-outlet")
 export class KylinOutlet extends KylinRouterElementBase {
@@ -35,7 +36,7 @@ export class KylinOutlet extends KylinRouterElementBase {
      * 控制多个 viewContainer 的布局方式
      */
     @property({ type: String, reflect: true })
-    layout: "stack" | "tabs" | "hori" | "vert" = "stack";
+    layout: "stack" | "tabs" | "collapse" = "stack";
 
     private mutationObserver: MutationObserver | null = null;
 
@@ -68,8 +69,11 @@ export class KylinOutlet extends KylinRouterElementBase {
      * @param options  {keeyAlive:boolean}
      * @returns
      */
-    createViewContainer(options?: ViewContainerOptions) {
-        return new ViewContainer(this, options);
+    createViewContainer(matched: KylinMatchedRouteItem, options?: ViewContainerOptions) {
+        const viewContainer = new ViewContainer(this, options);
+        viewContainer.container.setAttribute("data-url", matched.url);
+
+        return viewContainer;
     }
 
     // 监听属性变化

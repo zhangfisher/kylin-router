@@ -80,29 +80,36 @@ export class Render {
 
         try {
             let currentOutlet: KylinOutlet | null = null;
+            // 存储当前迭代创建的 viewContainer，用于取消时清理
+            let pendingViewContainer: ViewContainer | null = null as ViewContainer | null;
+
             for (let i = 0; i < toRoute.length; i++) {
                 // 检查是否已被新渲染取消
                 if (abortController.signal.aborted) {
                     this.logger.debug("渲染被新导航取消");
+                    // 清理已创建但未完成的视图容器
+                    if (pendingViewContainer) {
+                        pendingViewContainer.abort();
+                    }
                     return;
                 }
 
                 const matched = toRoute[i];
-                const curRouteItem = matched.route as Required<KylinRouteItem>;
-                const viewHash = matched.hash;
-                const dataHash = matched.route._getData?.meta?.hash;
+                const curRouteItem = matched.route;
 
-                // 查找或创建outlet（404 和正常渲染都需要）
-                // 重点：无论是否渲染成功均需要，即确保可以显示Loading和正常视图视图
-                // 也确保错误页信息可以渲染到outlet
-                currentOutlet = this._findOutlet(currentOutlet || this.host, viewHash);
+                const viewHash = matched.hash;
+                const dataHash = curRouteItem?._getData?.meta?.hash;
+
+                // 查找或创建outlet
+                currentOutlet = this._findOutlet(currentOutlet || this.host);
 
                 if (!currentOutlet) {
                     this.logger.debug(`未找到${matched.url} outlet，跳过渲染`);
                     continue;
                 }
+
                 // 如果当前路由启用 keepAlive，且视图容器已经存在，则跳过渲染，使用缓存的视图
-                if (curRouteItem && curRouteItem.keepAlive) {
+                if (curRouteItem.keepAlive) {
                     const viewContainer = currentOutlet.getViewContainer(viewHash);
                     if (viewContainer) {
                         currentOutlet.view = viewHash;
@@ -113,47 +120,43 @@ export class Render {
                 }
 
                 // 创建空的视图容器: 用于插入视图内容或错误页或404页
-                const viewContainer = currentOutlet.createViewContainer({
+                const viewContainer = currentOutlet.createViewContainer(matched,{
                     viewHash: viewHash,
                     dataHash: dataHash,
-                    keepAlive: curRouteItem.keepAlive,
+                    keepAlive: curRouteItem.keepAlive
                 });
-                if (matched.route) {
-                    try {
-                        const data = await this._loadData(matched);
-                        const view = await this._loadView(matched);
-                        if (!view) {
-                            throw new KylinRouterError("视图加载失败", 500);
-                        }
-                        if (view.error) {
-                            this._routeReject(view.error, viewContainer, toRoute);
-                            break;
-                        } else {
-                            await this._runBeforeRender(
-                                fromRoute || [],
-                                toRoute,
-                                viewContainer.container,
-                                data?.value,
-                            );
-                            viewContainer.resolve(view.value, data?.value);
-                            this._runAfterRender(fromRoute || [], toRoute, viewContainer.container);
-                        }
-                    } catch (loadingError) {
-                        this.logger.error("视图或数据加载失败", loadingError);
-                        this._routeReject(loadingError, viewContainer, toRoute);
-                        break;
-                    } finally {
-                        viewContainer.finally();
+                pendingViewContainer = viewContainer;
+
+                try {
+                    const data = await this._loadData(matched);
+                    const view = await this._loadView(matched);
+                    if (!view) {
+                        throw new KylinRouterError("视图加载失败", 500);
                     }
-                } else {
-                    // 处理未匹配的路由（404）
-                    const error = new KylinRouterError(`Route ${matched.url} not found`, 404);
-                    this._routeReject(error, viewContainer, toRoute);
+                    if (view.error) {
+                        this._routeReject(view.error, viewContainer, toRoute);
+                        break;
+                    } else {
+                        await this._runBeforeRender(
+                            fromRoute || [],
+                            toRoute,
+                            viewContainer.container,
+                            data?.value,
+                        );
+                        viewContainer.resolve(view.value, data?.value);
+                        this._runAfterRender(fromRoute || [], toRoute, viewContainer.container);
+                    }
+                } catch (loadingError) {
+                    this.logger.error("视图或数据加载失败", loadingError);
+                    this._routeReject(loadingError, viewContainer, toRoute);
                     break;
+                } finally {
+                    viewContainer.finally();
+                    pendingViewContainer = null;
                 }
             }
-        } catch (error) {
-            this.logger.debug("渲染失败", error);
+        } catch (error: any) {
+            this.logger.error(`渲染失败: ${error.message}`, error);
         } finally {
             // 清理：只有当前渲染操作的控制器才清理
             if (this._currentRenderAbortController === abortController) {
@@ -275,29 +278,13 @@ export class Render {
     }
 
     /**
-     * 在父元素内部查找或创建 outlet
+     * 在父元素内部查找 outlet
      * @param parent - 父元素
-     * @param allowCreate - 是否允许自动创建 outlet（仅根路由为 true）
-     * @returns 找到或创建的 outlet 元素
+     * @returns 找到的第一个 outlet 元素，未找到返回 null
      */
-    protected _findOutlet(
-        this: KylinRouter,
-        parent: HTMLElement,
-        viewHash: string | undefined,
-    ): KylinOutlet | null {
-        // 先尝试查找现有的 outlet
+    protected _findOutlet(this: KylinRouter, parent: HTMLElement): KylinOutlet | null {
         const outlets = findOutlet(parent);
-
-        if (outlets.length > 0) {
-            outlets.forEach((outlet) => {
-                if (outlet.view === viewHash) {
-                    return outlet;
-                }
-            });
-
-            return outlets[0] as KylinOutlet;
-        }
-        return null;
+        return outlets[0] || null;
     }
 
     /**
