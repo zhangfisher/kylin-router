@@ -4,7 +4,7 @@ import type { ErrorPageHandler, KylinMatchedRouteItem } from "@/types";
  * 默认的通用错误页面处理器（兜底）
  */
 
-export const CommonErrorPage: ErrorPageHandler = (
+export const DefaultErrorPage: ErrorPageHandler = (
     error: any,
     route: KylinMatchedRouteItem[],
 ): HTMLElement => {

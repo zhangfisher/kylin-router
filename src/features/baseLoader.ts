@@ -11,7 +11,7 @@ import { asyncSignal, type IAsyncSignal } from "asyncsignal";
 import { getRouteVars } from "@/utils/getRouteVars";
 import { prefixBaseUrl } from "@/utils/prefixBaseUrl";
 import { getSignalHash } from "@/utils/getSignalHash";
-import { KylinRouterHttpError } from "@/errors";
+import { KylinRouterError } from "@/errors";
 
 /**
  * 加载器类型标识
@@ -332,7 +332,7 @@ export abstract class RouteDataLoaderBase<
             fetch(url, { signal: signal.getAbortSignal() })
                 .then(async (response) => {
                     if (!response.ok) {
-                        throw new KylinRouterHttpError(
+                        throw new KylinRouterError(
                             `Fail when load ${url} : ${response.statusText}`,
                             response.status,
                         );
@@ -380,15 +380,15 @@ export abstract class RouteDataLoaderBase<
 
     protected onLoadError(
         matched: KylinMatchedRouteItem,
-        error: KylinRouterHttpError,
+        error: KylinRouterError,
         signal: IAsyncSignal,
     ): void {
         if (error.name === "AbortError") {
             signal.resolve(undefined);
         } else {
-            signal.reject(error);
             signal.meta.statusCode = error.status || 500;
             this.cache.delete(matched.hash);
+            signal.reject(error);
         }
     }
 

@@ -13,6 +13,7 @@ import type {
     AfterRouteHook,
     BeforeRenderHook,
     AfterRenderHook,
+    RouteErrorHook,
 } from "@/types";
 import type { ArrayItem } from "@/types/utils";
 
@@ -41,6 +42,7 @@ export class HookManager {
             afterRoute: [],
             beforeRender: [],
             afterRender: [],
+            routeError: [],
         } as KylinRouterHooks;
 
         this.options = Object.assign(
@@ -116,6 +118,10 @@ export class HookManager {
     async runAfterRender(args: Parameters<AfterRenderHook>[0]) {
         return this._runHooks<boolean | string>("afterRender", args, { mode: "parallel" });
     }
+    async runRouteError(args: Parameters<RouteErrorHook>[0]) {
+        return this._runHooks<boolean | string>("routeError", args, { mode: "parallel" });
+    }
+
     /**
      * 串行运行hooks函数
      * @param hook
@@ -137,7 +143,10 @@ export class HookManager {
             options,
         );
         const { to } = args;
-        const hooks = [...this.hooks[name], ...to.flatMap((r: any) => r.route[name] || [])] as any[];
+        const hooks = [
+            ...this.hooks[name],
+            ...to.flatMap((r: any) => r.route[name] || []),
+        ] as any[];
 
         if (mode === "serial") {
             for (const hook of hooks) {

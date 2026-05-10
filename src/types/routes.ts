@@ -2,7 +2,13 @@
  * 路由配置相关类型定义
  */
 
-import type { AfterRenderHook, AfterRouteHook, BeforeRenderHook, BeforeRouteHook } from "./hooks";
+import type {
+    AfterRenderHook,
+    AfterRouteHook,
+    BeforeRenderHook,
+    BeforeRouteHook,
+    RouteErrorHook,
+} from "./hooks";
 import type { KylinRouteDataOptions } from "./data";
 import type { KylinRouteDataSource } from "./data";
 import type { TemplateResult } from "lit";
@@ -259,6 +265,7 @@ export interface KylinRouteItem {
     afterRoute?: AfterRouteHook | AfterRouteHook[];
     beforeRender?: BeforeRenderHook | BeforeRenderHook[];
     afterRender?: AfterRenderHook | AfterRenderHook[];
+    routeError?: RouteErrorHook | RouteErrorHook[];
 
     /**
      * 错误边界配置

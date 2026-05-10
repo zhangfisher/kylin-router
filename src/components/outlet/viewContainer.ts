@@ -1,22 +1,21 @@
 import type { KylinOutlet } from ".";
 import Alpine from "alpinejs";
 
-export type OutletViewLoaderOptions = {
+export type ViewContainerOptions = {
     viewHash: string;
     dataHash: string | undefined;
     keepAlive?: boolean;
-    cssVars?: string[];
 };
-export class OutletViewLoader {
+export class ViewContainer {
     outlet: KylinOutlet;
     container: HTMLElement;
-    options: OutletViewLoaderOptions;
+    options: ViewContainerOptions;
     /**
      * 标记容器是否为新建（未初始化 Alpine）
      * 用于避免 Alpine 重复初始化
      */
     private _isNewContainer: boolean;
-    constructor(outlet: KylinOutlet, options?: OutletViewLoaderOptions) {
+    constructor(outlet: KylinOutlet, options?: ViewContainerOptions) {
         this.options = Object.assign(
             {
                 keepAlive: false,
@@ -48,11 +47,6 @@ export class OutletViewLoader {
         container = document.createElement("div");
         container.setAttribute("id", this.viewHash);
         container.classList.add("kylin-view");
-
-        // 设置 scoped CSS 相关属性 自动注入 x-cssvar 指令
-        if (this.options.cssVars && this.options.cssVars.length > 0) {
-            container.setAttribute("x-cssvar", this.options.cssVars.join(", "));
-        }
 
         this._showLoading(container);
         this.container = container;
@@ -92,7 +86,7 @@ export class OutletViewLoader {
         this.container.remove();
     }
 
-    resolve(view: string | HTMLElement, data: Record<string, any> | undefined) {
+    resolve(view: string | HTMLElement, data: Record<string, any> | undefined, cssVars?: string[]) {
         // 先插入视图内容
         if (typeof view === "string") {
             this.container.innerHTML = view;
@@ -100,6 +94,12 @@ export class OutletViewLoader {
             this.container.innerHTML = "";
             this.container.appendChild(view);
         }
+
+        // 设置 scoped CSS 相关属性 自动注入 x-cssvar 指令
+        if (cssVars && cssVars.length > 0) {
+            this.container.setAttribute("x-cssvar", cssVars.join(", "));
+        }
+
         // 仅当容器不在 DOM 中时才插入（避免重复 appendChild）
         if (this.container.parentElement !== this.outlet) {
             this.outlet.appendChild(this.container);

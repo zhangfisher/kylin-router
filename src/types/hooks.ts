@@ -5,6 +5,7 @@
 import type { KylinRouter } from "@/router";
 import type { KylinMatchedRouteItem } from "./routes";
 import type { KylinRouteDataSource } from "./data";
+import type { KylinRouterError } from "@/errors";
 
 // ============================================================================
 // 现有钩子类型（保留原有结构和功能）
@@ -39,6 +40,18 @@ export type AfterRouteHookArgs = {
     to: KylinMatchedRouteItem[];
 };
 export type AfterRouteHook = (args: AfterRouteHookArgs) => void | Promise<void>;
+
+export type RouteErrorHookArgs = {
+    error: KylinRouterError;
+    to: KylinMatchedRouteItem[];
+};
+/**
+ * 当路由发生错误时的钩子函数类型
+ * @param args - 包含错误信息和目标路由的参数对象
+ * @returns 可以返回 boolean 或 string 来控制错误处理流程，或者返回 Promise 以支持异步操作
+ */
+export type RouteErrorHook = (args: RouteErrorHookArgs) => void;
+
 /**
  * renderEach 钩子函数类型
  * 在组件加载后、渲染前执行，用于数据预取
@@ -72,6 +85,7 @@ export type KylinRouterHooks = {
     afterRoute: AfterRouteHook[];
     beforeRender: BeforeRenderHook[];
     afterRender: AfterRenderHook[];
+    routeError: RouteErrorHook[];
 };
 
 // ============================================================================

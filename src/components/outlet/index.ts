@@ -2,7 +2,7 @@ import { customElement, property } from "lit/decorators.js";
 import { styles } from "./styles";
 import { KylinRouterElementBase } from "../base";
 import { html } from "lit";
-import { OutletViewLoader, type OutletViewLoaderOptions } from "./view";
+import { ViewContainer, type ViewContainerOptions } from "./viewContainer";
 
 @customElement("kylin-outlet")
 export class KylinOutlet extends KylinRouterElementBase {
@@ -68,8 +68,8 @@ export class KylinOutlet extends KylinRouterElementBase {
      * @param options  {keeyAlive:boolean}
      * @returns
      */
-    createViewContainer(options?: OutletViewLoaderOptions) {
-        return new OutletViewLoader(this, options);
+    createViewContainer(options?: ViewContainerOptions) {
+        return new ViewContainer(this, options);
     }
 
     // 监听属性变化

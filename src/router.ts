@@ -1,7 +1,7 @@
 import type { OutletRefs } from "@/utils/traverseOutlet";
 import { createBrowserHistory, createHashHistory } from "history";
 import type { Update } from "history";
-import { getDefaultErrorPages } from "@/utils/defaultErrorPages";
+
 import type {
     KylinRouterOptions,
     KylinRouteItem,
@@ -30,16 +30,8 @@ import { AlpineManager } from "./features/alpine";
 import { joinPath, matchRoute } from "./utils";
 import { createLogger, type KylinRouterLogger } from "./logger";
 import { removePathPrefix } from "./utils/removePathPrefix";
+import { errorPages } from "./pages/errors";
 
-/**
- *
- *
- *  const router = new KylinRouter("aa", {})
- *
- *  <
- *
- *
- */
 export class KylinRouter extends Mixin(
     Context,
     KeepAlive,
@@ -95,6 +87,12 @@ export class KylinRouter extends Mixin(
     /** 当前导航版本号（D-23） */
     public currentNavVersion: number = 0;
 
+    /** 渲染版本号，用于取消过期的渲染操作 */
+    protected _renderVersion: number = 0;
+
+    /** 当前渲染操作的 AbortController */
+    protected _currentRenderAbortController: AbortController | null = null;
+
     /** AbortController 用于取消进行中的请求（D-24） */
     private abortController: AbortController = new AbortController();
 
@@ -140,6 +138,7 @@ export class KylinRouter extends Mixin(
                 home: "/",
                 keeyAlive: true,
                 data: {},
+                errorPages: {},
             },
             options && typeof options === "object" && "routes" in options
                 ? options
@@ -147,7 +146,7 @@ export class KylinRouter extends Mixin(
                       routes: options,
                   },
         );
-        this.options.errorPages = { ...getDefaultErrorPages(), ...this.options.errorPages };
+        this.options.errorPages = { ...errorPages, ...this.options.errorPages };
         this.attach();
     }
     /**

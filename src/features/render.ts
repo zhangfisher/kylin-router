@@ -16,11 +16,12 @@ import type { KylinRouter } from "@/router";
 import type { KylinMatchedRouteItem, KylinRouteItem } from "@/types";
 import type { KylinOutlet } from "@/components/outlet";
 import type { IAsyncSignal } from "asyncsignal";
-import { KylinRouterHttpError } from "@/errors";
+import { KylinRouterError } from "@/errors";
+import type { ViewContainer } from "@/components/outlet/viewContainer";
 
 type RouteSignalReuslt<T = any> = {
     value: T;
-    error: Error;
+    error?: KylinRouterError;
 };
 
 export class Render {
@@ -32,8 +33,8 @@ export class Render {
         try {
             const result = await signal();
             data.value = result;
-        } catch (error) {
-            data.error = error;
+        } catch (e: any) {
+            data.error = new KylinRouterError((e as Error).message, e.status || 500);
         }
         return data as RouteSignalReuslt;
     }
@@ -45,37 +46,69 @@ export class Render {
         const route = matched.route as Required<KylinRouteItem>;
         return await this._loadSignal(route._getData);
     }
+    private _routeReject(
+        this: KylinRouter,
+        error: any,
+        viewContainer: ViewContainer,
+        toRoute: KylinMatchedRouteItem[],
+    ) {
+        this.hooks.runRouteError({
+            error,
+            to: toRoute,
+        });
+        viewContainer.reject(error, this._getErrorPage(error, toRoute));
+    }
     /**
      * 执行渲染步骤 - 新的渲染系统
      * 支持逐级嵌套路由渲染、beforeRender/afterRender 钩子、layout 布局等
+     * 包含并发控制，防止快速导航时渲染混乱
      */
     protected async _renderRoutes(
         this: KylinRouter,
         toRoute: KylinMatchedRouteItem[],
         fromRoute: KylinMatchedRouteItem[] | undefined,
     ): Promise<void> {
+        // 取消之前的渲染操作
+        if (this._currentRenderAbortController) {
+            this._currentRenderAbortController.abort();
+        }
+
+        // 递增渲染版本号并创建新的取消控制器
+        ++this._renderVersion;
+        const abortController = new AbortController();
+        this._currentRenderAbortController = abortController;
+
         try {
             let currentOutlet: KylinOutlet | null = null;
             for (let i = 0; i < toRoute.length; i++) {
-                const matched = toRoute[i];
-
-                // 查找 outlet（404 和正常渲染都需要）
-                currentOutlet = this._findOutlet(currentOutlet || this.host, matched.hash);
-
-                if (!currentOutlet) {
-                    this.logger.debug(`未找到${matched.url} outlet，跳过渲染`);
-                    break;
+                // 检查是否已被新渲染取消
+                if (abortController.signal.aborted) {
+                    this.logger.debug("渲染被新导航取消");
+                    return;
                 }
+
+                const matched = toRoute[i];
                 const curRouteItem = matched.route as Required<KylinRouteItem>;
                 const viewHash = matched.hash;
                 const dataHash = matched.route._getData?.meta?.hash;
 
+                // 查找或创建outlet（404 和正常渲染都需要）
+                // 重点：无论是否渲染成功均需要，即确保可以显示Loading和正常视图视图
+                // 也确保错误页信息可以渲染到outlet
+                currentOutlet = this._findOutlet(currentOutlet || this.host, viewHash);
+
+                if (!currentOutlet) {
+                    this.logger.debug(`未找到${matched.url} outlet，跳过渲染`);
+                    continue;
+                }
                 // 如果当前路由启用 keepAlive，且视图容器已经存在，则跳过渲染，使用缓存的视图
                 if (curRouteItem && curRouteItem.keepAlive) {
                     const viewContainer = currentOutlet.getViewContainer(viewHash);
                     if (viewContainer) {
                         currentOutlet.view = viewHash;
-                        break;
+                        const outlet = this._findNextLevelOutlet(currentOutlet, viewHash);
+                        if (outlet) currentOutlet = outlet;
+                        continue;
                     }
                 }
 
@@ -84,111 +117,48 @@ export class Render {
                     viewHash: viewHash,
                     dataHash: dataHash,
                     keepAlive: curRouteItem.keepAlive,
-                    cssVars: matched.route._getView?.meta?.vBindVars || [],
                 });
-
-                // 处理未匹配的路由（404）
-                if (!matched.route) {
-                    await this._renderError(
-                        currentOutlet,
-                        matched.hash,
-                        new KylinRouterHttpError("Route not found", 404),
-                        toRoute,
-                        fromRoute,
-                        i,
-                        undefined,
-                    );
-                    break;
-                } else {
-                }
-
-                try {
-                    const data = await this._loadData(matched);
-                    const view = await this._loadView(matched)!;
-
-                    if (view.error) {
-                        await this._renderError(
-                            currentOutlet,
-                            viewHash,
-                            view.error,
-                            toRoute,
-                            fromRoute,
-                            i,
-                            data?.value,
-                            viewContainer,
-                        );
-                    } else {
-                        await this._runBeforeRender(
-                            fromRoute || [],
-                            toRoute.slice(0, i + 1),
-                            viewContainer.container,
-                            data?.value,
-                        );
-                        viewContainer.resolve(view.value, data?.value);
-                        this._runAfterRender(
-                            fromRoute || [],
-                            toRoute.slice(0, i + 1),
-                            viewContainer.container,
-                        );
+                if (matched.route) {
+                    try {
+                        const data = await this._loadData(matched);
+                        const view = await this._loadView(matched);
+                        if (!view) {
+                            throw new KylinRouterError("视图加载失败", 500);
+                        }
+                        if (view.error) {
+                            this._routeReject(view.error, viewContainer, toRoute);
+                            break;
+                        } else {
+                            await this._runBeforeRender(
+                                fromRoute || [],
+                                toRoute,
+                                viewContainer.container,
+                                data?.value,
+                            );
+                            viewContainer.resolve(view.value, data?.value);
+                            this._runAfterRender(fromRoute || [], toRoute, viewContainer.container);
+                        }
+                    } catch (loadingError) {
+                        this.logger.error("视图或数据加载失败", loadingError);
+                        this._routeReject(loadingError, viewContainer, toRoute);
+                        break;
+                    } finally {
+                        viewContainer.finally();
                     }
-                } catch (loadingError) {
-                    await this._renderError(
-                        currentOutlet,
-                        viewHash,
-                        loadingError,
-                        toRoute,
-                        fromRoute,
-                        i,
-                        undefined,
-                        viewContainer,
-                    );
-                } finally {
-                    viewContainer.finally();
+                } else {
+                    // 处理未匹配的路由（404）
+                    const error = new KylinRouterError(`Route ${matched.url} not found`, 404);
+                    this._routeReject(error, viewContainer, toRoute);
+                    break;
                 }
             }
         } catch (error) {
             this.logger.debug("渲染失败", error);
-        }
-    }
-
-    /**
-     * 渲染错误页面
-     */
-    protected async _renderError(
-        this: KylinRouter,
-        outlet: KylinOutlet,
-        viewHash: string,
-        error: any,
-        toRoute: KylinMatchedRouteItem[],
-        fromRoute: KylinMatchedRouteItem[] | undefined,
-        index: number,
-        data?: any,
-        existingViewTask?: ReturnType<KylinOutlet["createViewContainer"]>,
-    ): Promise<void> {
-        const viewTask =
-            existingViewTask ||
-            outlet.createViewContainer({
-                viewHash: viewHash,
-                dataHash: undefined,
-                keepAlive: false,
-                cssVars: [],
-            });
-
-        const errorElement = this._getErrorPageElement(error, toRoute);
-
-        await this._runBeforeRender(
-            fromRoute || [],
-            toRoute.slice(0, index + 1),
-            viewTask.container,
-            data,
-        );
-
-        viewTask.reject(error, errorElement);
-
-        this._runAfterRender(fromRoute || [], toRoute.slice(0, index + 1), viewTask.container);
-
-        if (!existingViewTask) {
-            viewTask.finally();
+        } finally {
+            // 清理：只有当前渲染操作的控制器才清理
+            if (this._currentRenderAbortController === abortController) {
+                this._currentRenderAbortController = null;
+            }
         }
     }
 
@@ -250,15 +220,15 @@ export class Render {
      * @param route - 完整的目标路由数组（用于错误页面处理器获取路由上下文）
      * @returns 错误页面 HTMLElement
      */
-    protected _getErrorPageElement(
+    protected _getErrorPage(
         this: KylinRouter,
-        error: any,
+        error: KylinRouterError,
         route: KylinMatchedRouteItem[],
     ): HTMLElement {
-        const statusCode = String(error?.status || error?.statusCode || 500);
+        const statusCode = String(error.status || 500);
 
         // 查找对应的错误页面处理器（errorPages 在初始化时已设置，必定存在）
-        const errorPages = (this as unknown as KylinRouter).options?.errorPages;
+        const errorPages = this.options.errorPages!;
         const errorHandler = errorPages[statusCode] || errorPages["*"];
 
         try {
@@ -302,31 +272,6 @@ export class Render {
         }
         // 返回第一个找到的 outlet
         return childOutlets[0] as KylinOutlet;
-    }
-
-    /**
-     * 将视图容器插入到 outlet
-     * 处理容器的新增或替换逻辑，并根据 layout 属性显示/隐藏
-     * @param outlet - 目标 outlet 元素
-     * @param viewContainer - 要插入的视图容器
-     * @param hash - 路由哈希（用作容器 id）
-     */
-    protected _renderViewToOutlet(
-        this: KylinRouter,
-        outlet: KylinOutlet,
-        view: HTMLElement,
-        hash: string,
-    ): void {
-        // 查找现有容器
-        const viewContainer = outlet.querySelector(`[id="${hash}"]`) as HTMLElement;
-
-        if (viewContainer) {
-            // 已存在容器：替换内容
-            viewContainer.replaceWith(viewContainer);
-        } else {
-            // 新容器：追加到 outlet
-            outlet.appendChild(viewContainer);
-        }
     }
 
     /**
