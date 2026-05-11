@@ -1,13 +1,18 @@
 import { customElement, property } from "lit/decorators.js";
-import { styles } from "./styles";
+import { styles as commonStyles } from "./styles";
 import { KylinRouterElementBase } from "../base";
 import { html } from "lit";
 import { ViewContainer, type ViewContainerOptions } from "./viewContainer";
 import type { KylinMatchedRouteItem } from "@/types";
+import { OutletLayoutBase } from "./base.layout";
+import { StackLayout } from "./stack.layout";
+import { TabsLayout } from "./tabs.layout";
+import { CollapseLayout } from "./collapse.layout";
 
 @customElement("kylin-outlet")
 export class KylinOutlet extends KylinRouterElementBase {
-    static styles = styles;
+    // 合并所有样式
+    static styles = [commonStyles, StackLayout.styles, TabsLayout.styles, CollapseLayout.styles];
 
     /**
      * 启用 keepalive 缓存
@@ -38,10 +43,18 @@ export class KylinOutlet extends KylinRouterElementBase {
     @property({ type: String, reflect: true })
     layout: "stack" | "tabs" | "collapse" = "stack";
 
+    /**
+     * Tabs 布局方向
+     * 控制 tabs 头部的显示位置
+     */
+    @property({ type: String, reflect: true })
+    tabDirection: "top" | "left" | "right" | "bottom" = "top";
+
     private mutationObserver: MutationObserver | null = null;
+    private _layoutInstance: OutletLayoutBase | null = null;
 
     /**
-     *  重写 createRenderRoot，使组件不使用 Shadow DOM，以便样式和事件能够穿透到组件内部
+     * 重写 createRenderRoot，使组件不使用 Shadow DOM，以便样式和事件能够穿透到组件内部
      * 这对于路由组件来说很重要，因为它们需要与外部的路由状态和事件进行交互。
      * @returns
      */
@@ -49,18 +62,64 @@ export class KylinOutlet extends KylinRouterElementBase {
         return this;
     }
 
+    /**
+     * 获取当前布局实例
+     */
+    private _getLayout(): OutletLayoutBase | null {
+        switch (this.layout) {
+            case "stack":
+                return new StackLayout(this);
+            case "tabs":
+                return new TabsLayout(this);
+            case "collapse":
+                return new CollapseLayout(this);
+            default:
+                return new StackLayout(this);
+        }
+    }
+
+    /**
+     * 切换布局时重新初始化
+     */
+    private _switchLayout(): void {
+        // 清理旧布局
+        if (this._layoutInstance) {
+            this._layoutInstance.cleanup();
+        }
+
+        // 创建新布局
+        this._layoutInstance = this._getLayout();
+        this._layoutInstance?.init();
+    }
+
+    /**
+     * 强制 keepalive 约束
+     * 当 layout="tabs" 或 "collapse" 时，自动将 keepalive 设置为 true
+     */
+    override requestUpdate(name?: PropertyKey, oldValue?: unknown): void {
+        // tabs 或 collapse 布局必须 keepalive=true
+        if ((this.layout === "tabs" || this.layout === "collapse") && !this.keepalive) {
+            this.keepalive = true;
+        }
+
+        super.requestUpdate(name, oldValue);
+    }
+
     connectedCallback() {
         super.connectedCallback();
-        // 设置 MutationObserver 监听 DOM 变化
         this._setupMutationObserver();
+        this._switchLayout();
     }
 
     disconnectedCallback() {
         super.disconnectedCallback();
-        // 断开 MutationObserver
         if (this.mutationObserver) {
             this.mutationObserver.disconnect();
             this.mutationObserver = null;
+        }
+        if (this._layoutInstance) {
+            this._layoutInstance.cleanup();
+            this._layoutInstance = null;
         }
     }
     /**
@@ -79,6 +138,23 @@ export class KylinOutlet extends KylinRouterElementBase {
     // 监听属性变化
     protected updated(changedProperties: Map<string, any>) {
         super.updated(changedProperties);
+
+        // 布局切换时重新初始化
+        if (changedProperties.has("layout")) {
+            this._switchLayout();
+        }
+
+        // 通知布局实例属性变化
+        if (this._layoutInstance) {
+            changedProperties.forEach((oldValue, name) => {
+                this._layoutInstance!.onPropertyChanged(
+                    name as string,
+                    oldValue,
+                    this[name as keyof this],
+                );
+            });
+        }
+
         if (changedProperties.has("view")) {
             this.showViewContainer(this.view!);
         }
@@ -115,6 +191,9 @@ export class KylinOutlet extends KylinRouterElementBase {
         if (relevantMutations.length === 0) {
             return; // 没有相关变化，不触发事件
         }
+
+        // 通知布局实例
+        this._layoutInstance?.onSlotChange(mutations);
     }
     /**
      * 根据 hash 获取 viewContainer
@@ -183,7 +262,7 @@ export class KylinOutlet extends KylinRouterElementBase {
         }
     }
     render() {
-        return html``;
+        return html`<div class="x">ccccccccccccc</div>`;
     }
 }
 
