@@ -11,7 +11,7 @@ import { css } from "lit";
 export class TabsLayout extends OutletLayoutBase {
     static styles = css`
         /* Tabs 基础布局 */
-        :host([layout="tabs"]) {
+        kylin-outlet[layout="tabs"] {
             display: flex;
             flex-direction: column;
         }
@@ -28,7 +28,7 @@ export class TabsLayout extends OutletLayoutBase {
         }
 
         /* kylin-link 样式 */
-        :host([layout="tabs"]) .kylin-tabs-header kylin-link {
+        kylin-outlet[layout="tabs"] .kylin-tabs-header kylin-link {
             display: inline-flex;
             align-items: center;
             padding: var(--kylin-tab-padding, 8px 16px);
@@ -42,26 +42,26 @@ export class TabsLayout extends OutletLayoutBase {
             white-space: nowrap;
         }
 
-        :host([layout="tabs"]) .kylin-tabs-header kylin-link:hover {
+        kylin-outlet[layout="tabs"] .kylin-tabs-header kylin-link:hover {
             color: var(--kylin-tab-hover-color, #333);
             background: var(--kylin-tab-hover-bg, rgba(0, 0, 0, 0.05));
         }
 
-        :host([layout="tabs"]) .kylin-tabs-header kylin-link.active {
+        kylin-outlet[layout="tabs"] .kylin-tabs-header kylin-link.active {
             color: var(--kylin-tab-active-color, #1890ff);
             background: var(--kylin-tab-active-bg, #fff);
             font-weight: var(--kylin-tab-active-font-weight, 600);
         }
 
         /* 内容区域 */
-        :host([layout="tabs"]) > .kylin-view {
+        kylin-outlet[layout="tabs"] > .kylin-view {
             display: none;
             flex: 1;
             overflow: auto;
             padding: var(--kylin-view-padding, 16px);
         }
 
-        :host([layout="tabs"]) > .kylin-view.active {
+        kylin-outlet[layout="tabs"] > .kylin-view.active {
             display: block;
             animation: kylin-view-fade-in var(--kylin-view-transition-duration, 0.2s) ease-out;
         }

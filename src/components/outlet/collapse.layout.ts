@@ -10,13 +10,13 @@ import { css } from "lit";
  */
 export class CollapseLayout extends OutletLayoutBase {
     static styles = css`
-        :host([layout="collapse"]) {
+        kylin-outlet[layout="collapse"] {
             display: flex;
             flex-direction: column;
             gap: var(--kylin-collapse-gap, 8px);
         }
 
-        :host([layout="collapse"]) > .kylin-view {
+        kylin-outlet[layout="collapse"] > .kylin-view {
             border: var(--kylin-collapse-border, 1px solid #e0e0e0);
             border-radius: var(--kylin-collapse-radius, 8px);
             background: var(--kylin-collapse-bg, #fff);
@@ -25,31 +25,31 @@ export class CollapseLayout extends OutletLayoutBase {
         }
 
         /* 折叠状态 */
-        :host([layout="collapse"]) > .kylin-view:not(.expanded) {
+        kylin-outlet[layout="collapse"] > .kylin-view:not(.expanded) {
             max-height: var(--kylin-collapse-collapsed-height, 48px);
         }
 
-        :host([layout="collapse"]) > .kylin-view:not(.expanded) > * {
+        kylin-outlet[layout="collapse"] > .kylin-view:not(.expanded) > * {
             display: none;
         }
 
         /* 展开状态 */
-        :host([layout="collapse"]) > .kylin-view.expanded {
+        kylin-outlet[layout="collapse"] > .kylin-view.expanded {
             max-height: none;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        :host([layout="collapse"]) > .kylin-view.expanded > * {
+        kylin-outlet[layout="collapse"] > .kylin-view.expanded > * {
             display: contents;
         }
 
         /* Active 焦点样式 */
-        :host([layout="collapse"]) > .kylin-view.active {
+        kylin-outlet[layout="collapse"] > .kylin-view.active {
             border-color: #1890ff;
         }
 
         /* 悬停效果 */
-        :host([layout="collapse"]) > .kylin-view:hover:not(.expanded) {
+        kylin-outlet[layout="collapse"] > .kylin-view:hover:not(.expanded) {
             border-color: #bbb;
         }
     `;

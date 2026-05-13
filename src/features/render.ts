@@ -82,8 +82,14 @@ export class Render {
             let currentOutlet: KylinOutlet | null = null;
             // 存储当前迭代创建的 viewContainer，用于取消时清理
             let pendingViewContainer: ViewContainer | null = null as ViewContainer | null;
-
+            this.logger.debug("开始渲染: {url}", () => ({
+                url: toRoute.map((r) => r.url).join(""),
+            }));
             for (let i = 0; i < toRoute.length; i++) {
+                this.logger.debug("渲染: {url} -> {path}", () => ({
+                    url: toRoute[i].url || "",
+                    path: toRoute[i].route?.path || "",
+                }));
                 // 检查是否已被新渲染取消
                 if (abortController.signal.aborted) {
                     this.logger.debug("渲染被新导航取消");
@@ -120,10 +126,10 @@ export class Render {
                 }
 
                 // 创建空的视图容器: 用于插入视图内容或错误页或404页
-                const viewContainer = currentOutlet.createViewContainer(matched,{
+                const viewContainer = currentOutlet.createViewContainer(matched, {
                     viewHash: viewHash,
                     dataHash: dataHash,
-                    keepAlive: curRouteItem.keepAlive
+                    keepAlive: curRouteItem.keepAlive,
                 });
                 pendingViewContainer = viewContainer;
 

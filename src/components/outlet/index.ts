@@ -11,9 +11,6 @@ import { CollapseLayout } from "./collapse.layout";
 
 @customElement("kylin-outlet")
 export class KylinOutlet extends KylinRouterElementBase {
-    // 合并所有样式
-    static styles = [commonStyles, StackLayout.styles, TabsLayout.styles, CollapseLayout.styles];
-
     /**
      * 启用 keepalive 缓存
      * 当启用时，视图会被缓存而不是销毁
@@ -107,8 +104,38 @@ export class KylinOutlet extends KylinRouterElementBase {
 
     connectedCallback() {
         super.connectedCallback();
+        this._injectStyles();
         this._setupMutationObserver();
         this._switchLayout();
+    }
+
+    /**
+     * 注入样式到 document.head
+     * 仅在首次初始化时注入，如果已存在则忽略
+     */
+    private _injectStyles(): void {
+        const styleId = "kylin-outlet";
+
+        // 如果 head 中已存在，忽略
+        const existingStyle = document.head.querySelector(`#${styleId}`);
+        if (existingStyle) {
+            return;
+        }
+
+        // 合并所有样式
+        const allStyles = [
+            commonStyles.cssText,
+            StackLayout.styles.cssText,
+            TabsLayout.styles.cssText,
+            CollapseLayout.styles.cssText,
+        ].join("\n");
+
+        // 创建 style 元素
+        const style = document.createElement("style");
+        style.id = styleId;
+        style.textContent = allStyles;
+
+        document.head.appendChild(style);
     }
 
     disconnectedCallback() {
@@ -262,7 +289,7 @@ export class KylinOutlet extends KylinRouterElementBase {
         }
     }
     render() {
-        return html`<div class="x">ccccccccccccc</div>`;
+        return html``;
     }
 }
 

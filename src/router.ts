@@ -174,7 +174,7 @@ export class KylinRouter extends Mixin(
             if (this.options.logger) {
                 this._logger = this.options.logger;
             } else {
-                this._logger = createLogger();
+                this._logger = createLogger(this.options);
             }
         }
         return this._logger!;
@@ -213,9 +213,13 @@ export class KylinRouter extends Mixin(
         try {
             // 执行路由匹配并获取导航上下文
             const matched = this._matchRoute(removePathPrefix(pathname, this.options.base), search);
+
             fromRoute = matched.fromRoute;
             toRoute = matched.toRoute;
 
+            this.logger.debug("导航到: {pathname}{? search}, 匹配: {matched}", () => {
+                return { pathname, search, matched: toRoute.map((r) => r.route.path).join("/") };
+            });
             // 执行全局前置守卫（beforeEach）
             const shouldContinue = await this.hooks.runBeforeRoute({
                 from: fromRoute,

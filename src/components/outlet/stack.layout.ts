@@ -8,11 +8,14 @@ import { css } from "lit";
  */
 export class StackLayout extends OutletLayoutBase {
     static styles = css`
-        :host([layout="stack"]) > .kylin-view {
+        /* 默认 stack 布局：没有 layout 属性或 layout="stack" */
+        kylin-outlet:not([layout]) > .kylin-view,
+        kylin-outlet[layout="stack"] > .kylin-view {
             display: none;
         }
 
-        :host([layout="stack"]) > .kylin-view.active {
+        kylin-outlet:not([layout]) > .kylin-view.active,
+        kylin-outlet[layout="stack"] > .kylin-view.active {
             display: block;
             animation: kylin-view-fade-in var(--kylin-view-transition-duration, 0.2s)
                 var(--kylin-view-transition-easing, ease-out);

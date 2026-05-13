@@ -104,6 +104,7 @@ export class ViewContainer {
         if (this.container.parentElement !== this.outlet) {
             this.outlet.appendChild(this.container);
         }
+
         if (data && this.dataHash) {
             this.container.setAttribute("x-data", this.dataHash);
             // 仅对新容器初始化 Alpine，避免重复初始化导致 "Cannot redefine property" 错误
@@ -112,6 +113,7 @@ export class ViewContainer {
                 this._isNewContainer = false; // 标记为已初始化
             }
         }
+
         this.outlet.view = this.viewHash;
         return this.container;
     }

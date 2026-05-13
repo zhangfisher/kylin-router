@@ -1,7 +1,7 @@
 import { css } from "lit";
 
 export const styles = css`
-    :host {
+    kylin-outlet {
         display: block;
     }
 
@@ -18,7 +18,7 @@ export const styles = css`
     }
 
     /* CSS 变量定义（默认值） */
-    :host {
+    kylin-outlet {
         /* 通用 */
         --kylin-view-transition-duration: 0.2s;
         --kylin-view-transition-easing: ease-out;

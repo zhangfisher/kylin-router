@@ -4,11 +4,12 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>麒麟手机商店 - Kylin Phone Store</title>
-        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
         <link rel="stylesheet" href="index.css" />
     </head>
     <body>
-        <div id="app" x-data="{
+        <div
+            id="app"
+            x-data="{
             isLoggedIn: false,
             isNavigating: false,
             loginForm: { username: '', password: '' },
@@ -25,7 +26,8 @@
                 this.isLoggedIn = false;
                 window.router.push('/');
             }
-        }">
+        }"
+        >
             <!-- 顶部导航栏 -->
             <nav class="top-nav">
                 <div class="container">
@@ -87,6 +89,7 @@
             // 创建路由器
             const app = document.getElementById("app");
             const router = createRouter(app, {
+                debug: true,
                 base: "/shop", // 配置基础路径
                 home: "/", // 配置首页路径
                 routes: [
@@ -101,49 +104,14 @@
                     {
                         path: "products",
                         view: "pages/products.html",
+                        data: "data/products.json",
                         children: [
-                            // 产品列表（默认显示）
-                            {
-                                path: "",
-                                view: "pages/products-list.html",
-                                data: "data/products.json",
-                            },
-                            // 产品分类
                             {
                                 path: ":category",
-                                view: "pages/products-list.html",
-                                data: {
-                                    from: async (context) => {
-                                        const response = await fetch(".data/products.json");
-                                        const allProducts = await response.json();
-                                        const category = context.params.category;
-
-                                        const categoryNames = {
-                                            smartphones: "智能手机",
-                                            tablets: "平板电脑",
-                                            laptops: "笔记本电脑",
-                                            wearables: "智能穿戴",
-                                            accessories: "配件专区",
-                                            "smart-home": "智能家居",
-                                            audio: "音频设备",
-                                            gaming: "游戏设备",
-                                        };
-
-                                        const products = allProducts.products.filter(
-                                            (p) => p.category === category,
-                                        );
-
-                                        return {
-                                            title: categoryNames[category] || category,
-                                            subtitle: `共 ${products.length} 款${categoryNames[category] || category}`,
-                                            products: products,
-                                        };
-                                    },
-                                },
+                                view: "pages/product-list.html",
                             },
                         ],
                     },
-
                     // 产品详情
                     {
                         path: "product/:id",
@@ -307,9 +275,10 @@
                             from: async (context) => {
                                 const response = await fetch("./data/products.json");
                                 const allProducts = await response.json();
-                                return allProducts.products.find(
-                                    (p) => p.id === context.params.id,
-                                ) || null;
+                                return (
+                                    allProducts.products.find((p) => p.id === context.params.id) ||
+                                    null
+                                );
                             },
                         },
                     },
@@ -328,61 +297,6 @@
                         redirect: "/product/:id",
                     },
                 ],
-
-                // ==================== 全局钩子配置 ====================
-
-                // 导航前置守卫
-                beforeRoute: async ({ from, to }) => {
-                    console.log("[beforeRoute] 从", from?.[0]?.url, "导航到", to?.[0]?.url);
-
-                    // 对特定路由进行权限检查
-                    const protectedRoutes = ["/profile", "/order-form"];
-                    const targetPath = to?.[0]?.url;
-
-                    if (protectedRoutes.some((path) => targetPath?.startsWith(path))) {
-                        const alpineApp = document.getElementById("app")._x_dataStack?.[0];
-                        if (!alpineApp?.isLoggedIn) {
-                            console.log("[beforeRoute] 未登录，重定向到登录页");
-                            return "login";
-                        }
-                    }
-
-                    return true;
-                },
-
-                // 导航后置钩子
-                afterRoute: async ({ to }) => {
-                    console.log("[afterRoute] 导航完成到", to?.[0]?.url);
-
-                    // 更新页面标题
-                    const titles = {
-                        "/": "首页 - 麒麟手机商店",
-                        "/products": "产品 - 麒麟手机商店",
-                        "/services": "服务 - 麒麟手机商店",
-                        "/docs": "文档 - 麒麟手机商店",
-                        "/store": "商店 - 麒麟手机商店",
-                        "/demo": "功能演示 - 麒麟手机商店",
-                        "/error-test": "错误测试 - 麒麟手机商店",
-                        "/order-form": "创建订单 - 麒麟手机商店",
-                        "/profile": "个人中心 - 麒麟手机商店",
-                        "/login": "登录 - 麒麟手机商店",
-                    };
-
-                    const path = to?.[0]?.url || "/";
-                    document.title = titles[path] || "麒麟手机商店";
-                },
-
-                // 渲染前钩子
-                beforeRender: async ({ from, to, view, data }) => {
-                    console.log("[beforeRender] 即将渲染", to?.[0]?.url);
-                },
-
-                // 渲染后置钩子
-                afterRender: async ({ from, to, el }) => {
-                    console.log("[afterRender] 渲染完成", to?.[0]?.url);
-                    // 添加淡入动画
-                    el?.classList.add("fade-in");
-                },
             });
 
             // 暴露路由器实例
@@ -405,63 +319,6 @@
             window.goHome = () => {
                 router.home();
             };
-
-            // ==================== 事件监听 ====================
-
-            // 导航开始事件
-            router.on("navigation:start", ({ path, navigationType }) => {
-                console.log(`[navigation:start] ${navigationType} 到 ${path}`);
-                addEventLog("navigate", `${navigationType} → ${path || "主页"}`);
-            });
-
-            // 导航结束事件
-            router.on("navigation:end", ({ location, navigationType }) => {
-                console.log(`[navigation:end] ${navigationType} 完成`);
-            });
-
-            // 模态打开事件
-            router.on("modal:open", ({ route, stackItem }) => {
-                console.log("[modal:open] 模态打开:", route);
-                addEventLog("modal", `模态打开: ${route}`);
-            });
-
-            // 模态关闭事件
-            router.on("modal:close", ({ route, stackItem }) => {
-                console.log("[modal:close] 模态关闭:", route);
-                addEventLog("modal", `模态关闭: ${route}`);
-            });
-
-            // 数据加载开始
-            router.on("data:loading", ({ route }) => {
-                console.log("[data:loading] 数据加载中:", route[0]?.url);
-            });
-
-            // 数据加载完成
-            router.on("data:loaded", ({ route }) => {
-                console.log("[data:loaded] 数据加载完成:", route[0]?.url);
-            });
-
-            // 数据加载错误
-            router.on("data:error", ({ route, error }) => {
-                console.error("[data:error] 数据加载错误:", route[0]?.url, error);
-                addEventLog("error", `数据错误: ${route[0]?.url}`);
-            });
-
-            // 视图加载开始
-            router.on("view:loading", ({ route }) => {
-                console.log("[view:loading] 视图加载中:", route[0]?.url);
-            });
-
-            // 视图加载完成
-            router.on("view:loaded", ({ route }) => {
-                console.log("[view:loaded] 视图加载完成:", route[0]?.url);
-            });
-
-            // 视图加载错误
-            router.on("view:error", ({ route, error }) => {
-                console.error("[view:error] 视图加载错误:", route[0]?.url, error);
-                addEventLog("error", `视图错误: ${route[0]?.url}`);
-            });
 
             // ==================== 辅助函数 ====================
 

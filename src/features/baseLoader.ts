@@ -329,6 +329,10 @@ export abstract class RouteDataLoaderBase<
             }
             signal.meta.url = url;
             signal.meta.hash = this._getHash(matched, options);
+            this.router.logger.debug(`正在加载 {url}(hash={hash})`, {
+                url,
+                hash: signal.meta.hash,
+            });
             fetch(url, { signal: signal.getAbortSignal() })
                 .then(async (response) => {
                     if (!response.ok) {
