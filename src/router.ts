@@ -217,9 +217,12 @@ export class KylinRouter extends Mixin(
             fromRoute = matched.fromRoute;
             toRoute = matched.toRoute;
 
-            this.logger.debug("导航到: {pathname}{? search}, 匹配: {matched}", () => {
-                return { pathname, search, matched: toRoute.map((r) => r.route.path).join("/") };
-            });
+            this.logger.debug("{} -> 导航到: {} {}, 匹配: {} ", () => [
+                toRoute[0].id,
+                pathname,
+                search,
+                toRoute,
+            ]);
             // 执行全局前置守卫（beforeEach）
             const shouldContinue = await this.hooks.runBeforeRoute({
                 from: fromRoute,

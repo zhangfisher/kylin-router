@@ -15,6 +15,8 @@ import { joinPath } from "./joinPath";
 import { extractQueryParams } from "./extractQueryParams";
 import { getRouteHash } from "./getRouteHash";
 
+let matchedId: number = 0;
+
 /**
  * 匹配选项
  */
@@ -190,21 +192,6 @@ function compileSegments(pattern: string, fullMatch: boolean): CompiledPattern {
 }
 
 /**
- * 判断路由是否为默认路由
- * 默认路由的判断标准（按优先级）：
- * 1. path 为 "" 或 "/" 或 "./" （高优先级）
- * 2. 或者显式设置 default: true （低优先级）
- * 3. 当有多个默认路由时，按配置顺序选择第一个
- */
-function isDefaultRoute(route: KylinRouteItem): boolean {
-    const path = route.path.trim();
-    // 空路径优先
-    if (path === "" || path === "/" || path === "./") return true;
-    // 其次是 default: true
-    return route.default === true;
-}
-
-/**
  * 在子路由中递归查找默认路由
  * 返回默认路由及其所有嵌套的默认子路由
  *
@@ -221,9 +208,10 @@ function findDefaultRoute(
     routes: KylinRouteItem[],
     parentMatchedRoute: KylinMatchedRouteItem,
     inputQuery: Record<string, string>,
+    id: number,
 ): KylinMatchedRouteItem[] | null {
     let bestRoute: KylinRouteItem | null = null;
-    let bestPriority = -1;
+    let bestPriority: number = -1;
 
     // 第一遍：查找空路径的默认路由（优先级 1）
     for (const route of routes) {
@@ -252,71 +240,68 @@ function findDefaultRoute(
 
     const route = bestRoute;
 
-        const fullPath = joinPath(parentMatchedRoute.path, route.path);
-        const mergedParams = { ...parentMatchedRoute.params, ...route.params };
-        const mergedQuery = { ...route.query, ...inputQuery };
+    const fullPath = joinPath(parentMatchedRoute.path, route.path);
+    const mergedParams = { ...parentMatchedRoute.params, ...route.params };
+    const mergedQuery = { ...route.query, ...inputQuery };
 
-        // view/data 继承逻辑：修改父路由的 view/data
-        let parentRoute = parentMatchedRoute.route;
-        if (parentRoute && !parentRoute.view && route.view) {
-            parentRoute = { ...parentRoute, view: route.view };
-        }
-        if (parentRoute && !parentRoute.data && route.data) {
-            parentRoute = { ...parentRoute, data: route.data };
-        }
+    // view/data 继承逻辑：修改父路由的 view/data
+    let parentRoute = parentMatchedRoute.route;
+    if (parentRoute && !parentRoute.view && route.view) {
+        parentRoute = { ...parentRoute, view: route.view };
+    }
+    if (parentRoute && !parentRoute.data && route.data) {
+        parentRoute = { ...parentRoute, data: route.data };
+    }
 
-        const currentMatch: KylinMatchedRouteItem = {
-            route,
-            params: mergedParams,
-            query: mergedQuery,
-            state: {},
-            path: fullPath,
-            url: parentMatchedRoute.url,
-            hash: "",
-        };
-        currentMatch.hash = getRouteHash(currentMatch);
+    const currentMatch: KylinMatchedRouteItem = {
+        route,
+        params: mergedParams,
+        query: mergedQuery,
+        state: {},
+        path: fullPath,
+        url: parentMatchedRoute.url,
+        hash: "",
+        id,
+    };
+    currentMatch.hash = getRouteHash(currentMatch);
 
-        // 递归查找下一级默认路由
-        if (route.children && route.children.length > 0) {
-            const childDefaults = findDefaultRoute(
-                route.children,
-                currentMatch,
-                inputQuery,
-            );
-            if (childDefaults && childDefaults.length > 0) {
-                // 从子默认路由继承 view/data（包括间接继承）
-                const childRoute = childDefaults[0].route;
-                let currentRouteToUse = currentMatch.route;
-                if (currentRouteToUse) {
-                    // 只有当前路由没有该属性时才继承
-                    if (!currentRouteToUse.view && childRoute.view) {
-                        currentRouteToUse = { ...currentRouteToUse, view: childRoute.view };
-                    }
-                    if (!currentRouteToUse.data && childRoute.data) {
-                        currentRouteToUse = { ...currentRouteToUse, data: childRoute.data };
-                    }
-                    currentMatch.route = currentRouteToUse;
+    // 递归查找下一级默认路由
+    if (route.children && route.children.length > 0) {
+        const childDefaults = findDefaultRoute(route.children, currentMatch, inputQuery, id);
+        if (childDefaults && childDefaults.length > 0) {
+            // 从子默认路由继承 view/data（包括间接继承）
+            const childRoute = childDefaults[0].route;
+            let currentRouteToUse = currentMatch.route;
+            if (currentRouteToUse) {
+                // 只有当前路由没有该属性时才继承
+                if (!currentRouteToUse.view && childRoute.view) {
+                    currentRouteToUse = { ...currentRouteToUse, view: childRoute.view };
                 }
-                // 递归更新子默认路由的继承
-                for (let i = 0; i < childDefaults.length - 1; i++) {
-                    const currentChild = childDefaults[i];
-                    const nextChild = childDefaults[i + 1];
-                    let childRouteToUse = currentChild.route;
-                    if (childRouteToUse) {
-                        if (!childRouteToUse.view && nextChild.route.view) {
-                            childRouteToUse = { ...childRouteToUse, view: nextChild.route.view };
-                        }
-                        if (!childRouteToUse.data && nextChild.route.data) {
-                            childRouteToUse = { ...childRouteToUse, data: nextChild.route.data };
-                        }
-                        currentChild.route = childRouteToUse;
-                    }
+                if (!currentRouteToUse.data && childRoute.data) {
+                    currentRouteToUse = { ...currentRouteToUse, data: childRoute.data };
                 }
-                return [currentMatch, ...childDefaults];
+                currentMatch.route = currentRouteToUse;
             }
+            // 递归更新子默认路由的继承
+            for (let i = 0; i < childDefaults.length - 1; i++) {
+                const currentChild = childDefaults[i];
+                const nextChild = childDefaults[i + 1];
+                let childRouteToUse = currentChild.route;
+                if (childRouteToUse) {
+                    if (!childRouteToUse.view && nextChild.route.view) {
+                        childRouteToUse = { ...childRouteToUse, view: nextChild.route.view };
+                    }
+                    if (!childRouteToUse.data && nextChild.route.data) {
+                        childRouteToUse = { ...childRouteToUse, data: nextChild.route.data };
+                    }
+                    currentChild.route = childRouteToUse;
+                }
+            }
+            return [currentMatch, ...childDefaults];
         }
+    }
 
-        return [currentMatch];
+    return [currentMatch];
 }
 
 /**
@@ -326,6 +311,7 @@ function createUnmatchedRouteItem(
     unmatchedPath: string,
     parentMatchedRoute: KylinMatchedRouteItem | null,
     inputQuery: Record<string, string>,
+    id: number,
 ): KylinMatchedRouteItem {
     const parentPath = parentMatchedRoute?.path || "";
     const parentUrl = parentMatchedRoute?.url || "";
@@ -341,7 +327,8 @@ function createUnmatchedRouteItem(
         state: {},
         path: fullPath,
         url: fullUrl,
-        hash: `unmatched-${fullPath.replace(/\//g, '-')}`,
+        hash: `unmatched-${fullPath.replace(/\//g, "-")}`,
+        id,
     };
 }
 
@@ -413,6 +400,7 @@ function _matchRoutesInternal(
     parentMatchedRoute: KylinMatchedRouteItem | null,
     inputQuery: Record<string, string> = {},
     options: Required<MatchOptions>,
+    id: number,
 ): KylinMatchedRouteItem[] {
     const { strict } = options;
     const parentPath = parentMatchedRoute?.path || "";
@@ -444,6 +432,7 @@ function _matchRoutesInternal(
             path: fullPath,
             url: fullUrl,
             hash: "",
+            id,
         };
 
         currentMatch.hash = getRouteHash(currentMatch);
@@ -452,11 +441,7 @@ function _matchRoutesInternal(
             // 路径完全匹配当前路由
             if (route.children && route.children.length > 0) {
                 // 【新增】首先查找默认路由
-                const defaultMatches = findDefaultRoute(
-                    route.children,
-                    currentMatch,
-                    inputQuery,
-                );
+                const defaultMatches = findDefaultRoute(route.children, currentMatch, inputQuery, id);
                 if (defaultMatches && defaultMatches.length > 0) {
                     // view/data 继承：如果父路由没有 view/data，从默认路由继承
                     const defaultRoute = defaultMatches[0].route;
@@ -480,6 +465,7 @@ function _matchRoutesInternal(
                     currentMatch,
                     inputQuery,
                     options,
+                    id,
                 );
                 if (childMatches.length > 0) {
                     return [currentMatch, ...childMatches];
@@ -506,6 +492,7 @@ function _matchRoutesInternal(
                 currentMatch,
                 inputQuery,
                 options,
+                id,
             );
 
             if (childMatches.length > 0) {
@@ -517,6 +504,7 @@ function _matchRoutesInternal(
                 matchResult.remainingPath,
                 currentMatch,
                 inputQuery,
+                id,
             );
             return [currentMatch, unmatchedItem];
         }
@@ -555,6 +543,7 @@ function _matchRoutesInternal(
             path: fullPath,
             url: fullUrl,
             hash: "",
+            id,
         };
         currentMatch.hash = getRouteHash(currentMatch);
 
@@ -562,11 +551,7 @@ function _matchRoutesInternal(
             // 路径完全匹配当前路由
             if (route.children && route.children.length > 0) {
                 // 【新增】首先查找默认路由
-                const defaultMatches = findDefaultRoute(
-                    route.children,
-                    currentMatch,
-                    inputQuery,
-                );
+                const defaultMatches = findDefaultRoute(route.children, currentMatch, inputQuery, id);
                 if (defaultMatches && defaultMatches.length > 0) {
                     // view/data 继承：如果父路由没有 view/data，从默认路由继承
                     const defaultRoute = defaultMatches[0].route;
@@ -590,6 +575,7 @@ function _matchRoutesInternal(
                     currentMatch,
                     inputQuery,
                     options,
+                    id,
                 );
                 if (childMatches.length > 0) {
                     return [currentMatch, ...childMatches];
@@ -616,6 +602,7 @@ function _matchRoutesInternal(
                 currentMatch,
                 inputQuery,
                 options,
+                id,
             );
 
             if (childMatches.length > 0) {
@@ -627,6 +614,7 @@ function _matchRoutesInternal(
                 matchResult.remainingPath,
                 currentMatch,
                 inputQuery,
+                id,
             );
             return [currentMatch, unmatchedItem];
         }
@@ -643,11 +631,7 @@ function _matchRoutesInternal(
 
     // 【新增】顶层无匹配时，返回未匹配路由项
     if (parentMatchedRoute === null) {
-        const unmatchedItem = createUnmatchedRouteItem(
-            path,
-            null,
-            inputQuery,
-        );
+        const unmatchedItem = createUnmatchedRouteItem(path, null, inputQuery, id);
         return [unmatchedItem];
     }
 
@@ -686,5 +670,6 @@ export function matchRoute(
         options,
     );
 
-    return _matchRoutesInternal(normalizedPath, routes, null, inputQuery, opts);
+    const currentId = ++matchedId;
+    return _matchRoutesInternal(normalizedPath, routes, null, inputQuery, opts, currentId);
 }

@@ -368,4 +368,5 @@ export type KylinMatchedRouteItem = {
      * 计算后的路由视图哈希标识
      */
     hash: string;
+    id: number;
 };

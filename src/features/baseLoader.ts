@@ -329,7 +329,8 @@ export abstract class RouteDataLoaderBase<
             }
             signal.meta.url = url;
             signal.meta.hash = this._getHash(matched, options);
-            this.router.logger.debug(`正在加载 {url}(hash={hash})`, {
+            this.router.logger.debug(`{id} -> 正在加载 {url}(hash={hash})`, {
+                id: matched.id,
                 url,
                 hash: signal.meta.hash,
             });
@@ -378,7 +379,11 @@ export abstract class RouteDataLoaderBase<
                 timestamp: Date.now(),
             } as CacheItem<TData>);
         }
-
+        this.router.logger.debug(`{id} -> 加载{type}成功: {url}`, () => ({
+            id: matched.id,
+            type: this.loadType,
+            url: signal.meta.url,
+        }));
         signal.resolve(data);
     }
 
@@ -392,6 +397,16 @@ export abstract class RouteDataLoaderBase<
         } else {
             signal.meta.statusCode = error.status || 500;
             this.cache.delete(matched.hash);
+
+            this.router.logger.error(
+                `{id} -> 加载{type}失败: {url}`,
+                () => ({
+                    id: matched.id,
+                    type: this.loadType,
+                    url: signal.meta.url,
+                }),
+                error,
+            );
             signal.reject(error);
         }
     }
