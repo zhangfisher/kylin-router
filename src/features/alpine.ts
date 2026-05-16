@@ -7,6 +7,7 @@ import Alpine from "alpinejs";
 import type { KylinRouter } from "@/router";
 import type { ModalOptions } from "@/types/modals";
 import { registerCssVarDirective } from "@/directives/cssVar";
+import { registerInjectDataDirective } from "@/directives/injectData";
 
 /**
  * Alpine.js 全局 store 接口
@@ -84,10 +85,11 @@ export class AlpineManager {
         } as unknown as KylinAlpineStore);
         // 通过$store.data.xxx访问全局数据
         Alpine.store("data", initialData);
-
+        //@ts-ignore
+        globalThis.Alpine = Alpine;
         // 注册自定义指令（必须在 Alpine.start() 之前）
         registerCssVarDirective(Alpine);
-
+        registerInjectDataDirective(Alpine);
         // 启动 Alpine.js（如果还未启动）
         if (!Alpine.version) {
             Alpine.start();
@@ -100,7 +102,7 @@ export class AlpineManager {
      */
     bindHost(host: HTMLElement): void {
         // 添加 x-data 属性，使整个 host 树可以访问 Alpine store
-        host.setAttribute("x-data", "{}");
+        host.setAttribute("x-data", "x");
     }
 
     /**

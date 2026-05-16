@@ -87,7 +87,21 @@ export class ViewContainer {
     }
 
     resolve(view: string | HTMLElement, data: Record<string, any> | undefined, cssVars?: string[]) {
-        // 先插入视图内容
+        // 设置 x-data 属性
+        // 注意：只有当路由有自己的数据时才设置 x-data
+        // 如果不设置 x-data，子模板会自动继承父路由容器的数据作用域
+        if (this.dataHash && data && Object.keys(data).length > 0) {
+            // 有数据：使用自己的 dataHash
+            this.container.setAttribute("x-data", this.dataHash);
+        }
+        // 无数据时不设置 x-data，让模板继承父路由的数据作用域
+
+        // 设置 scoped CSS 相关属性 自动注入 x-cssvar 指令
+        if (cssVars && cssVars.length > 0) {
+            this.container.setAttribute("x-cssvar", cssVars.join(", "));
+        }
+
+        // 然后插入视图内容
         if (typeof view === "string") {
             this.container.innerHTML = view;
         } else if (view instanceof HTMLElement) {
@@ -95,24 +109,13 @@ export class ViewContainer {
             this.container.appendChild(view);
         }
 
-        // 设置 scoped CSS 相关属性 自动注入 x-cssvar 指令
-        if (cssVars && cssVars.length > 0) {
-            this.container.setAttribute("x-cssvar", cssVars.join(", "));
-        }
-
         // 仅当容器不在 DOM 中时才插入（避免重复 appendChild）
         if (this.container.parentElement !== this.outlet) {
             this.outlet.appendChild(this.container);
         }
 
-        if (data && this.dataHash) {
-            this.container.setAttribute("x-data", this.dataHash);
-            // 仅对新容器初始化 Alpine，避免重复初始化导致 "Cannot redefine property" 错误
-            if (this._isNewContainer) {
-                Alpine.initTree(this.container);
-                this._isNewContainer = false; // 标记为已初始化
-            }
-        }
+        // 标记为已初始化（Alpine 初始化由渲染根统一处理）
+        this._isNewContainer = false;
 
         this.outlet.view = this.viewHash;
         return this.container;

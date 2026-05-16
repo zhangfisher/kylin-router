@@ -135,20 +135,27 @@ export abstract class RouteDataLoaderBase<
     // ========================================
 
     /**
-     * 获取路由的加载信号
+     * 获取路由当前正在使用的加载信号
      * 根据 signalKey 自动访问 _getData 或 _getView
      */
     protected getSignal(
         matched: KylinMatchedRouteItem,
-        created: boolean = false,
     ): IAsyncSignal | undefined {
-        const signal = (matched.route as any)[this._signalKey] as IAsyncSignal | undefined;
-        if (!signal && created) {
-            const signal = asyncSignal();
-            (matched.route as any)[this._signalKey] = signal;
-            return signal;
+        return (matched.route as any)[this._signalKey] as IAsyncSignal | undefined;
+    }
+
+    /**
+     * 创建新的加载信号
+     * 在创建前会先 abort 并清理旧的 signal
+     */
+    protected createSignal(matched: KylinMatchedRouteItem): IAsyncSignal {
+        const oldSignal = this.getSignal(matched);
+        if (oldSignal) {
+            oldSignal.abort();
         }
-        return signal;
+        const newSignal = asyncSignal();
+        (matched.route as any)[this._signalKey] = newSignal;
+        return newSignal;
     }
 
     /**
@@ -209,8 +216,10 @@ export abstract class RouteDataLoaderBase<
      * 执行加载
      */
     protected startLoad(matched: KylinMatchedRouteItem, options: Required<TOptions>): void {
-        // 创建新的信号，确保每次加载都有一个信号，方便统一调用
-        let signal = this.getSignal(matched, true)!;
+        // 每次加载创建新的信号，旧的信号会被自动 abort
+        let signal = this.createSignal(matched);
+        // 设置 hash，确保静态数据源也有 hash
+        signal.meta.hash = this._getHash(matched, options);
         // 获取数据源
         const source = this.getSource(matched, options)!;
         // 成功和错误处理
@@ -229,7 +238,9 @@ export abstract class RouteDataLoaderBase<
                 // 从远程加载数据
                 this.loadRemote(url, options, signal, matched).then(onSuccess).catch(onError);
             } else {
-                onSuccess(source);
+                // 静态数据源也需要调用 onHandleData
+                const processedData = this.onHandleData(source, options, signal, matched);
+                onSuccess(processedData);
             }
         } catch (e: any) {
             onError(e);
@@ -257,11 +268,14 @@ export abstract class RouteDataLoaderBase<
         cacheItem: CacheItem<TData> | undefined,
         options: TOptions,
     ): boolean {
-        const signal = this.getSignal(matched)!;
         const hash = this._getHash(matched, options);
 
         if ((options.cache || 0) > 0 && cacheItem && !this._isCacheExpired(cacheItem, options)) {
-            signal.resolve(cacheItem.value);
+            // 缓存命中时，创建新的 signal 并 resolve
+            const signal = this.createSignal(matched);
+            signal.meta.hash = hash;
+            const processedData = this.onHandleData(cacheItem.value, options, signal, matched);
+            signal.resolve(processedData);
             return true;
         } else if ((options.cache || 0) > 0 && this.cache.has(hash)) {
             this.cache.delete(hash);
@@ -270,15 +284,13 @@ export abstract class RouteDataLoaderBase<
         return false;
     }
 
-    private abortPendingLoad(matched: KylinMatchedRouteItem): void {
-        // 不需要主动 abort
-        // executeLoad 会复用现有的 signal（由 ensureLoadSignal 创建）
-        // 旧的请求会继续执行，但结果会被忽略，因为我们使用新的 signal
-        // fetch 的 AbortSignal 会在新的 signal 中创建，自动取消旧请求
-        const signal = this.getSignal(matched);
-        if (signal?.isPending()) {
-            signal.abort();
-        }
+    /**
+     * 中止正在进行的加载
+     * 注意：由于 startLoad 会创建新的 signal 并自动 abort 旧的，
+     * 这个方法现在主要作为一个文档说明，保留接口兼容性
+     */
+    private abortPendingLoad(_matched: KylinMatchedRouteItem): void {
+        // createSignal 会自动 abort 旧的 signal，所以这里不需要额外操作
     }
 
     private _getHash(matched: KylinMatchedRouteItem, options: TOptions) {
@@ -329,11 +341,11 @@ export abstract class RouteDataLoaderBase<
             }
             signal.meta.url = url;
             signal.meta.hash = this._getHash(matched, options);
-            this.router.logger.debug(`{id} -> 正在加载 {url}(hash={hash})`, {
-                id: matched.id,
+            this.router.logger.debug(`{} -> 正在加载 {}(hash={})`, () => [
+                matched.id,
                 url,
-                hash: signal.meta.hash,
-            });
+                signal.meta.hash,
+            ]);
             fetch(url, { signal: signal.getAbortSignal() })
                 .then(async (response) => {
                     if (!response.ok) {
@@ -379,11 +391,12 @@ export abstract class RouteDataLoaderBase<
                 timestamp: Date.now(),
             } as CacheItem<TData>);
         }
-        this.router.logger.debug(`{id} -> 加载{type}成功: {url}`, () => ({
-            id: matched.id,
-            type: this.loadType,
-            url: signal.meta.url,
-        }));
+        this.router.logger.debug(`{} -> 加载{}成功: {}`, () => [
+            matched.id,
+            this.loadType,
+            signal.meta.url,
+            matched.url,
+        ]);
         signal.resolve(data);
     }
 
@@ -400,11 +413,7 @@ export abstract class RouteDataLoaderBase<
 
             this.router.logger.error(
                 `{id} -> 加载{type}失败: {url}`,
-                () => ({
-                    id: matched.id,
-                    type: this.loadType,
-                    url: signal.meta.url,
-                }),
+                () => [matched.id, this.loadType, signal.meta.url],
                 error,
             );
             signal.reject(error);

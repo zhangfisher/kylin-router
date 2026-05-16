@@ -18,10 +18,12 @@ import type { KylinOutlet } from "@/components/outlet";
 import type { IAsyncSignal } from "asyncsignal";
 import { KylinRouterError } from "@/errors";
 import type { ViewContainer } from "@/components/outlet/viewContainer";
+import Alpine from "alpinejs";
 
 type RouteSignalReuslt<T = any> = {
     value: T;
     error?: KylinRouterError;
+    hash: string;
 };
 
 export class Render {
@@ -33,6 +35,7 @@ export class Render {
         try {
             const result = await signal();
             data.value = result;
+            data.hash = signal.meta.hash;
         } catch (e: any) {
             data.error = new KylinRouterError((e as Error).message, e.status || 500);
         }
@@ -82,17 +85,27 @@ export class Render {
             let currentOutlet: KylinOutlet | null = null;
             // 存储当前迭代创建的 viewContainer，用于取消时清理
             let pendingViewContainer: ViewContainer | null = null as ViewContainer | null;
-            this.logger.debug("开始渲染: {url}", () => ({
-                url: toRoute.map((r) => r.url).join(""),
-            }));
+            this.logger.debug(
+                "{} -> 开始渲染: {}",
+                toRoute[0].id,
+                toRoute[toRoute.length - 1].url,
+                toRoute,
+            );
             for (let i = 0; i < toRoute.length; i++) {
-                this.logger.debug("渲染: {url} -> {path}", () => ({
-                    url: toRoute[i].url || "",
-                    path: toRoute[i].route?.path || "",
-                }));
+                this.logger.debug(
+                    "{} -> 准备渲染 {}/{} {} -> {}",
+                    () => [
+                        toRoute[0].id,
+                        i + 1,
+                        toRoute.length,
+                        toRoute[i].url || "",
+                        toRoute[i].route?.path || "",
+                    ],
+                    toRoute[i],
+                );
                 // 检查是否已被新渲染取消
                 if (abortController.signal.aborted) {
-                    this.logger.debug("渲染被新导航取消");
+                    this.logger.debug("{} -> 渲染被新导航取消", toRoute[0].id);
                     // 清理已创建但未完成的视图容器
                     if (pendingViewContainer) {
                         pendingViewContainer.abort();
@@ -121,6 +134,17 @@ export class Render {
                         currentOutlet.view = viewHash;
                         const outlet = this._findNextLevelOutlet(currentOutlet, viewHash);
                         if (outlet) currentOutlet = outlet;
+                        this.logger.debug(
+                            "{} -> 使用缓存视图 {}/{} {} -> {}",
+                            () => [
+                                toRoute[0].id,
+                                i + 1,
+                                toRoute.length,
+                                toRoute[i].url || "",
+                                toRoute[i].route?.path || "",
+                            ],
+                            toRoute[i],
+                        );
                         continue;
                     }
                 }
@@ -136,6 +160,14 @@ export class Render {
                 try {
                     const data = await this._loadData(matched);
                     const view = await this._loadView(matched);
+                    this.logger.debug("{} -> 路由数据加载完成 {}/{} data={}({}) view={}", () => [
+                        toRoute[0].id,
+                        i + 1,
+                        toRoute.length,
+                        data,
+                        data?.hash,
+                        view,
+                    ]);
                     if (!view) {
                         throw new KylinRouterError("视图加载失败", 500);
                     }
@@ -168,6 +200,9 @@ export class Render {
             if (this._currentRenderAbortController === abortController) {
                 this._currentRenderAbortController = null;
             }
+            // 渲染完成后，从渲染根开始重新初始化 Alpine
+            // 这样可以让 Alpine 处理动态插入的子路由内容
+            Alpine.initTree(this.host);
         }
     }
 

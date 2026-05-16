@@ -159,6 +159,16 @@ export class KylinOutlet extends KylinRouterElementBase {
         const viewContainer = new ViewContainer(this, options);
         viewContainer.container.setAttribute("data-url", matched.url);
 
+        const extraData: Record<string, any> = {};
+        if (matched.params && Object.keys(matched.params).length) {
+            extraData["$params"] = matched.params;
+        }
+        if (matched.query && Object.keys(matched.query).length > 0) {
+            extraData["$query"] = matched.query;
+        }
+        if (Object.keys(extraData).length > 0) {
+            viewContainer.container.setAttribute("x-inject-data", JSON.stringify(extraData));
+        }
         return viewContainer;
     }
 

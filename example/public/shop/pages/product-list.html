@@ -1,11 +1,11 @@
 <!-- 产品列表模板 -->
-<div class="content-header">
-    <div class="content-title" x-text="title"></div>
-    <div class="content-subtitle" x-text="subtitle"></div>
-</div>
-
 <div class="product-grid">
-    <template x-for="product in products" :key="product.id">
+    <h3 x-text="meta.title"></h3>
+    <h3 x-text="$params.category"></h3>
+    <template
+        x-for="product in products.filter((product) => product.category === $params.category)"
+        :key="product.id"
+    >
         <div class="product-card" @click="window.router.push('/shop/product/' + product.id)">
             <div class="product-image">
                 <span>📱</span>

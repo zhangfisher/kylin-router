@@ -139,6 +139,10 @@ export class KylinRouter extends Mixin(
                 keeyAlive: true,
                 data: {},
                 errorPages: {},
+                // 公共路由配置
+                routeOptions: {
+                    keepAlive: true,
+                },
             },
             options && typeof options === "object" && "routes" in options
                 ? options
@@ -377,8 +381,6 @@ export class KylinRouter extends Mixin(
                 this.dataLoader = new DataLoader(this);
                 // 开始监听路由变化
                 this._cleanups.push(this.history.listen(this.onRouteUpdate.bind(this)));
-
-                console.log("[KylinRouter] history 监听器已设置");
 
                 // 设置 context provider
                 this.attachContextProvider();

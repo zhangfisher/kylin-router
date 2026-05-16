@@ -38,18 +38,36 @@ export class DataLoader extends RouteDataLoaderBase<
         );
     }
 
-    protected onHandleData(data: any, options: KylinRouteDataOptions, signal: IAsyncSignal) {
+    protected onHandleData(
+        data: any,
+        options: KylinRouteDataOptions,
+        signal: IAsyncSignal,
+        matched: KylinMatchedRouteItem,
+    ): any {
         const { store } = options;
         try {
             if (typeof store === "string") {
                 Alpine.store(store, cloneDeep(data));
             } else {
                 const hash = signal.meta.hash;
-                Alpine.data(hash, () => cloneDeep(data));
-                this.router.logger.debug(`Created route dataObject<{}> : {}`, [hash, data]);
+                // 将 $params 和 $query 添加到数据对象中，使模板可以访问
+                const enrichedData = {
+                    ...cloneDeep(data),
+                    $params: matched.params || {},
+                    $query: matched.query || {},
+                };
+                Alpine.data(hash, () => enrichedData);
+                this.router.logger.debug(
+                    `{} -> Created dataObject<{}> for route<{}>`,
+                    () => [matched.id, hash, matched.url],
+                    enrichedData,
+                );
             }
         } catch (e: any) {
-            this.router.logger.error(`Failed to create route dataObject : ${e.message}`);
+            this.router.logger.error(
+                `{} -> Failed to create route dataObject : ${e.message}`,
+                () => [matched.id, e],
+            );
         }
         return data;
     }
