@@ -12,6 +12,7 @@ import type { KylinRouter } from "@/router";
 import type { KylinRouteItem, KylinMatchedRouteItem } from "@/types";
 
 import { matchRoute } from "@/utils/matchRoute";
+import { normalizeRoutes } from "@/utils/normalizeRoutes";
 
 /** 导航回调函数类型 */
 export interface NavigationCallbacks {
@@ -21,16 +22,13 @@ export interface NavigationCallbacks {
 }
 
 export class RouteRegistry {
-    /** 路由表配置 */
-    routes: KylinRouteItem[] = [];
-
-    /** 404 路由配置 */
-    public notFound?: KylinRouteItem;
-
+    /** 根路由 - 规范化后的路由树根节点 */
+    root: KylinRouteItem = normalizeRoutes();
     /** 当前路由状态 */
     public current?: KylinMatchedRouteItem[];
 
     router: KylinRouter;
+
     constructor(router: KylinRouter) {
         this.router = router;
     }
@@ -49,18 +47,12 @@ export class RouteRegistry {
             }
             return Array.isArray(arg) ? arg : [arg];
         };
-        this.routes = await toArray(routeArgs);
-        this._normalizeRoutes(this.routes);
+        const routesArray = await toArray(routeArgs);
+        // 规范化路由结构
+        this.root = normalizeRoutes(routesArray);
+        // 处理选项继承
+        this._applyRouteOptions(this.root);
         this.router.emit("routes:loaded", undefined);
-    }
-
-    public add(route: KylinRouteItem): void {
-        const existingIndex = this.routes.findIndex((r) => r.name === route.name);
-        if (existingIndex !== -1) {
-            this.routes[existingIndex] = route;
-        } else {
-            this.routes.push(route);
-        }
     }
 
     /**
@@ -69,56 +61,35 @@ export class RouteRegistry {
      * @returns 匹配结果或 null
      */
     public match(pathname: string): ReturnType<typeof matchRoute> {
-        return matchRoute(pathname, this.routes) || null;
-    }
-
-    /**
-     * 动态删除指定名称的路由
-     * 支持递归删除嵌套路由
-     * 如果删除的是当前访问的路由，自动重定向到默认路由或 404
-     */
-    public remove(name: string): void {
-        function removeRouteByName(routes: KylinRouteItem[], name: string): boolean {
-            for (let i = 0; i < routes.length; i++) {
-                if (routes[i].name === name) {
-                    routes.splice(i, 1);
-                    return true;
-                }
-                // 递归检查子路由
-                if (routes[i].children) {
-                    const removed = removeRouteByName(routes[i].children!, name);
-                    if (removed) return true;
-                }
-            }
-            return false;
-        }
-        const removed = removeRouteByName(this.routes, name);
-        // 如果删除了路由且当前正在访问该路由，触发重定向
-        // if (removed && this.current.route && this.current.route.name === name) {
-        //     this.redirectToDefaultOrNotFound();
-        // }
+        return matchRoute(pathname, this.root) || null;
     }
 
     /**
      * 规范化路由配置
+     * 将全局配置应用到路由选项
      */
-    private _normalizeRoutes(routes: KylinRouteItem[]): void {
+    private _applyRouteOptions(route: KylinRouteItem): void {
         const overrideItems = ["keepAlive", "cache", "timeout", "preload"];
-        routes.forEach((route) => {
+        const processRoute = (r: KylinRouteItem) => {
             if (this.router.options.routeOptions) {
                 const routeOptions = this.router.options.routeOptions;
                 overrideItems.forEach((item) => {
                     // @ts-ignore
-                    if (route[item] !== undefined && routeOptions[item] !== undefined) {
+                    if (r[item] !== undefined && routeOptions[item] !== undefined) {
                         // @ts-ignore
-                        route[item] = routeOptions[item];
+                        r[item] = routeOptions[item];
                     }
                 });
             }
-        });
+            // 递归处理子路由
+            if (r.children) {
+                r.children.forEach(processRoute);
+            }
+        };
+        processRoute(route);
     }
     /**
-     * 遍历路由表
+     * 从根节点开始遍历路由表
      * @param callback
      */
     forEach(callback: (route: KylinRouteItem, parent: KylinRouteItem | null) => void): void {
@@ -128,6 +99,6 @@ export class RouteRegistry {
                 route.children.forEach((child) => forEachRoute(child, route));
             }
         }
-        this.routes.forEach((route) => forEachRoute(route, null));
+        forEachRoute(this.root, null);
     }
 }

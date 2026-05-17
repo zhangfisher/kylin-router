@@ -18,7 +18,7 @@ export class ViewContainer {
     constructor(outlet: KylinOutlet, options?: ViewContainerOptions) {
         this.options = Object.assign(
             {
-                keepAlive: false,
+                keepAlive: true,
             },
             options,
         );

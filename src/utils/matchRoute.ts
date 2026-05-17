@@ -2,8 +2,7 @@
  * 路由匹配算法 v2.0
  *
  * 实现混合匹配策略：
- * - 严格匹配(strict=true): 完全匹配路径
- * - 非严格匹配(strict=false): 前缀匹配，支持嵌套路由
+ * - 完全匹配路径
  *
  * 匹配优先级：具体路径 > 参数化路径 > 通配符
  *
@@ -16,19 +15,6 @@ import { extractQueryParams } from "./extractQueryParams";
 import { getRouteHash } from "./getRouteHash";
 
 let matchedId: number = 0;
-
-/**
- * 匹配选项
- */
-export interface MatchOptions {
-    /**
-     * 严格匹配模式
-     * - true: 完全匹配路径，不允许超余路径
-     * - false: 前缀匹配，允许超余路径（用于嵌套路由）
-     * @default true
-     */
-    strict?: boolean;
-}
 
 /**
  * 单个路由匹配器的匹配结果
@@ -51,18 +37,45 @@ interface CompiledPattern {
 }
 
 /**
+ * 规范化 URL（移除末尾斜杠，除非是根路径）
+ */
+function normalizeUrl(url: string): string {
+    if (url === "/" || url === "") {
+        return "/";
+    }
+    return url.replace(/\/+$/, "");
+}
+
+/**
  * 规范化路径
  * 移除末尾斜杠并转换为小写
  *
  * 按照 D-07: 路径规范化自动移除末尾斜杠
  * 按照 D-08: 路径匹配不区分大小写
  */
+/**
+ * 规范化路径
+ * - 确保路径以 / 开头
+ * - 移除末尾的斜杠（除非是根路径）
+ * - 空路径转换为 /
+ */
 function normalizePath(path: string): string {
-    let normalized = path.replace(/\/+$/, "");
+    let normalized = path;
+
+    // 确保路径以 / 开头
+    if (!normalized.startsWith("/")) {
+        normalized = "/" + normalized;
+    }
+
+    // 移除末尾的斜杠（除非是根路径）
+    normalized = normalized.replace(/\/+$/, "");
+
+    // 空路径转换为 /
     if (normalized === "") {
         normalized = "/";
     }
-    return normalized.replace(/\/\/$/, "/").toLowerCase();
+
+    return normalized.toLowerCase();
 }
 
 /**
@@ -121,8 +134,8 @@ function compileSegments(pattern: string, fullMatch: boolean): CompiledPattern {
             if (i !== rawSegments.length - 1) {
                 throw new Error("Multi-wildcard '**' can only appear at the end of a pattern");
             }
-            // ** 匹配零个或多个段（包括斜杠）
-            regexParts.push(".*");
+            // ** 匹配一个或多个段（不包括空路径）
+            regexParts.push(".+");
             continue;
         }
 
@@ -318,7 +331,7 @@ function createUnmatchedRouteItem(
     const parentParams = parentMatchedRoute?.params || {};
 
     const fullPath = joinPath(parentPath, unmatchedPath);
-    const fullUrl = joinPath(parentUrl, unmatchedPath);
+    const fullUrl = normalizeUrl(joinPath(parentUrl, unmatchedPath));
 
     return {
         route: undefined as any,
@@ -347,13 +360,39 @@ export function createRouteMatcher(
 ): (pathname: string) => RouteMatchResult {
     const rawPattern = route.path;
 
-    // 通配符路由始终匹配
+    // 单独的 * 通配符：匹配单个段（不是所有路径）
     if (rawPattern === "*") {
-        return (_pathname: string) => ({
-            matched: true,
-            params: {},
-            remainingPath: "",
-        });
+        // 编译为匹配单个段的正则，使用前缀匹配模式以支持剩余路径
+        const { regex, paramNames } = compileSegments("/*", false);
+
+        return (pathname: string) => {
+            const normalized = normalizePath(parseQueryString(pathname).pathname);
+            const fullMatch = normalized.match(regex);
+
+            if (fullMatch) {
+                const params: Record<string, string> = {};
+                paramNames.forEach((name, index) => {
+                    params[name] = fullMatch[index + 1] || "";
+                });
+
+                // * 作为前缀匹配，返回剩余路径
+                let remainingPath = "";
+                const remainingIndex = paramNames.length + 1;
+                remainingPath = fullMatch[remainingIndex] || "";
+
+                return {
+                    matched: true,
+                    params,
+                    remainingPath,
+                };
+            }
+
+            return {
+                matched: false,
+                params: {},
+                remainingPath: pathname,
+            };
+        };
     }
 
     // 忽略 route.path 开头的 /，因为路由表中的 path 应该不以 / 开头
@@ -399,10 +438,8 @@ function _matchRoutesInternal(
     routes: KylinRouteItem[],
     parentMatchedRoute: KylinMatchedRouteItem | null,
     inputQuery: Record<string, string> = {},
-    options: Required<MatchOptions>,
     id: number,
 ): KylinMatchedRouteItem[] {
-    const { strict } = options;
     const parentPath = parentMatchedRoute?.path || "";
     const parentParams = parentMatchedRoute?.params || {};
     const parentUrl = parentMatchedRoute?.url || "";
@@ -417,8 +454,10 @@ function _matchRoutesInternal(
         const matchResult = matcher(path);
         if (!matchResult.matched) continue;
 
-        const matchedUrl = path.slice(0, path.length - (matchResult.remainingPath?.length || 0));
-        const fullUrl = joinPath(parentUrl, matchedUrl);
+        const matchedUrl = normalizeUrl(
+            path.slice(0, path.length - (matchResult.remainingPath?.length || 0)),
+        );
+        const fullUrl = normalizeUrl(joinPath(parentUrl, matchedUrl));
         const fullPath = joinPath(parentPath, route.path);
 
         const mergedParams = Object.assign({}, route.params, parentParams, matchResult.params);
@@ -441,7 +480,12 @@ function _matchRoutesInternal(
             // 路径完全匹配当前路由
             if (route.children && route.children.length > 0) {
                 // 【新增】首先查找默认路由
-                const defaultMatches = findDefaultRoute(route.children, currentMatch, inputQuery, id);
+                const defaultMatches = findDefaultRoute(
+                    route.children,
+                    currentMatch,
+                    inputQuery,
+                    id,
+                );
                 if (defaultMatches && defaultMatches.length > 0) {
                     // view/data 继承：如果父路由没有 view/data，从默认路由继承
                     const defaultRoute = defaultMatches[0].route;
@@ -464,19 +508,14 @@ function _matchRoutesInternal(
                     route.children,
                     currentMatch,
                     inputQuery,
-                    options,
                     id,
                 );
                 if (childMatches.length > 0) {
                     return [currentMatch, ...childMatches];
                 }
                 // 子路由无法匹配时的处理
-                if (strict) {
-                    // 严格模式下，如果子路由无法匹配，仍然返回父路由
-                    // 因为路径已经完全匹配父路由
-                    return [currentMatch];
-                }
-                // 非严格模式下，返回父路由
+                // 如果子路由无法匹配，仍然返回父路由
+                // 因为路径已经完全匹配父路由
                 return [currentMatch];
             }
             // 没有子路由，直接返回当前路由（叶子节点，合并 inputQuery）
@@ -491,7 +530,6 @@ function _matchRoutesInternal(
                 route.children,
                 currentMatch,
                 inputQuery,
-                options,
                 id,
             );
 
@@ -512,11 +550,6 @@ function _matchRoutesInternal(
         if (!isLeaf && matchResult.remainingPath) {
             continue;
         }
-
-        if (!strict) {
-            currentMatch.query = { ...route.query, ...inputQuery };
-            return [currentMatch];
-        }
     }
 
     // 第二组：通配符路由（优先级最低）
@@ -528,8 +561,10 @@ function _matchRoutesInternal(
         const matchResult = matcher(path);
         if (!matchResult.matched) continue;
 
-        const matchedUrl = path.slice(0, path.length - (matchResult.remainingPath?.length || 0));
-        const fullUrl = joinPath(parentUrl, matchedUrl);
+        const matchedUrl = normalizeUrl(
+            path.slice(0, path.length - (matchResult.remainingPath?.length || 0)),
+        );
+        const fullUrl = normalizeUrl(joinPath(parentUrl, matchedUrl));
         const fullPath = joinPath(parentPath, route.path);
 
         const mergedParams = Object.assign({}, route.params, parentParams, matchResult.params);
@@ -551,7 +586,12 @@ function _matchRoutesInternal(
             // 路径完全匹配当前路由
             if (route.children && route.children.length > 0) {
                 // 【新增】首先查找默认路由
-                const defaultMatches = findDefaultRoute(route.children, currentMatch, inputQuery, id);
+                const defaultMatches = findDefaultRoute(
+                    route.children,
+                    currentMatch,
+                    inputQuery,
+                    id,
+                );
                 if (defaultMatches && defaultMatches.length > 0) {
                     // view/data 继承：如果父路由没有 view/data，从默认路由继承
                     const defaultRoute = defaultMatches[0].route;
@@ -574,19 +614,14 @@ function _matchRoutesInternal(
                     route.children,
                     currentMatch,
                     inputQuery,
-                    options,
                     id,
                 );
                 if (childMatches.length > 0) {
                     return [currentMatch, ...childMatches];
                 }
                 // 子路由无法匹配时的处理
-                if (strict) {
-                    // 严格模式下，如果子路由无法匹配，仍然返回父路由
-                    // 因为路径已经完全匹配父路由
-                    return [currentMatch];
-                }
-                // 非严格模式下，返回父路由
+                // 如果子路由无法匹配，仍然返回父路由
+                // 因为路径已经完全匹配父路由
                 return [currentMatch];
             }
             // 没有子路由，直接返回当前路由（叶子节点，合并 inputQuery）
@@ -601,7 +636,6 @@ function _matchRoutesInternal(
                 route.children,
                 currentMatch,
                 inputQuery,
-                options,
                 id,
             );
 
@@ -622,11 +656,6 @@ function _matchRoutesInternal(
         if (!isLeaf && matchResult.remainingPath) {
             continue;
         }
-
-        if (!strict) {
-            currentMatch.query = { ...route.query, ...inputQuery };
-            return [currentMatch];
-        }
     }
 
     // 【新增】顶层无匹配时，返回未匹配路由项
@@ -641,35 +670,71 @@ function _matchRoutesInternal(
 /**
  * 主路由匹配函数 - 新版实现
  *
- * 支持严格/非严格匹配，支持返回单个或多个匹配项
+ * 支持返回单个或多个匹配项
  *
  * @param path - 当前 URL 路径
- * @param routes - 路由表配置
- * @param options - 匹配选项 { strict?: boolean }
- * @returns 匹配的路由项数组，包含匹配分支上的所有 KylinMatchedRouteItem
+ * @param roots - 树形路由表配置（具有唯一根节点）
+ * @returns 匹配的路由项数组，包含根路由和匹配分支上的所有 KylinMatchedRouteItem
  *
  * @example
- * // 严格匹配（默认），返回完整的匹配分支
- * matchRoute("/user/123", routes);
- *
- * // 非严格匹配，允许路径前缀匹配
- * matchRoute("/user", routes, { strict: false });
+ * // 返回完整的匹配分支（包括根路由）
+ * const roots = {
+ *   path: "/",
+ *   children: [
+ *     { name: "home", path: "" },
+ *     { name: "user", path: "user" }
+ *   ]
+ * };
+ * matchRoute("/user/123", roots);
+ * // 返回: [{ route: root, ... }, { route: user, ... }]
  */
-export function matchRoute(
-    path: string,
-    routes: KylinRouteItem[],
-    options?: MatchOptions,
-): KylinMatchedRouteItem[] {
+export function matchRoute(path: string, roots: KylinRouteItem): KylinMatchedRouteItem[] {
     const { pathname: pathWithoutQuery, query: inputQuery } = parseQueryString(path);
     const normalizedPath = normalizePath(pathWithoutQuery);
 
-    const opts = Object.assign(
-        {
-            strict: true,
-        },
-        options,
+    const currentId = ++matchedId;
+
+    // 创建根路由的匹配项（根路由的 path 一定是 "/"）
+    // @ts-ignore
+    const rootMatch: KylinMatchedRouteItem = {
+        id: currentId,
+        route: roots,
+        params: {},
+        query: inputQuery,
+        url: "/",
+        path: "/",
+    };
+
+    // 从根节点的 children 开始匹配
+    const rootChildren = roots.children || [];
+    const childMatches = _matchRoutesInternal(
+        normalizedPath,
+        rootChildren,
+        null,
+        inputQuery,
+        currentId,
     );
 
-    const currentId = ++matchedId;
-    return _matchRoutesInternal(normalizedPath, routes, null, inputQuery, opts, currentId);
+    // 检查子路由是否有真正的匹配（不是未匹配项）
+    const hasRealMatch =
+        childMatches.length > 0 && childMatches.some((match) => match.route !== undefined);
+
+    // 如果子路由有真正的匹配，将根路由添加到开头
+    if (hasRealMatch) {
+        return [rootMatch, ...childMatches];
+    }
+
+    // 如果路径是根路径，返回根路由
+    if (normalizedPath === "/" || normalizedPath === "") {
+        return [rootMatch];
+    }
+
+    // 如果子路由返回了结果（包括未匹配项），都将根路由添加到开头
+    // 因为任意匹配结果中一定会包含根路由 /
+    if (childMatches.length > 0) {
+        return [rootMatch, ...childMatches];
+    }
+
+    // 否则返回空数组
+    return [];
 }

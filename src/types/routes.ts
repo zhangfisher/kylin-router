@@ -193,7 +193,7 @@ export interface KylinRouteItem {
      * @internal
      */
     _getView?: IAsyncSignal<string | HTMLElement> | null;
-    _viewOptions: Required<KylinRouteViewOptions>;
+    _viewOptions?: Required<KylinRouteViewOptions>;
     /**
      *
      * 在导航到此路由时预加载的数据，可以是以下类型：
@@ -208,14 +208,16 @@ export interface KylinRouteItem {
      * 调用不同的id参数时，需要分别进行加载和缓存
      */
     _getData?: IAsyncSignal<Record<string, any>> | null;
-    _dataOptions: Required<KylinRouteDataOptions>;
+    _dataOptions?: Required<KylinRouteDataOptions>;
     /**
-     * 是否缓存此路由对应的组件实例，默认为 false
+     * 是否缓存此路由对应的组件实例，默认为 true
      *
-     * 当 keepAlive 为 true 时，路由组件实例会被缓存起来，即使用户离开了这个路由，组件实例也不会被销毁。
+     * 当 keepAlive 不为 false 时，路由组件实例会被缓存起来，即使用户离开了这个路由，组件实例也不会被销毁。
      * 当用户再次访问这个路由时，会复用之前的组件实例，而不是重新创建一个新的实例。
      * 这对于一些需要保持状态的页面非常有用，比如表单页面、数据列表页面等，
      * 可以避免用户离开后数据丢失或者需要重新加载的问题。
+     *
+     * 设置为 false 时，路由组件实例在离开时会被销毁，再次进入时重新创建。
      */
     keepAlive?: boolean;
     /** 缓存时间（毫秒），0 表示不缓存 */
@@ -318,6 +320,11 @@ export type KylinRoutes =
           | KylinRouteItem
           | Promise<KylinRouteItem>
           | Promise<KylinRouteItem[]>);
+
+export type NormalizedKylinRoutes = {
+    path: "/";
+    children?: KylinRouteItem[];
+} & Omit<KylinRouteItem, "path" | "children">;
 
 /**
  * 路由匹配结果

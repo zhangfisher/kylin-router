@@ -91,6 +91,21 @@ export class Render {
                 toRoute[toRoute.length - 1].url,
                 toRoute,
             );
+
+            // 找出 fromRoute 和 toRoute 的公共路由层级
+            // 公共路由不需要重新渲染，直接激活已存在的视图容器即可
+            let commonRouteIndex = 0;
+            if (fromRoute && fromRoute.length > 0) {
+                for (let i = 0; i < Math.min(fromRoute.length, toRoute.length); i++) {
+                    if (fromRoute[i].hash === toRoute[i].hash) {
+                        commonRouteIndex = i + 1;
+                    } else {
+                        break;
+                    }
+                }
+            }
+            this.logger.debug("{} -> 公共路由层数: {}", toRoute[0].id, commonRouteIndex);
+
             for (let i = 0; i < toRoute.length; i++) {
                 this.logger.debug(
                     "{} -> 准备渲染 {}/{} {} -> {}",
@@ -120,20 +135,58 @@ export class Render {
                 const dataHash = curRouteItem?._getData?.meta?.hash;
 
                 // 查找或创建outlet
-                currentOutlet = this._findOutlet(currentOutlet || this.host);
+                const searchContext = currentOutlet || this.host;
+                currentOutlet = this._findOutlet(searchContext);
 
+                // 调试：查找失败时的详细信息
                 if (!currentOutlet) {
-                    this.logger.debug(`未找到${matched.url} outlet，跳过渲染`);
+                    const foundInHost = this._findOutlet(this.host);
+                    this.logger.debug("{} -> 未找到{} outlet，搜索上下文标签: {}, host中数量: {}", () => [
+                        toRoute[0].id,
+                        matched.url,
+                        searchContext.tagName.toLowerCase(),
+                        foundInHost ? "在host中找到了" : "0",
+                    ]);
                     continue;
                 }
 
-                // 如果当前路由启用 keepAlive，且视图容器已经存在，则跳过渲染，使用缓存的视图
-                if (curRouteItem.keepAlive) {
+                // 公共路由跳过逻辑：直接激活已存在的视图容器，跳过重新渲染
+                if (i < commonRouteIndex) {
+                    const existingView = currentOutlet.getViewContainer(viewHash);
+                    if (existingView) {
+                        currentOutlet.showViewContainer(viewHash);
+                        // 直接在 existingView（即 viewHash 对应的容器）中查找子 outlet
+                        const childOutlets = findOutlet(existingView);
+                        this.logger.debug("{} -> 公共路由查找子 outlet，数量: {}", () => [toRoute[0].id, childOutlets.length]);
+                        if (childOutlets.length > 0) {
+                            currentOutlet = childOutlets[0] as KylinOutlet;
+                            this.logger.debug("{} -> 公共路由更新 outlet: {} -> {}", () => [
+                                toRoute[0].id,
+                                viewHash,
+                                (currentOutlet as any).id || "unknown",
+                            ]);
+                        } else {
+                            this.logger.debug("{} -> 公共路由未找到子 outlet，existingView HTML: {}", () => [
+                                toRoute[0].id,
+                                existingView.innerHTML.substring(0, 200),
+                            ]);
+                        }
+                        this.logger.debug("{} -> 跳过公共路由 {}/{}", () => [toRoute[0].id, i + 1]);
+                        continue;
+                    }
+                }
+
+                // keepAlive 缓存逻辑：如果视图容器已存在，则跳过渲染
+                // keepAlive 默认为 true，除非显式设置为 false
+                if (curRouteItem.keepAlive !== false) {
                     const viewContainer = currentOutlet.getViewContainer(viewHash);
                     if (viewContainer) {
                         currentOutlet.view = viewHash;
-                        const outlet = this._findNextLevelOutlet(currentOutlet, viewHash);
-                        if (outlet) currentOutlet = outlet;
+                        // 使用 view 属性指向的视图容器来查找子 outlet
+                        const childOutlets = findOutlet(viewContainer);
+                        if (childOutlets.length > 0) {
+                            currentOutlet = childOutlets[0] as KylinOutlet;
+                        }
                         this.logger.debug(
                             "{} -> 使用缓存视图 {}/{} {} -> {}",
                             () => [
@@ -153,7 +206,7 @@ export class Render {
                 const viewContainer = currentOutlet.createViewContainer(matched, {
                     viewHash: viewHash,
                     dataHash: dataHash,
-                    keepAlive: curRouteItem.keepAlive,
+                    keepAlive: curRouteItem.keepAlive !== false,
                 });
                 pendingViewContainer = viewContainer;
 
@@ -182,6 +235,11 @@ export class Render {
                             data?.value,
                         );
                         viewContainer.resolve(view.value, data?.value);
+                        // 在刚解析的 viewContainer 中查找子 outlet
+                        const childOutlets = findOutlet(viewContainer.container);
+                        if (childOutlets.length > 0) {
+                            currentOutlet = childOutlets[0] as KylinOutlet;
+                        }
                         this._runAfterRender(fromRoute || [], toRoute, viewContainer.container);
                     }
                 } catch (loadingError) {

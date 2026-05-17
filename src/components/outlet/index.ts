@@ -15,13 +15,11 @@ export class KylinOutlet extends KylinRouterElementBase {
      * 启用 keepalive 缓存
      * 当启用时，视图会被缓存而不是销毁
      *
-     * - false: 视图将被缓存而不是销毁
-     * - true: 视图缓存
-     *
-     *
+     * - false: 离开路由时销毁视图
+     * - true: 保留视图以便复用（默认）
      */
     @property({ type: Boolean, reflect: true })
-    keepalive: boolean = false;
+    keepalive: boolean = true;
 
     /**
      * 加载状态
