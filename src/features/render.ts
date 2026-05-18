@@ -141,12 +141,15 @@ export class Render {
                 // 调试：查找失败时的详细信息
                 if (!currentOutlet) {
                     const foundInHost = this._findOutlet(this.host);
-                    this.logger.debug("{} -> 未找到{} outlet，搜索上下文标签: {}, host中数量: {}", () => [
-                        toRoute[0].id,
-                        matched.url,
-                        searchContext.tagName.toLowerCase(),
-                        foundInHost ? "在host中找到了" : "0",
-                    ]);
+                    this.logger.debug(
+                        "{} -> 未找到{} outlet，搜索上下文标签: {}, host中数量: {}",
+                        () => [
+                            toRoute[0].id,
+                            matched.url,
+                            searchContext.tagName.toLowerCase(),
+                            foundInHost ? "在host中找到了" : "0",
+                        ],
+                    );
                     continue;
                 }
 
@@ -157,7 +160,10 @@ export class Render {
                         currentOutlet.showViewContainer(viewHash);
                         // 直接在 existingView（即 viewHash 对应的容器）中查找子 outlet
                         const childOutlets = findOutlet(existingView);
-                        this.logger.debug("{} -> 公共路由查找子 outlet，数量: {}", () => [toRoute[0].id, childOutlets.length]);
+                        this.logger.debug("{} -> 公共路由查找子 outlet，数量: {}", () => [
+                            toRoute[0].id,
+                            childOutlets.length,
+                        ]);
                         if (childOutlets.length > 0) {
                             currentOutlet = childOutlets[0] as KylinOutlet;
                             this.logger.debug("{} -> 公共路由更新 outlet: {} -> {}", () => [
@@ -166,10 +172,10 @@ export class Render {
                                 (currentOutlet as any).id || "unknown",
                             ]);
                         } else {
-                            this.logger.debug("{} -> 公共路由未找到子 outlet，existingView HTML: {}", () => [
-                                toRoute[0].id,
-                                existingView.innerHTML.substring(0, 200),
-                            ]);
+                            this.logger.debug(
+                                "{} -> 公共路由未找到子 outlet，existingView HTML: {}",
+                                () => [toRoute[0].id, existingView.innerHTML.substring(0, 200)],
+                            );
                         }
                         this.logger.debug("{} -> 跳过公共路由 {}/{}", () => [toRoute[0].id, i + 1]);
                         continue;
@@ -221,7 +227,17 @@ export class Render {
                         data?.hash,
                         view,
                     ]);
+                    // 调试：如果 view 为 null/undefined，输出详细信息
                     if (!view) {
+                        this.logger.error("{} -> 视图加载返回空值，路由信息: {}", () => [
+                            toRoute[0].id,
+                            JSON.stringify({
+                                path: matched.route?.path,
+                                name: matched.route?.name,
+                                hasGetView: !!matched.route?._getView,
+                                getViewType: typeof matched.route?._getView,
+                            }),
+                        ]);
                         throw new KylinRouterError("视图加载失败", 500);
                     }
                     if (view.error) {

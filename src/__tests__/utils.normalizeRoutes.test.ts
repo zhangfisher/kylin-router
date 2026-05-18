@@ -590,7 +590,7 @@ describe("normalizeRoutes - 默认路由处理", () => {
 });
 
 describe("normalizeRoutes - 尾部斜杠处理", () => {
-    it("应该移除路径尾部的斜杠（但保留 path=\"/\"）", () => {
+    it('应该移除路径尾部的斜杠（但保留 path="/"）', () => {
         const input: KylinRouteItem[] = [
             { path: "/", name: "root", meta: { title: "Root" } },
             {
@@ -616,9 +616,7 @@ describe("normalizeRoutes - 尾部斜杠处理", () => {
     });
 
     it("应该移除多层路径中各段的尾部斜杠", () => {
-        const input: KylinRouteItem[] = [
-            { path: "a/b/c/", view: "deep.html" },
-        ];
+        const input: KylinRouteItem[] = [{ path: "a/b/c/", view: "deep.html" }];
         const output = normalizeRoutes(input);
 
         expect(output).toMatchObject({
@@ -638,9 +636,7 @@ describe("normalizeRoutes - 尾部斜杠处理", () => {
     });
 
     it("应该正确处理只有尾部斜杠的路径", () => {
-        const input: KylinRouteItem[] = [
-            { path: "test/", view: "test.html" },
-        ];
+        const input: KylinRouteItem[] = [{ path: "test/", view: "test.html" }];
         const output = normalizeRoutes(input);
 
         expect(output).toMatchObject({
@@ -649,10 +645,8 @@ describe("normalizeRoutes - 尾部斜杠处理", () => {
         });
     });
 
-    it("应该保持 path=\"/\" 不变", () => {
-        const input: KylinRouteItem[] = [
-            { path: "/", name: "root", view: "root.html" },
-        ];
+    it('应该保持 path="/" 不变', () => {
+        const input: KylinRouteItem[] = [{ path: "/", name: "root", view: "root.html" }];
         const output = normalizeRoutes(input);
 
         expect(output).toMatchObject({

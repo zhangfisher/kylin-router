@@ -66,11 +66,10 @@ function getOrCreateNode(
 }
 
 /**
- * 检查是否为默认路由（path="" 或 path="/"）
+ * 检查是否为默认路由（default: true）
  */
 function isDefaultRoute(route: KylinRouteItem): boolean {
-    const path = route.path.trim();
-    return path === "" || path === "/";
+    return route.default === true;
 }
 
 /**
@@ -82,39 +81,11 @@ function treeToArray(node: RouteTreeNode): KylinRouteItem[] {
     for (const [, childNode] of node.children) {
         // 从 childNode.route 复制属性，但排除 children（稍后会根据子节点重新构建）
         const { children: _, ...routeWithoutChildren } = childNode.route;
-        let route: KylinRouteItem = { ...routeWithoutChildren };
+        const route: KylinRouteItem = { ...routeWithoutChildren };
 
         if (childNode.children.size > 0) {
-            // 先递归处理子节点
-            const children = treeToArray(childNode);
-
-            // 查找默认路由（path="" 或 path="/"）
-            const defaultRouteIndex = children.findIndex(isDefaultRoute);
-
-            if (defaultRouteIndex !== -1) {
-                const defaultRoute = children[defaultRouteIndex];
-
-                // 将默认路由的属性合并到当前路由中（排除 path 和 children）
-                const { path: _, children: defaultChildren, ...defaultProps } = defaultRoute;
-                route = { ...route, ...defaultProps };
-
-                // 构建新的 children 数组：移除默认路由项，添加其 children
-                const otherChildren = children.filter((_, index) => index !== defaultRouteIndex);
-                const newChildren =
-                    defaultChildren && defaultChildren.length > 0
-                        ? [...otherChildren, ...defaultChildren]
-                        : otherChildren;
-
-                // 只有当 children 非空时才设置
-                if (newChildren.length > 0) {
-                    route.children = newChildren;
-                }
-            } else {
-                // 没有默认路由，直接使用原有的 children
-                if (children.length > 0) {
-                    route.children = children;
-                }
-            }
+            // 递归处理子节点
+            route.children = treeToArray(childNode);
         }
 
         result.push(route);
@@ -239,24 +210,7 @@ export function normalizeRoutes(routes?: KylinRouteItem | KylinRouteItem[] | nul
     }
 
     // 转换树为数组，只有非空时才设置 children
-    let children = treeToArray(rootNode);
-
-    // 检查根节点的 children 中是否有默认路由
-    const defaultRouteIndex = children.findIndex(isDefaultRoute);
-    if (defaultRouteIndex !== -1) {
-        const defaultRoute = children[defaultRouteIndex];
-
-        // 将默认路由的属性合并到结果中（排除 path 和 children）
-        const { path: _, children: defaultChildren, ...defaultProps } = defaultRoute;
-        Object.assign(result, defaultProps);
-
-        // 构建新的 children 数组：移除默认路由项，添加其 children
-        const otherChildren = children.filter((_, index) => index !== defaultRouteIndex);
-        children =
-            defaultChildren && defaultChildren.length > 0
-                ? [...otherChildren, ...defaultChildren]
-                : otherChildren;
-    }
+    const children = treeToArray(rootNode);
 
     if (children.length > 0) {
         result.children = children;

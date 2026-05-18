@@ -1,6 +1,7 @@
 // @ts-ignore
 import { parse as parseJson } from "really-relaxed-json";
 import { LitElement, html, type TemplateResult } from "lit";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { customElement, property } from "lit/decorators.js";
 import { styles } from "./styles";
 
@@ -165,7 +166,7 @@ export class KylinFeedbackElement extends LitElement {
         if (this.icon) {
             // 判断是否为 SVG（以 <svg 开头）
             if (this.icon.trim().startsWith("<svg")) {
-                return html`<div class="icon">${this.icon}</div>`;
+                return html`<div class="icon">${unsafeHTML(this.icon)}</div>`;
             }
             // 作为图片 URL 处理
             return html`<img class="icon" src="${this.icon}" alt="" />`;
@@ -173,11 +174,11 @@ export class KylinFeedbackElement extends LitElement {
 
         // 使用内置类型图标
         if (this.type && BUILTIN_ICONS[this.type]) {
-            return html`<div class="icon ${this.type}">${BUILTIN_ICONS[this.type]}</div>`;
+            return html`<div class="icon ${this.type}">${unsafeHTML(BUILTIN_ICONS[this.type])}</div>`;
         }
 
         // 默认使用 error 图标
-        return html`<div class="icon error">${BUILTIN_ICONS.error}</div>`;
+        return html`<div class="icon error">${unsafeHTML(BUILTIN_ICONS.error)}</div>`;
     }
 
     /**
@@ -237,7 +238,7 @@ export class KylinFeedbackElement extends LitElement {
      */
     private _renderActionButton(action: ActionConfig): TemplateResult {
         const title = action.title || action.name;
-        const iconHtml = action.icon ? html`<span class="action-icon">${action.icon}</span>` : "";
+        const iconHtml = action.icon ? html`<span class="action-icon">${unsafeHTML(action.icon)}</span>` : "";
 
         return html`
             <button

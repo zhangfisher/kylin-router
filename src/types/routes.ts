@@ -121,7 +121,7 @@ export interface KylinRouteViewOptions extends BaseLoaderOptions<string> {
      */
     scopedStyle?: boolean;
 }
-
+v;
 /**
  * 路由配置项
  */

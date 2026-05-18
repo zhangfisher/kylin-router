@@ -34,27 +34,35 @@ export const styles = css`
         height: 64px;
         margin-bottom: 16px;
         flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
     }
 
     .icon svg {
-        width: 100%;
-        height: 100%;
+        width: 32px;
+        height: 32px;
     }
 
     .icon.info {
-        color: #3b82f6;
+        color: #ffffff;
+        background-color: #3b82f6;
     }
 
     .icon.warn {
-        color: #f59e0b;
+        color: #ffffff;
+        background-color: #f59e0b;
     }
 
     .icon.error {
-        color: #ef4444;
+        color: #ffffff;
+        background-color: #ef4444;
     }
 
     .icon.success {
-        color: #22c55e;
+        color: #ffffff;
+        background-color: #22c55e;
     }
 
     .message {

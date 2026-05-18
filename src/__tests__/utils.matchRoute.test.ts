@@ -695,6 +695,11 @@ describe("matchRoute - 基础匹配", () => {
                         url: "/a",
                     }),
                     expect.objectContaining({
+                        route: expect.objectContaining({ path: "*" }),
+                        path: "/a/*",
+                        url: "/a/x",
+                    }),
+                    expect.objectContaining({
                         route: undefined,
                         url: "/a/x/y",
                     }),
@@ -851,6 +856,84 @@ describe("matchRoute - 基础匹配", () => {
                         route: expect.objectContaining({ name: "catch-all" }),
                         path: "/**",
                         url: "/any/deep/path",
+                    }),
+                ]);
+            });
+        });
+
+        describe("通配符剩余路径区分处理", () => {
+            it("纯 * 有剩余路径时应返回 null（不参与匹配）", () => {
+                const routes: KylinRouteItem = normalizeRoutes({
+                    path: "/",
+                    children: [{ name: "wildcard", path: "*" }],
+                });
+
+                const result = matchRoute("/any/deep/path", routes);
+
+                // * 不应该参与匹配，直接返回未匹配项
+                expect(result).toEqual([
+                    expect.objectContaining({
+                        route: expect.objectContaining({ path: "/" }),
+                        url: "/",
+                    }),
+                    expect.objectContaining({
+                        route: undefined,
+                        url: "/any/deep/path",
+                    }),
+                ]);
+                // 不应该包含 * 的匹配项
+                expect(result.some((r) => r.route?.path === "*")).toBe(false);
+            });
+
+            it("/a/* 有剩余路径时应返回未匹配项", () => {
+                const routes: KylinRouteItem = normalizeRoutes({
+                    path: "/",
+                    children: [{ name: "pattern", path: "/a/*" }],
+                });
+
+                const result = matchRoute("/a/x/y", routes);
+
+                // /a/* 应该匹配 /a/x，剩余 /y 返回未匹配项
+                expect(result).toHaveLength(4);
+                expect(result).toEqual([
+                    expect.objectContaining({
+                        route: expect.objectContaining({ path: "/" }),
+                        url: "/",
+                    }),
+                    expect.objectContaining({
+                        route: expect.objectContaining({ path: "a" }),
+                        path: "/a",
+                        url: "/a",
+                    }),
+                    expect.objectContaining({
+                        route: expect.objectContaining({ path: "*" }),
+                        path: "/a/*",
+                        url: "/a/x",
+                    }),
+                    expect.objectContaining({
+                        route: undefined,
+                        url: "/a/x/y",
+                    }),
+                ]);
+            });
+
+            it("纯 * 单段路径应该完全匹配", () => {
+                const routes: KylinRouteItem = normalizeRoutes({
+                    path: "/",
+                    children: [{ name: "wildcard", path: "*" }],
+                });
+
+                const result = matchRoute("/any", routes);
+
+                // * 完全匹配单段路径
+                expect(result).toEqual([
+                    expect.objectContaining({
+                        route: expect.objectContaining({ path: "/" }),
+                        url: "/",
+                    }),
+                    expect.objectContaining({
+                        route: expect.objectContaining({ name: "wildcard" }),
+                        url: "/any",
                     }),
                 ]);
             });
@@ -1056,6 +1139,82 @@ describe("createRouteMatcher", () => {
 });
 
 describe("matchRoute - 默认子路由处理", () => {
+    it("路由时自动选择 default:true 的子路由", () => {
+        const routes: KylinRouteItem = normalizeRoutes({
+            path: "/",
+            children: [{ name: "home", path: "home", default: true }],
+        });
+
+        const result = matchRoute("/", routes);
+
+        expect(result).toEqual([
+            expect.objectContaining({
+                route: expect.objectContaining({ path: "/" }),
+                url: "/",
+                path: "/",
+            }),
+            expect.objectContaining({
+                route: expect.objectContaining({ path: "home" }),
+                path: "/home",
+                url: "/home",
+            }),
+        ]);
+    });
+    it("嵌套默认子路由", () => {
+        const routes: KylinRouteItem = normalizeRoutes({
+            path: "/",
+            children: [
+                {
+                    name: "home",
+                    path: "home",
+                    default: true,
+                    children: [
+                        {
+                            path: "a",
+                            default: true,
+                            children: [
+                                {
+                                    path: "b",
+                                    default: true,
+                                    children: [{ path: "c", default: true }],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+
+        const result = matchRoute("/", routes);
+
+        expect(result).toEqual([
+            expect.objectContaining({
+                route: expect.objectContaining({ path: "/" }),
+                url: "/",
+                path: "/",
+            }),
+            expect.objectContaining({
+                route: expect.objectContaining({ path: "home" }),
+                path: "/home",
+                url: "/home",
+            }),
+            expect.objectContaining({
+                route: expect.objectContaining({ path: "a" }),
+                path: "/home/a",
+                url: "/home/a",
+            }),
+            expect.objectContaining({
+                route: expect.objectContaining({ path: "b" }),
+                path: "/home/a/b",
+                url: "/home/a/b",
+            }),
+            expect.objectContaining({
+                route: expect.objectContaining({ path: "c" }),
+                path: "/home/a/b/c",
+                url: "/home/a/b/c",
+            }),
+        ]);
+    });
     it("应该在路径完全匹配父路由时自动选择 default:true 的子路由", () => {
         const routes: KylinRouteItem = normalizeRoutes({
             path: "/",
@@ -1072,9 +1231,24 @@ describe("matchRoute - 默认子路由处理", () => {
         });
 
         const result = matchRoute("/products", routes);
-        expect(result).toHaveLength(3);
-        expect(result[1].route.name).toBe("products");
-        expect(result[2].route.name).toBe("detail");
+
+        expect(result).toEqual([
+            expect.objectContaining({
+                route: expect.objectContaining({ path: "/" }),
+                url: "/",
+                path: "/",
+            }),
+            expect.objectContaining({
+                route: expect.objectContaining({ path: "products" }),
+                path: "/products",
+                url: "/products",
+            }),
+            expect.objectContaining({
+                route: expect.objectContaining({ path: "detail" }),
+                path: "/products/detail",
+                url: "/products/detail",
+            }),
+        ]);
     });
 
     it("当有多个 default:true 时应选择第一个", () => {
@@ -1114,11 +1288,26 @@ describe("matchRoute - 默认子路由处理", () => {
 
         const result = matchRoute("/products", routes);
 
-        expect(result).toHaveLength(3);
-        expect(result[1].route.name).toBe("list");
+        expect(result).toEqual([
+            expect.objectContaining({
+                route: expect.objectContaining({ path: "/" }),
+                url: "/",
+                path: "/",
+            }),
+            expect.objectContaining({
+                route: expect.objectContaining({ path: "products" }),
+                path: "/products",
+                url: "/products",
+            }),
+            expect.objectContaining({
+                route: expect.objectContaining({ path: "detail" }),
+                path: "/products/detail",
+                url: "/products/detail",
+            }),
+        ]);
     });
 
-    it("应该识别 path 为空字符串的默认路由", () => {
+    it("应该忽略 path 为空字符串的路由", () => {
         const routes: KylinRouteItem = normalizeRoutes({
             path: "/",
             children: [
@@ -1133,10 +1322,21 @@ describe("matchRoute - 默认子路由处理", () => {
         const result = matchRoute("/products", routes);
 
         expect(result).toHaveLength(2);
-        expect(result[1].route.name).toBe("default");
+        expect(result).toEqual([
+            expect.objectContaining({
+                route: expect.objectContaining({ path: "/" }),
+                url: "/",
+                path: "/",
+            }),
+            expect.objectContaining({
+                route: expect.objectContaining({ path: "products" }),
+                path: "/products",
+                url: "/products",
+            }),
+        ]);
     });
 
-    it("应该识别 path 为斜杠的默认路由", () => {
+    it("应该忽略 path 为斜杠的默认路由", () => {
         const routes: KylinRouteItem[] = normalizeRoutes([
             {
                 name: "products",
@@ -1148,7 +1348,18 @@ describe("matchRoute - 默认子路由处理", () => {
         const result = matchRoute("/products", routes);
 
         expect(result).toHaveLength(2);
-        expect(result[1].route.name).toBe("default");
+        expect(result).toEqual([
+            expect.objectContaining({
+                route: expect.objectContaining({ path: "/" }),
+                url: "/",
+                path: "/",
+            }),
+            expect.objectContaining({
+                route: expect.objectContaining({ path: "products" }),
+                path: "/products",
+                url: "/products",
+            }),
+        ]);
     });
 
     it("应该识别 path 为 ./ 的默认路由", () => {
@@ -1167,200 +1378,6 @@ describe("matchRoute - 默认子路由处理", () => {
 
         expect(result).toHaveLength(2);
         expect(result[1].route.name).toBe("products");
-    });
-    it("应该支持多层嵌套的默认路由", () => {
-        const routes: KylinRouteItem = normalizeRoutes({
-            path: "/",
-            children: [
-                {
-                    name: "admin",
-                    path: "/admin",
-                    children: [
-                        {
-                            name: "level1",
-                            path: "",
-                            default: true,
-                            children: [
-                                {
-                                    name: "dashboard",
-                                    path: "",
-                                    default: true,
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
-        });
-
-        const result = matchRoute("/admin", routes);
-
-        expect(result).toHaveLength(2);
-        expect(result[1].route.name).toBe("dashboard");
-    });
-
-    it("应该支持更深层级的默认路由嵌套", () => {
-        const routes: KylinRouteItem = normalizeRoutes({
-            path: "/",
-            children: [
-                {
-                    name: "app",
-                    path: "/app",
-                    children: [
-                        {
-                            name: "level1",
-                            path: "",
-                            default: true,
-                            children: [
-                                {
-                                    name: "level2",
-                                    path: "",
-                                    default: true,
-                                    children: [
-                                        {
-                                            name: "level3",
-                                            path: "",
-                                            default: true,
-                                        },
-                                    ],
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
-        });
-
-        const result = matchRoute("/app", routes);
-
-        expect(result).toHaveLength(2);
-        expect(result[1].route.name).toBe("level3");
-    });
-});
-
-describe("view/data 继承", () => {
-    it("当父路由没有 view 时应该从默认路由继承", () => {
-        const routes: KylinRouteItem = normalizeRoutes({
-            path: "/",
-            children: [
-                {
-                    name: "products",
-                    path: "/products",
-                    // 没有 view
-                    children: [
-                        {
-                            name: "products-list",
-                            path: "",
-                            view: "pages/products-list.html",
-                            data: "data/products.json",
-                        },
-                    ],
-                },
-            ],
-        });
-
-        const result = matchRoute("/products", routes);
-
-        expect(result).toHaveLength(2);
-        // 父路由的 view 应该从默认路由继承
-        expect(result[1].route.view).toBe("pages/products-list.html");
-        expect(result[1].route.data).toBe("data/products.json");
-    });
-
-    it("当父路由没有 data 时应该从默认路由继承", () => {
-        const routes: KylinRouteItem = normalizeRoutes({
-            path: "/",
-            children: [
-                {
-                    name: "products",
-                    path: "/products",
-                    view: "pages/products.html",
-                    // 没有 data
-                    children: [
-                        {
-                            name: "products-list",
-                            path: "",
-                            view: "pages/products-list.html",
-                            data: "data/products.json",
-                        },
-                    ],
-                },
-            ],
-        });
-
-        const result = matchRoute("/products", routes);
-
-        expect(result).toHaveLength(2);
-        // 父路由的 data 应该从默认路由继承
-        expect(result[1].route.view).toBe("pages/products-list.html");
-        expect(result[1].route.data).toBe("data/products.json");
-    });
-
-    it("当父路由有 view/data 时覆盖", () => {
-        const routes: KylinRouteItem = normalizeRoutes({
-            path: "/",
-            children: [
-                {
-                    name: "products",
-                    path: "/products",
-                    view: "pages/products.html",
-                    data: "data/parent.json",
-                    children: [
-                        {
-                            name: "products-list",
-                            path: "",
-                            view: "pages/products-list.html",
-                            data: "data/products.json",
-                        },
-                    ],
-                },
-            ],
-        });
-
-        const result = matchRoute("/products", routes);
-
-        expect(result).toHaveLength(2);
-        // 父路由的 view/data 应该保持不变
-        expect(result[1].route.view).toBe("pages/products-list.html");
-        expect(result[1].route.data).toBe("data/products.json");
-    });
-
-    it("多层嵌套时应该正确继承 view/data", () => {
-        const routes: KylinRouteItem = normalizeRoutes({
-            path: "/",
-            children: [
-                {
-                    name: "app",
-                    path: "/app",
-                    // 没有 view 和 data
-                    children: [
-                        {
-                            name: "level1",
-                            path: "",
-                            default: true,
-                            view: "pages/level1.html",
-                            // 没有 data
-                            children: [
-                                {
-                                    name: "level2",
-                                    path: "",
-                                    default: true,
-                                    view: "pages/level2.html",
-                                    data: "data/level2.json",
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
-        });
-
-        const result = matchRoute("/app", routes);
-
-        expect(result).toHaveLength(2);
-        // level1 层有 view，保留自己的 view；没有 data，从 level2 继承 data
-        expect(result[1].route.view).toBe("pages/level2.html");
-        expect(result[1].route.data).toBe("data/level2.json");
     });
 });
 
