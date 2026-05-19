@@ -202,7 +202,9 @@ export class KylinRouter extends Mixin(
         toRoute: KylinMatchedRouteItem[];
     } {
         const fromRoute = this.routes.current;
-        const toRoute = matchRoute(pathname + "?" + search, this.routes.root);
+        const toRoute = matchRoute(pathname + "?" + search, this.routes.root, {
+            autoMatchSubRoute: this.options.autoMatchSubRoute ?? false,
+        });
         return { fromRoute, toRoute };
     }
 

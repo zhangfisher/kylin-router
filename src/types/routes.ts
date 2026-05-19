@@ -121,7 +121,6 @@ export interface KylinRouteViewOptions extends BaseLoaderOptions<string> {
      */
     scopedStyle?: boolean;
 }
-v;
 /**
  * 路由配置项
  */
@@ -134,12 +133,8 @@ export interface KylinRouteItem {
      * - 动态参数：/user/:id、/user/<id>
      * - 正则约束：/user/:id(\d+)
      * - 通则符：* 匹配任意路径
-     *
-     * 子路由不以 / 开头时为相对路径，自动继承父路由路径
      */
     path: string;
-
-    fullPath?: string;
     /**
      * 指向渲染此路由的 outlet 元素的 WeakRef
      * 用于嵌套路由的递归渲染

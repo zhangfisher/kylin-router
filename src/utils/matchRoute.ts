@@ -17,6 +17,19 @@ import { getRouteHash } from "./getRouteHash";
 let matchedId: number = 0;
 
 /**
+ * 路由匹配选项
+ */
+export interface MatchRouteOptions {
+    /**
+     * 自动匹配子路由选项
+     * 当设置为 true 时，如果子路由中没有 default: true 的路由，
+     * 会自动使用 children[0] 作为默认路由
+     * @default false
+     */
+    autoMatchSubRoute?: boolean;
+}
+
+/**
  * 单个路由匹配器的匹配结果
  */
 interface RouteMatchResult {
@@ -205,7 +218,9 @@ function compileSegments(pattern: string, fullMatch: boolean): CompiledPattern {
 }
 
 /**
- * 在子路由中递归查找默认路由 (default: true)
+ * 在子路由中递归查找默认路由
+ * 1. 优先选择 default: true 的路由
+ * 2. 如果 autoMatchSubRoute 为 true 且没有 default: true，使用 children[0] 作为后备
  * 返回默认路由及其所有嵌套的默认子路由
  *
  * view/data 继承规则：
@@ -217,6 +232,7 @@ function findDefaultRoute(
     parentMatchedRoute: KylinMatchedRouteItem,
     inputQuery: Record<string, string>,
     id: number,
+    autoMatchSubRoute: boolean,
 ): KylinMatchedRouteItem[] | null {
     // 查找第一个 default: true 的路由
     for (const route of routes) {
@@ -252,7 +268,13 @@ function findDefaultRoute(
 
             // 递归查找下一级默认路由
             if (route.children && route.children.length > 0) {
-                const childDefaults = findDefaultRoute(route.children, currentMatch, inputQuery, id);
+                const childDefaults = findDefaultRoute(
+                    route.children,
+                    currentMatch,
+                    inputQuery,
+                    id,
+                    autoMatchSubRoute,
+                );
                 if (childDefaults && childDefaults.length > 0) {
                     // 从子默认路由继承 view/data（包括间接继承）
                     const childRoute = childDefaults[0].route;
@@ -288,6 +310,80 @@ function findDefaultRoute(
 
             return [currentMatch];
         }
+    }
+
+    // 如果没有 default: true 且 autoMatchSubRoute 为 true，使用第一个子路由作为后备
+    if (autoMatchSubRoute && routes.length > 0) {
+        const route = routes[0]!;
+        const fullPath = joinPath(parentMatchedRoute.path, route.path);
+        const mergedParams = { ...parentMatchedRoute.params, ...route.params };
+        const mergedQuery = { ...route.query, ...inputQuery };
+
+        // view/data 继承逻辑
+        let parentRoute = parentMatchedRoute.route;
+        if (parentRoute && !parentRoute.view && route.view) {
+            parentRoute = { ...parentRoute, view: route.view };
+        }
+        if (parentRoute && !parentRoute.data && route.data) {
+            parentRoute = { ...parentRoute, data: route.data };
+        }
+
+        const fullUrl = normalizeUrl(joinPath(parentMatchedRoute.url, route.path));
+
+        const currentMatch: KylinMatchedRouteItem = {
+            route,
+            params: mergedParams,
+            query: mergedQuery,
+            state: {},
+            path: fullPath,
+            url: fullUrl,
+            hash: "",
+            id,
+        };
+        currentMatch.hash = getRouteHash(currentMatch);
+
+        // 递归查找下一级默认路由
+        if (route.children && route.children.length > 0) {
+            const childDefaults = findDefaultRoute(
+                route.children,
+                currentMatch,
+                inputQuery,
+                id,
+                autoMatchSubRoute,
+            );
+            if (childDefaults && childDefaults.length > 0) {
+                // 从子默认路由继承 view/data（包括间接继承）
+                const childRoute = childDefaults[0].route;
+                let currentRouteToUse = currentMatch.route;
+                if (currentRouteToUse) {
+                    if (!currentRouteToUse.view && childRoute.view) {
+                        currentRouteToUse = { ...currentRouteToUse, view: childRoute.view };
+                    }
+                    if (!currentRouteToUse.data && childRoute.data) {
+                        currentRouteToUse = { ...currentRouteToUse, data: childRoute.data };
+                    }
+                    currentMatch.route = currentRouteToUse;
+                }
+                // 递归更新子默认路由的继承
+                for (let i = 0; i < childDefaults.length - 1; i++) {
+                    const currentChild = childDefaults[i];
+                    const nextChild = childDefaults[i + 1];
+                    let childRouteToUse = currentChild.route;
+                    if (childRouteToUse) {
+                        if (!childRouteToUse.view && nextChild.route.view) {
+                            childRouteToUse = { ...childRouteToUse, view: nextChild.route.view };
+                        }
+                        if (!childRouteToUse.data && nextChild.route.data) {
+                            childRouteToUse = { ...childRouteToUse, data: nextChild.route.data };
+                        }
+                        currentChild.route = childRouteToUse;
+                    }
+                }
+                return [currentMatch, ...childDefaults];
+            }
+        }
+
+        return [currentMatch];
     }
 
     return null;
@@ -419,6 +515,7 @@ function processSingleRoute(
     parentMatchedRoute: KylinMatchedRouteItem | null,
     inputQuery: Record<string, string>,
     id: number,
+    autoMatchSubRoute: boolean,
 ): KylinMatchedRouteItem[] | null {
     const parentPath = parentMatchedRoute?.path || "";
     const parentParams = parentMatchedRoute?.params || {};
@@ -483,6 +580,7 @@ function processSingleRoute(
                 currentMatch,
                 inputQuery,
                 id,
+                autoMatchSubRoute,
             );
             if (childMatches.length > 0) {
                 return [currentMatch, ...childMatches];
@@ -505,6 +603,7 @@ function processSingleRoute(
             currentMatch,
             inputQuery,
             id,
+            autoMatchSubRoute,
         );
 
         if (childMatches.length > 0) {
@@ -562,13 +661,21 @@ function _matchRoutesInternal(
     parentMatchedRoute: KylinMatchedRouteItem | null,
     inputQuery: Record<string, string> = {},
     id: number,
+    autoMatchSubRoute: boolean,
 ): KylinMatchedRouteItem[] {
     // 按优先级分组遍历：具体路径 > 参数化路径 > 通配符
     // 第一组：具体路径和参数化路径（非通配符）
     for (const route of routes) {
         if (route.path === "*" || route.path.includes("*")) continue;
 
-        const result = processSingleRoute(route, path, parentMatchedRoute, inputQuery, id);
+        const result = processSingleRoute(
+            route,
+            path,
+            parentMatchedRoute,
+            inputQuery,
+            id,
+            autoMatchSubRoute,
+        );
         if (result) return result;
     }
 
@@ -576,7 +683,14 @@ function _matchRoutesInternal(
     for (const route of routes) {
         if (!route.path.includes("*")) continue;
 
-        const result = processSingleRoute(route, path, parentMatchedRoute, inputQuery, id);
+        const result = processSingleRoute(
+            route,
+            path,
+            parentMatchedRoute,
+            inputQuery,
+            id,
+            autoMatchSubRoute,
+        );
         if (result) return result;
     }
 
@@ -596,6 +710,7 @@ function _matchRoutesInternal(
  *
  * @param path - 当前 URL 路径
  * @param roots - 树形路由表配置（具有唯一根节点）
+ * @param options - 匹配选项
  * @returns 匹配的路由项数组，包含根路由和匹配分支上的所有 KylinMatchedRouteItem
  *
  * @example
@@ -610,9 +725,14 @@ function _matchRoutesInternal(
  * matchRoute("/user/123", roots);
  * // 返回: [{ route: root, ... }, { route: user, ... }]
  */
-export function matchRoute(path: string, roots: KylinRouteItem): KylinMatchedRouteItem[] {
+export function matchRoute(
+    path: string,
+    roots: KylinRouteItem,
+    options?: MatchRouteOptions,
+): KylinMatchedRouteItem[] {
     const { pathname: pathWithoutQuery, query: inputQuery } = parseQueryString(path);
     const normalizedPath = normalizePath(pathWithoutQuery);
+    const autoMatchSubRoute = options?.autoMatchSubRoute ?? false;
 
     const currentId = ++matchedId;
 
@@ -637,6 +757,7 @@ export function matchRoute(path: string, roots: KylinRouteItem): KylinMatchedRou
         null,
         inputQuery,
         currentId,
+        autoMatchSubRoute,
     );
 
     // 检查子路由是否有真正的匹配（不是未匹配项）
@@ -656,6 +777,7 @@ export function matchRoute(path: string, roots: KylinRouteItem): KylinMatchedRou
             rootMatch,
             inputQuery,
             currentId,
+            autoMatchSubRoute,
         );
 
         if (defaultMatches && defaultMatches.length > 0) {
@@ -711,6 +833,7 @@ export function matchRoute(path: string, roots: KylinRouteItem): KylinMatchedRou
                         defaultChildMatch,
                         inputQuery,
                         currentId,
+                        autoMatchSubRoute,
                     );
                     if (nestedDefaults && nestedDefaults.length > 0) {
                         return [rootMatch, defaultChildMatch, ...nestedDefaults];

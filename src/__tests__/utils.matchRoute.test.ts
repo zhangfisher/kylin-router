@@ -1379,6 +1379,182 @@ describe("matchRoute - 默认子路由处理", () => {
         expect(result).toHaveLength(2);
         expect(result[1].route.name).toBe("products");
     });
+
+    describe("autoMatchSubRoute 选项", () => {
+        it("autoMatchSubRoute=false 时没有 default:true 应返回根路由", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    { name: "home", path: "home" },
+                    { name: "about", path: "about" },
+                ],
+            });
+
+            const result = matchRoute("/", routes, { autoMatchSubRoute: false });
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                    path: "/",
+                }),
+            ]);
+        });
+
+        it("autoMatchSubRoute=true 时没有 default:true 应自动使用 children[0]", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    { name: "home", path: "home" },
+                    { name: "about", path: "about" },
+                ],
+            });
+
+            const result = matchRoute("/", routes, { autoMatchSubRoute: true });
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                    path: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ name: "home" }),
+                    path: "/home",
+                    url: "/home",
+                }),
+            ]);
+        });
+
+        it("autoMatchSubRoute=true 时嵌套路由应自动使用 children[0]", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    {
+                        name: "products",
+                        path: "products",
+                        children: [
+                            { name: "list", path: "list" },
+                            { name: "detail", path: "detail" },
+                        ],
+                    },
+                ],
+            });
+
+            const result = matchRoute("/", routes, { autoMatchSubRoute: true });
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                    path: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ name: "products" }),
+                    path: "/products",
+                    url: "/products",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ name: "list" }),
+                    path: "/products/list",
+                    url: "/products/list",
+                }),
+            ]);
+        });
+
+        it("autoMatchSubRoute 优先级：default:true 高于 children[0]", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    { name: "first", path: "first" },
+                    { name: "second", path: "second", default: true },
+                    { name: "third", path: "third" },
+                ],
+            });
+
+            const result1 = matchRoute("/", routes, { autoMatchSubRoute: false });
+            const result2 = matchRoute("/", routes, { autoMatchSubRoute: true });
+
+            // 无论 autoMatchSubRoute 是什么，default:true 优先
+            expect(result1[1].route.name).toBe("second");
+            expect(result2[1].route.name).toBe("second");
+        });
+
+        it("autoMatchSubRoute=true 支持多级嵌套使用 children[0]", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    {
+                        name: "a",
+                        path: "a",
+                        children: [
+                            {
+                                name: "b",
+                                path: "b",
+                                children: [
+                                    {
+                                        name: "c",
+                                        path: "c",
+                                        children: [{ name: "d", path: "d" }],
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            });
+
+            const result = matchRoute("/", routes, { autoMatchSubRoute: true });
+
+            expect(result).toHaveLength(5);
+            expect(result[1].route.name).toBe("a");
+            expect(result[2].route.name).toBe("b");
+            expect(result[3].route.name).toBe("c");
+            expect(result[4].route.name).toBe("d");
+        });
+
+        it("autoMatchSubRoute=true 支持混合 default:true 和 children[0]", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    {
+                        name: "products",
+                        path: "products",
+                        children: [
+                            { name: "detail", path: "detail", default: true },
+                            { name: "list", path: "list" },
+                        ],
+                    },
+                ],
+            });
+
+            const result = matchRoute("/", routes, { autoMatchSubRoute: true });
+
+            expect(result).toHaveLength(3);
+            // 第一层使用 children[0] (products)
+            expect(result[1].route.name).toBe("products");
+            // 第二层使用 default:true (detail)
+            expect(result[2].route.name).toBe("detail");
+        });
+
+        it("autoMatchSubRoute 默认值为 false", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [{ name: "home", path: "home" }],
+            });
+
+            // 不传 options 参数，默认行为是不自动匹配
+            const result = matchRoute("/", routes);
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                    path: "/",
+                }),
+            ]);
+        });
+    });
 });
 
 describe("matchRoute - 未匹配路由处理", () => {
