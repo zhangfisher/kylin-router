@@ -24,7 +24,7 @@ import {
 import { getBaseUrl } from "@/utils/getBaseUrl";
 
 import { HookManager } from "./features/hooks";
-import { RouteRegistry } from "./features/routes";
+import { KylinRouteTable } from "./features/routes";
 import { AlpineManager } from "./features/alpine";
 
 import { joinPath, matchRoute } from "./utils";
@@ -50,7 +50,7 @@ export class KylinRouter extends Mixin(
 
     outlets?: OutletRefs;
     /** 路由表注册器 */
-    public routes!: RouteRegistry;
+    public routes!: KylinRouteTable;
 
     /** 钩子管理器 */
     public hooks!: HookManager;
@@ -371,7 +371,7 @@ export class KylinRouter extends Mixin(
         this.history = this.mode === "hash" ? createHashHistory() : createBrowserHistory();
 
         // 初始化路由表注册器
-        this.routes = new RouteRegistry(this);
+        this.routes = new KylinRouteTable(this);
         // 初始化钩子管理器
         this.hooks = new HookManager(this);
         this.routes

@@ -21,14 +21,19 @@ export interface NavigationCallbacks {
     setIsNavigating: (value: boolean) => void;
 }
 
-export class RouteRegistry {
+export class KylinRouteTable {
     /** 根路由 - 规范化后的路由树根节点 */
     root: KylinRouteItem = normalizeRoutes();
     /** 当前路由状态 */
     public current?: KylinMatchedRouteItem[];
-
+    /**
+     * 用于缓存命名路由项，方便通过name进行快速重定向或路由
+     *
+     * 注意： name必须是全局唯一，重复命名只会记住一个
+     *
+     */
+    namedRouteItems?: Map<string, WeakRef<KylinRouteItem>>;
     router: KylinRouter;
-
     constructor(router: KylinRouter) {
         this.router = router;
     }
@@ -71,6 +76,13 @@ export class RouteRegistry {
     private _applyRouteOptions(route: KylinRouteItem): void {
         const overrideItems = ["keepAlive", "cache", "timeout", "preload"];
         const processRoute = (r: KylinRouteItem) => {
+            // 缓存命名路由项
+            if (r.name && r.name.length > 0) {
+                if (!this.namedRouteItems) {
+                    this.namedRouteItems = new Map();
+                }
+                this.namedRouteItems!.set(r.name, new WeakRef(r));
+            }
             if (this.router.options.routeOptions) {
                 const routeOptions = this.router.options.routeOptions;
                 overrideItems.forEach((item) => {
