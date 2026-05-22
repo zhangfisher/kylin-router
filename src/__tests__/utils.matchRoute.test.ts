@@ -1757,3 +1757,529 @@ describe("matchRoute - 未匹配路由处理", () => {
         ]);
     });
 });
+
+describe("matchRoute - 重定向处理", () => {
+    describe("字符串重定向", () => {
+        it("应该重定向到绝对路径", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    { name: "old", path: "old-path", redirect: "/new-path" },
+                    { name: "new", path: "new-path", view: "new.html" },
+                ],
+            });
+
+            const result = matchRoute("/old-path", routes);
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "new-path" }),
+                    url: "/new-path",
+                    redirectFrom: [{ url: "/old-path", mode: "replace" }],
+                }),
+            ]);
+        });
+
+        it("应该支持链式重定向", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    { name: "a", path: "a", redirect: "/b" },
+                    { name: "b", path: "b", redirect: "/c" },
+                    { name: "c", path: "c", view: "c.html" },
+                ],
+            });
+
+            const result = matchRoute("/a", routes);
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "c" }),
+                    url: "/c",
+                    redirectFrom: [
+                        { url: "/a", mode: "replace" },
+                        { url: "/b", mode: "replace" },
+                    ],
+                }),
+            ]);
+        });
+    });
+
+    describe("相对路径重定向", () => {
+        it("应该解析 ./sibling 相对路径", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    {
+                        name: "a",
+                        path: "a",
+                        children: [
+                            {
+                                name: "b",
+                                path: "b",
+                                children: [
+                                    { name: "c", path: "c", redirect: "./sibling" },
+                                    { name: "sibling", path: "sibling", view: "sibling.html" },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            });
+
+            const result = matchRoute("/a/b/c", routes);
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "a" }),
+                    url: "/a",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "b" }),
+                    url: "/a/b",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "sibling" }),
+                    url: "/a/b/sibling",
+                    redirectFrom: [{ url: "/a/b/c", mode: "replace" }],
+                }),
+            ]);
+        });
+
+        it("应该解析 ../sibling 相对路径", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    {
+                        name: "a",
+                        path: "a",
+                        children: [
+                            {
+                                name: "b",
+                                path: "b",
+                                children: [
+                                    { name: "up1", path: "up1", redirect: "../target" },
+                                ],
+                            },
+                            { name: "target", path: "target", view: "target.html" },
+                        ],
+                    },
+                ],
+            });
+
+            const result = matchRoute("/a/b/up1", routes);
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "a" }),
+                    url: "/a",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ name: "target" }),
+                    url: "/a/target",
+                    redirectFrom: [{ url: "/a/b/up1", mode: "replace" }],
+                }),
+            ]);
+        });
+
+        it("应该解析 ../../uncle 相对路径", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    {
+                        name: "a",
+                        path: "a",
+                        children: [
+                            {
+                                name: "b",
+                                path: "b",
+                                children: [
+                                    { name: "up2", path: "up2", redirect: "../../target" },
+                                ],
+                            },
+                        ],
+                    },
+                    { name: "target", path: "target", view: "target.html" },
+                ],
+            });
+
+            const result = matchRoute("/a/b/up2", routes);
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ name: "target" }),
+                    url: "/target",
+                    redirectFrom: [{ url: "/a/b/up2", mode: "replace" }],
+                }),
+            ]);
+        });
+    });
+
+    describe("push 模式重定向", () => {
+        it("应该支持 push 模式重定向", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    {
+                        name: "temporary",
+                        path: "temporary",
+                        redirect: { path: "/permanent", mode: "push" },
+                    },
+                    { name: "permanent", path: "permanent", view: "permanent.html" },
+                ],
+            });
+
+            const result = matchRoute("/temporary", routes);
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "permanent" }),
+                    url: "/permanent",
+                    redirectFrom: [{ url: "/temporary", mode: "push" }],
+                }),
+            ]);
+        });
+    });
+
+    describe("函数重定向", () => {
+        it("应该支持动态函数重定向", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    {
+                        name: "user",
+                        path: "user",
+                        children: [
+                            {
+                                name: "id",
+                                path: ":id",
+                                redirect: (route) => `/profile/${route.params.id}`,
+                            },
+                        ],
+                    },
+                    {
+                        name: "profile",
+                        path: "profile",
+                        children: [{ name: "id", path: ":id", view: "profile.html" }],
+                    },
+                ],
+            });
+
+            const result = matchRoute("/user/123", routes);
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "profile" }),
+                    url: "/profile",
+                    params: {},
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: ":id" }),
+                    url: "/profile/123",
+                    params: { id: "123" },
+                    redirectFrom: [{ url: "/user/123", mode: "replace" }],
+                }),
+            ]);
+        });
+
+        it("函数返回 null 时应该不重定向", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    {
+                        name: "conditional",
+                        path: "conditional",
+                        redirect: () => null,
+                    },
+                ],
+            });
+
+            const result = matchRoute("/conditional", routes);
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "conditional" }),
+                    url: "/conditional",
+                }),
+            ]);
+        });
+    });
+
+    describe("重定向循环检测", () => {
+        it("应该检测重定向循环并返回错误", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    { name: "a", path: "a", redirect: "/b" },
+                    { name: "b", path: "b", redirect: "/c" },
+                    { name: "c", path: "c", redirect: "/a" },
+                ],
+            });
+
+            const result = matchRoute("/a", routes);
+
+            // 循环检测返回：route 为 undefined，url 为尝试重定向的目标路径
+            expect(result.length).toBe(2);
+            expect(result[0]!.route?.path).toBe("/");
+            expect(result[0]!.url).toBe("/");
+
+            expect(result[1]!.route).toBeUndefined();
+            expect(result[1]!.url).toBe("/a");
+            expect(result[1]!.error?.name).toBe("KylinRouteLoopExistedError");
+            expect(result[1]!.redirectFrom).toEqual([
+                { url: "/a", mode: "replace" },
+                { url: "/b", mode: "replace" },
+                { url: "/c", mode: "replace" },
+            ]);
+        });
+    });
+
+    describe("最大重定向次数限制", () => {
+        it("应该在达到最大重定向次数时返回错误", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    { name: "1", path: "1", redirect: "/2" },
+                    { name: "2", path: "2", redirect: "/3" },
+                    { name: "3", path: "3", redirect: "/4" },
+                    { name: "4", path: "4", view: "end.html" },
+                ],
+            });
+
+            const result = matchRoute("/1", routes, { maxRedirect: 2 });
+
+            // 最大重定向时，route 为 undefined，url 为尝试重定向的目标路径
+            expect(result.length).toBe(2);
+            expect(result[0]!.route?.path).toBe("/");
+            expect(result[0]!.url).toBe("/");
+
+            expect(result[1]!.route).toBeUndefined();
+            expect(result[1]!.url).toBe("/4");
+            expect(result[1]!.error?.name).toBe("KylinRouteMaxRedirectError");
+            expect(result[1]!.redirectFrom).toEqual([
+                { url: "/1", mode: "replace" },
+                { url: "/2", mode: "replace" },
+                { url: "/3", mode: "replace" },
+            ]);
+        });
+
+        it("默认 maxRedirect=10 应该允许正常重定向", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    { name: "1", path: "1", redirect: "/2" },
+                    { name: "2", path: "2", redirect: "/3" },
+                    { name: "3", path: "3", view: "end.html" },
+                ],
+            });
+
+            const result = matchRoute("/1", routes);
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "3" }),
+                    url: "/3",
+                    redirectFrom: [
+                        { url: "/1", mode: "replace" },
+                        { url: "/2", mode: "replace" },
+                    ],
+                }),
+            ]);
+        });
+    });
+
+    describe("全局重定向", () => {
+        it("应该使用全局重定向作为后备", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    { name: "admin", path: "admin", view: "admin.html" },
+                    { name: "login", path: "login", view: "login.html" },
+                ],
+            });
+
+            const result = matchRoute("/admin", routes, {
+                redirect: (route) => (route.query.auth !== "true" ? "/login" : null),
+            });
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "login" }),
+                    url: "/login",
+                    redirectFrom: [{ url: "/admin", mode: "replace" }],
+                }),
+            ]);
+        });
+
+        it("路由级重定向应该优先于全局重定向", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    { name: "special", path: "special", redirect: "/route-redirect" },
+                    { name: "route-redirect", path: "route-redirect", view: "special.html" },
+                    { name: "global-redirect", path: "global-redirect", view: "global.html" },
+                ],
+            });
+
+            const result = matchRoute("/special", routes, { redirect: "/global-redirect" });
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "route-redirect" }),
+                    url: "/route-redirect",
+                    redirectFrom: [{ url: "/special", mode: "replace" }],
+                }),
+            ]);
+        });
+    });
+
+    describe("命名路由重定向", () => {
+        it("应该支持命名路由重定向", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    { name: "dashboard", path: "dashboard", view: "dashboard.html" },
+                    { name: "start", path: "start", redirect: { name: "dashboard" } },
+                ],
+            });
+
+            const namedRoutes = new Map<string, WeakRef<KylinRouteItem>>();
+            namedRoutes.set("dashboard", new WeakRef(routes.children![0]!));
+
+            const result = matchRoute("/start", routes, { namedRoutes });
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ name: "dashboard" }),
+                    url: "/dashboard",
+                    redirectFrom: [{ url: "/start", mode: "replace" }],
+                }),
+            ]);
+        });
+
+        it("命名路由不存在时应该不匹配", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    { name: "start", path: "start", redirect: { name: "nonexistent" } },
+                ],
+            });
+
+            const namedRoutes = new Map<string, WeakRef<KylinRouteItem>>();
+
+            const result = matchRoute("/start", routes, { namedRoutes });
+
+            // 命名路由不存在，不应该重定向
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "start" }),
+                    url: "/start",
+                }),
+            ]);
+        });
+    });
+
+    describe("重定向历史记录", () => {
+        it("应该记录完整的重定向链", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    { name: "a", path: "a", redirect: "/b" },
+                    { name: "b", path: "b", redirect: "/c" },
+                    { name: "c", path: "c", redirect: { path: "/d", mode: "push" } },
+                    { name: "d", path: "d", view: "d.html" },
+                ],
+            });
+
+            const result = matchRoute("/a", routes);
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "d" }),
+                    url: "/d",
+                    redirectFrom: [
+                        { url: "/a", mode: "replace" },
+                        { url: "/b", mode: "replace" },
+                        { url: "/c", mode: "push" },
+                    ],
+                }),
+            ]);
+        });
+
+        it("无重定向时 redirectFrom 应该为 undefined", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [{ name: "home", path: "home", view: "home.html" }],
+            });
+
+            const result = matchRoute("/home", routes);
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "home" }),
+                    url: "/home",
+                }),
+            ]);
+        });
+    });
+});

@@ -9,10 +9,18 @@
  * 返回首个匹配分支上所有嵌套路由项
  */
 
-import type { KylinRouteItem, KylinMatchedRouteItem } from "@/types";
+import type {
+    KylinRouteItem,
+    KylinMatchedRouteItem,
+    RedirectTarget,
+    RedirectFunction,
+    RedirectResult,
+    NamedRedirectTarget,
+} from "@/types";
 import { joinPath } from "./joinPath";
 import { extractQueryParams } from "./extractQueryParams";
 import { getRouteHash } from "./getRouteHash";
+import { KylinRouteMaxRedirectError, KylinRouteLoopExistedError } from "@/errors";
 
 let matchedId: number = 0;
 
@@ -27,6 +35,33 @@ export interface MatchRouteOptions {
      * @default false
      */
     autoMatchSubRoute?: boolean;
+
+    /**
+     * 全局重定向配置（后备重定向）
+     * 当匹配的路由项没有 redirect 配置时，使用此配置
+     * 优先级低于 KylinRouteItem.redirect
+     */
+    redirect?: import("@/types").RedirectTarget | import("@/types").RedirectFunction;
+
+    /**
+     * 最大重定向次数限制
+     * 防止无限重定向循环，每次重定向递归时此值减 1
+     * 当 maxRedirect < 0 时抛出异常
+     * @default 10
+     */
+    maxRedirect?: number;
+
+    /**
+     * 命名路由映射表
+     * 用于解析命名路由重定向 { name: 'home' }
+     */
+    namedRoutes?: Map<string, WeakRef<import("@/types").KylinRouteItem>>;
+
+    /**
+     * 内部使用：重定向链，防止无限递归
+     * @internal
+     */
+    _redirectChain?: Array<{ url: string; mode: "replace" | "push" }>;
 }
 
 /**
@@ -89,6 +124,136 @@ function normalizePath(path: string): string {
     }
 
     return normalized.toLowerCase();
+}
+
+// ============================================================================
+// 重定向处理辅助函数
+// ============================================================================
+
+/**
+ * 解析相对路径重定向
+ * 支持语法：
+ * - ./sibling - 同级目录（相对于父路径）
+ * - ../sibling - 父级目录（先去掉当前路由段，再向上一级）
+ * - ../../uncle - 多级父目录
+ * - /absolute - 绝对路径
+ * - path - 相对于当前路径
+ *
+ * 注意：相对路径重定向是相对于当前路由的父路径解析的
+ * 例如：当前路由 /a/b/up1 重定向到 ../target 时
+ * - 先去掉当前路由段 up1，得到父路径 /a/b
+ * - ../target 表示从父路径向上一级到 /a，然后添加 target -> /a/target
+ */
+function resolveRedirectPath(target: string, currentMatch: KylinMatchedRouteItem): string {
+    // 绝对路径直接返回
+    if (target.startsWith("/")) {
+        return target;
+    }
+
+    // 获取父路径（去掉当前路由的最后一段）
+    const parentPath = currentMatch.path.split("/").filter(Boolean).slice(0, -1).join("/");
+    const segments = parentPath ? parentPath.split("/") : [];
+
+    // 处理 ./ 开头的相对路径 - 相对于父路径的同级
+    if (target.startsWith("./")) {
+        const relativePart = target.slice(2);
+        const newSegments = [...segments, relativePart];
+        return "/" + newSegments.join("/");
+    }
+
+    // 处理 ../ 开头的相对路径 - 相对于父路径的上级
+    if (target.startsWith("../")) {
+        let remaining = target;
+        let newSegments = [...segments];
+
+        // 每个 ../ 向上一级
+        while (remaining.startsWith("../")) {
+            remaining = remaining.slice(3);
+            if (newSegments.length > 0) {
+                newSegments.pop();
+            }
+        }
+
+        // 添加剩余路径
+        if (remaining) {
+            newSegments.push(remaining);
+        }
+
+        return "/" + newSegments.join("/");
+    }
+
+    // 普通相对路径：添加到父路径
+    return joinPath(parentPath || "/", target);
+}
+
+/**
+ * 解析重定向目标为最终路径和模式
+ * @returns { target: string, mode: 'replace' | 'push' } 或 null（命名路由不存在）
+ */
+function resolveRedirect(
+    target: RedirectTarget | RedirectFunction,
+    namedRoutes: Map<string, WeakRef<KylinRouteItem>> | undefined,
+    matchedRoute: KylinMatchedRouteItem,
+): { target: string; mode: "replace" | "push" } | null {
+    // 函数类型重定向
+    if (typeof target === "function") {
+        const result = (target as RedirectFunction)(matchedRoute);
+        if (result === null) {
+            return null; // 不重定向
+        }
+        return resolveRedirect(result, namedRoutes, matchedRoute);
+    }
+
+    // 字符串类型重定向
+    if (typeof target === "string") {
+        return {
+            target: resolveRedirectPath(target, matchedRoute),
+            mode: "replace",
+        };
+    }
+
+    // RedirectResult 类型（包含 path 字段）
+    if ("path" in target) {
+        return {
+            target: resolveRedirectPath((target as RedirectResult).path, matchedRoute),
+            mode: (target as RedirectResult).mode || "replace",
+        };
+    }
+
+    // NamedRedirectTarget 类型（包含 name 字段）
+    if ("name" in target) {
+        const namedTarget = target as NamedRedirectTarget;
+        const weakRef = namedRoutes?.get(namedTarget.name);
+        const routeItem = weakRef?.deref();
+
+        if (!routeItem) {
+            return null; // 命名路由不存在
+        }
+
+        // 构建完整路径，合并 params 和 query
+        let targetPath = routeItem.path;
+        if (namedTarget.params) {
+            // 替换路径参数
+            for (const [key, value] of Object.entries(namedTarget.params)) {
+                targetPath = targetPath.replace(`:${key}`, value).replace(`<${key}>`, value);
+            }
+        }
+
+        // 添加查询参数
+        if (namedTarget.query) {
+            const queryString = new URLSearchParams(namedTarget.query).toString();
+            if (queryString) {
+                targetPath += `?${queryString}`;
+            }
+        }
+
+        return {
+            target: resolveRedirectPath(targetPath, matchedRoute),
+            mode: namedTarget.mode || "replace",
+        };
+    }
+
+    return null;
 }
 
 /**
@@ -279,7 +444,7 @@ function findDefaultRoute(
                     // 从子默认路由继承 view/data（包括间接继承）
                     const childRoute = childDefaults[0].route;
                     let currentRouteToUse = currentMatch.route;
-                    if (currentRouteToUse) {
+                    if (currentRouteToUse && childRoute) {
                         // 只有当前路由没有该属性时才继承
                         if (!currentRouteToUse.view && childRoute.view) {
                             currentRouteToUse = { ...currentRouteToUse, view: childRoute.view };
@@ -294,12 +459,19 @@ function findDefaultRoute(
                         const currentChild = childDefaults[i];
                         const nextChild = childDefaults[i + 1];
                         let childRouteToUse = currentChild.route;
-                        if (childRouteToUse) {
-                            if (!childRouteToUse.view && nextChild.route.view) {
-                                childRouteToUse = { ...childRouteToUse, view: nextChild.route.view };
+                        const nextRoute = nextChild.route;
+                        if (childRouteToUse && nextRoute) {
+                            if (!childRouteToUse.view && nextRoute.view) {
+                                childRouteToUse = {
+                                    ...childRouteToUse,
+                                    view: nextRoute.view,
+                                };
                             }
-                            if (!childRouteToUse.data && nextChild.route.data) {
-                                childRouteToUse = { ...childRouteToUse, data: nextChild.route.data };
+                            if (!childRouteToUse.data && nextRoute.data) {
+                                childRouteToUse = {
+                                    ...childRouteToUse,
+                                    data: nextRoute.data,
+                                };
                             }
                             currentChild.route = childRouteToUse;
                         }
@@ -355,7 +527,7 @@ function findDefaultRoute(
                 // 从子默认路由继承 view/data（包括间接继承）
                 const childRoute = childDefaults[0].route;
                 let currentRouteToUse = currentMatch.route;
-                if (currentRouteToUse) {
+                if (currentRouteToUse && childRoute) {
                     if (!currentRouteToUse.view && childRoute.view) {
                         currentRouteToUse = { ...currentRouteToUse, view: childRoute.view };
                     }
@@ -369,12 +541,13 @@ function findDefaultRoute(
                     const currentChild = childDefaults[i];
                     const nextChild = childDefaults[i + 1];
                     let childRouteToUse = currentChild.route;
-                    if (childRouteToUse) {
-                        if (!childRouteToUse.view && nextChild.route.view) {
-                            childRouteToUse = { ...childRouteToUse, view: nextChild.route.view };
+                    const nextRoute = nextChild.route;
+                    if (childRouteToUse && nextRoute) {
+                        if (!childRouteToUse.view && nextRoute.view) {
+                            childRouteToUse = { ...childRouteToUse, view: nextRoute.view };
                         }
-                        if (!childRouteToUse.data && nextChild.route.data) {
-                            childRouteToUse = { ...childRouteToUse, data: nextChild.route.data };
+                        if (!childRouteToUse.data && nextRoute.data) {
+                            childRouteToUse = { ...childRouteToUse, data: nextRoute.data };
                         }
                         currentChild.route = childRouteToUse;
                     }
@@ -556,12 +729,13 @@ function processSingleRoute(
                 currentMatch,
                 inputQuery,
                 id,
+                autoMatchSubRoute,
             );
             if (defaultMatches && defaultMatches.length > 0) {
                 // view/data 继承：如果父路由没有 view/data，从默认路由继承
                 const defaultRoute = defaultMatches[0].route;
                 let parentRouteToUse = currentMatch.route;
-                if (parentRouteToUse) {
+                if (parentRouteToUse && defaultRoute) {
                     if (!parentRouteToUse.view && defaultRoute.view) {
                         parentRouteToUse = { ...parentRouteToUse, view: defaultRoute.view };
                     }
@@ -706,7 +880,7 @@ function _matchRoutesInternal(
 /**
  * 主路由匹配函数 - 新版实现
  *
- * 支持返回单个或多个匹配项
+ * 支持返回单个或多个匹配项，支持重定向处理
  *
  * @param path - 当前 URL 路径
  * @param roots - 树形路由表配置（具有唯一根节点）
@@ -733,6 +907,9 @@ export function matchRoute(
     const { pathname: pathWithoutQuery, query: inputQuery } = parseQueryString(path);
     const normalizedPath = normalizePath(pathWithoutQuery);
     const autoMatchSubRoute = options?.autoMatchSubRoute ?? false;
+    const redirectChain = options?._redirectChain || [];
+    const maxRedirect = options?.maxRedirect ?? 10;
+    const namedRoutes = options?.namedRoutes;
 
     const currentId = ++matchedId;
 
@@ -751,7 +928,7 @@ export function matchRoute(
 
     // 从根节点的 children 开始匹配
     const rootChildren = roots.children || [];
-    const childMatches = _matchRoutesInternal(
+    let childMatches = _matchRoutesInternal(
         normalizedPath,
         rootChildren,
         null,
@@ -766,12 +943,9 @@ export function matchRoute(
 
     // 如果子路由有真正的匹配，将根路由添加到开头
     if (hasRealMatch) {
-        return [rootMatch, ...childMatches];
-    }
-
-    // 如果路径是根路径，检查是否有默认子路由
-    if (normalizedPath === "/" || normalizedPath === "") {
-        // 查找默认子路由
+        childMatches = [rootMatch, ...childMatches];
+    } else if (normalizedPath === "/" || normalizedPath === "") {
+        // 如果路径是根路径，检查是否有默认子路由
         const defaultMatches = findDefaultRoute(
             rootChildren || [],
             rootMatch,
@@ -784,7 +958,7 @@ export function matchRoute(
             // view/data 继承：如果根路由没有 view/data，从默认路由继承
             const defaultRoute = defaultMatches[0].route;
             let rootRouteToUse = rootMatch.route;
-            if (rootRouteToUse) {
+            if (rootRouteToUse && defaultRoute) {
                 if (!rootRouteToUse.view && defaultRoute.view) {
                     rootRouteToUse = { ...rootRouteToUse, view: defaultRoute.view };
                 }
@@ -793,27 +967,17 @@ export function matchRoute(
                 }
                 rootMatch.route = rootRouteToUse;
             }
-            return [rootMatch, ...defaultMatches];
-        }
-
-        // 如果 normalizeRoutes 已将默认子路由合并到根路由（rootChildren 为空但根路由有 name 或其他子路由属性）
-        // 需要恢复默认子路由的匹配项
-        if (!rootChildren || rootChildren.length === 0) {
-            // 从根路由属性中恢复默认子路由信息
-            // normalizeRoutes 合并了子路由属性到根路由，我们需要构建匹配项
+            childMatches = [rootMatch, ...defaultMatches];
+        } else if (!rootChildren || rootChildren.length === 0) {
+            // 如果 normalizeRoutes 已将默认子路由合并到根路由
             const rootRoute = rootMatch.route;
-            // 检查根路由是否可能来自默认子路由的合并（有 name 或其他非根路由属性）
             if (rootRoute && rootRoute.name) {
-                // 构建原始根路由（去掉合并的子路由属性）
-                const originalRootRoute: KylinRouteItem = { path: "/" };
-                // 创建默认子路由匹配项
                 const defaultChildRoute: KylinRouteItem = {
                     path: rootRoute.name || "",
                     name: rootRoute.name,
                     view: rootRoute.view,
                     data: rootRoute.data,
                 };
-                // 构建默认子路由匹配项
                 const defaultChildMatch: KylinMatchedRouteItem = {
                     route: defaultChildRoute,
                     params: {},
@@ -826,7 +990,6 @@ export function matchRoute(
                 };
                 defaultChildMatch.hash = getRouteHash(defaultChildMatch);
 
-                // 如果子路由有嵌套的默认子路由，递归处理
                 if (roots.children && roots.children.length > 0) {
                     const nestedDefaults = findDefaultRoute(
                         roots.children,
@@ -836,23 +999,102 @@ export function matchRoute(
                         autoMatchSubRoute,
                     );
                     if (nestedDefaults && nestedDefaults.length > 0) {
-                        return [rootMatch, defaultChildMatch, ...nestedDefaults];
+                        childMatches = [rootMatch, defaultChildMatch, ...nestedDefaults];
+                    } else {
+                        childMatches = [rootMatch, defaultChildMatch];
                     }
+                } else {
+                    childMatches = [rootMatch, defaultChildMatch];
                 }
-
-                return [rootMatch, defaultChildMatch];
+            } else {
+                childMatches = [rootMatch];
             }
+        } else {
+            childMatches = [rootMatch];
+        }
+    } else if (childMatches.length > 0) {
+        // 如果子路由返回了结果（包括未匹配项），都将根路由添加到开头
+        childMatches = [rootMatch, ...childMatches];
+    } else {
+        // 否则返回空数组
+        return [];
+    }
+
+    // 获取最深层匹配的路由项
+    const deepestRoute = childMatches[childMatches.length - 1];
+
+    // 防止无限重定向：检查 maxRedirect
+    if (maxRedirect < 0) {
+        // 返回带错误的结果
+        const lastMatched = childMatches[childMatches.length - 1];
+        return [
+            ...childMatches.slice(0, -1),
+            {
+                ...lastMatched,
+                route: undefined,
+                error: new KylinRouteMaxRedirectError(lastMatched),
+                redirectFrom: redirectChain.length > 0 ? [...redirectChain] : undefined,
+            },
+        ];
+    }
+
+    // 检测重定向循环
+    if (redirectChain.some((item) => item.url === normalizedPath)) {
+        // 返回带错误的结果
+        const lastMatched = childMatches[childMatches.length - 1];
+        return [
+            ...childMatches.slice(0, -1),
+            {
+                ...lastMatched,
+                route: undefined,
+                error: new KylinRouteLoopExistedError(lastMatched),
+                redirectFrom: redirectChain.length > 0 ? [...redirectChain] : undefined,
+            },
+        ];
+    }
+
+    // 检查路由级重定向
+    if (deepestRoute?.route?.redirect) {
+        const redirectResult = resolveRedirect(
+            deepestRoute.route.redirect,
+            namedRoutes,
+            deepestRoute,
+        );
+
+        // 如果命名路由不存在，不匹配
+        if (redirectResult === null) {
+            return childMatches.map((r) => ({ ...r, redirectFrom: undefined }));
         }
 
-        return [rootMatch];
+        const { target: redirectTarget, mode } = redirectResult;
+
+        // 递归调用，传递新的重定向链，maxRedirect 减 1
+        const newChain = [...redirectChain, { url: normalizedPath, mode }];
+        return matchRoute(redirectTarget, roots, {
+            ...options,
+            _redirectChain: newChain,
+            maxRedirect: maxRedirect - 1,
+        });
     }
 
-    // 如果子路由返回了结果（包括未匹配项），都将根路由添加到开头
-    // 因为任意匹配结果中一定会包含根路由 /
-    if (childMatches.length > 0) {
-        return [rootMatch, ...childMatches];
+    // 检查全局重定向（仅当无路由级重定向时，且是原始调用）
+    if (options?.redirect && !deepestRoute?.route?.redirect && redirectChain.length === 0) {
+        const redirectResult = resolveRedirect(options.redirect, namedRoutes, deepestRoute);
+
+        if (redirectResult) {
+            const { target: redirectTarget, mode } = redirectResult;
+            const newChain = [...redirectChain, { url: normalizedPath, mode }];
+            return matchRoute(redirectTarget, roots, {
+                ...options,
+                _redirectChain: newChain,
+                maxRedirect: maxRedirect - 1,
+            });
+        }
     }
 
-    // 否则返回空数组
-    return [];
+    // 无重定向：在结果上附加重定向历史
+    return childMatches.map((r) => ({
+        ...r,
+        redirectFrom: redirectChain.length > 0 ? [...redirectChain] : undefined,
+    }));
 }

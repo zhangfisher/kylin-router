@@ -252,9 +252,16 @@ export interface KylinRouteItem {
     /**
      * 重定向到其他路由
      * 支持绝对路径和相对路径
-     *
+     * - string: 重定向到指定路径（默认 replace 模式）
+     * - NamedRedirectTarget: 命名路由重定向 { name: 'home' }
+     * - RedirectResult: 重定向到指定路径并指定模式 { path: '/target', mode: 'push' }
+     * - RedirectFunction: 动态计算重定向目标
      */
-    redirect?: string;
+    redirect?: RedirectTarget | RedirectFunction;
+    /**
+     * 路由别名（URL 不变，使用目标路由配置）
+     */
+    alias?: string | string[];
     children?: KylinRouteItem[];
     meta?: Record<string, any>;
 
@@ -336,9 +343,57 @@ export interface MatchedRoute {
     remainingPath: string;
 }
 
+// ============================================================================
+// 重定向相关类型定义
+// ============================================================================
+
+/**
+ * 命名路由重定向目标
+ */
+export interface NamedRedirectTarget {
+    /** 目标路由名称 */
+    name: string;
+    /** 要替换的参数 */
+    params?: Record<string, string>;
+    /** 要合并的查询参数 */
+    query?: Record<string, string>;
+    /** 重定向模式 */
+    mode?: "replace" | "push";
+}
+
+/**
+ * 重定向结果对象
+ */
+export interface RedirectResult {
+    /** 目标路径 */
+    path: string;
+    /** 重定向模式（默认 'replace'） */
+    mode?: "replace" | "push";
+    /** 要合并的状态数据 */
+    state?: Record<string, any>;
+}
+
+/**
+ * 重定向目标类型（合并所有形式）
+ */
+export type RedirectTarget = string | NamedRedirectTarget | RedirectResult;
+
+/**
+ * 重定向函数类型
+ * @param route - 当前匹配的路由项
+ * @returns 重定向目标或结果对象
+ */
+export type RedirectFunction = (
+    route: KylinMatchedRouteItem,
+) => RedirectTarget | null;
+
+// ============================================================================
+// 路由匹配相关类型定义
+// ============================================================================
+
 export type KylinMatchedRouteItem = {
     /** 匹配的路由配置 */
-    route: KylinRouteItem;
+    route: KylinRouteItem | undefined;
     /** 提取的路径参数 */
     params: Record<string, string>;
     /** 提取的查询参数 */
@@ -357,7 +412,7 @@ export type KylinMatchedRouteItem = {
      *
      * 如： route.path=/user/:id/
      * 时url=/user/123
-     * 
+     *
      * path和url的区别是：
 
      * path是路由的原始路径， 包含路由参数
@@ -371,4 +426,17 @@ export type KylinMatchedRouteItem = {
      */
     hash: string;
     id: number;
+    /**
+     * 重定向历史记录数组
+     * 记录从原始路径到当前路径的完整重定向链
+     * @example [{ url: '/old-path', mode: 'replace' }, { url: '/intermediate', mode: 'push' }]
+     * 表示从 /old-path(replace) -> /intermediate(push) -> 当前路径
+     */
+    redirectFrom?: Array<{ url: string; mode: "replace" | "push" }>;
+    /**
+     * 匹配错误
+     * 当路由匹配或重定向过程中发生错误时设置
+     * 渲染层可通过此字段渲染错误页面
+     */
+    error?: Error;
 };
