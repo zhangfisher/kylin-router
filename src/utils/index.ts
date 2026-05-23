@@ -2,6 +2,7 @@ export * from "./emitter";
 export * from "./findOutlet";
 export * from "./generateRouteHash";
 export * from "./hashUtils";
+export * from "./isExternalLink";
 export * from "./joinPath";
 export * from "./matchRoute";
 export * from "./normalizeRoutes";

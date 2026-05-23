@@ -20,7 +20,8 @@ import type {
 import { joinPath } from "./joinPath";
 import { extractQueryParams } from "./extractQueryParams";
 import { getRouteHash } from "./getRouteHash";
-import { KylinRouteMaxRedirectError, KylinRouteLoopExistedError } from "@/errors";
+import { KylinMaxRedirectRouteError, KylinLoopRouteError, KylinNotFoundRouteError, KylinExternalRouteError } from "@/errors";
+import { isExternalLink } from "./isExternalLink";
 
 let matchedId: number = 0;
 
@@ -187,14 +188,28 @@ function resolveRedirectPath(target: string, currentMatch: KylinMatchedRouteItem
 }
 
 /**
+ * 重定向解析结果类型
+ */
+interface RedirectResolution {
+    target: string;
+    mode: "replace" | "push";
+    /** 目标窗口：_self 当前窗口，_blank 新窗口 */
+    windowTarget?: "_self" | "_blank";
+    /** 目标不存在（命名路由未找到） */
+    notFound?: boolean;
+    /** 是否为外部链接 */
+    isExternal?: boolean;
+}
+
+/**
  * 解析重定向目标为最终路径和模式
- * @returns { target: string, mode: 'replace' | 'push' } 或 null（命名路由不存在）
+ * @returns RedirectResolution 或 null（不重定向）
  */
 function resolveRedirect(
     target: RedirectTarget | RedirectFunction,
     namedRoutes: Map<string, WeakRef<KylinRouteItem>> | undefined,
     matchedRoute: KylinMatchedRouteItem,
-): { target: string; mode: "replace" | "push" } | null {
+): RedirectResolution | null {
     // 函数类型重定向
     if (typeof target === "function") {
         const result = (target as RedirectFunction)(matchedRoute);
@@ -206,6 +221,14 @@ function resolveRedirect(
 
     // 字符串类型重定向
     if (typeof target === "string") {
+        // 外部链接直接返回原始 URL
+        if (isExternalLink(target)) {
+            return {
+                target,
+                mode: "replace",
+                isExternal: true,
+            };
+        }
         return {
             target: resolveRedirectPath(target, matchedRoute),
             mode: "replace",
@@ -214,9 +237,20 @@ function resolveRedirect(
 
     // RedirectResult 类型（包含 path 字段）
     if ("path" in target) {
+        const redirectResult = target as RedirectResult;
+        // 外部链接直接返回原始 URL
+        if (isExternalLink(redirectResult.path)) {
+            return {
+                target: redirectResult.path,
+                mode: redirectResult.mode || "replace",
+                windowTarget: redirectResult.target,
+                isExternal: true,
+            };
+        }
         return {
-            target: resolveRedirectPath((target as RedirectResult).path, matchedRoute),
-            mode: (target as RedirectResult).mode || "replace",
+            target: resolveRedirectPath(redirectResult.path, matchedRoute),
+            mode: redirectResult.mode || "replace",
+            windowTarget: redirectResult.target,
         };
     }
 
@@ -227,7 +261,13 @@ function resolveRedirect(
         const routeItem = weakRef?.deref();
 
         if (!routeItem) {
-            return null; // 命名路由不存在
+            // 命名路由不存在，返回 notFound 标记
+            return {
+                target: `name:${namedTarget.name}`,
+                mode: namedTarget.mode || "replace",
+                windowTarget: namedTarget.target,
+                notFound: true,
+            };
         }
 
         // 构建完整路径，合并 params 和 query
@@ -250,6 +290,7 @@ function resolveRedirect(
         return {
             target: resolveRedirectPath(targetPath, matchedRoute),
             mode: namedTarget.mode || "replace",
+            windowTarget: namedTarget.target,
         };
     }
 
@@ -1032,7 +1073,7 @@ export function matchRoute(
             {
                 ...lastMatched,
                 route: undefined,
-                error: new KylinRouteMaxRedirectError(lastMatched),
+                error: new KylinMaxRedirectRouteError(lastMatched),
                 redirectFrom: redirectChain.length > 0 ? [...redirectChain] : undefined,
             },
         ];
@@ -1047,7 +1088,7 @@ export function matchRoute(
             {
                 ...lastMatched,
                 route: undefined,
-                error: new KylinRouteLoopExistedError(lastMatched),
+                error: new KylinLoopRouteError(lastMatched),
                 redirectFrom: redirectChain.length > 0 ? [...redirectChain] : undefined,
             },
         ];
@@ -1061,20 +1102,78 @@ export function matchRoute(
             deepestRoute,
         );
 
-        // 如果命名路由不存在，不匹配
+        // 如果命名路由不存在，返回错误
         if (redirectResult === null) {
             return childMatches.map((r) => ({ ...r, redirectFrom: undefined }));
         }
 
-        const { target: redirectTarget, mode } = redirectResult;
+        const { target: redirectTarget, mode, windowTarget, notFound, isExternal } = redirectResult;
+
+        // 如果重定向目标不存在（命名路由未找到），返回错误
+        if (notFound) {
+            const lastMatched = childMatches[childMatches.length - 1];
+            return [
+                ...childMatches.slice(0, -1),
+                {
+                    ...lastMatched,
+                    target: windowTarget,
+                    error: new KylinNotFoundRouteError(redirectTarget, lastMatched),
+                    redirectFrom: redirectChain.length > 0 ? [...redirectChain] : undefined,
+                },
+            ];
+        }
+
+        // 检查是否为外部链接
+        if (isExternal) {
+            const lastMatched = childMatches[childMatches.length - 1];
+            return [
+                ...childMatches.slice(0, -1),
+                {
+                    ...lastMatched,
+                    target: windowTarget || "_blank",
+                    error: new KylinExternalRouteError(redirectTarget, windowTarget || "_blank"),
+                    redirectFrom: redirectChain.length > 0 ? [...redirectChain] : undefined,
+                },
+            ];
+        }
 
         // 递归调用，传递新的重定向链，maxRedirect 减 1
         const newChain = [...redirectChain, { url: normalizedPath, mode }];
-        return matchRoute(redirectTarget, roots, {
+        const recursiveResult = matchRoute(redirectTarget, roots, {
             ...options,
             _redirectChain: newChain,
             maxRedirect: maxRedirect - 1,
         });
+
+        // 如果递归结果已包含错误（如循环检测或最大重定向限制），直接返回
+        const hasError = recursiveResult.some((r) => r.error !== undefined);
+        if (hasError) {
+            return recursiveResult;
+        }
+
+        // 如果重定向目标路径不存在，返回错误
+        // 检查：结果为空，或只有根路由+未匹配项（没有真正的路由匹配）
+        const hasValidMatch = recursiveResult.length > 1 &&
+            recursiveResult.slice(1).some((r) => r.route !== undefined);
+
+        if (!hasValidMatch) {
+            const lastMatched = childMatches[childMatches.length - 1];
+            return [
+                ...childMatches.slice(0, -1),
+                {
+                    ...lastMatched,
+                    target: windowTarget,
+                    error: new KylinNotFoundRouteError(redirectTarget, lastMatched),
+                    redirectFrom: redirectChain.length > 0 ? [...redirectChain] : undefined,
+                },
+            ];
+        }
+
+        // 将 windowTarget 添加到递归结果的每个匹配项
+        return recursiveResult.map((r) => ({
+            ...r,
+            target: windowTarget,
+        }));
     }
 
     // 检查全局重定向（仅当无路由级重定向时，且是原始调用）
@@ -1082,13 +1181,72 @@ export function matchRoute(
         const redirectResult = resolveRedirect(options.redirect, namedRoutes, deepestRoute);
 
         if (redirectResult) {
-            const { target: redirectTarget, mode } = redirectResult;
+            const { target: redirectTarget, mode, windowTarget, notFound, isExternal } = redirectResult;
+
+            // 如果重定向目标不存在（命名路由未找到），返回错误
+            if (notFound) {
+                const lastMatched = childMatches[childMatches.length - 1];
+                return [
+                    ...childMatches.slice(0, -1),
+                    {
+                        ...lastMatched,
+                        target: windowTarget,
+                        error: new KylinNotFoundRouteError(redirectTarget, lastMatched),
+                        redirectFrom: redirectChain.length > 0 ? [...redirectChain] : undefined,
+                    },
+                ];
+            }
+
+            // 检查是否为外部链接
+            if (isExternal) {
+                const lastMatched = childMatches[childMatches.length - 1];
+                return [
+                    ...childMatches.slice(0, -1),
+                    {
+                        ...lastMatched,
+                        target: windowTarget || "_blank",
+                        error: new KylinExternalRouteError(redirectTarget, windowTarget || "_blank"),
+                        redirectFrom: redirectChain.length > 0 ? [...redirectChain] : undefined,
+                    },
+                ];
+            }
+
             const newChain = [...redirectChain, { url: normalizedPath, mode }];
-            return matchRoute(redirectTarget, roots, {
+            const recursiveResult = matchRoute(redirectTarget, roots, {
                 ...options,
                 _redirectChain: newChain,
                 maxRedirect: maxRedirect - 1,
             });
+
+            // 如果递归结果已包含错误（如循环检测或最大重定向限制），直接返回
+            const hasError = recursiveResult.some((r) => r.error !== undefined);
+            if (hasError) {
+                return recursiveResult;
+            }
+
+            // 如果重定向目标路径不存在，返回错误
+            // 检查：结果为空，或只有根路由+未匹配项（没有真正的路由匹配）
+            const hasValidMatch = recursiveResult.length > 1 &&
+                recursiveResult.slice(1).some((r) => r.route !== undefined);
+
+            if (!hasValidMatch) {
+                const lastMatched = childMatches[childMatches.length - 1];
+                return [
+                    ...childMatches.slice(0, -1),
+                    {
+                        ...lastMatched,
+                        target: windowTarget,
+                        error: new KylinNotFoundRouteError(redirectTarget, lastMatched),
+                        redirectFrom: redirectChain.length > 0 ? [...redirectChain] : undefined,
+                    },
+                ];
+            }
+
+            // 将 windowTarget 添加到递归结果的每个匹配项
+            return recursiveResult.map((r) => ({
+                ...r,
+                target: windowTarget,
+            }));
         }
     }
 

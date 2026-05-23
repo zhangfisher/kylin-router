@@ -359,6 +359,8 @@ export interface NamedRedirectTarget {
     query?: Record<string, string>;
     /** 重定向模式 */
     mode?: "replace" | "push";
+    /** 目标窗口：_self 当前窗口，_blank 新窗口 */
+    target?: "_self" | "_blank";
 }
 
 /**
@@ -371,6 +373,8 @@ export interface RedirectResult {
     mode?: "replace" | "push";
     /** 要合并的状态数据 */
     state?: Record<string, any>;
+    /** 目标窗口：_self 当前窗口，_blank 新窗口 */
+    target?: "_self" | "_blank";
 }
 
 /**
@@ -399,6 +403,8 @@ export type KylinMatchedRouteItem = {
     /** 提取的查询参数 */
     query: Record<string, string>;
     state: Record<string, any>;
+    /** 目标窗口：_self 当前窗口，_blank 新窗口 */
+    target?: "_self" | "_blank";
     /**
      * 完整路由路径
      * 保留路由参数

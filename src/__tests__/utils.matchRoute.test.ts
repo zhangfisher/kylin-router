@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import { describe, it, expect } from "bun:test";
+import { describe, it, expect, beforeAll } from "bun:test";
 import { matchRoute, createRouteMatcher } from "@/utils/matchRoute";
 import type { KylinRouteItem } from "@/types";
 import { normalizeRoutes } from "@/utils";
@@ -1869,9 +1869,7 @@ describe("matchRoute - 重定向处理", () => {
                             {
                                 name: "b",
                                 path: "b",
-                                children: [
-                                    { name: "up1", path: "up1", redirect: "../target" },
-                                ],
+                                children: [{ name: "up1", path: "up1", redirect: "../target" }],
                             },
                             { name: "target", path: "target", view: "target.html" },
                         ],
@@ -1909,9 +1907,7 @@ describe("matchRoute - 重定向处理", () => {
                             {
                                 name: "b",
                                 path: "b",
-                                children: [
-                                    { name: "up2", path: "up2", redirect: "../../target" },
-                                ],
+                                children: [{ name: "up2", path: "up2", redirect: "../../target" }],
                             },
                         ],
                     },
@@ -2057,7 +2053,7 @@ describe("matchRoute - 重定向处理", () => {
 
             expect(result[1]!.route).toBeUndefined();
             expect(result[1]!.url).toBe("/a");
-            expect(result[1]!.error?.name).toBe("KylinRouteLoopExistedError");
+            expect(result[1]!.error?.constructor.name).toBe("KylinLoopRouteError");
             expect(result[1]!.redirectFrom).toEqual([
                 { url: "/a", mode: "replace" },
                 { url: "/b", mode: "replace" },
@@ -2087,7 +2083,7 @@ describe("matchRoute - 重定向处理", () => {
 
             expect(result[1]!.route).toBeUndefined();
             expect(result[1]!.url).toBe("/4");
-            expect(result[1]!.error?.name).toBe("KylinRouteMaxRedirectError");
+            expect(result[1]!.error?.constructor.name).toBe("KylinMaxRedirectRouteError");
             expect(result[1]!.redirectFrom).toEqual([
                 { url: "/1", mode: "replace" },
                 { url: "/2", mode: "replace" },
@@ -2208,9 +2204,7 @@ describe("matchRoute - 重定向处理", () => {
         it("命名路由不存在时应该不匹配", () => {
             const routes: KylinRouteItem = normalizeRoutes({
                 path: "/",
-                children: [
-                    { name: "start", path: "start", redirect: { name: "nonexistent" } },
-                ],
+                children: [{ name: "start", path: "start", redirect: { name: "nonexistent" } }],
             });
 
             const namedRoutes = new Map<string, WeakRef<KylinRouteItem>>();
@@ -2280,6 +2274,290 @@ describe("matchRoute - 重定向处理", () => {
                     url: "/home",
                 }),
             ]);
+        });
+    });
+
+    describe("重定向目标不存在错误处理", () => {
+        it("命名路由不存在时应该返回 KylinNotFoundRouteError", () => {
+            const namedRoutes = new Map<string, WeakRef<KylinRouteItem>>();
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [{ name: "start", path: "start", redirect: { name: "nonexistent" } }],
+            });
+
+            const result = matchRoute("/start", routes, { namedRoutes });
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ name: "start", path: "start" }),
+                    path: "/start",
+                    url: "/start",
+                    error: expect.objectContaining({
+                        name: "KylinNotFoundRouteError",
+                        target: "name:nonexistent",
+                    }),
+                }),
+            ]);
+        });
+
+        it("重定向到不存在的路径时应该返回 KylinNotFoundRouteError", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [{ name: "start", path: "start", redirect: "a/b/c" }],
+            });
+
+            const result = matchRoute("/start", routes);
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ name: "start", path: "start" }),
+                    path: "/start",
+                    url: "/start",
+                    error: expect.objectContaining({
+                        name: "KylinNotFoundRouteError",
+                        target: "/a/b/c",
+                    }),
+                }),
+            ]);
+        });
+
+        it("全局重定向到不存在的命名路由时应该返回 KylinNotFoundRouteError", () => {
+            const namedRoutes = new Map<string, WeakRef<KylinRouteItem>>();
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [{ name: "home", path: "home" }],
+            });
+
+            const result = matchRoute("/some-unknown-path", routes, {
+                redirect: { name: "nonexistent" },
+                namedRoutes,
+            });
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    path: "/",
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: undefined,
+                    path: "/some-unknown-path",
+                    error: expect.objectContaining({
+                        name: "KylinNotFoundRouteError",
+                        target: "name:nonexistent",
+                    }),
+                }),
+            ]);
+        });
+
+        it("全局重定向到不存在的路径时应该返回 KylinNotFoundRouteError", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [{ name: "home", path: "home" }],
+            });
+
+            const result = matchRoute("/some-unknown-path", routes, {
+                redirect: "/nonexistent/path",
+            });
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    path: "/",
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: undefined,
+                    path: "/some-unknown-path",
+                    error: expect.objectContaining({
+                        name: "KylinNotFoundRouteError",
+                        target: "/nonexistent/path",
+                    }),
+                }),
+            ]);
+        });
+    });
+
+    describe("外部链接重定向处理", () => {
+        beforeAll(() => {
+            global.window = {
+                location: {
+                    hostname: "example.com",
+                    port: "8080",
+                    protocol: "http:",
+                },
+            } as any;
+            global.document = {
+                createElement: (tag: string) => {
+                    if (tag === "a") {
+                        const el = { href: "", hostname: "", port: "", protocol: "" };
+                        // 根据传入的 URL 设置属性
+                        if (typeof global._testUrl === "string") {
+                            try {
+                                const url = new URL(global._testUrl);
+                                el.href = global._testUrl;
+                                el.hostname = url.hostname;
+                                el.port = url.port || (url.protocol === "https:" ? "443" : "80");
+                                el.protocol = url.protocol + ":";
+                            } catch {
+                                // 无效 URL，保持默认值
+                            }
+                        }
+                        return el as any;
+                    }
+                    return {} as any;
+                },
+            } as any;
+        });
+
+        it("重定向到外部链接时应该返回 KylinExternalRouteError", () => {
+            global._testUrl = "https://other.com";
+
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [{ name: "external", path: "external", redirect: "https://other.com" }],
+            });
+
+            const result = matchRoute("/external", routes);
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ name: "external", path: "external" }),
+                    path: "/external",
+                    url: "/external",
+                    target: "_blank",
+                    error: expect.objectContaining({
+                        name: "KylinExternalRouteError",
+                        url: "https://other.com",
+                        target: "_blank",
+                    }),
+                }),
+            ]);
+        });
+
+        it("重定向到外部链接时应该使用指定的 target", () => {
+            global._testUrl = "https://other.com";
+
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [{ name: "external", path: "external", redirect: { path: "https://other.com", target: "_self" } }],
+            });
+
+            const result = matchRoute("/external", routes);
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ name: "external", path: "external" }),
+                    path: "/external",
+                    url: "/external",
+                    target: "_self",
+                    error: expect.objectContaining({
+                        name: "KylinExternalRouteError",
+                        url: "https://other.com",
+                        target: "_self",
+                    }),
+                }),
+            ]);
+        });
+
+        it("全局重定向到外部链接时应该返回 KylinExternalRouteError", () => {
+            global._testUrl = "https://external.com";
+
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [{ name: "home", path: "home" }],
+            });
+
+            const result = matchRoute("/some-path", routes, {
+                redirect: "https://external.com",
+            });
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    path: "/",
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: undefined,
+                    path: "/some-path",
+                    target: "_blank",
+                    error: expect.objectContaining({
+                        name: "KylinExternalRouteError",
+                        url: "https://external.com",
+                        target: "_blank",
+                    }),
+                }),
+            ]);
+        });
+
+        it("重定向到不同端口的外部链接应该返回 KylinExternalRouteError", () => {
+            global._testUrl = "http://example.com:3000";
+
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [{ name: "external", path: "external", redirect: "http://example.com:3000" }],
+            });
+
+            const result = matchRoute("/external", routes);
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ name: "external", path: "external" }),
+                    path: "/external",
+                    url: "/external",
+                    target: "_blank",
+                    error: expect.objectContaining({
+                        name: "KylinExternalRouteError",
+                        url: "http://example.com:3000",
+                    }),
+                }),
+            ]);
+        });
+
+        it("重定向到内部链接不应该返回 KylinExternalRouteError", () => {
+            const routes: KylinRouteItem = normalizeRoutes({
+                path: "/",
+                children: [
+                    { name: "target", path: "target" },
+                    { name: "redirector", path: "redirector", redirect: "/target" },
+                ],
+            });
+
+            const result = matchRoute("/redirector", routes);
+
+            expect(result).toEqual([
+                expect.objectContaining({
+                    route: expect.objectContaining({ path: "/" }),
+                    url: "/",
+                }),
+                expect.objectContaining({
+                    route: expect.objectContaining({ name: "target", path: "target" }),
+                    path: "/target",
+                    url: "/target",
+                }),
+            ]);
+            expect(result.some((r) => r.error?.name === "KylinExternalRouteError")).toBe(false);
         });
     });
 });
