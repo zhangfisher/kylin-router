@@ -1,31 +1,50 @@
 import type { KylinOutlet } from "@/components/outlet";
 
 /**
+ * 检查元素的祖先中是否包含 kylin-outlet
+ */
+function hasOutletAncestor(el: HTMLElement): boolean {
+    let parent = el.parentElement;
+    while (parent) {
+        if (parent.tagName === "KYLIN-OUTLET") {
+            return true;
+        }
+        parent = parent.parentElement;
+    }
+    return false;
+}
+
+/**
  * 在指定元素内部查找 kylin-outlet 元素
+ * 采用广度优先遍历（BFS），同一分支找到第一个 outlet 后停止深入
  * @param el - 要搜索的父元素
- * @returns 找到的 kylin-outlet 元素，如果未找到返回 null
+ * @returns 找到的 kylin-outlet 元素数组，按层级顺序排列
  */
 export function findOutlet(el: HTMLElement): KylinOutlet[] {
     if (!el) return [];
 
-    // 查找所有 kylin-outlet 元素（包括 el 本身，如果 el 是 kylin-outlet）
-    const allOutlets = Array.from(el.tagName?.toLowerCase() === "kylin-outlet"
-        ? [el, ...Array.from(el.querySelectorAll("kylin-outlet"))]
-        : el.querySelectorAll("kylin-outlet"));
+    const result: KylinOutlet[] = [];
+    const queue: HTMLElement[] = [el];
+    const OUTLET_TAG = "KYLIN-OUTLET";
 
-    // 过滤掉嵌套在另一个 kylin-outlet 内部的元素（不包括 el 本身）
-    return allOutlets.filter((outlet) => {
-        // 如果就是 el 本身，直接过滤掉
-        if (outlet === el) return false;
+    while (queue.length > 0) {
+        const current = queue.shift()!;
 
-        // 检查当前 outlet 的父元素中是否有 kylin-outlet（在 el 到 outlet 之间）
-        let parent = outlet.parentElement;
-        while (parent && parent !== el) {
-            if (parent.tagName?.toLowerCase() === "kylin-outlet") {
-                return false; // 被嵌套，过滤掉
+        for (const child of current.children) {
+            const childEl = child as HTMLElement;
+            // 跳过已有 outlet 祖先的元素（嵌套在已找到的 outlet 内部）
+            if (hasOutletAncestor(childEl)) {
+                continue;
             }
-            parent = parent.parentElement;
+
+            if (child.tagName === OUTLET_TAG) {
+                result.push(childEl as KylinOutlet);
+                // 不将 outlet 加入队列，自然就不会遍历其子元素
+            } else {
+                queue.push(childEl);
+            }
         }
-        return true; // 没有被嵌套，保留
-    });
+    }
+
+    return result;
 }

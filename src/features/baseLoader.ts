@@ -183,7 +183,9 @@ export abstract class RouteDataLoaderBase<
      * 并发加载多个路由
      */
     public async loadRoutes(routes: KylinMatchedRouteItem[]): Promise<void> {
-        routes.forEach((matched) => this.loadRoute(matched));
+        for (const matched of routes) {
+            this.loadRoute(matched);
+        }
     }
 
     /**
@@ -197,6 +199,13 @@ export abstract class RouteDataLoaderBase<
 
         const source = this.getSource(matched, options);
         if (!source) return;
+
+        // 检查 source 是否是错误对象
+        if (source instanceof Error) {
+            const signal = this.createSignal(matched);
+            this.onLoadError(matched, source, signal);
+            return;
+        }
 
         const cacheItem = this.getRouteCache(matched);
 
@@ -240,7 +249,12 @@ export abstract class RouteDataLoaderBase<
             } else {
                 // 静态数据源也需要调用 onHandleData
                 const processedData = this.onHandleData(source, options, signal, matched);
-                onSuccess(processedData);
+                // 如果 processedData 是 Promise，使用 then/catch 处理
+                if (processedData instanceof Promise) {
+                    processedData.then(onSuccess).catch(onError);
+                } else {
+                    onSuccess(processedData);
+                }
             }
         } catch (e: any) {
             onError(e);
@@ -310,11 +324,16 @@ export abstract class RouteDataLoaderBase<
         options: TOptions,
     ): string | TData | undefined {
         const source = options.from;
-        return typeof source === "function"
-            ? (source as any)(matched)
-            : typeof source === "boolean"
-              ? this.getAutoUrl(matched, source)
-              : source;
+        try {
+            return typeof source === "function"
+                ? (source as any)(matched)
+                : typeof source === "boolean"
+                  ? this.getAutoUrl(matched, source)
+                  : source;
+        } catch (error) {
+            // 返回错误对象以便在 loadRoute 中处理
+            return error as any;
+        }
     }
 
     protected getAutoUrl(_matched: KylinMatchedRouteItem, _source: boolean): string | undefined {

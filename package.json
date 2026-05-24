@@ -7,8 +7,8 @@
         "dev": "vite",
         "build": "tsc && vite build",
         "preview": "vite preview",
-        "test": "bun test",
-        "test:watch": "bun test --watch"
+        "test": "bun test --preload src/__tests__/test-setup.ts",
+        "test:watch": "bun test --watch --preload src/__tests__/test-setup.ts"
     },
     "dependencies": {
         "@lit/context": "^1.1.6",

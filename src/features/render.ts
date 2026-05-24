@@ -134,6 +134,12 @@ export class Render {
                 const viewHash = matched.hash;
                 const dataHash = curRouteItem?._getData?.meta?.hash;
 
+                // 公共路由跳过逻辑：直接跳过，currentOutlet 保持不变
+                if (i < commonRouteIndex) {
+                    this.logger.debug("{} -> 跳过公共路由 {}/{}", () => [toRoute[0].id, i + 1]);
+                    continue;
+                }
+
                 // 查找或创建outlet
                 const searchContext = currentOutlet || this.host;
                 currentOutlet = this._findOutlet(searchContext);
@@ -151,35 +157,6 @@ export class Render {
                         ],
                     );
                     continue;
-                }
-
-                // 公共路由跳过逻辑：直接激活已存在的视图容器，跳过重新渲染
-                if (i < commonRouteIndex) {
-                    const existingView = currentOutlet.getViewContainer(viewHash);
-                    if (existingView) {
-                        currentOutlet.showViewContainer(viewHash);
-                        // 直接在 existingView（即 viewHash 对应的容器）中查找子 outlet
-                        const childOutlets = findOutlet(existingView);
-                        this.logger.debug("{} -> 公共路由查找子 outlet，数量: {}", () => [
-                            toRoute[0].id,
-                            childOutlets.length,
-                        ]);
-                        if (childOutlets.length > 0) {
-                            currentOutlet = childOutlets[0] as KylinOutlet;
-                            this.logger.debug("{} -> 公共路由更新 outlet: {} -> {}", () => [
-                                toRoute[0].id,
-                                viewHash,
-                                (currentOutlet as any).id || "unknown",
-                            ]);
-                        } else {
-                            this.logger.debug(
-                                "{} -> 公共路由未找到子 outlet，existingView HTML: {}",
-                                () => [toRoute[0].id, existingView.innerHTML.substring(0, 200)],
-                            );
-                        }
-                        this.logger.debug("{} -> 跳过公共路由 {}/{}", () => [toRoute[0].id, i + 1]);
-                        continue;
-                    }
                 }
 
                 // keepAlive 缓存逻辑：如果视图容器已存在，则跳过渲染
