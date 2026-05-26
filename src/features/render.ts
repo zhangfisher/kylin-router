@@ -178,6 +178,8 @@ export class Render {
                     }
 
                     // 创建空的视图容器: 用于插入视图内容或错误页或404页
+                    // 重点： 无论是否加载成功均应该创建容器
+                    //     加载前显示Loading/成功后显示视图/失败后显示错误
                     const viewContainer = currentOutlet.createViewContainer(matched, {
                         viewHash: viewHash,
                         dataHash: dataHash,

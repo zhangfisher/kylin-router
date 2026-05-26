@@ -46,9 +46,10 @@ export class ViewContainer {
         container = document.createElement("div");
         container.setAttribute("id", this.viewHash);
         container.classList.add("kylin-view");
-
         this._showLoading(container);
         this.container = container;
+        //
+        this.outlet.appendChild(container);
         this._active();
         return container;
     }
@@ -107,12 +108,6 @@ export class ViewContainer {
             this.container.innerHTML = "";
             this.container.appendChild(view);
         }
-
-        // 仅当容器不在 DOM 中时才插入（避免重复 appendChild）
-        if (this.container.parentElement !== this.outlet) {
-            this.outlet.appendChild(this.container);
-        }
-
         // 标记为已初始化（Alpine 初始化由渲染根统一处理）
         this._isNewContainer = false;
 
