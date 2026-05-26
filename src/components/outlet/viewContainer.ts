@@ -1,5 +1,4 @@
 import type { KylinOutlet } from ".";
-import Alpine from "alpinejs";
 
 export type ViewContainerOptions = {
     viewHash: string;
@@ -128,11 +127,6 @@ export class ViewContainer {
     reject(error: any, errorElement: HTMLElement) {
         this.container.innerHTML = "";
         this.container.appendChild(errorElement);
-
-        // 插入到 outlet（如果尚未插入）
-        if (this.container.parentElement !== this.outlet) {
-            this.outlet.appendChild(this.container);
-        }
     }
     finally() {
         this._hideLoading();

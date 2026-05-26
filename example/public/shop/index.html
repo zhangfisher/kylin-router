@@ -110,7 +110,15 @@
                             {
                                 path: ":category",
                                 view: "pages/product-list.html",
-                                data: { title: "xxxx" },
+                                data: {
+                                    from: async () => {
+                                        const response = await fetch("./data/products.json");
+                                        return await response.json();
+                                    },
+                                },
+                                params: {
+                                    category: "smartphones",
+                                },
                             },
                         ],
                     },

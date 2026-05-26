@@ -126,7 +126,7 @@ export type KylinRouterOptions = {
      * 当设置为 true 时，如果子路由中没有 default: true 的路由，
      * 会自动使用 children[0] 作为默认路由
      * 当设置为 false 时，只有在子路由中显式设置 default: true 才会选择默认路由
-     * @default false
+     * @default true
      */
     autoMatchSubRoute?: boolean;
     /**

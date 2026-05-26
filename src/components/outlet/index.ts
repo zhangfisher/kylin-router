@@ -8,6 +8,7 @@ import { OutletLayoutBase } from "./base.layout";
 import { StackLayout } from "./stack.layout";
 import { TabsLayout } from "./tabs.layout";
 import { CollapseLayout } from "./collapse.layout";
+import { findOutlet } from "@/utils/findOutlet";
 
 @customElement("kylin-outlet")
 export class KylinOutlet extends KylinRouterElementBase {
@@ -155,6 +156,7 @@ export class KylinOutlet extends KylinRouterElementBase {
      */
     createViewContainer(matched: KylinMatchedRouteItem, options?: ViewContainerOptions) {
         const viewContainer = new ViewContainer(this, options);
+        // 记录
         viewContainer.container.setAttribute("data-url", matched.url);
 
         const extraData: Record<string, any> = {};
@@ -243,6 +245,16 @@ export class KylinOutlet extends KylinRouterElementBase {
      */
     getViewContainers(): HTMLElement[] {
         return Array.from(this.querySelectorAll(":scope > .kylin-view[id]")) as HTMLElement[];
+    }
+    findOutlet(viewHash?: string): KylinOutlet {
+        if (viewHash) {
+            const viewContainer = this.getViewContainer(viewHash);
+            if (viewContainer) {
+                const outlet = findOutlet(viewContainer)[0];
+                return outlet || this;
+            }
+        }
+        return this;
     }
     /**
      * 根据 layout 属性显示指定的 viewContainer

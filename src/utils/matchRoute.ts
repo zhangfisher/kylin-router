@@ -424,6 +424,54 @@ function compileSegments(pattern: string, fullMatch: boolean): CompiledPattern {
 }
 
 /**
+ * 提取路径中的所有参数名
+ * 支持 :param 和 <param> 语法
+ */
+function extractParamNames(path: string): string[] {
+    const colonPattern = /^:(\w+)(?:\(.+\))?$/;
+    const anglePattern = /^<(\w+)(?:\(.+\))?>$/;
+    const paramNames: string[] = [];
+    const segments = path.split("/").filter(Boolean);
+
+    for (const segment of segments) {
+        const colonMatch = segment.match(colonPattern);
+        if (colonMatch) {
+            paramNames.push(colonMatch[1]);
+            continue;
+        }
+        const angleMatch = segment.match(anglePattern);
+        if (angleMatch) {
+            paramNames.push(angleMatch[1]);
+        }
+    }
+    return paramNames;
+}
+
+/**
+ * 用 params 默认值替换路径中的参数
+ * 如果参数没有默认值，保留原始占位符
+ */
+function replacePathParams(path: string, params: Record<string, string>): string {
+    const segments = path.split("/").filter(Boolean);
+    const replacedSegments = segments.map((segment) => {
+        // 匹配 :param 或 :param(regex) 语法
+        const colonMatch = segment.match(/^:(\w+)(?:\(.+\))?$/);
+        if (colonMatch) {
+            const paramName = colonMatch[1];
+            return params[paramName] ?? segment;
+        }
+        // 匹配 <param> 或 <param(regex)> 语法
+        const angleMatch = segment.match(/^<(\w+)(?:\(.+\))?>$/);
+        if (angleMatch) {
+            const paramName = angleMatch[1];
+            return params[paramName] ?? segment;
+        }
+        return segment;
+    });
+    return replacedSegments.length > 0 ? "/" + replacedSegments.join("/") : "/";
+}
+
+/**
  * 在子路由中递归查找默认路由
  * 1. 优先选择 default: true 的路由
  * 2. 如果 autoMatchSubRoute 为 true 且没有 default: true，使用 children[0] 作为后备
@@ -458,7 +506,9 @@ function findDefaultRoute(
 
             // 构建 URL：对于默认路由，url 应该包含完整路径
             // 例如：根路由 "/" + 默认路由 "home" -> url = "/home"
-            const fullUrl = normalizeUrl(joinPath(parentMatchedRoute.url, route.path));
+            // 如果路径包含参数且有默认值，用默认值替换所有参数（包括父路径中的参数）
+            const fullPathWithDefaults = replacePathParams(fullPath, mergedParams);
+            const fullUrl = normalizeUrl(fullPathWithDefaults);
 
             const currentMatch: KylinMatchedRouteItem = {
                 route,
@@ -541,7 +591,8 @@ function findDefaultRoute(
             parentRoute = { ...parentRoute, data: route.data };
         }
 
-        const fullUrl = normalizeUrl(joinPath(parentMatchedRoute.url, route.path));
+        const fullPathWithDefaults = replacePathParams(fullPath, mergedParams);
+        const fullUrl = normalizeUrl(fullPathWithDefaults);
 
         const currentMatch: KylinMatchedRouteItem = {
             route,
@@ -947,7 +998,7 @@ export function matchRoute(
 ): KylinMatchedRouteItem[] {
     const { pathname: pathWithoutQuery, query: inputQuery } = parseQueryString(path);
     const normalizedPath = normalizePath(pathWithoutQuery);
-    const autoMatchSubRoute = options?.autoMatchSubRoute ?? false;
+    const autoMatchSubRoute = options?.autoMatchSubRoute ?? true;
     const redirectChain = options?._redirectChain || [];
     const maxRedirect = options?.maxRedirect ?? 10;
     const namedRoutes = options?.namedRoutes;
