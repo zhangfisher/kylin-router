@@ -3,9 +3,10 @@ import type { KylinOutlet } from "@/components/outlet";
 /**
  * 检查元素的祖先中是否包含 kylin-outlet
  */
-function hasOutletAncestor(el: HTMLElement): boolean {
+function hasOutletAncestor(el: HTMLElement, root: HTMLElement): boolean {
     let parent = el.parentElement;
     while (parent) {
+        if (parent === root) return false;
         if (parent.tagName === "KYLIN-OUTLET") {
             return true;
         }
@@ -33,7 +34,7 @@ export function findOutlet(el: HTMLElement): KylinOutlet[] {
         for (const child of current.children) {
             const childEl = child as HTMLElement;
             // 跳过已有 outlet 祖先的元素（嵌套在已找到的 outlet 内部）
-            if (hasOutletAncestor(childEl)) {
+            if (hasOutletAncestor(childEl, el)) {
                 continue;
             }
 

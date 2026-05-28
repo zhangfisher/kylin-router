@@ -1160,6 +1160,47 @@ describe("matchRoute - 默认子路由处理", () => {
             }),
         ]);
     });
+    it("路由时自动选择 default:true 的子路由2", () => {
+        const routes: KylinRouteItem = normalizeRoutes(
+            // 首页
+            {
+                path: "home",
+                default: true,
+                view: "pages/home.html",
+                data: "data/home.json",
+            },
+        );
+
+        const result = matchRoute("/", routes);
+        expect(result[0].route.view).toBeUndefined();
+        expect(result[0].route.data).toBeUndefined();
+        expect(result).toEqual([
+            expect.objectContaining({
+                route: expect.objectContaining({ path: "/" }),
+                url: "/",
+                path: "/",
+            }),
+            expect.objectContaining({
+                route: expect.objectContaining({ path: "home" }),
+                path: "/home",
+                url: "/home",
+            }),
+        ]);
+    });
+    it("路由时自动选择 default:true 的子路由3", () => {
+        const routes: KylinRouteItem = normalizeRoutes(
+            // 首页
+            {
+                path: "files/:id",
+                default: true,
+                view: "pages/home.html",
+                data: "data/home.json",
+            },
+        );
+
+        const result1 = matchRoute("/files/1", routes);
+        const result2 = matchRoute("/files/2", routes);
+    });
     it("嵌套默认子路由", () => {
         const routes: KylinRouteItem = normalizeRoutes({
             path: "/",

@@ -71,7 +71,7 @@ export class Render {
         let commonRouteIndex = 0;
         if (fromRoute && fromRoute.length > 0) {
             for (let i = 0; i < Math.min(fromRoute.length, toRoute.length); i++) {
-                if (fromRoute[i].hash === toRoute[i].hash) {
+                if (fromRoute[i].url === toRoute[i].url) {
                     commonRouteIndex = i + 1;
                 } else {
                     break;
@@ -120,7 +120,7 @@ export class Render {
             );
 
             const commonRouteIndex: number = this._getCommonRouteIndex(fromRoute, toRoute);
-
+            let preViewHash: string;
             for (let i = 0; i < toRoute.length; i++) {
                 this.logger.debug(
                     "{} -> 准备渲染 {}/{} {} -> {}",
@@ -147,27 +147,31 @@ export class Render {
                 const curRouteItem = matched.route;
 
                 if (curRouteItem) {
+                    currentOutlet =
+                        i === 0 ? this._getRootOutlet() : currentOutlet.findOutlet(preViewHash!);
+
                     const viewHash = matched.hash;
                     const dataHash = curRouteItem?._getData?.meta?.hash;
+                    preViewHash = viewHash;
 
                     // 公共路由跳过逻辑：直接跳过，currentOutlet 保持不变
                     if (i < commonRouteIndex) {
-                        this.logger.debug("{} -> 跳过公共路由 {}/{}", () => [toRoute[0].id, i + 1]);
-                        // 首次跳过后，初始化 currentOutlet 为 host 中的 outlet
-                        if (currentOutlet) {
-                            currentOutlet = currentOutlet.findOutlet(viewHash);
-                        }
                         continue;
                     }
 
                     // keepAlive 缓存逻辑：如果视图容器已存在，则跳过渲染
                     // keepAlive 默认为 true，除非显式设置为 false
-                    if (curRouteItem?.keepAlive !== false && currentOutlet) {
+                    if (curRouteItem?.keepAlive !== false) {
                         const viewContainer = currentOutlet.getViewContainer(viewHash);
                         if (viewContainer) {
-                            currentOutlet.view = viewHash;
-                            currentOutlet = currentOutlet.findOutlet(viewHash);
-                            continue;
+                            // 相同的hash且需要url一致时才可以复用视图
+                            // 如果url不一样，则只是复用视图容器
+                            const url = viewContainer.dataset.url;
+                            if (url === matched.url) {
+                                currentOutlet.view = viewHash;
+                                currentOutlet = currentOutlet.findOutlet(viewHash);
+                                continue;
+                            }
                         }
                     }
 
@@ -176,56 +180,54 @@ export class Render {
                         this.logger.error("{} -> 无法找到 outlet，跳过渲染", toRoute[0].id);
                         continue;
                     }
+                    // 是否指定了View参数，如果没有指定
+                    const hasView = matched.route?.view;
 
                     // 创建空的视图容器: 用于插入视图内容或错误页或404页
                     // 重点： 无论是否加载成功均应该创建容器
                     //     加载前显示Loading/成功后显示视图/失败后显示错误
-                    const viewContainer = currentOutlet.createViewContainer(matched, {
-                        viewHash: viewHash,
-                        dataHash: dataHash,
-                        keepAlive: curRouteItem.keepAlive !== false,
-                    });
-                    pendingViewContainer = viewContainer;
-
+                    const viewContainer = hasView
+                        ? currentOutlet.createViewContainer(matched, {
+                              viewHash: viewHash,
+                              dataHash: dataHash,
+                              keepAlive: curRouteItem.keepAlive !== false,
+                          })
+                        : null;
+                    // 提醒：没有view为什么还要继续？没有view但可能可以加载数据，数据可以供后续子路由访问
                     try {
+                        pendingViewContainer = viewContainer;
                         const data = await this._loadData(matched);
                         const view = await this._loadView(matched);
                         this.logger.debug(
                             "{} -> 路由数据加载完成 {}/{} data={}({}) view={}",
                             () => [toRoute[0].id, i + 1, toRoute.length, data, data?.hash, view],
                         );
-                        // 调试：如果 view 为 null/undefined，输出详细信息
-                        if (!view) {
-                            this.logger.error("{} -> 视图加载返回空值，路由信息: {}", () => [
-                                toRoute[0].id,
-                                JSON.stringify({
-                                    path: matched.route?.path,
-                                    name: matched.route?.name,
-                                    hasGetView: !!matched.route?._getView,
-                                    getViewType: typeof matched.route?._getView,
-                                }),
-                            ]);
-                            throw new KylinRouterError("视图加载失败", 500);
-                        }
-                        if (view.error) {
-                            this._routeReject(view.error, viewContainer, toRoute);
-                            break;
-                        } else {
-                            await this._runBeforeRender(
-                                fromRoute || [],
-                                toRoute,
-                                viewContainer.container,
-                                data?.value,
-                            );
-                            viewContainer.resolve(view.value, data?.value);
-                            this._runAfterRender(fromRoute || [], toRoute, viewContainer.container);
+                        // 如果 view 为 null/undefined，即没有创建
+                        if (view) {
+                            if (view.error) {
+                                this._routeReject(view.error, viewContainer!, toRoute);
+                                break;
+                            } else {
+                                await this._runBeforeRender(
+                                    fromRoute || [],
+                                    toRoute,
+                                    viewContainer!.container,
+                                    data?.value,
+                                );
+                                viewContainer?.resolve(view.value, data?.value);
+                                this._runAfterRender(
+                                    fromRoute || [],
+                                    toRoute,
+                                    viewContainer!.container,
+                                );
+                            }
                         }
                     } catch (loadingError) {
                         this.logger.error("视图或数据加载失败", loadingError);
-                        this._routeReject(loadingError, viewContainer, toRoute);
+                        if (viewContainer) this._routeReject(loadingError, viewContainer, toRoute);
                         break;
                     } finally {
-                        viewContainer.finally();
+                        if (viewContainer) viewContainer.finally();
                         pendingViewContainer = null;
                     }
                 }

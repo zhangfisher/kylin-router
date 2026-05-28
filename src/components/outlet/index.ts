@@ -148,6 +148,15 @@ export class KylinOutlet extends KylinRouterElementBase {
             this._layoutInstance = null;
         }
     }
+
+    /**
+     * 根据 hash 获取 viewContainer
+     * @param hash - viewContainer 的 hash
+     * @returns viewContainer 元素
+     */
+    getViewContainer(hash: string): HTMLElement | null {
+        return this.querySelector(`[id="${hash}"]`);
+    }
     /**
      *
      * @param hash
@@ -231,14 +240,6 @@ export class KylinOutlet extends KylinRouterElementBase {
 
         // 通知布局实例
         this._layoutInstance?.onSlotChange(mutations);
-    }
-    /**
-     * 根据 hash 获取 viewContainer
-     * @param hash - viewContainer 的 hash
-     * @returns viewContainer 元素
-     */
-    getViewContainer(hash: string): HTMLElement | null {
-        return this.querySelector(`[id="${hash}"]`);
     }
     /**
      * 获取所有 viewContainer

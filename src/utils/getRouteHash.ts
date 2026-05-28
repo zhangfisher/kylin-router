@@ -12,6 +12,6 @@ import { getSignalHash } from "./getSignalHash";
 
  */
 export function getRouteHash(matched: KylinMatchedRouteItem) {
-    const hash = matched.route.hash || "{path}";
+    const hash = matched?.route?.hash || "{path}";
     return getSignalHash(hash, matched);
 }
