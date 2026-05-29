@@ -227,7 +227,10 @@ export class Render {
                         if (viewContainer) this._routeReject(loadingError, viewContainer, toRoute);
                         break;
                     } finally {
-                        if (viewContainer) viewContainer.finally();
+                        if (viewContainer) {
+                            viewContainer.finally();
+                            Alpine.initTree(viewContainer.container);
+                        }
                         pendingViewContainer = null;
                     }
                 }

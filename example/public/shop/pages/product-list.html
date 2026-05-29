@@ -1,8 +1,11 @@
 <!-- 产品列表模板 -->
 <div class="product-grid">
-    <h3 x-text="meta.title"></h3>
-    <h3 x-text="$params.category"></h3>
+    <div>
+        <h3 x-text="meta.title"></h3>
+        - <span x-text="$params.category"></span>
+    </div>
     <template
+        class="products"
         x-for="product in products.filter((product) => product.category === $params.category)"
         :key="product.id"
     >
@@ -24,3 +27,29 @@
         </div>
     </template>
 </div>
+<style>
+    .product-grid {
+        display: flex;
+        flex-direction: column;
+    }
+    .products {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    .products > .product-card {
+        flex: 0 0 calc(25% - 12px);
+        min-width: 200px;
+        max-width: 280px;
+    }
+    @media (max-width: 1200px) {
+        .products > .product-card {
+            flex: 0 0 calc(33.33% - 11px);
+        }
+    }
+    @media (max-width: 768px) {
+        .products > .product-card {
+            flex: 0 0 calc(50% - 8px);
+        }
+    }
+</style>
