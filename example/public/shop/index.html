@@ -114,25 +114,25 @@
                                 params: {
                                     category: "smartphones",
                                 },
+                                children: [
+                                    {
+                                        path: ":id",
+                                        view: "pages/product-detail.html",
+                                        data: {
+                                            from: async (context) => {
+                                                const response = await fetch(".data/products.json");
+                                                const allProducts = await response.json();
+                                                const product = allProducts.products.find(
+                                                    (p) => p.id === context.params.id,
+                                                );
+                                                return product || {};
+                                            },
+                                        },
+                                    },
+                                ],
                             },
                         ],
                     },
-                    // 产品详情
-                    {
-                        path: "product/:id",
-                        view: "pages/product-detail.html",
-                        data: {
-                            from: async (context) => {
-                                const response = await fetch(".data/products.json");
-                                const allProducts = await response.json();
-                                const product = allProducts.products.find(
-                                    (p) => p.id === context.params.id,
-                                );
-                                return product || {};
-                            },
-                        },
-                    },
-
                     // 服务页面（包含左侧边栏和 outlet）
                     {
                         path: "services",

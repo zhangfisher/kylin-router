@@ -1,0 +1,43 @@
+{
+  "projectRoot": "E:/Work/Code/kylin-router",
+  "batchFiles": [
+    {"path": ".agents/skills/tsdown/references/option-minification.md", "language": "markdown", "sizeLines": 276, "fileCategory": "docs"},
+    {"path": ".agents/skills/tsdown/references/option-onThisBuild-success.md", "language": "markdown", "sizeLines": 93, "fileCategory": "docs"},
+    {"path": ".agents/skills/tsdown/references/option-onSuccess.md", "language": "markdown", "sizeLines": 110, "fileCategory": "docs"},
+    {"path": ".agents/skills/tsdown/references/option-target.md", "language": "markdown", "sizeLines": 262, "fileCategory": "docs"},
+    {"path": ".agents/skills/tsdown/references/option-watch.md", "language": "markdown", "sizeLines": 116, "fileCategory": "docs"},
+    {"path": ".agents/skills/tsdown/SKILL.md", "language": "markdown", "sizeLines": 250, "fileCategory": "docs"},
+    {"path": ".agents/skills/tsdown/assets/banner.png", "language": "png", "sizeLines": 1, "fileCategory": "data"},
+    {"path": ".agents/skills/tsdown/assets/icon.png", "language": "png", "sizeLines": 1, "fileCategory": "data"},
+    {"path": ".agents/skills/tsdown/tsdown-error-snapshot.ts", "language": "typescript", "sizeLines": 44, "fileCategory": "code"},
+    {"path": ".agents/skills/tsdown/tsdown-init.ts", "language": "typescript", "sizeLines": 73, "fileCategory": "code"},
+    {"path": ".agents/skills/tsdown/tsdown-init.test.ts", "language": "typescript", "sizeLines": 121, "fileCategory": "code"},
+    {"path": ".agents/skills/tsdown/tsdown-init.test.ts.md", "language": "markdown", "sizeLines": 74, "fileCategory": "docs"},
+    {"path": ".agents/skills/tsdown/validate.ts", "language": "typescript", "sizeLines": 71, "fileCategory": "code"},
+    {"path": ".agents/skills/tsdown/README.md", "language": "markdown", "sizeLines": 78, "fileCategory": "docs"},
+    {"path": ".agents/skills/tsdown/refs.ts", "language": "typescript", "sizeLines": 126, "fileCategory": "code"},
+    {"path": ".agents/skills/tsdown/refs.test.ts", "language": "typescript", "sizeLines": 247, "fileCategory": "code"},
+    {"path": ".agents/skills/tsdown/refs.ts.md", "language": "markdown", "sizeLines": 145, "fileCategory": "docs"},
+    {"path": ".agents/skills/tsdown/snapshot.md", "language": "markdown", "sizeLines": 253, "fileCategory": "docs"}
+  ],
+  "batchImportData": {
+    ".agents/skills/tsdown/references/option-minification.md": [],
+    ".agents/skills/tsdown/references/option-onThisBuild-success.md": [],
+    ".agents/skills/tsdown/references/option-onSuccess.md": [],
+    ".agents/skills/tsdown/references/option-target.md": [],
+    ".agents/skills/tsdown/references/option-watch.md": [],
+    ".agents/skills/tsdown/SKILL.md": [],
+    ".agents/skills/tsdown/assets/banner.png": [],
+    ".agents/skills/tsdown/assets/icon.png": [],
+    ".agents/skills/tsdown/tsdown-error-snapshot.ts": [],
+    ".agents/skills/tsdown/tsdown-init.ts": [],
+    ".agents/skills/tsdown/tsdown-init.test.ts": [],
+    ".agents/skills/tsdown/tsdown-init.test.ts.md": [],
+    ".agents/skills/tsdown/validate.ts": [],
+    ".agents/skills/tsdown/README.md": [],
+    ".agents/skills/tsdown/refs.ts": [],
+    ".agents/skills/tsdown/refs.test.ts": [],
+    ".agents/skills/tsdown/refs.ts.md": [],
+    ".agents/skills/tsdown/snapshot.md": []
+  }
+}

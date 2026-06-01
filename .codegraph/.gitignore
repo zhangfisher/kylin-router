@@ -14,3 +14,9 @@ cache/
 
 # Hook markers
 .dirty
+
+dist/
+.planning/
+.trae/
+.claude/
+node_modules/

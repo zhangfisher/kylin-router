@@ -138,9 +138,7 @@ export abstract class RouteDataLoaderBase<
      * 获取路由当前正在使用的加载信号
      * 根据 signalKey 自动访问 _getData 或 _getView
      */
-    protected getSignal(
-        matched: KylinMatchedRouteItem,
-    ): IAsyncSignal | undefined {
+    protected getSignal(matched: KylinMatchedRouteItem): IAsyncSignal | undefined {
         return (matched.route as any)[this._signalKey] as IAsyncSignal | undefined;
     }
 
@@ -203,7 +201,7 @@ export abstract class RouteDataLoaderBase<
         // 检查 source 是否是错误对象
         if (source instanceof Error) {
             const signal = this.createSignal(matched);
-            this.onLoadError(matched, source, signal);
+            this.onLoadError(matched, source as any, signal);
             return;
         }
 

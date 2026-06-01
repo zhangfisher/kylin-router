@@ -1,0 +1,187 @@
+{
+  "nodes": [
+    {
+      "id": "document:.claude/commands/gsd/add-backlog.md",
+      "type": "document",
+      "name": "add-backlog.md",
+      "filePath": ".claude/commands/gsd/add-backlog.md",
+      "summary": "GSD工作流命令文档 - 将想法添加到待办事项积压清单（999.x编号系统），用于暂存未准备好进入主动规划阶段的项目想法。",
+      "tags": ["gsd-命令", "工作流", "待办管理", "积压清单", "文档"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/add-phase.md",
+      "type": "document",
+      "name": "add-phase.md",
+      "filePath": ".claude/commands/gsd/add-phase.md",
+      "summary": "GSD工作流命令文档 - 在当前里程碑末尾添加新阶段，扩展项目规划和执行的时间线。",
+      "tags": ["gsd-命令", "工作流", "阶段管理", "规划", "文档"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/add-tests.md",
+      "type": "document",
+      "name": "add-tests.md",
+      "filePath": ".claude/commands/gsd/add-tests.md",
+      "summary": "GSD工作流命令文档 - 为已完成的阶段生成测试用例，确保代码质量和功能完整性。",
+      "tags": ["gsd-命令", "测试", "质量保证", "工作流", "文档"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/add-todo.md",
+      "type": "document",
+      "name": "add-todo.md",
+      "filePath": ".claude/commands/gsd/add-todo.md",
+      "summary": "GSD工作流命令文档 - 捕获想法或任务为待办事项，快速记录需要处理的工作项。",
+      "tags": ["gsd-命令", "待办管理", "任务跟踪", "工作流", "文档"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/analyze-dependencies.md",
+      "type": "document",
+      "name": "analyze-dependencies.md",
+      "filePath": ".claude/commands/gsd/analyze-dependencies.md",
+      "summary": "GSD工作流命令文档 - 分析阶段间的依赖关系，优化执行顺序并识别阻塞任务。",
+      "tags": ["gsd-命令", "依赖分析", "工作流", "优化", "文档"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/audit-milestone.md",
+      "type": "document",
+      "name": "audit-milestone.md",
+      "filePath": ".claude/commands/gsd/audit-milestone.md",
+      "summary": "GSD工作流命令文档 - 审计里程碑完成情况，验证所有交付物和阶段是否达到完成标准。",
+      "tags": ["gsd-命令", "审计", "里程碑", "质量保证", "文档"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/audit-fix.md",
+      "type": "document",
+      "name": "audit-fix.md",
+      "filePath": ".claude/commands/gsd/audit-fix.md",
+      "summary": "GSD工作流命令文档 - 自动化审计到修复的管道，从审计发现的问题直接生成修复计划。",
+      "tags": ["gsd-命令", "审计", "自动修复", "管道", "文档"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/audit-uat.md",
+      "type": "document",
+      "name": "audit-uat.md",
+      "filePath": ".claude/commands/gsd/audit-uat.md",
+      "summary": "GSD工作流命令文档 - 跨阶段用户验收测试审计，验证所有输出是否符合用户需求。",
+      "tags": ["gsd-命令", "审计", "用户验收测试", "质量保证", "文档"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/autonomous.md",
+      "type": "document",
+      "name": "autonomous.md",
+      "filePath": ".claude/commands/gsd/autonomous.md",
+      "summary": "GSD工作流命令文档 - 自动运行所有剩余阶段，实现无人值守的项目执行和完成。",
+      "tags": ["gsd-命令", "自动化", "工作流", "执行", "文档"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/code-review-fix.md",
+      "type": "document",
+      "name": "code-review-fix.md",
+      "filePath": ".claude/commands/gsd/code-review-fix.md",
+      "summary": "GSD工作流命令文档 - 自动修复代码审查中发现的问题，应用审查报告中的建议修复。",
+      "tags": ["gsd-命令", "代码审查", "自动修复", "质量保证", "文档"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/code-review.md",
+      "type": "document",
+      "name": "code-review.md",
+      "filePath": ".claude/commands/gsd/code-review.md",
+      "summary": "GSD工作流命令文档 - 审查阶段变更的源文件，检测漏洞、安全问题和代码质量问题，支持多种审查深度。",
+      "tags": ["gsd-命令", "代码审查", "质量保证", "安全", "文档"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:.claude/commands/gsd/cleanup.md",
+      "type": "document",
+      "name": "cleanup.md",
+      "filePath": ".claude/commands/gsd/cleanup.md",
+      "summary": "GSD工作流命令文档 - 归档累积的阶段数据，清理已完成的工作并保持项目结构整洁。",
+      "tags": ["gsd-命令", "清理", "归档", "维护", "文档"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/complete-milestone.md",
+      "type": "document",
+      "name": "complete-milestone.md",
+      "filePath": ".claude/commands/gsd/complete-milestone.md",
+      "summary": "GSD工作流命令文档 - 归档已完成的里程碑，整理项目成果并为下一周期做准备，包含136行详细文档。",
+      "tags": ["gsd-命令", "里程碑", "归档", "完成标准", "文档"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:.claude/commands/gsd/check-todos.md",
+      "type": "document",
+      "name": "check-todos.md",
+      "filePath": ".claude/commands/gsd/check-todos.md",
+      "summary": "GSD工作流命令文档 - 列出待处理的待办事项并选择性执行，管理任务队列。",
+      "tags": ["gsd-命令", "待办管理", "任务执行", "工作流", "文档"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/debug.md",
+      "type": "document",
+      "name": "debug.md",
+      "filePath": ".claude/commands/gsd/debug.md",
+      "summary": "GSD工作流命令文档 - 系统化调试工作流，使用科学方法进行问题诊断和修复，支持子代理隔离和持久化状态，包含5个主要步骤和186行详细文档。",
+      "tags": ["gsd-命令", "调试", "问题诊断", "子代理", "工作流", "文档"],
+      "complexity": "complex",
+      "languageNotes": "采用子代理隔离模式处理上下文密集型调试任务，提供诊断模式和检查点恢复机制"
+    },
+    {
+      "id": "document:.claude/commands/gsd/do.md",
+      "type": "document",
+      "name": "do.md",
+      "filePath": ".claude/commands/gsd/do.md",
+      "summary": "GSD工作流命令文档 - 自由文本路由命令，根据输入内容智能分发到合适的GSD工作流。",
+      "tags": ["gsd-命令", "路由", "工作流", "智能分发", "文档"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/docs-update.md",
+      "type": "document",
+      "name": "docs-update.md",
+      "filePath": ".claude/commands/gsd/docs-update.md",
+      "summary": "GSD工作流命令文档 - 生成或更新项目文档，确保文档与代码实现保持同步。",
+      "tags": ["gsd-命令", "文档", "更新", "维护", "文档"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/execute-phase.md",
+      "type": "document",
+      "name": "execute-phase.md",
+      "filePath": ".claude/commands/gsd/execute-phase.md",
+      "summary": "GSD工作流命令文档 - 使用波次并行化执行阶段中的所有计划，编排器保持精简，每个子代理独立处理自己的计划，支持波次过滤和交互式执行。",
+      "tags": ["gsd-命令", "执行", "并行化", "子代理", "工作流", "文档"],
+      "complexity": "moderate",
+      "languageNotes": "采用波次并行化执行模式，支持依赖分析和智能子代理分配"
+    },
+    {
+      "id": "document:.claude/commands/gsd/explore.md",
+      "type": "document",
+      "name": "explore.md",
+      "filePath": ".claude/commands/gsd/explore.md",
+      "summary": "GSD工作流命令文档 - 苏格拉底式创意探索和想法孵化，通过对话式交互生成新概念。",
+      "tags": ["gsd-命令", "探索", "创意", "对话", "文档"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/fast.md",
+      "type": "document",
+      "name": "fast.md",
+      "filePath": ".claude/commands/gsd/fast.md",
+      "summary": "GSD工作流命令文档 - 内联执行琐碎任务，为小型工作提供快速通道，无需完整规划流程。",
+      "tags": ["gsd-命令", "快速执行", "小型任务", "工作流", "文档"],
+      "complexity": "simple"
+    }
+  ],
+  "edges": []
+}

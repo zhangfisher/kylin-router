@@ -1,0 +1,257 @@
+{
+  "nodes": [
+    {
+      "id": "document:.claude/commands/gsd/fast.md",
+      "type": "document",
+      "name": "fast.md",
+      "filePath": ".claude/commands/gsd/fast.md",
+      "summary": "GSD快速任务命令，用于执行小型任务而无需生成子代理或规划开销。适用于拼写错误修复、配置变更、小型重构等可在2分钟内完成的任务。",
+      "tags": ["gsd命令", "快速执行", "小型任务", "工作流"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/forensics.md",
+      "type": "document",
+      "name": "forensics.md",
+      "filePath": ".claude/commands/gsd/forensics.md",
+      "summary": "GSD事后分析命令，用于诊断失败的GSD工作流执行。通过分析git历史、`.planning/`文件和文件系统状态来检测异常并生成结构化诊断报告。",
+      "tags": ["gsd命令", "诊断分析", "故障调查", "事后分析"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:.claude/commands/gsd/help.md",
+      "type": "document",
+      "name": "help.md",
+      "filePath": ".claude/commands/gsd/help.md",
+      "summary": "GSD帮助命令，显示完整的GSD命令参考和使用指南。输出参考内容，不添加项目特定分析或下一步建议。",
+      "tags": ["gsd命令", "帮助文档", "命令参考", "用户指南"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/health.md",
+      "type": "document",
+      "name": "health.md",
+      "filePath": ".claude/commands/gsd/health.md",
+      "summary": "GSD健康检查命令，验证`.planning/`目录的完整性并报告可操作的问题。检查缺失文件、无效配置、不一致状态和孤立计划。支持--repair标志进行修复。",
+      "tags": ["gsd命令", "健康检查", "诊断工具", "目录维护"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/intel.md",
+      "type": "document",
+      "name": "intel.md",
+      "filePath": ".claude/commands/gsd/intel.md",
+      "summary": "GSD情报系统命令，用于查询、检查或刷新`.planning/intel/`中的代码库情报文件。支持查询、状态检查、差异对比和刷新操作，提供代码库结构和关系的实时索引。",
+      "tags": ["gsd命令", "代码分析", "情报系统", "索引管理"],
+      "complexity": "moderate",
+      "languageNotes": "包含9个主要步骤的详细操作流程，支持多种子命令模式"
+    },
+    {
+      "id": "document:.claude/commands/gsd/insert-phase.md",
+      "type": "document",
+      "name": "insert-phase.md",
+      "filePath": ".claude/commands/gsd/insert-phase.md",
+      "summary": "GSD插入阶段命令，用于在现有阶段之间插入紧急工作作为小数十阶段。允许在不破坏现有计划结构的情况下插入高优先级任务。",
+      "tags": ["gsd命令", "阶段管理", "紧急任务", "计划调整"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/import.md",
+      "type": "document",
+      "name": "import.md",
+      "filePath": ".claude/commands/gsd/import.md",
+      "summary": "GSD导入命令，用于导入外部计划并将其集成到GSD工作流中。支持从其他来源获取计划并转换为GSD兼容格式。",
+      "tags": ["gsd命令", "计划导入", "数据迁移", "工作流集成"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/join-discord.md",
+      "type": "document",
+      "name": "join-discord.md",
+      "filePath": ".claude/commands/gsd/join-discord.md",
+      "summary": "GSD社区加入命令，提供加入GSD Discord社区的链接和信息。支持用户获取社区支持和参与讨论。",
+      "tags": ["gsd命令", "社区支持", "discord", "用户交流"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/list-phase-assumptions.md",
+      "type": "document",
+      "name": "list-phase-assumptions.md",
+      "filePath": ".claude/commands/gsd/list-phase-assumptions.md",
+      "summary": "GSD阶段假设列表命令，展示Claude在阶段规划中做出的假设。帮助用户了解AI的推理过程和潜在的隐含决策。",
+      "tags": ["gsd命令", "假设分析", "透明度", "决策追踪"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/list-workspaces.md",
+      "type": "document",
+      "name": "list-workspaces.md",
+      "filePath": ".claude/commands/gsd/list-workspaces.md",
+      "summary": "GSD工作空间列表命令，列出所有活跃的GSD工作空间。支持多项目管理和工作空间状态监控。",
+      "tags": ["gsd命令", "工作空间管理", "多项目支持", "状态监控"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/map-codebase.md",
+      "type": "document",
+      "name": "map-codebase.md",
+      "filePath": ".claude/commands/gsd/map-codebase.md",
+      "summary": "GSD代码库映射命令，使用并行分析代理来分析代码库结构。生成项目的架构映射、依赖关系和模块关系图。",
+      "tags": ["gsd命令", "代码分析", "架构映射", "依赖分析"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:.claude/commands/gsd/manager.md",
+      "type": "document",
+      "name": "manager.md",
+      "filePath": ".claude/commands/gsd/manager.md",
+      "summary": "GSD管理器命令，提供交互式命令中心用于管理GSD工作流。集中访问所有GSD功能和状态信息。",
+      "tags": ["gsd命令", "管理界面", "命令中心", "工作流管理"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/milestone-summary.md",
+      "type": "document",
+      "name": "milestone-summary.md",
+      "filePath": ".claude/commands/gsd/milestone-summary.md",
+      "summary": "GSD里程碑摘要命令，生成项目里程碑进度的综合报告。总结完成的工作、状态统计和关键成果。",
+      "tags": ["gsd命令", "里程碑管理", "进度报告", "项目总结"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/new-milestone.md",
+      "type": "document",
+      "name": "new-milestone.md",
+      "filePath": ".claude/commands/gsd/new-milestone.md",
+      "summary": "GSD新里程碑命令，启动新的里程碑周期。管理项目的主要版本和发布周期的开始过程。",
+      "tags": ["gsd命令", "里程碑创建", "周期管理", "版本规划"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/new-project.md",
+      "type": "document",
+      "name": "new-project.md",
+      "filePath": ".claude/commands/gsd/new-project.md",
+      "summary": "GSD新项目命令，通过深度上下文收集初始化新项目并创建PROJECT.md。支持自动模式，创建项目配置、需求文档、路线图和状态文件。",
+      "tags": ["gsd命令", "项目初始化", "配置创建", "上下文收集"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/new-workspace.md",
+      "type": "document",
+      "name": "new-workspace.md",
+      "filePath": ".claude/commands/gsd/new-workspace.md",
+      "summary": "GSD新工作空间命令，创建独立的GSD工作空间。支持多项目环境下的隔离工作区管理。",
+      "tags": ["gsd命令", "工作空间创建", "项目隔离", "环境管理"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/next.md",
+      "type": "document",
+      "name": "next.md",
+      "filePath": ".claude/commands/gsd/next.md",
+      "summary": "GSD下一步命令，自动检测当前项目状态并推进到下一个逻辑GSD工作流步骤。读取STATE.md、ROADMAP.md和阶段目录来确定下一步操作。",
+      "tags": ["gsd命令", "自动推进", "状态检测", "工作流自动化"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/note.md",
+      "type": "document",
+      "name": "note.md",
+      "filePath": ".claude/commands/gsd/note.md",
+      "summary": "GSD笔记命令，零摩擦的想法捕获工具。快速记录想法、待办事项和临时笔记，支持快速想法收集。",
+      "tags": ["gsd命令", "笔记记录", "想法捕获", "快速记录"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/pause-work.md",
+      "type": "document",
+      "name": "pause-work.md",
+      "filePath": ".claude/commands/gsd/pause-work.md",
+      "summary": "GSD暂停工作命令，在暂停会话时创建上下文交接。记录当前状态和未完成任务，便于后续恢复工作。",
+      "tags": ["gsd命令", "会话管理", "上下文保存", "工作暂停"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/commands/gsd/plan-milestone-gaps.md",
+      "type": "document",
+      "name": "plan-milestone-gaps.md",
+      "filePath": ".claude/commands/gsd/plan-milestone-gaps.md",
+      "summary": "GSD里程碑缺口规划命令，创建阶段来关闭所有确定的项目缺口。分析和补充项目规划中的空白领域。",
+      "tags": ["gsd命令", "缺口分析", "规划补充", "项目完善"],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "document:.claude/commands/gsd/fast.md",
+      "target": "document:.claude/commands/gsd/help.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/commands/gsd/forensics.md",
+      "target": "document:.claude/commands/gsd/health.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/commands/gsd/help.md",
+      "target": "document:.claude/commands/gsd/next.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/commands/gsd/new-project.md",
+      "target": "document:.claude/commands/gsd/manager.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/commands/gsd/new-workspace.md",
+      "target": "document:.claude/commands/gsd/list-workspaces.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/commands/gsd/next.md",
+      "target": "document:.claude/commands/gsd/milestone-summary.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/commands/gsd/milestone-summary.md",
+      "target": "document:.claude/commands/gsd/new-milestone.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/commands/gsd/pause-work.md",
+      "target": "document:.claude/commands/gsd/note.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/commands/gsd/map-codebase.md",
+      "target": "document:.claude/commands/gsd/intel.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/commands/gsd/plan-milestone-gaps.md",
+      "target": "document:.claude/commands/gsd/new-milestone.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

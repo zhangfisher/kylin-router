@@ -1,0 +1,5559 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "louvain",
+  "totalFiles": 681,
+  "totalBatches": 48,
+  "exportsByPath": {
+    ".claude/hooks/gsd-check-update.js": [],
+    ".claude/hooks/gsd-context-monitor.js": [],
+    ".claude/hooks/gsd-prompt-guard.js": [],
+    ".claude/hooks/gsd-read-guard.js": [],
+    ".claude/hooks/gsd-statusline.js": [],
+    ".claude/hooks/gsd-workflow-guard.js": [],
+    ".codegraph/.gitignore": [],
+    ".gitignore": [],
+    ".planning/ROADMAP.md.backup": [],
+    ".trae/get-shit-done/bin/gsd-tools.cjs": [],
+    ".trae/get-shit-done/bin/lib/commands.cjs": [],
+    ".trae/get-shit-done/bin/lib/config.cjs": [],
+    ".trae/get-shit-done/bin/lib/core.cjs": [],
+    ".trae/get-shit-done/bin/lib/docs.cjs": [],
+    ".trae/get-shit-done/bin/lib/frontmatter.cjs": [],
+    ".trae/get-shit-done/bin/lib/init.cjs": [],
+    ".trae/get-shit-done/bin/lib/intel.cjs": [],
+    ".trae/get-shit-done/bin/lib/learnings.cjs": [],
+    ".trae/get-shit-done/bin/lib/milestone.cjs": [],
+    ".trae/get-shit-done/bin/lib/model-profiles.cjs": [],
+    ".trae/get-shit-done/bin/lib/phase.cjs": [],
+    ".trae/get-shit-done/bin/lib/profile-output.cjs": [],
+    ".trae/get-shit-done/bin/lib/profile-pipeline.cjs": [],
+    ".trae/get-shit-done/bin/lib/roadmap.cjs": [],
+    ".trae/get-shit-done/bin/lib/schema-detect.cjs": [],
+    ".trae/get-shit-done/bin/lib/security.cjs": [],
+    ".trae/get-shit-done/bin/lib/state.cjs": [],
+    ".trae/get-shit-done/bin/lib/template.cjs": [],
+    ".trae/get-shit-done/bin/lib/uat.cjs": [],
+    ".trae/get-shit-done/bin/lib/verify.cjs": [],
+    ".trae/get-shit-done/bin/lib/workstream.cjs": [],
+    ".trae/get-shit-done/VERSION": [],
+    "bun.lock": [],
+    "example/assets/hero.png": [],
+    "example/assets/lit.svg": [],
+    "example/assets/vite.svg": [],
+    "example/public/favicon.svg": [],
+    "example/public/icons.svg": [],
+    "src/__tests__/components.base.test.ts": [],
+    "src/__tests__/components.link.test.ts": [],
+    "src/__tests__/features.data.test.ts": [],
+    "src/__tests__/features.loader.test.ts": [],
+    "src/__tests__/features.modal.test.ts": [],
+    "src/__tests__/features.render.test.ts": [],
+    "src/__tests__/integration.phase3.test.ts": [],
+    "src/__tests__/recursive-rendering.core.test.ts": [],
+    "src/__tests__/router.attach.test.ts": [],
+    "src/__tests__/router.core.test.ts": [],
+    "src/__tests__/router.dynamic.test.ts": [],
+    "src/__tests__/router.guards.test.ts": [],
+    "src/__tests__/router.hash.test.ts": [],
+    "src/__tests__/router.hooks.test.ts": [],
+    "src/__tests__/router.integration.test.ts": [],
+    "src/__tests__/router.navigation.test.ts": [],
+    "src/__tests__/router.recursive-rendering.test.ts": [],
+    "src/__tests__/router.remote.test.ts": [],
+    "src/__tests__/utils.findOutlet.test.ts": [],
+    "src/__tests__/utils.matchRoute.test.ts": [],
+    "src/__tests__/utils.normalizeRoutes.test.ts": [],
+    "src/__tests__/utils.parseParams.test.ts": [],
+    "src/__tests__/utils.traverseOutlet.test.ts": [],
+    "src/components/base/index.ts": [
+      "KylinRouterElementBase"
+    ],
+    "src/components/feedback/index.ts": [
+      "KylinFeedbackElement"
+    ],
+    "src/components/feedback/styles.ts": [
+      "styles"
+    ],
+    "src/components/index.ts": [],
+    "src/components/link/index.ts": [
+      "isInternalLink",
+      "isDangerousProtocol",
+      "KylinLinkElement"
+    ],
+    "src/components/loading/index.ts": [
+      "KylinLoadingElement"
+    ],
+    "src/components/loading/styles.ts": [
+      "styles"
+    ],
+    "src/components/outlet/base.layout.ts": [],
+    "src/components/outlet/collapse.layout.ts": [
+      "CollapseLayout"
+    ],
+    "src/components/outlet/index.ts": [
+      "KylinOutlet"
+    ],
+    "src/components/outlet/stack.layout.ts": [
+      "StackLayout"
+    ],
+    "src/components/outlet/styles.ts": [
+      "styles"
+    ],
+    "src/components/outlet/tabs.layout.ts": [
+      "TabsLayout"
+    ],
+    "src/components/outlet/viewContainer.ts": [
+      "ViewContainer"
+    ],
+    "src/components/view-meta/index.ts": [
+      "KylinViewMetaElement"
+    ],
+    "src/directives/cssVar.ts": [
+      "registerCssVarDirective",
+      "install"
+    ],
+    "src/directives/injectData.ts": [
+      "registerInjectDataDirective"
+    ],
+    "src/errors.ts": [
+      "KylinRouterError",
+      "KylinRouteError",
+      "KylinExternalRouteError",
+      "KylinNotFoundRouteError",
+      "KylinMaxRedirectRouteError",
+      "KylinLoopRouteError"
+    ],
+    "src/features/alpine.ts": [
+      "AlpineManager"
+    ],
+    "src/features/baseLoader.ts": [],
+    "src/features/context.ts": [
+      "Context"
+    ],
+    "src/features/dataLoader.ts": [
+      "DataLoader"
+    ],
+    "src/features/emitter.ts": [
+      "Emitter"
+    ],
+    "src/features/hooks.ts": [
+      "HookManager"
+    ],
+    "src/features/index.ts": [],
+    "src/features/keepAlive.ts": [
+      "KeepAlive"
+    ],
+    "src/features/modal.ts": [
+      "Modal"
+    ],
+    "src/features/preload.ts": [
+      "Preload"
+    ],
+    "src/features/redirect.ts": [
+      "Redirect"
+    ],
+    "src/features/render.ts": [
+      "Render"
+    ],
+    "src/features/routes.ts": [
+      "KylinRouteTable"
+    ],
+    "src/features/transition.ts": [
+      "Transition"
+    ],
+    "src/features/viewLoader.ts": [
+      "ViewLoader"
+    ],
+    "src/index.ts": [
+      "KylinRouterOptiopns",
+      "createRouter"
+    ],
+    "src/logger.ts": [
+      "createLogger"
+    ],
+    "src/pages/errors/404.ts": [
+      "NotFoundPage"
+    ],
+    "src/pages/errors/500.ts": [
+      "ServiceErrorPage"
+    ],
+    "src/pages/errors/default.ts": [
+      "DefaultErrorPage"
+    ],
+    "src/pages/errors/index.ts": [
+      "errorPages"
+    ],
+    "src/router.ts": [
+      "KylinRouter"
+    ],
+    "src/types/config.ts": [],
+    "src/types/data.ts": [],
+    "src/types/events.ts": [],
+    "src/types/hooks.ts": [],
+    "src/types/index.ts": [
+      "RenderMode",
+      "TemplateData",
+      "RenderContext",
+      "RenderOptions"
+    ],
+    "src/types/modals.ts": [],
+    "src/types/routes.ts": [
+      "RouteData",
+      "ModalConfig",
+      "ModalState",
+      "ModalStackItem",
+      "ModalOptions"
+    ],
+    "src/types/utils.ts": [],
+    "src/utils/emitter.ts": [
+      "EventEmitter"
+    ],
+    "src/utils/extractQueryParams.ts": [
+      "extractQueryParams"
+    ],
+    "src/utils/findOutlet.ts": [
+      "findOutlet"
+    ],
+    "src/utils/generateRouteHash.ts": [
+      "generateRouteHash"
+    ],
+    "src/utils/getBaseUrl.ts": [
+      "getBaseUrl"
+    ],
+    "src/utils/getId.ts": [
+      "getId"
+    ],
+    "src/utils/getJsonFileFromUrl.ts": [
+      "getJsonFileFromUrl"
+    ],
+    "src/utils/getRouteDataOptions.ts": [
+      "getRouteDataOptions"
+    ],
+    "src/utils/getRouteHash.ts": [
+      "getRouteHash"
+    ],
+    "src/utils/getRouteVars.ts": [
+      "getRouteVars"
+    ],
+    "src/utils/getRouteViewOptions.ts": [
+      "getRouteViewOptions"
+    ],
+    "src/utils/getSignalHash.ts": [
+      "getSignalHash"
+    ],
+    "src/utils/hashUtils.ts": [
+      "normalizeHashPath",
+      "createHashHistoryFromLib"
+    ],
+    "src/utils/index.ts": [],
+    "src/utils/injectStylesheet.ts": [
+      "injectStylesheet"
+    ],
+    "src/utils/isExternalLink.ts": [
+      "isExternalLink"
+    ],
+    "src/utils/isRouteItem.ts": [
+      "isRouteItem"
+    ],
+    "src/utils/joinPath.ts": [
+      "joinPath"
+    ],
+    "src/utils/matchRoute.ts": [
+      "createRouteMatcher",
+      "matchRoute"
+    ],
+    "src/utils/normalizeRoutes.ts": [
+      "normalizeRoutes"
+    ],
+    "src/utils/params.ts": [
+      "params"
+    ],
+    "src/utils/parseParams.ts": [
+      "compilePathPattern",
+      "parsePathParams"
+    ],
+    "src/utils/prefixBaseUrl.ts": [
+      "prefixBaseUrl"
+    ],
+    "src/utils/quickHash.ts": [
+      "quickHash"
+    ],
+    "src/utils/removePathPrefix.ts": [
+      "removePathPrefix"
+    ],
+    "src/utils/sanitizeHTML.ts": [
+      "sanitizeHTML"
+    ],
+    "src/utils/scopeStyle.ts": [
+      "scopeStyles"
+    ],
+    "src/utils/traverseOutlet.ts": [
+      "traverseOutlet"
+    ],
+    "src/utils/triggerEvent.ts": [
+      "triggerEvent"
+    ],
+    "vite.config.ts": []
+  },
+  "batches": [
+    {
+      "batchIndex": 1,
+      "files": [
+        {
+          "path": ".agents/skills/tsdown/references/README.md",
+          "language": "markdown",
+          "sizeLines": 140,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/advanced-benchmark.md",
+          "language": "markdown",
+          "sizeLines": 9,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/advanced-ci.md",
+          "language": "markdown",
+          "sizeLines": 90,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/advanced-hooks.md",
+          "language": "markdown",
+          "sizeLines": 364,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/advanced-plugins.md",
+          "language": "markdown",
+          "sizeLines": 382,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/advanced-programmatic.md",
+          "language": "markdown",
+          "sizeLines": 379,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/advanced-rolldown-options.md",
+          "language": "markdown",
+          "sizeLines": 118,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/guide-getting-started.md",
+          "language": "markdown",
+          "sizeLines": 179,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/guide-introduction.md",
+          "language": "markdown",
+          "sizeLines": 43,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/guide-migrate-from-tsup.md",
+          "language": "markdown",
+          "sizeLines": 190,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/option-cjs-default.md",
+          "language": "markdown",
+          "sizeLines": 99,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/option-cleaning.md",
+          "language": "markdown",
+          "sizeLines": 276,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/option-config-file.md",
+          "language": "markdown",
+          "sizeLines": 282,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/option-css.md",
+          "language": "markdown",
+          "sizeLines": 302,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/option-dependencies.md",
+          "language": "markdown",
+          "sizeLines": 386,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/option-dts.md",
+          "language": "markdown",
+          "sizeLines": 252,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/option-entry.md",
+          "language": "markdown",
+          "sizeLines": 212,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/option-exe.md",
+          "language": "markdown",
+          "sizeLines": 121,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/option-lint.md",
+          "language": "markdown",
+          "sizeLines": 128,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/option-log-level.md",
+          "language": "markdown",
+          "sizeLines": 92,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".agents/skills/tsdown/references/README.md": [],
+        ".agents/skills/tsdown/references/advanced-benchmark.md": [],
+        ".agents/skills/tsdown/references/advanced-ci.md": [],
+        ".agents/skills/tsdown/references/advanced-hooks.md": [],
+        ".agents/skills/tsdown/references/advanced-plugins.md": [],
+        ".agents/skills/tsdown/references/advanced-programmatic.md": [],
+        ".agents/skills/tsdown/references/advanced-rolldown-options.md": [],
+        ".agents/skills/tsdown/references/guide-getting-started.md": [],
+        ".agents/skills/tsdown/references/guide-introduction.md": [],
+        ".agents/skills/tsdown/references/guide-migrate-from-tsup.md": [],
+        ".agents/skills/tsdown/references/option-cjs-default.md": [],
+        ".agents/skills/tsdown/references/option-cleaning.md": [],
+        ".agents/skills/tsdown/references/option-config-file.md": [],
+        ".agents/skills/tsdown/references/option-css.md": [],
+        ".agents/skills/tsdown/references/option-dependencies.md": [],
+        ".agents/skills/tsdown/references/option-dts.md": [],
+        ".agents/skills/tsdown/references/option-entry.md": [],
+        ".agents/skills/tsdown/references/option-exe.md": [],
+        ".agents/skills/tsdown/references/option-lint.md": [],
+        ".agents/skills/tsdown/references/option-log-level.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 2,
+      "files": [
+        {
+          "path": ".agents/skills/tsdown/references/option-minification.md",
+          "language": "markdown",
+          "sizeLines": 178,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/option-output-directory.md",
+          "language": "markdown",
+          "sizeLines": 271,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/option-output-format.md",
+          "language": "markdown",
+          "sizeLines": 182,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/option-package-exports.md",
+          "language": "markdown",
+          "sizeLines": 321,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/option-platform.md",
+          "language": "markdown",
+          "sizeLines": 257,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/option-root.md",
+          "language": "markdown",
+          "sizeLines": 89,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/option-shims.md",
+          "language": "markdown",
+          "sizeLines": 300,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/option-sourcemap.md",
+          "language": "markdown",
+          "sizeLines": 302,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/option-target.md",
+          "language": "markdown",
+          "sizeLines": 223,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/option-tree-shaking.md",
+          "language": "markdown",
+          "sizeLines": 336,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/option-unbundle.md",
+          "language": "markdown",
+          "sizeLines": 311,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/option-watch-mode.md",
+          "language": "markdown",
+          "sizeLines": 262,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/recipe-react.md",
+          "language": "markdown",
+          "sizeLines": 339,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/recipe-solid.md",
+          "language": "markdown",
+          "sizeLines": 43,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/recipe-svelte.md",
+          "language": "markdown",
+          "sizeLines": 55,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/recipe-vue.md",
+          "language": "markdown",
+          "sizeLines": 388,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/recipe-wasm.md",
+          "language": "markdown",
+          "sizeLines": 126,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/references/reference-cli.md",
+          "language": "markdown",
+          "sizeLines": 473,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".agents/skills/tsdown/references/option-minification.md": [],
+        ".agents/skills/tsdown/references/option-output-directory.md": [],
+        ".agents/skills/tsdown/references/option-output-format.md": [],
+        ".agents/skills/tsdown/references/option-package-exports.md": [],
+        ".agents/skills/tsdown/references/option-platform.md": [],
+        ".agents/skills/tsdown/references/option-root.md": [],
+        ".agents/skills/tsdown/references/option-shims.md": [],
+        ".agents/skills/tsdown/references/option-sourcemap.md": [],
+        ".agents/skills/tsdown/references/option-target.md": [],
+        ".agents/skills/tsdown/references/option-tree-shaking.md": [],
+        ".agents/skills/tsdown/references/option-unbundle.md": [],
+        ".agents/skills/tsdown/references/option-watch-mode.md": [],
+        ".agents/skills/tsdown/references/recipe-react.md": [],
+        ".agents/skills/tsdown/references/recipe-solid.md": [],
+        ".agents/skills/tsdown/references/recipe-svelte.md": [],
+        ".agents/skills/tsdown/references/recipe-vue.md": [],
+        ".agents/skills/tsdown/references/recipe-wasm.md": [],
+        ".agents/skills/tsdown/references/reference-cli.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 3,
+      "files": [
+        {
+          "path": ".claude/commands/gsd/add-backlog.md",
+          "language": "markdown",
+          "sizeLines": 77,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/add-phase.md",
+          "language": "markdown",
+          "sizeLines": 44,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/add-tests.md",
+          "language": "markdown",
+          "sizeLines": 42,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/add-todo.md",
+          "language": "markdown",
+          "sizeLines": 48,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/analyze-dependencies.md",
+          "language": "markdown",
+          "sizeLines": 35,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/audit-fix.md",
+          "language": "markdown",
+          "sizeLines": 34,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/audit-milestone.md",
+          "language": "markdown",
+          "sizeLines": 37,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/audit-uat.md",
+          "language": "markdown",
+          "sizeLines": 25,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/autonomous.md",
+          "language": "markdown",
+          "sizeLines": 46,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/check-todos.md",
+          "language": "markdown",
+          "sizeLines": 46,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/cleanup.md",
+          "language": "markdown",
+          "sizeLines": 24,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/code-review-fix.md",
+          "language": "markdown",
+          "sizeLines": 53,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/code-review.md",
+          "language": "markdown",
+          "sizeLines": 56,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/complete-milestone.md",
+          "language": "markdown",
+          "sizeLines": 137,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/debug.md",
+          "language": "markdown",
+          "sizeLines": 187,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/discuss-phase.md",
+          "language": "markdown",
+          "sizeLines": 70,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/do.md",
+          "language": "markdown",
+          "sizeLines": 31,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/docs-update.md",
+          "language": "markdown",
+          "sizeLines": 49,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/execute-phase.md",
+          "language": "markdown",
+          "sizeLines": 64,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/explore.md",
+          "language": "markdown",
+          "sizeLines": 28,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".claude/commands/gsd/add-backlog.md": [],
+        ".claude/commands/gsd/add-phase.md": [],
+        ".claude/commands/gsd/add-tests.md": [],
+        ".claude/commands/gsd/add-todo.md": [],
+        ".claude/commands/gsd/analyze-dependencies.md": [],
+        ".claude/commands/gsd/audit-fix.md": [],
+        ".claude/commands/gsd/audit-milestone.md": [],
+        ".claude/commands/gsd/audit-uat.md": [],
+        ".claude/commands/gsd/autonomous.md": [],
+        ".claude/commands/gsd/check-todos.md": [],
+        ".claude/commands/gsd/cleanup.md": [],
+        ".claude/commands/gsd/code-review-fix.md": [],
+        ".claude/commands/gsd/code-review.md": [],
+        ".claude/commands/gsd/complete-milestone.md": [],
+        ".claude/commands/gsd/debug.md": [],
+        ".claude/commands/gsd/discuss-phase.md": [],
+        ".claude/commands/gsd/do.md": [],
+        ".claude/commands/gsd/docs-update.md": [],
+        ".claude/commands/gsd/execute-phase.md": [],
+        ".claude/commands/gsd/explore.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 4,
+      "files": [
+        {
+          "path": ".claude/commands/gsd/fast.md",
+          "language": "markdown",
+          "sizeLines": 31,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/forensics.md",
+          "language": "markdown",
+          "sizeLines": 57,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/health.md",
+          "language": "markdown",
+          "sizeLines": 23,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/help.md",
+          "language": "markdown",
+          "sizeLines": 25,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/import.md",
+          "language": "markdown",
+          "sizeLines": 37,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/insert-phase.md",
+          "language": "markdown",
+          "sizeLines": 33,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/intel.md",
+          "language": "markdown",
+          "sizeLines": 180,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/join-discord.md",
+          "language": "markdown",
+          "sizeLines": 20,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/list-phase-assumptions.md",
+          "language": "markdown",
+          "sizeLines": 47,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/list-workspaces.md",
+          "language": "markdown",
+          "sizeLines": 20,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/manager.md",
+          "language": "markdown",
+          "sizeLines": 41,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/map-codebase.md",
+          "language": "markdown",
+          "sizeLines": 72,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/milestone-summary.md",
+          "language": "markdown",
+          "sizeLines": 52,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/new-milestone.md",
+          "language": "markdown",
+          "sizeLines": 45,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/new-project.md",
+          "language": "markdown",
+          "sizeLines": 47,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/new-workspace.md",
+          "language": "markdown",
+          "sizeLines": 45,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/next.md",
+          "language": "markdown",
+          "sizeLines": 27,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/note.md",
+          "language": "markdown",
+          "sizeLines": 35,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/pause-work.md",
+          "language": "markdown",
+          "sizeLines": 39,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/plan-milestone-gaps.md",
+          "language": "markdown",
+          "sizeLines": 35,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".claude/commands/gsd/fast.md": [],
+        ".claude/commands/gsd/forensics.md": [],
+        ".claude/commands/gsd/health.md": [],
+        ".claude/commands/gsd/help.md": [],
+        ".claude/commands/gsd/import.md": [],
+        ".claude/commands/gsd/insert-phase.md": [],
+        ".claude/commands/gsd/intel.md": [],
+        ".claude/commands/gsd/join-discord.md": [],
+        ".claude/commands/gsd/list-phase-assumptions.md": [],
+        ".claude/commands/gsd/list-workspaces.md": [],
+        ".claude/commands/gsd/manager.md": [],
+        ".claude/commands/gsd/map-codebase.md": [],
+        ".claude/commands/gsd/milestone-summary.md": [],
+        ".claude/commands/gsd/new-milestone.md": [],
+        ".claude/commands/gsd/new-project.md": [],
+        ".claude/commands/gsd/new-workspace.md": [],
+        ".claude/commands/gsd/next.md": [],
+        ".claude/commands/gsd/note.md": [],
+        ".claude/commands/gsd/pause-work.md": [],
+        ".claude/commands/gsd/plan-milestone-gaps.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 5,
+      "files": [
+        {
+          "path": ".claude/commands/gsd/plan-phase.md",
+          "language": "markdown",
+          "sizeLines": 53,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/plant-seed.md",
+          "language": "markdown",
+          "sizeLines": 29,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/pr-branch.md",
+          "language": "markdown",
+          "sizeLines": 26,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/profile-user.md",
+          "language": "markdown",
+          "sizeLines": 47,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/progress.md",
+          "language": "markdown",
+          "sizeLines": 25,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/quick.md",
+          "language": "markdown",
+          "sizeLines": 50,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/reapply-patches.md",
+          "language": "markdown",
+          "sizeLines": 273,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/remove-phase.md",
+          "language": "markdown",
+          "sizeLines": 32,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/remove-workspace.md",
+          "language": "markdown",
+          "sizeLines": 27,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/research-phase.md",
+          "language": "markdown",
+          "sizeLines": 196,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/resume-work.md",
+          "language": "markdown",
+          "sizeLines": 41,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/review-backlog.md",
+          "language": "markdown",
+          "sizeLines": 63,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/review.md",
+          "language": "markdown",
+          "sizeLines": 39,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/scan.md",
+          "language": "markdown",
+          "sizeLines": 27,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/secure-phase.md",
+          "language": "markdown",
+          "sizeLines": 36,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/session-report.md",
+          "language": "markdown",
+          "sizeLines": 20,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/set-profile.md",
+          "language": "markdown",
+          "sizeLines": 13,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/settings.md",
+          "language": "markdown",
+          "sizeLines": 37,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/ship.md",
+          "language": "markdown",
+          "sizeLines": 24,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/stats.md",
+          "language": "markdown",
+          "sizeLines": 19,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".claude/commands/gsd/plan-phase.md": [],
+        ".claude/commands/gsd/plant-seed.md": [],
+        ".claude/commands/gsd/pr-branch.md": [],
+        ".claude/commands/gsd/profile-user.md": [],
+        ".claude/commands/gsd/progress.md": [],
+        ".claude/commands/gsd/quick.md": [],
+        ".claude/commands/gsd/reapply-patches.md": [],
+        ".claude/commands/gsd/remove-phase.md": [],
+        ".claude/commands/gsd/remove-workspace.md": [],
+        ".claude/commands/gsd/research-phase.md": [],
+        ".claude/commands/gsd/resume-work.md": [],
+        ".claude/commands/gsd/review-backlog.md": [],
+        ".claude/commands/gsd/review.md": [],
+        ".claude/commands/gsd/scan.md": [],
+        ".claude/commands/gsd/secure-phase.md": [],
+        ".claude/commands/gsd/session-report.md": [],
+        ".claude/commands/gsd/set-profile.md": [],
+        ".claude/commands/gsd/settings.md": [],
+        ".claude/commands/gsd/ship.md": [],
+        ".claude/commands/gsd/stats.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 6,
+      "files": [
+        {
+          "path": ".claude/commands/gsd/thread.md",
+          "language": "markdown",
+          "sizeLines": 128,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/ui-phase.md",
+          "language": "markdown",
+          "sizeLines": 35,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/ui-review.md",
+          "language": "markdown",
+          "sizeLines": 33,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/undo.md",
+          "language": "markdown",
+          "sizeLines": 35,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/update.md",
+          "language": "markdown",
+          "sizeLines": 38,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/validate-phase.md",
+          "language": "markdown",
+          "sizeLines": 36,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/verify-work.md",
+          "language": "markdown",
+          "sizeLines": 39,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/commands/gsd/workstreams.md",
+          "language": "markdown",
+          "sizeLines": 70,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".claude/commands/gsd/thread.md": [],
+        ".claude/commands/gsd/ui-phase.md": [],
+        ".claude/commands/gsd/ui-review.md": [],
+        ".claude/commands/gsd/undo.md": [],
+        ".claude/commands/gsd/update.md": [],
+        ".claude/commands/gsd/validate-phase.md": [],
+        ".claude/commands/gsd/verify-work.md": [],
+        ".claude/commands/gsd/workstreams.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 7,
+      "files": [
+        {
+          "path": ".claude/gsd-file-manifest.json",
+          "language": "json",
+          "sizeLines": 212,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".claude/package.json",
+          "language": "json",
+          "sizeLines": 2,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".claude/settings.json",
+          "language": "json",
+          "sizeLines": 93,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".claude/settings.local.json",
+          "language": "json",
+          "sizeLines": 29,
+          "fileCategory": "config"
+        }
+      ],
+      "batchImportData": {
+        ".claude/gsd-file-manifest.json": [],
+        ".claude/package.json": [],
+        ".claude/settings.json": [],
+        ".claude/settings.local.json": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 8,
+      "files": [
+        {
+          "path": ".claude/hooks/gsd-phase-boundary.sh",
+          "language": "shell",
+          "sizeLines": 28,
+          "fileCategory": "script"
+        },
+        {
+          "path": ".claude/hooks/gsd-session-state.sh",
+          "language": "shell",
+          "sizeLines": 34,
+          "fileCategory": "script"
+        },
+        {
+          "path": ".claude/hooks/gsd-validate-commit.sh",
+          "language": "shell",
+          "sizeLines": 48,
+          "fileCategory": "script"
+        }
+      ],
+      "batchImportData": {
+        ".claude/hooks/gsd-phase-boundary.sh": [],
+        ".claude/hooks/gsd-session-state.sh": [],
+        ".claude/hooks/gsd-validate-commit.sh": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 9,
+      "files": [
+        {
+          "path": ".claude/quick-tasks/README.md",
+          "language": "markdown",
+          "sizeLines": 204,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/quick-tasks/loading-feature.md",
+          "language": "markdown",
+          "sizeLines": 273,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/quick-tasks/merge-completion-report.md",
+          "language": "markdown",
+          "sizeLines": 182,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/quick-tasks/phase-1-checklist.md",
+          "language": "markdown",
+          "sizeLines": 116,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/quick-tasks/refactor-execution-plan.md",
+          "language": "markdown",
+          "sizeLines": 166,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/quick-tasks/refactor-execution-report.md",
+          "language": "markdown",
+          "sizeLines": 284,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/quick-tasks/refactor-final-summary.md",
+          "language": "markdown",
+          "sizeLines": 268,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/quick-tasks/refactor-outlet-rendering-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 202,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/quick-tasks/refactor-outlet-rendering.md",
+          "language": "markdown",
+          "sizeLines": 229,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/quick-tasks/rendering-flow.md",
+          "language": "markdown",
+          "sizeLines": 260,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/quick-tasks/test-implementation-report.md",
+          "language": "markdown",
+          "sizeLines": 273,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".claude/quick-tasks/README.md": [],
+        ".claude/quick-tasks/loading-feature.md": [],
+        ".claude/quick-tasks/merge-completion-report.md": [],
+        ".claude/quick-tasks/phase-1-checklist.md": [],
+        ".claude/quick-tasks/refactor-execution-plan.md": [],
+        ".claude/quick-tasks/refactor-execution-report.md": [],
+        ".claude/quick-tasks/refactor-final-summary.md": [],
+        ".claude/quick-tasks/refactor-outlet-rendering-SUMMARY.md": [],
+        ".claude/quick-tasks/refactor-outlet-rendering.md": [],
+        ".claude/quick-tasks/rendering-flow.md": [],
+        ".claude/quick-tasks/test-implementation-report.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 10,
+      "files": [
+        {
+          "path": ".claude/skills/tsdown/references/README.md",
+          "language": "markdown",
+          "sizeLines": 140,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/advanced-benchmark.md",
+          "language": "markdown",
+          "sizeLines": 9,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/advanced-ci.md",
+          "language": "markdown",
+          "sizeLines": 90,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/advanced-hooks.md",
+          "language": "markdown",
+          "sizeLines": 364,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/advanced-plugins.md",
+          "language": "markdown",
+          "sizeLines": 382,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/advanced-programmatic.md",
+          "language": "markdown",
+          "sizeLines": 379,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/advanced-rolldown-options.md",
+          "language": "markdown",
+          "sizeLines": 118,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/guide-getting-started.md",
+          "language": "markdown",
+          "sizeLines": 179,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/guide-introduction.md",
+          "language": "markdown",
+          "sizeLines": 43,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/guide-migrate-from-tsup.md",
+          "language": "markdown",
+          "sizeLines": 190,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/option-cjs-default.md",
+          "language": "markdown",
+          "sizeLines": 99,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/option-cleaning.md",
+          "language": "markdown",
+          "sizeLines": 276,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/option-config-file.md",
+          "language": "markdown",
+          "sizeLines": 282,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/option-css.md",
+          "language": "markdown",
+          "sizeLines": 302,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/option-dependencies.md",
+          "language": "markdown",
+          "sizeLines": 386,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/option-dts.md",
+          "language": "markdown",
+          "sizeLines": 252,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/option-entry.md",
+          "language": "markdown",
+          "sizeLines": 212,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/option-exe.md",
+          "language": "markdown",
+          "sizeLines": 121,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/option-lint.md",
+          "language": "markdown",
+          "sizeLines": 128,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/option-log-level.md",
+          "language": "markdown",
+          "sizeLines": 92,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".claude/skills/tsdown/references/README.md": [],
+        ".claude/skills/tsdown/references/advanced-benchmark.md": [],
+        ".claude/skills/tsdown/references/advanced-ci.md": [],
+        ".claude/skills/tsdown/references/advanced-hooks.md": [],
+        ".claude/skills/tsdown/references/advanced-plugins.md": [],
+        ".claude/skills/tsdown/references/advanced-programmatic.md": [],
+        ".claude/skills/tsdown/references/advanced-rolldown-options.md": [],
+        ".claude/skills/tsdown/references/guide-getting-started.md": [],
+        ".claude/skills/tsdown/references/guide-introduction.md": [],
+        ".claude/skills/tsdown/references/guide-migrate-from-tsup.md": [],
+        ".claude/skills/tsdown/references/option-cjs-default.md": [],
+        ".claude/skills/tsdown/references/option-cleaning.md": [],
+        ".claude/skills/tsdown/references/option-config-file.md": [],
+        ".claude/skills/tsdown/references/option-css.md": [],
+        ".claude/skills/tsdown/references/option-dependencies.md": [],
+        ".claude/skills/tsdown/references/option-dts.md": [],
+        ".claude/skills/tsdown/references/option-entry.md": [],
+        ".claude/skills/tsdown/references/option-exe.md": [],
+        ".claude/skills/tsdown/references/option-lint.md": [],
+        ".claude/skills/tsdown/references/option-log-level.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 11,
+      "files": [
+        {
+          "path": ".claude/skills/tsdown/references/option-minification.md",
+          "language": "markdown",
+          "sizeLines": 178,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/option-output-directory.md",
+          "language": "markdown",
+          "sizeLines": 271,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/option-output-format.md",
+          "language": "markdown",
+          "sizeLines": 182,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/option-package-exports.md",
+          "language": "markdown",
+          "sizeLines": 321,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/option-platform.md",
+          "language": "markdown",
+          "sizeLines": 257,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/option-root.md",
+          "language": "markdown",
+          "sizeLines": 89,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/option-shims.md",
+          "language": "markdown",
+          "sizeLines": 300,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/option-sourcemap.md",
+          "language": "markdown",
+          "sizeLines": 302,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/option-target.md",
+          "language": "markdown",
+          "sizeLines": 223,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/option-tree-shaking.md",
+          "language": "markdown",
+          "sizeLines": 336,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/option-unbundle.md",
+          "language": "markdown",
+          "sizeLines": 311,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/option-watch-mode.md",
+          "language": "markdown",
+          "sizeLines": 262,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/recipe-react.md",
+          "language": "markdown",
+          "sizeLines": 339,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/recipe-solid.md",
+          "language": "markdown",
+          "sizeLines": 43,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/recipe-svelte.md",
+          "language": "markdown",
+          "sizeLines": 55,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/recipe-vue.md",
+          "language": "markdown",
+          "sizeLines": 388,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/recipe-wasm.md",
+          "language": "markdown",
+          "sizeLines": 126,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/references/reference-cli.md",
+          "language": "markdown",
+          "sizeLines": 473,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".claude/skills/tsdown/references/option-minification.md": [],
+        ".claude/skills/tsdown/references/option-output-directory.md": [],
+        ".claude/skills/tsdown/references/option-output-format.md": [],
+        ".claude/skills/tsdown/references/option-package-exports.md": [],
+        ".claude/skills/tsdown/references/option-platform.md": [],
+        ".claude/skills/tsdown/references/option-root.md": [],
+        ".claude/skills/tsdown/references/option-shims.md": [],
+        ".claude/skills/tsdown/references/option-sourcemap.md": [],
+        ".claude/skills/tsdown/references/option-target.md": [],
+        ".claude/skills/tsdown/references/option-tree-shaking.md": [],
+        ".claude/skills/tsdown/references/option-unbundle.md": [],
+        ".claude/skills/tsdown/references/option-watch-mode.md": [],
+        ".claude/skills/tsdown/references/recipe-react.md": [],
+        ".claude/skills/tsdown/references/recipe-solid.md": [],
+        ".claude/skills/tsdown/references/recipe-svelte.md": [],
+        ".claude/skills/tsdown/references/recipe-vue.md": [],
+        ".claude/skills/tsdown/references/recipe-wasm.md": [],
+        ".claude/skills/tsdown/references/reference-cli.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 12,
+      "files": [
+        {
+          "path": ".oxfmtrc.json",
+          "language": "json",
+          "sizeLines": 5,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".oxlintrc.json",
+          "language": "json",
+          "sizeLines": 43,
+          "fileCategory": "config"
+        },
+        {
+          "path": "CLAUDE.md",
+          "language": "markdown",
+          "sizeLines": 422,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "package.json",
+          "language": "json",
+          "sizeLines": 38,
+          "fileCategory": "config"
+        },
+        {
+          "path": "skills-lock.json",
+          "language": "json",
+          "sizeLines": 16,
+          "fileCategory": "config"
+        },
+        {
+          "path": "tsconfig.json",
+          "language": "json",
+          "sizeLines": 40,
+          "fileCategory": "config"
+        }
+      ],
+      "batchImportData": {
+        ".oxfmtrc.json": [],
+        ".oxlintrc.json": [],
+        "CLAUDE.md": [],
+        "package.json": [],
+        "skills-lock.json": [],
+        "tsconfig.json": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 13,
+      "files": [
+        {
+          "path": ".planning/PLANNING-COMPLETE.md",
+          "language": "markdown",
+          "sizeLines": 103,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/PROJECT.md",
+          "language": "markdown",
+          "sizeLines": 146,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/REQUIREMENTS.md",
+          "language": "markdown",
+          "sizeLines": 170,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/ROADMAP.md",
+          "language": "markdown",
+          "sizeLines": 144,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/STATE.md",
+          "language": "markdown",
+          "sizeLines": 142,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/config.json",
+          "language": "json",
+          "sizeLines": 18,
+          "fileCategory": "config"
+        }
+      ],
+      "batchImportData": {
+        ".planning/PLANNING-COMPLETE.md": [],
+        ".planning/PROJECT.md": [],
+        ".planning/REQUIREMENTS.md": [],
+        ".planning/ROADMAP.md": [],
+        ".planning/STATE.md": [],
+        ".planning/config.json": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 14,
+      "files": [
+        {
+          "path": ".planning/codebase/ARCHITECTURE.md",
+          "language": "markdown",
+          "sizeLines": 141,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/codebase/CONCERNS.md",
+          "language": "markdown",
+          "sizeLines": 138,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/codebase/CONVENTIONS.md",
+          "language": "markdown",
+          "sizeLines": 158,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/codebase/INTEGRATIONS.md",
+          "language": "markdown",
+          "sizeLines": 76,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/codebase/STACK.md",
+          "language": "markdown",
+          "sizeLines": 76,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/codebase/STRUCTURE.md",
+          "language": "markdown",
+          "sizeLines": 156,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/codebase/TESTING.md",
+          "language": "markdown",
+          "sizeLines": 264,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".planning/codebase/ARCHITECTURE.md": [],
+        ".planning/codebase/CONCERNS.md": [],
+        ".planning/codebase/CONVENTIONS.md": [],
+        ".planning/codebase/INTEGRATIONS.md": [],
+        ".planning/codebase/STACK.md": [],
+        ".planning/codebase/STRUCTURE.md": [],
+        ".planning/codebase/TESTING.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 15,
+      "files": [
+        {
+          "path": ".planning/phases/01-context/01-01-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 286,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/01-context/01-01-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 158,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/01-context/01-02-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 253,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/01-context/01-02-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 133,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/01-context/01-03-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 384,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/01-context/01-03-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 153,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/01-context/01-CONTEXT.md",
+          "language": "markdown",
+          "sizeLines": 186,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/01-context/01-DISCUSSION-LOG.md",
+          "language": "markdown",
+          "sizeLines": 503,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".planning/phases/01-context/01-01-PLAN.md": [],
+        ".planning/phases/01-context/01-01-SUMMARY.md": [],
+        ".planning/phases/01-context/01-02-PLAN.md": [],
+        ".planning/phases/01-context/01-02-SUMMARY.md": [],
+        ".planning/phases/01-context/01-03-PLAN.md": [],
+        ".planning/phases/01-context/01-03-SUMMARY.md": [],
+        ".planning/phases/01-context/01-CONTEXT.md": [],
+        ".planning/phases/01-context/01-DISCUSSION-LOG.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 16,
+      "files": [
+        {
+          "path": ".planning/phases/02-hooks/02-01-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 435,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/02-hooks/02-01-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 246,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/02-hooks/02-02-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 455,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/02-hooks/02-02-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 274,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/02-hooks/02-03-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 517,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/02-hooks/02-03-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 162,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/02-hooks/02-04-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 699,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/02-hooks/02-04-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 293,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/02-hooks/02-CONTEXT.md",
+          "language": "markdown",
+          "sizeLines": 180,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/02-hooks/02-DISCUSSION-LOG.md",
+          "language": "markdown",
+          "sizeLines": 379,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".planning/phases/02-hooks/02-01-PLAN.md": [],
+        ".planning/phases/02-hooks/02-01-SUMMARY.md": [],
+        ".planning/phases/02-hooks/02-02-PLAN.md": [],
+        ".planning/phases/02-hooks/02-02-SUMMARY.md": [],
+        ".planning/phases/02-hooks/02-03-PLAN.md": [],
+        ".planning/phases/02-hooks/02-03-SUMMARY.md": [],
+        ".planning/phases/02-hooks/02-04-PLAN.md": [],
+        ".planning/phases/02-hooks/02-04-SUMMARY.md": [],
+        ".planning/phases/02-hooks/02-CONTEXT.md": [],
+        ".planning/phases/02-hooks/02-DISCUSSION-LOG.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 17,
+      "files": [
+        {
+          "path": ".planning/phases/03-loader-render-data/03-01-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 362,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/03-loader-render-data/03-01-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 174,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/03-loader-render-data/03-02-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 525,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/03-loader-render-data/03-02-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 218,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/03-loader-render-data/03-03-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 698,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/03-loader-render-data/03-03-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 235,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/03-loader-render-data/03-04-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 769,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/03-loader-render-data/03-04-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 388,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/03-loader-render-data/03-05-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 770,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/03-loader-render-data/03-05-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 370,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/03-loader-render-data/03-CONTEXT.md",
+          "language": "markdown",
+          "sizeLines": 184,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/03-loader-render-data/03-DISCUSSION-LOG.md",
+          "language": "markdown",
+          "sizeLines": 323,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/03-loader-render-data/03-REVIEW.md",
+          "language": "markdown",
+          "sizeLines": 961,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".planning/phases/03-loader-render-data/03-01-PLAN.md": [],
+        ".planning/phases/03-loader-render-data/03-01-SUMMARY.md": [],
+        ".planning/phases/03-loader-render-data/03-02-PLAN.md": [],
+        ".planning/phases/03-loader-render-data/03-02-SUMMARY.md": [],
+        ".planning/phases/03-loader-render-data/03-03-PLAN.md": [],
+        ".planning/phases/03-loader-render-data/03-03-SUMMARY.md": [],
+        ".planning/phases/03-loader-render-data/03-04-PLAN.md": [],
+        ".planning/phases/03-loader-render-data/03-04-SUMMARY.md": [],
+        ".planning/phases/03-loader-render-data/03-05-PLAN.md": [],
+        ".planning/phases/03-loader-render-data/03-05-SUMMARY.md": [],
+        ".planning/phases/03-loader-render-data/03-CONTEXT.md": [],
+        ".planning/phases/03-loader-render-data/03-DISCUSSION-LOG.md": [],
+        ".planning/phases/03-loader-render-data/03-REVIEW.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 18,
+      "files": [
+        {
+          "path": ".planning/quick/260411-base-url-auto-detection/PLAN.md",
+          "language": "markdown",
+          "sizeLines": 257,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260411-base-url-auto-detection/SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 168,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260411-base-url-auto-detection/TASK.md",
+          "language": "markdown",
+          "sizeLines": 72,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".planning/quick/260411-base-url-auto-detection/PLAN.md": [],
+        ".planning/quick/260411-base-url-auto-detection/SUMMARY.md": [],
+        ".planning/quick/260411-base-url-auto-detection/TASK.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 19,
+      "files": [
+        {
+          "path": ".planning/quick/DEBUG-MODE-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 220,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/PARAMETER_FIX.md",
+          "language": "markdown",
+          "sizeLines": 67,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/TASK.md",
+          "language": "markdown",
+          "sizeLines": 55,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/debug-mode-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 329,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".planning/quick/DEBUG-MODE-SUMMARY.md": [],
+        ".planning/quick/PARAMETER_FIX.md": [],
+        ".planning/quick/TASK.md": [],
+        ".planning/quick/debug-mode-PLAN.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 20,
+      "files": [
+        {
+          "path": ".planning/research/ARCHITECTURE.md",
+          "language": "markdown",
+          "sizeLines": 432,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/research/FEATURES.md",
+          "language": "markdown",
+          "sizeLines": 190,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/research/PITFALLS.md",
+          "language": "markdown",
+          "sizeLines": 329,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/research/STACK.md",
+          "language": "markdown",
+          "sizeLines": 189,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/research/SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 175,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".planning/research/ARCHITECTURE.md": [],
+        ".planning/research/FEATURES.md": [],
+        ".planning/research/PITFALLS.md": [],
+        ".planning/research/STACK.md": [],
+        ".planning/research/SUMMARY.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 21,
+      "files": [
+        {
+          "path": ".trae/agents/gsd-advisor-researcher.md",
+          "language": "markdown",
+          "sizeLines": 104,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/agents/gsd-assumptions-analyzer.md",
+          "language": "markdown",
+          "sizeLines": 105,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/agents/gsd-code-fixer.md",
+          "language": "markdown",
+          "sizeLines": 514,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/agents/gsd-code-reviewer.md",
+          "language": "markdown",
+          "sizeLines": 353,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/agents/gsd-codebase-mapper.md",
+          "language": "markdown",
+          "sizeLines": 764,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/agents/gsd-debugger.md",
+          "language": "markdown",
+          "sizeLines": 1375,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/agents/gsd-doc-verifier.md",
+          "language": "markdown",
+          "sizeLines": 195,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/agents/gsd-doc-writer.md",
+          "language": "markdown",
+          "sizeLines": 596,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/agents/gsd-executor.md",
+          "language": "markdown",
+          "sizeLines": 526,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/agents/gsd-integration-checker.md",
+          "language": "markdown",
+          "sizeLines": 443,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/agents/gsd-intel-updater.md",
+          "language": "markdown",
+          "sizeLines": 313,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/agents/gsd-nyquist-auditor.md",
+          "language": "markdown",
+          "sizeLines": 170,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/agents/gsd-phase-researcher.md",
+          "language": "markdown",
+          "sizeLines": 735,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/agents/gsd-plan-checker.md",
+          "language": "markdown",
+          "sizeLines": 867,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/agents/gsd-planner.md",
+          "language": "markdown",
+          "sizeLines": 1284,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/agents/gsd-project-researcher.md",
+          "language": "markdown",
+          "sizeLines": 648,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/agents/gsd-research-synthesizer.md",
+          "language": "markdown",
+          "sizeLines": 241,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/agents/gsd-roadmapper.md",
+          "language": "markdown",
+          "sizeLines": 673,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/agents/gsd-security-auditor.md",
+          "language": "markdown",
+          "sizeLines": 122,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/agents/gsd-ui-auditor.md",
+          "language": "markdown",
+          "sizeLines": 473,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".trae/agents/gsd-advisor-researcher.md": [],
+        ".trae/agents/gsd-assumptions-analyzer.md": [],
+        ".trae/agents/gsd-code-fixer.md": [],
+        ".trae/agents/gsd-code-reviewer.md": [],
+        ".trae/agents/gsd-codebase-mapper.md": [],
+        ".trae/agents/gsd-debugger.md": [],
+        ".trae/agents/gsd-doc-verifier.md": [],
+        ".trae/agents/gsd-doc-writer.md": [],
+        ".trae/agents/gsd-executor.md": [],
+        ".trae/agents/gsd-integration-checker.md": [],
+        ".trae/agents/gsd-intel-updater.md": [],
+        ".trae/agents/gsd-nyquist-auditor.md": [],
+        ".trae/agents/gsd-phase-researcher.md": [],
+        ".trae/agents/gsd-plan-checker.md": [],
+        ".trae/agents/gsd-planner.md": [],
+        ".trae/agents/gsd-project-researcher.md": [],
+        ".trae/agents/gsd-research-synthesizer.md": [],
+        ".trae/agents/gsd-roadmapper.md": [],
+        ".trae/agents/gsd-security-auditor.md": [],
+        ".trae/agents/gsd-ui-auditor.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 22,
+      "files": [
+        {
+          "path": ".trae/agents/gsd-ui-checker.md",
+          "language": "markdown",
+          "sizeLines": 300,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/agents/gsd-ui-researcher.md",
+          "language": "markdown",
+          "sizeLines": 351,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/agents/gsd-user-profiler.md",
+          "language": "markdown",
+          "sizeLines": 171,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/agents/gsd-verifier.md",
+          "language": "markdown",
+          "sizeLines": 814,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".trae/agents/gsd-ui-checker.md": [],
+        ".trae/agents/gsd-ui-researcher.md": [],
+        ".trae/agents/gsd-user-profiler.md": [],
+        ".trae/agents/gsd-verifier.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 23,
+      "files": [
+        {
+          "path": ".trae/get-shit-done/contexts/dev.md",
+          "language": "markdown",
+          "sizeLines": 22,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/contexts/research.md",
+          "language": "markdown",
+          "sizeLines": 23,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/contexts/review.md",
+          "language": "markdown",
+          "sizeLines": 23,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".trae/get-shit-done/contexts/dev.md": [],
+        ".trae/get-shit-done/contexts/research.md": [],
+        ".trae/get-shit-done/contexts/review.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 24,
+      "files": [
+        {
+          "path": ".trae/get-shit-done/references/agent-contracts.md",
+          "language": "markdown",
+          "sizeLines": 80,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/artifact-types.md",
+          "language": "markdown",
+          "sizeLines": 114,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/checkpoints.md",
+          "language": "markdown",
+          "sizeLines": 779,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/common-bug-patterns.md",
+          "language": "markdown",
+          "sizeLines": 115,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/context-budget.md",
+          "language": "markdown",
+          "sizeLines": 50,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/continuation-format.md",
+          "language": "markdown",
+          "sizeLines": 250,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/decimal-phase-calculation.md",
+          "language": "markdown",
+          "sizeLines": 65,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/domain-probes.md",
+          "language": "markdown",
+          "sizeLines": 126,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/gate-prompts.md",
+          "language": "markdown",
+          "sizeLines": 101,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/gates.md",
+          "language": "markdown",
+          "sizeLines": 71,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/git-integration.md",
+          "language": "markdown",
+          "sizeLines": 296,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/git-planning-commit.md",
+          "language": "markdown",
+          "sizeLines": 39,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/model-profile-resolution.md",
+          "language": "markdown",
+          "sizeLines": 39,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/model-profiles.md",
+          "language": "markdown",
+          "sizeLines": 146,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/phase-argument-parsing.md",
+          "language": "markdown",
+          "sizeLines": 62,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/planner-gap-closure.md",
+          "language": "markdown",
+          "sizeLines": 63,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/planner-reviews.md",
+          "language": "markdown",
+          "sizeLines": 40,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/planner-revision.md",
+          "language": "markdown",
+          "sizeLines": 88,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/planning-config.md",
+          "language": "markdown",
+          "sizeLines": 433,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/questioning.md",
+          "language": "markdown",
+          "sizeLines": 163,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".trae/get-shit-done/references/agent-contracts.md": [],
+        ".trae/get-shit-done/references/artifact-types.md": [],
+        ".trae/get-shit-done/references/checkpoints.md": [],
+        ".trae/get-shit-done/references/common-bug-patterns.md": [],
+        ".trae/get-shit-done/references/context-budget.md": [],
+        ".trae/get-shit-done/references/continuation-format.md": [],
+        ".trae/get-shit-done/references/decimal-phase-calculation.md": [],
+        ".trae/get-shit-done/references/domain-probes.md": [],
+        ".trae/get-shit-done/references/gate-prompts.md": [],
+        ".trae/get-shit-done/references/gates.md": [],
+        ".trae/get-shit-done/references/git-integration.md": [],
+        ".trae/get-shit-done/references/git-planning-commit.md": [],
+        ".trae/get-shit-done/references/model-profile-resolution.md": [],
+        ".trae/get-shit-done/references/model-profiles.md": [],
+        ".trae/get-shit-done/references/phase-argument-parsing.md": [],
+        ".trae/get-shit-done/references/planner-gap-closure.md": [],
+        ".trae/get-shit-done/references/planner-reviews.md": [],
+        ".trae/get-shit-done/references/planner-revision.md": [],
+        ".trae/get-shit-done/references/planning-config.md": [],
+        ".trae/get-shit-done/references/questioning.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 25,
+      "files": [
+        {
+          "path": ".trae/get-shit-done/references/revision-loop.md",
+          "language": "markdown",
+          "sizeLines": 98,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/tdd.md",
+          "language": "markdown",
+          "sizeLines": 264,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/thinking-models-debug.md",
+          "language": "markdown",
+          "sizeLines": 45,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/thinking-models-execution.md",
+          "language": "markdown",
+          "sizeLines": 51,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/thinking-models-planning.md",
+          "language": "markdown",
+          "sizeLines": 63,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/thinking-models-research.md",
+          "language": "markdown",
+          "sizeLines": 51,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/thinking-models-verification.md",
+          "language": "markdown",
+          "sizeLines": 56,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/thinking-partner.md",
+          "language": "markdown",
+          "sizeLines": 97,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/ui-brand.md",
+          "language": "markdown",
+          "sizeLines": 161,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/universal-anti-patterns.md",
+          "language": "markdown",
+          "sizeLines": 59,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/user-profiling.md",
+          "language": "markdown",
+          "sizeLines": 682,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/verification-overrides.md",
+          "language": "markdown",
+          "sizeLines": 228,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/verification-patterns.md",
+          "language": "markdown",
+          "sizeLines": 613,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/workstream-flag.md",
+          "language": "markdown",
+          "sizeLines": 112,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".trae/get-shit-done/references/revision-loop.md": [],
+        ".trae/get-shit-done/references/tdd.md": [],
+        ".trae/get-shit-done/references/thinking-models-debug.md": [],
+        ".trae/get-shit-done/references/thinking-models-execution.md": [],
+        ".trae/get-shit-done/references/thinking-models-planning.md": [],
+        ".trae/get-shit-done/references/thinking-models-research.md": [],
+        ".trae/get-shit-done/references/thinking-models-verification.md": [],
+        ".trae/get-shit-done/references/thinking-partner.md": [],
+        ".trae/get-shit-done/references/ui-brand.md": [],
+        ".trae/get-shit-done/references/universal-anti-patterns.md": [],
+        ".trae/get-shit-done/references/user-profiling.md": [],
+        ".trae/get-shit-done/references/verification-overrides.md": [],
+        ".trae/get-shit-done/references/verification-patterns.md": [],
+        ".trae/get-shit-done/references/workstream-flag.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 26,
+      "files": [
+        {
+          "path": ".trae/get-shit-done/templates/DEBUG.md",
+          "language": "markdown",
+          "sizeLines": 165,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/SECURITY.md",
+          "language": "markdown",
+          "sizeLines": 62,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/UAT.md",
+          "language": "markdown",
+          "sizeLines": 266,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/UI-SPEC.md",
+          "language": "markdown",
+          "sizeLines": 101,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/VALIDATION.md",
+          "language": "markdown",
+          "sizeLines": 77,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/claude-md.md",
+          "language": "markdown",
+          "sizeLines": 146,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/config.json",
+          "language": "json",
+          "sizeLines": 49,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/context.md",
+          "language": "markdown",
+          "sizeLines": 353,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/continue-here.md",
+          "language": "markdown",
+          "sizeLines": 79,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/copilot-instructions.md",
+          "language": "markdown",
+          "sizeLines": 8,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/debug-subagent-prompt.md",
+          "language": "markdown",
+          "sizeLines": 92,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/dev-preferences.md",
+          "language": "markdown",
+          "sizeLines": 22,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/discovery.md",
+          "language": "markdown",
+          "sizeLines": 147,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/discussion-log.md",
+          "language": "markdown",
+          "sizeLines": 64,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/milestone-archive.md",
+          "language": "markdown",
+          "sizeLines": 124,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/milestone.md",
+          "language": "markdown",
+          "sizeLines": 116,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/phase-prompt.md",
+          "language": "markdown",
+          "sizeLines": 611,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/planner-subagent-prompt.md",
+          "language": "markdown",
+          "sizeLines": 118,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/project.md",
+          "language": "markdown",
+          "sizeLines": 187,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/requirements.md",
+          "language": "markdown",
+          "sizeLines": 232,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".trae/get-shit-done/templates/DEBUG.md": [],
+        ".trae/get-shit-done/templates/SECURITY.md": [],
+        ".trae/get-shit-done/templates/UAT.md": [],
+        ".trae/get-shit-done/templates/UI-SPEC.md": [],
+        ".trae/get-shit-done/templates/VALIDATION.md": [],
+        ".trae/get-shit-done/templates/claude-md.md": [],
+        ".trae/get-shit-done/templates/config.json": [],
+        ".trae/get-shit-done/templates/context.md": [],
+        ".trae/get-shit-done/templates/continue-here.md": [],
+        ".trae/get-shit-done/templates/copilot-instructions.md": [],
+        ".trae/get-shit-done/templates/debug-subagent-prompt.md": [],
+        ".trae/get-shit-done/templates/dev-preferences.md": [],
+        ".trae/get-shit-done/templates/discovery.md": [],
+        ".trae/get-shit-done/templates/discussion-log.md": [],
+        ".trae/get-shit-done/templates/milestone-archive.md": [],
+        ".trae/get-shit-done/templates/milestone.md": [],
+        ".trae/get-shit-done/templates/phase-prompt.md": [],
+        ".trae/get-shit-done/templates/planner-subagent-prompt.md": [],
+        ".trae/get-shit-done/templates/project.md": [],
+        ".trae/get-shit-done/templates/requirements.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 27,
+      "files": [
+        {
+          "path": ".trae/get-shit-done/templates/research.md",
+          "language": "markdown",
+          "sizeLines": 553,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/retrospective.md",
+          "language": "markdown",
+          "sizeLines": 55,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/roadmap.md",
+          "language": "markdown",
+          "sizeLines": 203,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/state.md",
+          "language": "markdown",
+          "sizeLines": 177,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/summary-complex.md",
+          "language": "markdown",
+          "sizeLines": 60,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/summary-minimal.md",
+          "language": "markdown",
+          "sizeLines": 42,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/summary-standard.md",
+          "language": "markdown",
+          "sizeLines": 49,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/summary.md",
+          "language": "markdown",
+          "sizeLines": 249,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/user-profile.md",
+          "language": "markdown",
+          "sizeLines": 147,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/user-setup.md",
+          "language": "markdown",
+          "sizeLines": 312,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/verification-report.md",
+          "language": "markdown",
+          "sizeLines": 323,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".trae/get-shit-done/templates/research.md": [],
+        ".trae/get-shit-done/templates/retrospective.md": [],
+        ".trae/get-shit-done/templates/roadmap.md": [],
+        ".trae/get-shit-done/templates/state.md": [],
+        ".trae/get-shit-done/templates/summary-complex.md": [],
+        ".trae/get-shit-done/templates/summary-minimal.md": [],
+        ".trae/get-shit-done/templates/summary-standard.md": [],
+        ".trae/get-shit-done/templates/summary.md": [],
+        ".trae/get-shit-done/templates/user-profile.md": [],
+        ".trae/get-shit-done/templates/user-setup.md": [],
+        ".trae/get-shit-done/templates/verification-report.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 28,
+      "files": [
+        {
+          "path": ".trae/get-shit-done/templates/codebase/architecture.md",
+          "language": "markdown",
+          "sizeLines": 256,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/codebase/concerns.md",
+          "language": "markdown",
+          "sizeLines": 311,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/codebase/conventions.md",
+          "language": "markdown",
+          "sizeLines": 308,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/codebase/integrations.md",
+          "language": "markdown",
+          "sizeLines": 281,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/codebase/stack.md",
+          "language": "markdown",
+          "sizeLines": 187,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/codebase/structure.md",
+          "language": "markdown",
+          "sizeLines": 286,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/codebase/testing.md",
+          "language": "markdown",
+          "sizeLines": 481,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".trae/get-shit-done/templates/codebase/architecture.md": [],
+        ".trae/get-shit-done/templates/codebase/concerns.md": [],
+        ".trae/get-shit-done/templates/codebase/conventions.md": [],
+        ".trae/get-shit-done/templates/codebase/integrations.md": [],
+        ".trae/get-shit-done/templates/codebase/stack.md": [],
+        ".trae/get-shit-done/templates/codebase/structure.md": [],
+        ".trae/get-shit-done/templates/codebase/testing.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 29,
+      "files": [
+        {
+          "path": ".trae/get-shit-done/templates/research-project/ARCHITECTURE.md",
+          "language": "markdown",
+          "sizeLines": 205,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/research-project/FEATURES.md",
+          "language": "markdown",
+          "sizeLines": 148,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/research-project/PITFALLS.md",
+          "language": "markdown",
+          "sizeLines": 201,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/research-project/STACK.md",
+          "language": "markdown",
+          "sizeLines": 121,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/templates/research-project/SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 171,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".trae/get-shit-done/templates/research-project/ARCHITECTURE.md": [],
+        ".trae/get-shit-done/templates/research-project/FEATURES.md": [],
+        ".trae/get-shit-done/templates/research-project/PITFALLS.md": [],
+        ".trae/get-shit-done/templates/research-project/STACK.md": [],
+        ".trae/get-shit-done/templates/research-project/SUMMARY.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 30,
+      "files": [
+        {
+          "path": ".trae/get-shit-done/workflows/add-phase.md",
+          "language": "markdown",
+          "sizeLines": 113,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/add-tests.md",
+          "language": "markdown",
+          "sizeLines": 352,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/add-todo.md",
+          "language": "markdown",
+          "sizeLines": 159,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/analyze-dependencies.md",
+          "language": "markdown",
+          "sizeLines": 97,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/audit-fix.md",
+          "language": "markdown",
+          "sizeLines": 158,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/audit-milestone.md",
+          "language": "markdown",
+          "sizeLines": 341,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/audit-uat.md",
+          "language": "markdown",
+          "sizeLines": 110,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/autonomous.md",
+          "language": "markdown",
+          "sizeLines": 1058,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/check-todos.md",
+          "language": "markdown",
+          "sizeLines": 178,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/cleanup.md",
+          "language": "markdown",
+          "sizeLines": 153,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/code-review-fix.md",
+          "language": "markdown",
+          "sizeLines": 498,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/code-review.md",
+          "language": "markdown",
+          "sizeLines": 516,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/complete-milestone.md",
+          "language": "markdown",
+          "sizeLines": 777,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/diagnose-issues.md",
+          "language": "markdown",
+          "sizeLines": 239,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/discovery-phase.md",
+          "language": "markdown",
+          "sizeLines": 290,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/discuss-phase-assumptions.md",
+          "language": "markdown",
+          "sizeLines": 672,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/discuss-phase-power.md",
+          "language": "markdown",
+          "sizeLines": 292,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/discuss-phase.md",
+          "language": "markdown",
+          "sizeLines": 1202,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/do.md",
+          "language": "markdown",
+          "sizeLines": 105,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/docs-update.md",
+          "language": "markdown",
+          "sizeLines": 1154,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".trae/get-shit-done/workflows/add-phase.md": [],
+        ".trae/get-shit-done/workflows/add-tests.md": [],
+        ".trae/get-shit-done/workflows/add-todo.md": [],
+        ".trae/get-shit-done/workflows/analyze-dependencies.md": [],
+        ".trae/get-shit-done/workflows/audit-fix.md": [],
+        ".trae/get-shit-done/workflows/audit-milestone.md": [],
+        ".trae/get-shit-done/workflows/audit-uat.md": [],
+        ".trae/get-shit-done/workflows/autonomous.md": [],
+        ".trae/get-shit-done/workflows/check-todos.md": [],
+        ".trae/get-shit-done/workflows/cleanup.md": [],
+        ".trae/get-shit-done/workflows/code-review-fix.md": [],
+        ".trae/get-shit-done/workflows/code-review.md": [],
+        ".trae/get-shit-done/workflows/complete-milestone.md": [],
+        ".trae/get-shit-done/workflows/diagnose-issues.md": [],
+        ".trae/get-shit-done/workflows/discovery-phase.md": [],
+        ".trae/get-shit-done/workflows/discuss-phase-assumptions.md": [],
+        ".trae/get-shit-done/workflows/discuss-phase-power.md": [],
+        ".trae/get-shit-done/workflows/discuss-phase.md": [],
+        ".trae/get-shit-done/workflows/do.md": [],
+        ".trae/get-shit-done/workflows/docs-update.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 31,
+      "files": [
+        {
+          "path": ".trae/get-shit-done/workflows/execute-phase.md",
+          "language": "markdown",
+          "sizeLines": 1252,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/execute-plan.md",
+          "language": "markdown",
+          "sizeLines": 514,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/explore.md",
+          "language": "markdown",
+          "sizeLines": 140,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/fast.md",
+          "language": "markdown",
+          "sizeLines": 106,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/forensics.md",
+          "language": "markdown",
+          "sizeLines": 266,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/health.md",
+          "language": "markdown",
+          "sizeLines": 182,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/help.md",
+          "language": "markdown",
+          "sizeLines": 610,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/import.md",
+          "language": "markdown",
+          "sizeLines": 275,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/inbox.md",
+          "language": "markdown",
+          "sizeLines": 385,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/insert-phase.md",
+          "language": "markdown",
+          "sizeLines": 131,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/list-phase-assumptions.md",
+          "language": "markdown",
+          "sizeLines": 179,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/list-workspaces.md",
+          "language": "markdown",
+          "sizeLines": 57,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/manager.md",
+          "language": "markdown",
+          "sizeLines": 364,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/map-codebase.md",
+          "language": "markdown",
+          "sizeLines": 380,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/milestone-summary.md",
+          "language": "markdown",
+          "sizeLines": 224,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/new-milestone.md",
+          "language": "markdown",
+          "sizeLines": 493,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/new-project.md",
+          "language": "markdown",
+          "sizeLines": 1274,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/new-workspace.md",
+          "language": "markdown",
+          "sizeLines": 238,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/next.md",
+          "language": "markdown",
+          "sizeLines": 154,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/node-repair.md",
+          "language": "markdown",
+          "sizeLines": 93,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".trae/get-shit-done/workflows/execute-phase.md": [],
+        ".trae/get-shit-done/workflows/execute-plan.md": [],
+        ".trae/get-shit-done/workflows/explore.md": [],
+        ".trae/get-shit-done/workflows/fast.md": [],
+        ".trae/get-shit-done/workflows/forensics.md": [],
+        ".trae/get-shit-done/workflows/health.md": [],
+        ".trae/get-shit-done/workflows/help.md": [],
+        ".trae/get-shit-done/workflows/import.md": [],
+        ".trae/get-shit-done/workflows/inbox.md": [],
+        ".trae/get-shit-done/workflows/insert-phase.md": [],
+        ".trae/get-shit-done/workflows/list-phase-assumptions.md": [],
+        ".trae/get-shit-done/workflows/list-workspaces.md": [],
+        ".trae/get-shit-done/workflows/manager.md": [],
+        ".trae/get-shit-done/workflows/map-codebase.md": [],
+        ".trae/get-shit-done/workflows/milestone-summary.md": [],
+        ".trae/get-shit-done/workflows/new-milestone.md": [],
+        ".trae/get-shit-done/workflows/new-project.md": [],
+        ".trae/get-shit-done/workflows/new-workspace.md": [],
+        ".trae/get-shit-done/workflows/next.md": [],
+        ".trae/get-shit-done/workflows/node-repair.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 32,
+      "files": [
+        {
+          "path": ".trae/get-shit-done/workflows/note.md",
+          "language": "markdown",
+          "sizeLines": 157,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/pause-work.md",
+          "language": "markdown",
+          "sizeLines": 240,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/plan-milestone-gaps.md",
+          "language": "markdown",
+          "sizeLines": 274,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/plan-phase.md",
+          "language": "markdown",
+          "sizeLines": 1076,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/plant-seed.md",
+          "language": "markdown",
+          "sizeLines": 170,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/pr-branch.md",
+          "language": "markdown",
+          "sizeLines": 130,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/profile-user.md",
+          "language": "markdown",
+          "sizeLines": 451,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/progress.md",
+          "language": "markdown",
+          "sizeLines": 508,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/quick.md",
+          "language": "markdown",
+          "sizeLines": 900,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/remove-phase.md",
+          "language": "markdown",
+          "sizeLines": 156,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/remove-workspace.md",
+          "language": "markdown",
+          "sizeLines": 91,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/research-phase.md",
+          "language": "markdown",
+          "sizeLines": 83,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/resume-project.md",
+          "language": "markdown",
+          "sizeLines": 327,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/review.md",
+          "language": "markdown",
+          "sizeLines": 282,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/scan.md",
+          "language": "markdown",
+          "sizeLines": 103,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/secure-phase.md",
+          "language": "markdown",
+          "sizeLines": 165,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/session-report.md",
+          "language": "markdown",
+          "sizeLines": 147,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/settings.md",
+          "language": "markdown",
+          "sizeLines": 295,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/ship.md",
+          "language": "markdown",
+          "sizeLines": 238,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/stats.md",
+          "language": "markdown",
+          "sizeLines": 61,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".trae/get-shit-done/workflows/note.md": [],
+        ".trae/get-shit-done/workflows/pause-work.md": [],
+        ".trae/get-shit-done/workflows/plan-milestone-gaps.md": [],
+        ".trae/get-shit-done/workflows/plan-phase.md": [],
+        ".trae/get-shit-done/workflows/plant-seed.md": [],
+        ".trae/get-shit-done/workflows/pr-branch.md": [],
+        ".trae/get-shit-done/workflows/profile-user.md": [],
+        ".trae/get-shit-done/workflows/progress.md": [],
+        ".trae/get-shit-done/workflows/quick.md": [],
+        ".trae/get-shit-done/workflows/remove-phase.md": [],
+        ".trae/get-shit-done/workflows/remove-workspace.md": [],
+        ".trae/get-shit-done/workflows/research-phase.md": [],
+        ".trae/get-shit-done/workflows/resume-project.md": [],
+        ".trae/get-shit-done/workflows/review.md": [],
+        ".trae/get-shit-done/workflows/scan.md": [],
+        ".trae/get-shit-done/workflows/secure-phase.md": [],
+        ".trae/get-shit-done/workflows/session-report.md": [],
+        ".trae/get-shit-done/workflows/settings.md": [],
+        ".trae/get-shit-done/workflows/ship.md": [],
+        ".trae/get-shit-done/workflows/stats.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 33,
+      "files": [
+        {
+          "path": ".trae/get-shit-done/workflows/transition.md",
+          "language": "markdown",
+          "sizeLines": 672,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/ui-phase.md",
+          "language": "markdown",
+          "sizeLines": 303,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/ui-review.md",
+          "language": "markdown",
+          "sizeLines": 189,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/undo.md",
+          "language": "markdown",
+          "sizeLines": 313,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/update.md",
+          "language": "markdown",
+          "sizeLines": 473,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/validate-phase.md",
+          "language": "markdown",
+          "sizeLines": 175,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/verify-phase.md",
+          "language": "markdown",
+          "sizeLines": 376,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/workflows/verify-work.md",
+          "language": "markdown",
+          "sizeLines": 701,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".trae/get-shit-done/workflows/transition.md": [],
+        ".trae/get-shit-done/workflows/ui-phase.md": [],
+        ".trae/get-shit-done/workflows/ui-review.md": [],
+        ".trae/get-shit-done/workflows/undo.md": [],
+        ".trae/get-shit-done/workflows/update.md": [],
+        ".trae/get-shit-done/workflows/validate-phase.md": [],
+        ".trae/get-shit-done/workflows/verify-phase.md": [],
+        ".trae/get-shit-done/workflows/verify-work.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 34,
+      "files": [
+        {
+          "path": "example/debug-demo.html",
+          "language": "html",
+          "sizeLines": 117,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/index.css",
+          "language": "css",
+          "sizeLines": 25,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/index.html",
+          "language": "html",
+          "sizeLines": 215,
+          "fileCategory": "markup"
+        }
+      ],
+      "batchImportData": {
+        "example/debug-demo.html": [],
+        "example/index.css": [],
+        "example/index.html": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 35,
+      "files": [
+        {
+          "path": "example/public/app/error-demo.html",
+          "language": "html",
+          "sizeLines": 367,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/public/app/hooks-demo.html",
+          "language": "html",
+          "sizeLines": 633,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/public/app/loader-demo.html",
+          "language": "html",
+          "sizeLines": 352,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/public/app/loading-demo.html",
+          "language": "html",
+          "sizeLines": 194,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/public/app/modal-demo.html",
+          "language": "html",
+          "sizeLines": 869,
+          "fileCategory": "markup"
+        }
+      ],
+      "batchImportData": {
+        "example/public/app/error-demo.html": [],
+        "example/public/app/hooks-demo.html": [],
+        "example/public/app/loader-demo.html": [],
+        "example/public/app/loading-demo.html": [],
+        "example/public/app/modal-demo.html": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 36,
+      "files": [
+        {
+          "path": "example/public/shop/data/demo.json",
+          "language": "json",
+          "sizeLines": 37,
+          "fileCategory": "config"
+        },
+        {
+          "path": "example/public/shop/data/docs.json",
+          "language": "json",
+          "sizeLines": 69,
+          "fileCategory": "config"
+        },
+        {
+          "path": "example/public/shop/data/heavy-page.json",
+          "language": "json",
+          "sizeLines": 103,
+          "fileCategory": "config"
+        },
+        {
+          "path": "example/public/shop/data/home.json",
+          "language": "json",
+          "sizeLines": 11,
+          "fileCategory": "config"
+        },
+        {
+          "path": "example/public/shop/data/login.json",
+          "language": "json",
+          "sizeLines": 5,
+          "fileCategory": "config"
+        },
+        {
+          "path": "example/public/shop/data/products.json",
+          "language": "json",
+          "sizeLines": 400,
+          "fileCategory": "config"
+        },
+        {
+          "path": "example/public/shop/data/profile.json",
+          "language": "json",
+          "sizeLines": 25,
+          "fileCategory": "config"
+        },
+        {
+          "path": "example/public/shop/data/services.json",
+          "language": "json",
+          "sizeLines": 69,
+          "fileCategory": "config"
+        },
+        {
+          "path": "example/public/shop/data/store.json",
+          "language": "json",
+          "sizeLines": 69,
+          "fileCategory": "config"
+        }
+      ],
+      "batchImportData": {
+        "example/public/shop/data/demo.json": [],
+        "example/public/shop/data/docs.json": [],
+        "example/public/shop/data/heavy-page.json": [],
+        "example/public/shop/data/home.json": [],
+        "example/public/shop/data/login.json": [],
+        "example/public/shop/data/products.json": [],
+        "example/public/shop/data/profile.json": [],
+        "example/public/shop/data/services.json": [],
+        "example/public/shop/data/store.json": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 37,
+      "files": [
+        {
+          "path": "example/public/shop/pages/demo.html",
+          "language": "html",
+          "sizeLines": 304,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/public/shop/pages/docs-list.html",
+          "language": "html",
+          "sizeLines": 23,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/public/shop/pages/docs.html",
+          "language": "html",
+          "sizeLines": 128,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/public/shop/pages/error-test.html",
+          "language": "html",
+          "sizeLines": 324,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/public/shop/pages/heavy-page.html",
+          "language": "html",
+          "sizeLines": 239,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/public/shop/pages/home.html",
+          "language": "html",
+          "sizeLines": 32,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/public/shop/pages/login.html",
+          "language": "html",
+          "sizeLines": 22,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/public/shop/pages/order-form.html",
+          "language": "html",
+          "sizeLines": 358,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/public/shop/pages/product-detail.html",
+          "language": "html",
+          "sizeLines": 79,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/public/shop/pages/product-list.html",
+          "language": "html",
+          "sizeLines": 61,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/public/shop/pages/product-preview.html",
+          "language": "html",
+          "sizeLines": 287,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/public/shop/pages/products.html",
+          "language": "html",
+          "sizeLines": 128,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/public/shop/pages/profile.html",
+          "language": "html",
+          "sizeLines": 37,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/public/shop/pages/services-list.html",
+          "language": "html",
+          "sizeLines": 21,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/public/shop/pages/services.html",
+          "language": "html",
+          "sizeLines": 128,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/public/shop/pages/store-list.html",
+          "language": "html",
+          "sizeLines": 16,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/public/shop/pages/store.html",
+          "language": "html",
+          "sizeLines": 128,
+          "fileCategory": "markup"
+        }
+      ],
+      "batchImportData": {
+        "example/public/shop/pages/demo.html": [],
+        "example/public/shop/pages/docs-list.html": [],
+        "example/public/shop/pages/docs.html": [],
+        "example/public/shop/pages/error-test.html": [],
+        "example/public/shop/pages/heavy-page.html": [],
+        "example/public/shop/pages/home.html": [],
+        "example/public/shop/pages/login.html": [],
+        "example/public/shop/pages/order-form.html": [],
+        "example/public/shop/pages/product-detail.html": [],
+        "example/public/shop/pages/product-list.html": [],
+        "example/public/shop/pages/product-preview.html": [],
+        "example/public/shop/pages/products.html": [],
+        "example/public/shop/pages/profile.html": [],
+        "example/public/shop/pages/services-list.html": [],
+        "example/public/shop/pages/services.html": [],
+        "example/public/shop/pages/store-list.html": [],
+        "example/public/shop/pages/store.html": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 38,
+      "files": [
+        {
+          "path": ".agents/skills/alpine-js/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 98,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/README.md",
+          "language": "markdown",
+          "sizeLines": 78,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/tsdown/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 408,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/hooks/gsd-check-update.js",
+          "language": "javascript",
+          "sizeLines": 140,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".claude/hooks/gsd-context-monitor.js",
+          "language": "javascript",
+          "sizeLines": 164,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".claude/hooks/gsd-prompt-guard.js",
+          "language": "javascript",
+          "sizeLines": 98,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".claude/hooks/gsd-read-guard.js",
+          "language": "javascript",
+          "sizeLines": 78,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".claude/hooks/gsd-statusline.js",
+          "language": "javascript",
+          "sizeLines": 127,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".claude/hooks/gsd-workflow-guard.js",
+          "language": "javascript",
+          "sizeLines": 95,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".claude/skills/alpine-js/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 98,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/README.md",
+          "language": "markdown",
+          "sizeLines": 78,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/tsdown/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 408,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".codegraph/.gitignore",
+          "language": "gitignore",
+          "sizeLines": 22,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".gitignore",
+          "language": "gitignore",
+          "sizeLines": 25,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".planning/phases/1.1-refactor-routes/1.1-01-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 240,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/1.1-refactor-routes/1.1-01-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 236,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/phases/fix-router-constructor/01-01-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 414,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260408-dp0-src-types-ts-src-types/260408-dp0-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 273,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260408-dp0-src-types-ts-src-types/260408-dp0-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 214,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260408-dub-class-hooks-hookmanager-kylinrouter-addh/260408-dub-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 278,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260408-dub-class-hooks-hookmanager-kylinrouter-addh/260408-dub-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 106,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260408-g2s-src-features-routes-ts-routes-routeregis/260408-g2s-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 157,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260408-g2s-src-features-routes-ts-routes-routeregis/260408-g2s-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 152,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260408-gop-kylinrouter-host-attach-detach-options-a/260408-gop-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 304,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260408-gop-kylinrouter-host-attach-detach-options-a/260408-gop-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 188,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".agents/skills/alpine-js/SKILL.md": [],
+        ".agents/skills/tsdown/README.md": [],
+        ".agents/skills/tsdown/SKILL.md": [],
+        ".claude/hooks/gsd-check-update.js": [],
+        ".claude/hooks/gsd-context-monitor.js": [],
+        ".claude/hooks/gsd-prompt-guard.js": [],
+        ".claude/hooks/gsd-read-guard.js": [],
+        ".claude/hooks/gsd-statusline.js": [],
+        ".claude/hooks/gsd-workflow-guard.js": [],
+        ".claude/skills/alpine-js/SKILL.md": [],
+        ".claude/skills/tsdown/README.md": [],
+        ".claude/skills/tsdown/SKILL.md": [],
+        ".codegraph/.gitignore": [],
+        ".gitignore": [],
+        ".planning/phases/1.1-refactor-routes/1.1-01-PLAN.md": [],
+        ".planning/phases/1.1-refactor-routes/1.1-01-SUMMARY.md": [],
+        ".planning/phases/fix-router-constructor/01-01-PLAN.md": [],
+        ".planning/quick/260408-dp0-src-types-ts-src-types/260408-dp0-PLAN.md": [],
+        ".planning/quick/260408-dp0-src-types-ts-src-types/260408-dp0-SUMMARY.md": [],
+        ".planning/quick/260408-dub-class-hooks-hookmanager-kylinrouter-addh/260408-dub-PLAN.md": [],
+        ".planning/quick/260408-dub-class-hooks-hookmanager-kylinrouter-addh/260408-dub-SUMMARY.md": [],
+        ".planning/quick/260408-g2s-src-features-routes-ts-routes-routeregis/260408-g2s-PLAN.md": [],
+        ".planning/quick/260408-g2s-src-features-routes-ts-routes-routeregis/260408-g2s-SUMMARY.md": [],
+        ".planning/quick/260408-gop-kylinrouter-host-attach-detach-options-a/260408-gop-PLAN.md": [],
+        ".planning/quick/260408-gop-kylinrouter-host-attach-detach-options-a/260408-gop-SUMMARY.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 39,
+      "files": [
+        {
+          "path": ".planning/quick/260408-te8-triggerevent-host-dispatchevent/260408-te8-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 136,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260408-te8-triggerevent-host-dispatchevent/260408-te8-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 170,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260410-auto-home/ANALYSIS.md",
+          "language": "markdown",
+          "sizeLines": 201,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260410-auto-home/PLAN.md",
+          "language": "markdown",
+          "sizeLines": 118,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260410-d3x-kylinrouter-data-loading-data-loaded-vie/260410-d3x-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 77,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260410-d3x-kylinrouter-data-loading-data-loaded-vie/260410-d3x-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 73,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260410-e6k-remoteloadoptions-viewoptions-view-views/260410-e6k-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 118,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260410-e6k-remoteloadoptions-viewoptions-view-views/260410-e6k-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 124,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260410-eyr-onrouteupdate/260410-eyr-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 113,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260410-eyr-onrouteupdate/260410-eyr-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 169,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260410-fqz-kylinrouteroptions-viewoptions-dataoptio/260410-fqz-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 252,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260410-fqz-kylinrouteroptions-viewoptions-dataoptio/260410-fqz-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 207,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260410-l6l-data/260410-l6l-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 276,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260410-l6l-data/260410-l6l-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 246,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260410-mqa-alpinejs-alpine-js/260410-mqa-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 189,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260410-mqa-alpinejs-alpine-js/260410-mqa-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 167,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260410-o45-alpine-js/260410-o45-PLAN.md",
+          "language": "markdown",
+          "sizeLines": 370,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/260410-o45-alpine-js/260410-o45-SUMMARY.md",
+          "language": "markdown",
+          "sizeLines": 282,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/quick/refactor-route-props/PLAN.md",
+          "language": "markdown",
+          "sizeLines": 439,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".planning/ROADMAP.md.backup",
+          "language": "backup",
+          "sizeLines": 128,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/get-shit-done/bin/gsd-tools.cjs",
+          "language": "cjs",
+          "sizeLines": 1048,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/get-shit-done/bin/lib/commands.cjs",
+          "language": "cjs",
+          "sizeLines": 1014,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/get-shit-done/bin/lib/config.cjs",
+          "language": "cjs",
+          "sizeLines": 472,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/get-shit-done/bin/lib/core.cjs",
+          "language": "cjs",
+          "sizeLines": 1534,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/get-shit-done/bin/lib/docs.cjs",
+          "language": "cjs",
+          "sizeLines": 268,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        ".planning/quick/260408-te8-triggerevent-host-dispatchevent/260408-te8-PLAN.md": [],
+        ".planning/quick/260408-te8-triggerevent-host-dispatchevent/260408-te8-SUMMARY.md": [],
+        ".planning/quick/260410-auto-home/ANALYSIS.md": [],
+        ".planning/quick/260410-auto-home/PLAN.md": [],
+        ".planning/quick/260410-d3x-kylinrouter-data-loading-data-loaded-vie/260410-d3x-PLAN.md": [],
+        ".planning/quick/260410-d3x-kylinrouter-data-loading-data-loaded-vie/260410-d3x-SUMMARY.md": [],
+        ".planning/quick/260410-e6k-remoteloadoptions-viewoptions-view-views/260410-e6k-PLAN.md": [],
+        ".planning/quick/260410-e6k-remoteloadoptions-viewoptions-view-views/260410-e6k-SUMMARY.md": [],
+        ".planning/quick/260410-eyr-onrouteupdate/260410-eyr-PLAN.md": [],
+        ".planning/quick/260410-eyr-onrouteupdate/260410-eyr-SUMMARY.md": [],
+        ".planning/quick/260410-fqz-kylinrouteroptions-viewoptions-dataoptio/260410-fqz-PLAN.md": [],
+        ".planning/quick/260410-fqz-kylinrouteroptions-viewoptions-dataoptio/260410-fqz-SUMMARY.md": [],
+        ".planning/quick/260410-l6l-data/260410-l6l-PLAN.md": [],
+        ".planning/quick/260410-l6l-data/260410-l6l-SUMMARY.md": [],
+        ".planning/quick/260410-mqa-alpinejs-alpine-js/260410-mqa-PLAN.md": [],
+        ".planning/quick/260410-mqa-alpinejs-alpine-js/260410-mqa-SUMMARY.md": [],
+        ".planning/quick/260410-o45-alpine-js/260410-o45-PLAN.md": [],
+        ".planning/quick/260410-o45-alpine-js/260410-o45-SUMMARY.md": [],
+        ".planning/quick/refactor-route-props/PLAN.md": [],
+        ".planning/ROADMAP.md.backup": [],
+        ".trae/get-shit-done/bin/gsd-tools.cjs": [],
+        ".trae/get-shit-done/bin/lib/commands.cjs": [],
+        ".trae/get-shit-done/bin/lib/config.cjs": [],
+        ".trae/get-shit-done/bin/lib/core.cjs": [],
+        ".trae/get-shit-done/bin/lib/docs.cjs": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 40,
+      "files": [
+        {
+          "path": ".trae/get-shit-done/bin/lib/frontmatter.cjs",
+          "language": "cjs",
+          "sizeLines": 382,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/get-shit-done/bin/lib/init.cjs",
+          "language": "cjs",
+          "sizeLines": 1523,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/get-shit-done/bin/lib/intel.cjs",
+          "language": "cjs",
+          "sizeLines": 661,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/get-shit-done/bin/lib/learnings.cjs",
+          "language": "cjs",
+          "sizeLines": 379,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/get-shit-done/bin/lib/milestone.cjs",
+          "language": "cjs",
+          "sizeLines": 283,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/get-shit-done/bin/lib/model-profiles.cjs",
+          "language": "cjs",
+          "sizeLines": 71,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/get-shit-done/bin/lib/phase.cjs",
+          "language": "cjs",
+          "sizeLines": 932,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/get-shit-done/bin/lib/profile-output.cjs",
+          "language": "cjs",
+          "sizeLines": 1049,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/get-shit-done/bin/lib/profile-pipeline.cjs",
+          "language": "cjs",
+          "sizeLines": 540,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/get-shit-done/bin/lib/roadmap.cjs",
+          "language": "cjs",
+          "sizeLines": 354,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/get-shit-done/bin/lib/schema-detect.cjs",
+          "language": "cjs",
+          "sizeLines": 239,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/get-shit-done/bin/lib/security.cjs",
+          "language": "cjs",
+          "sizeLines": 504,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/get-shit-done/bin/lib/state.cjs",
+          "language": "cjs",
+          "sizeLines": 1354,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/get-shit-done/bin/lib/template.cjs",
+          "language": "cjs",
+          "sizeLines": 223,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/get-shit-done/bin/lib/uat.cjs",
+          "language": "cjs",
+          "sizeLines": 283,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/get-shit-done/bin/lib/verify.cjs",
+          "language": "cjs",
+          "sizeLines": 1033,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/get-shit-done/bin/lib/workstream.cjs",
+          "language": "cjs",
+          "sizeLines": 496,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/get-shit-done/references/few-shot-examples/plan-checker.md",
+          "language": "markdown",
+          "sizeLines": 74,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/references/few-shot-examples/verifier.md",
+          "language": "markdown",
+          "sizeLines": 110,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/get-shit-done/VERSION",
+          "language": "unknown",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".trae/gsd-file-manifest.json",
+          "language": "json",
+          "sizeLines": 271,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".trae/skills/gsd-add-backlog/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 73,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-add-phase/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 40,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-add-tests/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 29,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-add-todo/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 43,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".trae/get-shit-done/bin/lib/frontmatter.cjs": [],
+        ".trae/get-shit-done/bin/lib/init.cjs": [],
+        ".trae/get-shit-done/bin/lib/intel.cjs": [],
+        ".trae/get-shit-done/bin/lib/learnings.cjs": [],
+        ".trae/get-shit-done/bin/lib/milestone.cjs": [],
+        ".trae/get-shit-done/bin/lib/model-profiles.cjs": [],
+        ".trae/get-shit-done/bin/lib/phase.cjs": [],
+        ".trae/get-shit-done/bin/lib/profile-output.cjs": [],
+        ".trae/get-shit-done/bin/lib/profile-pipeline.cjs": [],
+        ".trae/get-shit-done/bin/lib/roadmap.cjs": [],
+        ".trae/get-shit-done/bin/lib/schema-detect.cjs": [],
+        ".trae/get-shit-done/bin/lib/security.cjs": [],
+        ".trae/get-shit-done/bin/lib/state.cjs": [],
+        ".trae/get-shit-done/bin/lib/template.cjs": [],
+        ".trae/get-shit-done/bin/lib/uat.cjs": [],
+        ".trae/get-shit-done/bin/lib/verify.cjs": [],
+        ".trae/get-shit-done/bin/lib/workstream.cjs": [],
+        ".trae/get-shit-done/references/few-shot-examples/plan-checker.md": [],
+        ".trae/get-shit-done/references/few-shot-examples/verifier.md": [],
+        ".trae/get-shit-done/VERSION": [],
+        ".trae/gsd-file-manifest.json": [],
+        ".trae/skills/gsd-add-backlog/SKILL.md": [],
+        ".trae/skills/gsd-add-phase/SKILL.md": [],
+        ".trae/skills/gsd-add-tests/SKILL.md": [],
+        ".trae/skills/gsd-add-todo/SKILL.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 41,
+      "files": [
+        {
+          "path": ".trae/skills/gsd-analyze-dependencies/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 29,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-audit-fix/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 24,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-audit-milestone/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 30,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-audit-uat/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 21,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-autonomous/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 38,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-check-todos/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 41,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-cleanup/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 20,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-code-review-fix/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 45,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-code-review/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 49,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-complete-milestone/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 132,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-debug/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 182,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-discuss-phase/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 60,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-do/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 27,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-docs-update/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 40,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-execute-phase/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 54,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-explore/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 21,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-fast/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 24,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-forensics/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 50,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-health/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 18,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-help/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 24,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-import/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 28,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-insert-phase/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 29,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-intel/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 176,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-join-discord/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 20,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-list-phase-assumptions/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 42,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".trae/skills/gsd-analyze-dependencies/SKILL.md": [],
+        ".trae/skills/gsd-audit-fix/SKILL.md": [],
+        ".trae/skills/gsd-audit-milestone/SKILL.md": [],
+        ".trae/skills/gsd-audit-uat/SKILL.md": [],
+        ".trae/skills/gsd-autonomous/SKILL.md": [],
+        ".trae/skills/gsd-check-todos/SKILL.md": [],
+        ".trae/skills/gsd-cleanup/SKILL.md": [],
+        ".trae/skills/gsd-code-review-fix/SKILL.md": [],
+        ".trae/skills/gsd-code-review/SKILL.md": [],
+        ".trae/skills/gsd-complete-milestone/SKILL.md": [],
+        ".trae/skills/gsd-debug/SKILL.md": [],
+        ".trae/skills/gsd-discuss-phase/SKILL.md": [],
+        ".trae/skills/gsd-do/SKILL.md": [],
+        ".trae/skills/gsd-docs-update/SKILL.md": [],
+        ".trae/skills/gsd-execute-phase/SKILL.md": [],
+        ".trae/skills/gsd-explore/SKILL.md": [],
+        ".trae/skills/gsd-fast/SKILL.md": [],
+        ".trae/skills/gsd-forensics/SKILL.md": [],
+        ".trae/skills/gsd-health/SKILL.md": [],
+        ".trae/skills/gsd-help/SKILL.md": [],
+        ".trae/skills/gsd-import/SKILL.md": [],
+        ".trae/skills/gsd-insert-phase/SKILL.md": [],
+        ".trae/skills/gsd-intel/SKILL.md": [],
+        ".trae/skills/gsd-join-discord/SKILL.md": [],
+        ".trae/skills/gsd-list-phase-assumptions/SKILL.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 42,
+      "files": [
+        {
+          "path": ".trae/skills/gsd-list-workspaces/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 18,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-manager/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 33,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-map-codebase/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 65,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-milestone-summary/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 45,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-new-milestone/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 39,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-new-project/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 41,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-new-workspace/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 40,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-next/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 22,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-note/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 30,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-pause-work/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 36,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-plan-milestone-gaps/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 29,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-plan-phase/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 42,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-plant-seed/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 23,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-pr-branch/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 22,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-profile-user/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 39,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-progress/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 20,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-quick/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 41,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-reapply-patches/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 273,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-remove-phase/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 27,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-remove-workspace/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 23,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-research-phase/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 192,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-resume-work/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 36,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-review-backlog/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 59,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-review/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 33,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-scan/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 20,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".trae/skills/gsd-list-workspaces/SKILL.md": [],
+        ".trae/skills/gsd-manager/SKILL.md": [],
+        ".trae/skills/gsd-map-codebase/SKILL.md": [],
+        ".trae/skills/gsd-milestone-summary/SKILL.md": [],
+        ".trae/skills/gsd-new-milestone/SKILL.md": [],
+        ".trae/skills/gsd-new-project/SKILL.md": [],
+        ".trae/skills/gsd-new-workspace/SKILL.md": [],
+        ".trae/skills/gsd-next/SKILL.md": [],
+        ".trae/skills/gsd-note/SKILL.md": [],
+        ".trae/skills/gsd-pause-work/SKILL.md": [],
+        ".trae/skills/gsd-plan-milestone-gaps/SKILL.md": [],
+        ".trae/skills/gsd-plan-phase/SKILL.md": [],
+        ".trae/skills/gsd-plant-seed/SKILL.md": [],
+        ".trae/skills/gsd-pr-branch/SKILL.md": [],
+        ".trae/skills/gsd-profile-user/SKILL.md": [],
+        ".trae/skills/gsd-progress/SKILL.md": [],
+        ".trae/skills/gsd-quick/SKILL.md": [],
+        ".trae/skills/gsd-reapply-patches/SKILL.md": [],
+        ".trae/skills/gsd-remove-phase/SKILL.md": [],
+        ".trae/skills/gsd-remove-workspace/SKILL.md": [],
+        ".trae/skills/gsd-research-phase/SKILL.md": [],
+        ".trae/skills/gsd-resume-work/SKILL.md": [],
+        ".trae/skills/gsd-review-backlog/SKILL.md": [],
+        ".trae/skills/gsd-review/SKILL.md": [],
+        ".trae/skills/gsd-scan/SKILL.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 43,
+      "files": [
+        {
+          "path": ".trae/skills/gsd-secure-phase/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 27,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-session-report/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 17,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-set-profile/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 10,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-settings/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 33,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-ship/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 17,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-stats/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 17,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-thread/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 124,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-ui-phase/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 25,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-ui-review/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 25,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-undo/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 29,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-update/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 36,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-validate-phase/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 27,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-verify-work/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 31,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".trae/skills/gsd-workstreams/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 68,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".vscode/extensions.json",
+          "language": "json",
+          "sizeLines": 5,
+          "fileCategory": "config"
+        },
+        {
+          "path": "bun.lock",
+          "language": "lock",
+          "sizeLines": 373,
+          "fileCategory": "code"
+        },
+        {
+          "path": "docs/debug-mode.md",
+          "language": "markdown",
+          "sizeLines": 133,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "example/assets/CLAUDE.md",
+          "language": "markdown",
+          "sizeLines": 61,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "example/assets/hero.png",
+          "language": "png",
+          "sizeLines": 197,
+          "fileCategory": "code"
+        },
+        {
+          "path": "example/assets/lit.svg",
+          "language": "svg",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": "example/assets/vite.svg",
+          "language": "svg",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": "example/public/favicon.svg",
+          "language": "svg",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": "example/public/icons.svg",
+          "language": "svg",
+          "sizeLines": 25,
+          "fileCategory": "code"
+        },
+        {
+          "path": "example/public/shop/index.css",
+          "language": "css",
+          "sizeLines": 1051,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "example/public/shop/index.html",
+          "language": "html",
+          "sizeLines": 358,
+          "fileCategory": "markup"
+        }
+      ],
+      "batchImportData": {
+        ".trae/skills/gsd-secure-phase/SKILL.md": [],
+        ".trae/skills/gsd-session-report/SKILL.md": [],
+        ".trae/skills/gsd-set-profile/SKILL.md": [],
+        ".trae/skills/gsd-settings/SKILL.md": [],
+        ".trae/skills/gsd-ship/SKILL.md": [],
+        ".trae/skills/gsd-stats/SKILL.md": [],
+        ".trae/skills/gsd-thread/SKILL.md": [],
+        ".trae/skills/gsd-ui-phase/SKILL.md": [],
+        ".trae/skills/gsd-ui-review/SKILL.md": [],
+        ".trae/skills/gsd-undo/SKILL.md": [],
+        ".trae/skills/gsd-update/SKILL.md": [],
+        ".trae/skills/gsd-validate-phase/SKILL.md": [],
+        ".trae/skills/gsd-verify-work/SKILL.md": [],
+        ".trae/skills/gsd-workstreams/SKILL.md": [],
+        ".vscode/extensions.json": [],
+        "bun.lock": [],
+        "docs/debug-mode.md": [],
+        "example/assets/CLAUDE.md": [],
+        "example/assets/hero.png": [],
+        "example/assets/lit.svg": [],
+        "example/assets/vite.svg": [],
+        "example/public/favicon.svg": [],
+        "example/public/icons.svg": [],
+        "example/public/shop/index.css": [],
+        "example/public/shop/index.html": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 44,
+      "files": [
+        {
+          "path": "src/__tests__/components.base.test.ts",
+          "language": "typescript",
+          "sizeLines": 384,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/__tests__/components.link.test.ts",
+          "language": "typescript",
+          "sizeLines": 244,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/__tests__/features.data.test.ts",
+          "language": "typescript",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/__tests__/features.loader.test.ts",
+          "language": "typescript",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/__tests__/features.modal.test.ts",
+          "language": "typescript",
+          "sizeLines": 531,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/__tests__/features.render.test.ts",
+          "language": "typescript",
+          "sizeLines": 263,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/__tests__/integration.phase3.test.ts",
+          "language": "typescript",
+          "sizeLines": 593,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/__tests__/recursive-rendering.core.test.ts",
+          "language": "typescript",
+          "sizeLines": 449,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/__tests__/router.attach.test.ts",
+          "language": "typescript",
+          "sizeLines": 303,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/__tests__/router.core.test.ts",
+          "language": "typescript",
+          "sizeLines": 194,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/__tests__/router.dynamic.test.ts",
+          "language": "typescript",
+          "sizeLines": 151,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/__tests__/router.guards.test.ts",
+          "language": "typescript",
+          "sizeLines": 655,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/__tests__/router.hash.test.ts",
+          "language": "typescript",
+          "sizeLines": 157,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/__tests__/router.hooks.test.ts",
+          "language": "typescript",
+          "sizeLines": 842,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/__tests__/router.integration.test.ts",
+          "language": "typescript",
+          "sizeLines": 667,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/__tests__/router.navigation.test.ts",
+          "language": "typescript",
+          "sizeLines": 275,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/__tests__/router.recursive-rendering.test.ts",
+          "language": "typescript",
+          "sizeLines": 576,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/__tests__/router.remote.test.ts",
+          "language": "typescript",
+          "sizeLines": 134,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/__tests__/utils.findOutlet.test.ts",
+          "language": "typescript",
+          "sizeLines": 103,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/__tests__/utils.matchRoute.test.ts",
+          "language": "typescript",
+          "sizeLines": 2565,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/__tests__/utils.normalizeRoutes.test.ts",
+          "language": "typescript",
+          "sizeLines": 677,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/__tests__/utils.parseParams.test.ts",
+          "language": "typescript",
+          "sizeLines": 121,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/__tests__/utils.traverseOutlet.test.ts",
+          "language": "typescript",
+          "sizeLines": 458,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/base/index.ts",
+          "language": "typescript",
+          "sizeLines": 127,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/feedback/index.ts",
+          "language": "typescript",
+          "sizeLines": 286,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/__tests__/components.base.test.ts": [
+          "@/router"
+        ],
+        "src/__tests__/components.link.test.ts": [
+          "@/components/link"
+        ],
+        "src/__tests__/features.data.test.ts": [],
+        "src/__tests__/features.loader.test.ts": [],
+        "src/__tests__/features.modal.test.ts": [
+          "@/features/modal"
+        ],
+        "src/__tests__/features.render.test.ts": [
+          "@/features/render"
+        ],
+        "src/__tests__/integration.phase3.test.ts": [
+          "@/router"
+        ],
+        "src/__tests__/recursive-rendering.core.test.ts": [],
+        "src/__tests__/router.attach.test.ts": [
+          "@/router"
+        ],
+        "src/__tests__/router.core.test.ts": [],
+        "src/__tests__/router.dynamic.test.ts": [],
+        "src/__tests__/router.guards.test.ts": [],
+        "src/__tests__/router.hash.test.ts": [],
+        "src/__tests__/router.hooks.test.ts": [],
+        "src/__tests__/router.integration.test.ts": [],
+        "src/__tests__/router.navigation.test.ts": [],
+        "src/__tests__/router.recursive-rendering.test.ts": [],
+        "src/__tests__/router.remote.test.ts": [],
+        "src/__tests__/utils.findOutlet.test.ts": [
+          "@/utils/findOutlet"
+        ],
+        "src/__tests__/utils.matchRoute.test.ts": [
+          "@/utils/matchRoute",
+          "@/utils"
+        ],
+        "src/__tests__/utils.normalizeRoutes.test.ts": [
+          "@/utils/normalizeRoutes"
+        ],
+        "src/__tests__/utils.parseParams.test.ts": [
+          "@/utils/parseParams",
+          "@/utils/extractQueryParams"
+        ],
+        "src/__tests__/utils.traverseOutlet.test.ts": [
+          "@/utils/traverseOutlet"
+        ],
+        "src/components/base/index.ts": [
+          "@/utils/triggerEvent"
+        ],
+        "src/components/feedback/index.ts": [
+          "./styles"
+        ]
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 45,
+      "files": [
+        {
+          "path": "src/components/feedback/styles.ts",
+          "language": "typescript",
+          "sizeLines": 133,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/index.ts",
+          "language": "typescript",
+          "sizeLines": 7,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/link/index.ts",
+          "language": "typescript",
+          "sizeLines": 127,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/loading/index.ts",
+          "language": "typescript",
+          "sizeLines": 32,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/loading/styles.ts",
+          "language": "typescript",
+          "sizeLines": 38,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/outlet/base.layout.ts",
+          "language": "typescript",
+          "sizeLines": 47,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/outlet/collapse.layout.ts",
+          "language": "typescript",
+          "sizeLines": 184,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/outlet/index.ts",
+          "language": "typescript",
+          "sizeLines": 356,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/outlet/stack.layout.ts",
+          "language": "typescript",
+          "sizeLines": 41,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/outlet/styles.ts",
+          "language": "typescript",
+          "sizeLines": 52,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/outlet/tabs.layout.ts",
+          "language": "typescript",
+          "sizeLines": 262,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/outlet/viewContainer.ts",
+          "language": "typescript",
+          "sizeLines": 130,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/view-meta/index.ts",
+          "language": "typescript",
+          "sizeLines": 197,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/directives/cssVar.ts",
+          "language": "typescript",
+          "sizeLines": 85,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/directives/injectData.ts",
+          "language": "typescript",
+          "sizeLines": 87,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/errors.ts",
+          "language": "typescript",
+          "sizeLines": 72,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/alpine.ts",
+          "language": "typescript",
+          "sizeLines": 116,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/baseLoader.ts",
+          "language": "typescript",
+          "sizeLines": 459,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/context.ts",
+          "language": "typescript",
+          "sizeLines": 45,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/dataLoader.ts",
+          "language": "typescript",
+          "sizeLines": 102,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/emitter.ts",
+          "language": "typescript",
+          "sizeLines": 14,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/hooks.ts",
+          "language": "typescript",
+          "sizeLines": 204,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/index.ts",
+          "language": "typescript",
+          "sizeLines": 13,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/keepAlive.ts",
+          "language": "typescript",
+          "sizeLines": 15,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/modal.ts",
+          "language": "typescript",
+          "sizeLines": 1156,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/components/feedback/styles.ts": [],
+        "src/components/index.ts": [],
+        "src/components/link/index.ts": [
+          "../base",
+          "@/utils/joinPath"
+        ],
+        "src/components/loading/index.ts": [
+          "./styles"
+        ],
+        "src/components/loading/styles.ts": [],
+        "src/components/outlet/base.layout.ts": [],
+        "src/components/outlet/collapse.layout.ts": [
+          "./base.layout"
+        ],
+        "src/components/outlet/index.ts": [
+          "./styles",
+          "../base",
+          "./viewContainer",
+          "./base.layout",
+          "./stack.layout",
+          "./tabs.layout",
+          "./collapse.layout",
+          "@/utils/findOutlet"
+        ],
+        "src/components/outlet/stack.layout.ts": [
+          "./base.layout"
+        ],
+        "src/components/outlet/styles.ts": [],
+        "src/components/outlet/tabs.layout.ts": [
+          "./base.layout"
+        ],
+        "src/components/outlet/viewContainer.ts": [],
+        "src/components/view-meta/index.ts": [],
+        "src/directives/cssVar.ts": [],
+        "src/directives/injectData.ts": [],
+        "src/errors.ts": [],
+        "src/features/alpine.ts": [
+          "@/directives/cssVar",
+          "@/directives/injectData"
+        ],
+        "src/features/baseLoader.ts": [
+          "@/utils/getRouteVars",
+          "@/utils/prefixBaseUrl",
+          "@/utils/getSignalHash",
+          "@/errors"
+        ],
+        "src/features/context.ts": [],
+        "src/features/dataLoader.ts": [
+          "./baseLoader",
+          "@/utils/getJsonFileFromUrl"
+        ],
+        "src/features/emitter.ts": [
+          "@/utils"
+        ],
+        "src/features/hooks.ts": [],
+        "src/features/index.ts": [],
+        "src/features/keepAlive.ts": [],
+        "src/features/modal.ts": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 46,
+      "files": [
+        {
+          "path": "src/features/preload.ts",
+          "language": "typescript",
+          "sizeLines": 12,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/redirect.ts",
+          "language": "typescript",
+          "sizeLines": 13,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/render.ts",
+          "language": "typescript",
+          "sizeLines": 358,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/routes.ts",
+          "language": "typescript",
+          "sizeLines": 117,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/transition.ts",
+          "language": "typescript",
+          "sizeLines": 10,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/viewLoader.ts",
+          "language": "typescript",
+          "sizeLines": 108,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/index.ts",
+          "language": "typescript",
+          "sizeLines": 31,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/logger.ts",
+          "language": "typescript",
+          "sizeLines": 107,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/pages/errors/404.ts",
+          "language": "typescript",
+          "sizeLines": 19,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/pages/errors/500.ts",
+          "language": "typescript",
+          "sizeLines": 18,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/pages/errors/default.ts",
+          "language": "typescript",
+          "sizeLines": 22,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/pages/errors/index.ts",
+          "language": "typescript",
+          "sizeLines": 10,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/router.ts",
+          "language": "typescript",
+          "sizeLines": 448,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/types/config.ts",
+          "language": "typescript",
+          "sizeLines": 143,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/types/data.ts",
+          "language": "typescript",
+          "sizeLines": 44,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/types/events.ts",
+          "language": "typescript",
+          "sizeLines": 54,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/types/hooks.ts",
+          "language": "typescript",
+          "sizeLines": 117,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/types/index.ts",
+          "language": "typescript",
+          "sizeLines": 30,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/types/modals.ts",
+          "language": "typescript",
+          "sizeLines": 141,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/types/routes.ts",
+          "language": "typescript",
+          "sizeLines": 449,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/types/utils.ts",
+          "language": "typescript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/emitter.ts",
+          "language": "typescript",
+          "sizeLines": 248,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/extractQueryParams.ts",
+          "language": "typescript",
+          "sizeLines": 24,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/findOutlet.ts",
+          "language": "typescript",
+          "sizeLines": 52,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/generateRouteHash.ts",
+          "language": "typescript",
+          "sizeLines": 37,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/features/preload.ts": [],
+        "src/features/redirect.ts": [],
+        "src/features/render.ts": [
+          "@/utils/findOutlet",
+          "@/errors"
+        ],
+        "src/features/routes.ts": [
+          "@/utils/matchRoute",
+          "@/utils/normalizeRoutes"
+        ],
+        "src/features/transition.ts": [],
+        "src/features/viewLoader.ts": [
+          "./baseLoader",
+          "@/utils/sanitizeHTML",
+          "@/utils/scopeStyle"
+        ],
+        "src/index.ts": [
+          "./components",
+          "./utils/params",
+          "./router"
+        ],
+        "src/logger.ts": [],
+        "src/pages/errors/404.ts": [],
+        "src/pages/errors/500.ts": [],
+        "src/pages/errors/default.ts": [],
+        "src/pages/errors/index.ts": [
+          "./404",
+          "./500",
+          "./default"
+        ],
+        "src/router.ts": [
+          "./features",
+          "@/utils/getBaseUrl",
+          "./features/hooks",
+          "./features/routes",
+          "./features/alpine",
+          "./utils",
+          "./logger",
+          "./utils/removePathPrefix",
+          "./pages/errors"
+        ],
+        "src/types/config.ts": [],
+        "src/types/data.ts": [],
+        "src/types/events.ts": [],
+        "src/types/hooks.ts": [],
+        "src/types/index.ts": [],
+        "src/types/modals.ts": [],
+        "src/types/routes.ts": [],
+        "src/types/utils.ts": [],
+        "src/utils/emitter.ts": [],
+        "src/utils/extractQueryParams.ts": [],
+        "src/utils/findOutlet.ts": [],
+        "src/utils/generateRouteHash.ts": [
+          "./params",
+          "./quickHash"
+        ]
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 47,
+      "files": [
+        {
+          "path": "src/utils/getBaseUrl.ts",
+          "language": "typescript",
+          "sizeLines": 60,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/getId.ts",
+          "language": "typescript",
+          "sizeLines": 8,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/getJsonFileFromUrl.ts",
+          "language": "typescript",
+          "sizeLines": 103,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/getRouteDataOptions.ts",
+          "language": "typescript",
+          "sizeLines": 18,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/getRouteHash.ts",
+          "language": "typescript",
+          "sizeLines": 18,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/getRouteVars.ts",
+          "language": "typescript",
+          "sizeLines": 21,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/getRouteViewOptions.ts",
+          "language": "typescript",
+          "sizeLines": 18,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/getSignalHash.ts",
+          "language": "typescript",
+          "sizeLines": 21,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/hashUtils.ts",
+          "language": "typescript",
+          "sizeLines": 56,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/index.ts",
+          "language": "typescript",
+          "sizeLines": 12,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/injectStylesheet.ts",
+          "language": "typescript",
+          "sizeLines": 42,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/isExternalLink.ts",
+          "language": "typescript",
+          "sizeLines": 50,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/isRouteItem.ts",
+          "language": "typescript",
+          "sizeLines": 13,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/joinPath.ts",
+          "language": "typescript",
+          "sizeLines": 37,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/matchRoute.ts",
+          "language": "typescript",
+          "sizeLines": 1159,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/normalizeRoutes.ts",
+          "language": "typescript",
+          "sizeLines": 221,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/params.ts",
+          "language": "typescript",
+          "sizeLines": 99,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/parseParams.ts",
+          "language": "typescript",
+          "sizeLines": 91,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/prefixBaseUrl.ts",
+          "language": "typescript",
+          "sizeLines": 29,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/quickHash.ts",
+          "language": "typescript",
+          "sizeLines": 35,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/removePathPrefix.ts",
+          "language": "typescript",
+          "sizeLines": 55,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/sanitizeHTML.ts",
+          "language": "typescript",
+          "sizeLines": 31,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/scopeStyle.ts",
+          "language": "typescript",
+          "sizeLines": 199,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/traverseOutlet.ts",
+          "language": "typescript",
+          "sizeLines": 66,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/triggerEvent.ts",
+          "language": "typescript",
+          "sizeLines": 10,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/utils/getBaseUrl.ts": [],
+        "src/utils/getId.ts": [],
+        "src/utils/getJsonFileFromUrl.ts": [],
+        "src/utils/getRouteDataOptions.ts": [],
+        "src/utils/getRouteHash.ts": [
+          "./getSignalHash"
+        ],
+        "src/utils/getRouteVars.ts": [],
+        "src/utils/getRouteViewOptions.ts": [],
+        "src/utils/getSignalHash.ts": [
+          "./getRouteVars",
+          "./params",
+          "./quickHash"
+        ],
+        "src/utils/hashUtils.ts": [],
+        "src/utils/index.ts": [],
+        "src/utils/injectStylesheet.ts": [
+          "./getId"
+        ],
+        "src/utils/isExternalLink.ts": [],
+        "src/utils/isRouteItem.ts": [],
+        "src/utils/joinPath.ts": [],
+        "src/utils/matchRoute.ts": [
+          "./joinPath",
+          "./extractQueryParams",
+          "./getRouteHash",
+          "@/errors",
+          "./isExternalLink"
+        ],
+        "src/utils/normalizeRoutes.ts": [],
+        "src/utils/params.ts": [],
+        "src/utils/parseParams.ts": [],
+        "src/utils/prefixBaseUrl.ts": [
+          "./joinPath"
+        ],
+        "src/utils/quickHash.ts": [],
+        "src/utils/removePathPrefix.ts": [],
+        "src/utils/sanitizeHTML.ts": [],
+        "src/utils/scopeStyle.ts": [],
+        "src/utils/traverseOutlet.ts": [],
+        "src/utils/triggerEvent.ts": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 48,
+      "files": [
+        {
+          "path": "vite.config.ts",
+          "language": "typescript",
+          "sizeLines": 34,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "vite.config.ts": []
+      },
+      "neighborMap": {}
+    }
+  ]
+}

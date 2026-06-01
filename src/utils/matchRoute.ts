@@ -35,14 +35,6 @@ let matchedId: number = 0;
  */
 export interface MatchRouteOptions {
     /**
-     * 自动匹配子路由选项
-     * 当设置为 true 时，如果子路由中没有 default: true 的路由，
-     * 会自动使用 children[0] 作为默认路由
-     * @default false
-     */
-    autoMatchSubRoute?: boolean;
-
-    /**
      * 全局重定向配置（后备重定向）
      * 当匹配的路由项没有 redirect 配置时，使用此配置
      * 优先级低于 KylinRouteItem.redirect
@@ -478,8 +470,7 @@ function replacePathParams(path: string, params: Record<string, string>): string
 
 /**
  * 在子路由中递归查找默认路由
- * 1. 优先选择 default: true 的路由
- * 2. 如果 autoMatchSubRoute 为 true 且没有 default: true，使用 children[0] 作为后备
+ * 只选择 default: true 的路由
  * 返回默认路由及其所有嵌套的默认子路由
  *
  * view/data 继承规则：
@@ -491,7 +482,6 @@ function findDefaultRoute(
     parentMatchedRoute: KylinMatchedRouteItem,
     inputQuery: Record<string, string>,
     id: number,
-    autoMatchSubRoute: boolean,
 ): KylinMatchedRouteItem[] | null {
     // 查找第一个 default: true 的路由
     for (const route of routes) {
@@ -525,7 +515,6 @@ function findDefaultRoute(
                     currentMatch,
                     inputQuery,
                     id,
-                    autoMatchSubRoute,
                 );
                 if (childDefaults && childDefaults.length > 0) {
                     return [currentMatch, ...childDefaults];
@@ -534,45 +523,6 @@ function findDefaultRoute(
 
             return [currentMatch];
         }
-    }
-
-    // 如果没有 default: true 且 autoMatchSubRoute 为 true，使用第一个子路由作为后备
-    if (autoMatchSubRoute && routes.length > 0) {
-        const route = routes[0]!;
-        const fullPath = joinPath(parentMatchedRoute.path, route.path);
-        const mergedParams = { ...parentMatchedRoute.params, ...route.params };
-        const mergedQuery = { ...route.query, ...inputQuery };
-
-        const fullPathWithDefaults = replacePathParams(fullPath, mergedParams);
-        const fullUrl = normalizeUrl(fullPathWithDefaults);
-
-        const currentMatch: KylinMatchedRouteItem = {
-            route,
-            params: mergedParams,
-            query: mergedQuery,
-            state: {},
-            path: fullPath,
-            url: fullUrl,
-            hash: "",
-            id,
-        };
-        currentMatch.hash = getRouteHash(currentMatch);
-
-        // 递归查找下一级默认路由
-        if (route.children && route.children.length > 0) {
-            const childDefaults = findDefaultRoute(
-                route.children,
-                currentMatch,
-                inputQuery,
-                id,
-                autoMatchSubRoute,
-            );
-            if (childDefaults && childDefaults.length > 0) {
-                return [currentMatch, ...childDefaults];
-            }
-        }
-
-        return [currentMatch];
     }
 
     return null;
@@ -704,7 +654,6 @@ function processSingleRoute(
     parentMatchedRoute: KylinMatchedRouteItem | null,
     inputQuery: Record<string, string>,
     id: number,
-    autoMatchSubRoute: boolean,
 ): KylinMatchedRouteItem[] | null {
     const parentPath = parentMatchedRoute?.path || "";
     const parentParams = parentMatchedRoute?.params || {};
@@ -745,7 +694,6 @@ function processSingleRoute(
                 currentMatch,
                 inputQuery,
                 id,
-                autoMatchSubRoute,
             );
             if (defaultMatches && defaultMatches.length > 0) {
                 return [currentMatch, ...defaultMatches];
@@ -758,7 +706,6 @@ function processSingleRoute(
                 currentMatch,
                 inputQuery,
                 id,
-                autoMatchSubRoute,
             );
             if (childMatches.length > 0) {
                 return [currentMatch, ...childMatches];
@@ -781,7 +728,6 @@ function processSingleRoute(
             currentMatch,
             inputQuery,
             id,
-            autoMatchSubRoute,
         );
 
         if (childMatches.length > 0) {
@@ -839,7 +785,6 @@ function _matchRoutesInternal(
     parentMatchedRoute: KylinMatchedRouteItem | null,
     inputQuery: Record<string, string> = {},
     id: number,
-    autoMatchSubRoute: boolean,
 ): KylinMatchedRouteItem[] {
     // 按优先级分组遍历：具体路径 > 参数化路径 > 通配符
     // 第一组：具体路径和参数化路径（非通配符）
@@ -852,7 +797,6 @@ function _matchRoutesInternal(
             parentMatchedRoute,
             inputQuery,
             id,
-            autoMatchSubRoute,
         );
         if (result) return result;
     }
@@ -867,7 +811,6 @@ function _matchRoutesInternal(
             parentMatchedRoute,
             inputQuery,
             id,
-            autoMatchSubRoute,
         );
         if (result) return result;
     }
@@ -910,7 +853,6 @@ export function matchRoute(
 ): KylinMatchedRouteItem[] {
     const { pathname: pathWithoutQuery, query: inputQuery } = parseQueryString(path);
     const normalizedPath = normalizePath(pathWithoutQuery);
-    const autoMatchSubRoute = options?.autoMatchSubRoute ?? true;
     const redirectChain = options?._redirectChain || [];
     const maxRedirect = options?.maxRedirect ?? 10;
     const namedRoutes = options?.namedRoutes;
@@ -938,7 +880,6 @@ export function matchRoute(
         null,
         inputQuery,
         currentId,
-        autoMatchSubRoute,
     );
 
     // 检查子路由是否有真正的匹配（不是未匹配项）
@@ -954,7 +895,6 @@ export function matchRoute(
             rootMatch,
             inputQuery,
             currentId,
-            autoMatchSubRoute,
         );
 
         if (defaultMatches && defaultMatches.length > 0) {
@@ -987,7 +927,6 @@ export function matchRoute(
                         defaultChildMatch,
                         inputQuery,
                         currentId,
-                        autoMatchSubRoute,
                     );
                     if (nestedDefaults && nestedDefaults.length > 0) {
                         childMatches = [rootMatch, defaultChildMatch, ...nestedDefaults];

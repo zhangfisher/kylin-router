@@ -165,6 +165,12 @@ export class KylinOutlet extends KylinRouterElementBase {
      */
     createViewContainer(matched: KylinMatchedRouteItem, options?: ViewContainerOptions) {
         const viewContainer = new ViewContainer(this, options);
+
+        // 检测是否为参数变化导致的容器复用
+        const existingContainer = this.getViewContainer(viewContainer.viewHash);
+        const isReusedWithParamChange = existingContainer &&
+                                        existingContainer.dataset.url !== matched.url;
+
         // 记录
         viewContainer.container.setAttribute("data-url", matched.url);
 
@@ -177,8 +183,36 @@ export class KylinOutlet extends KylinRouterElementBase {
         }
         if (Object.keys(extraData).length > 0) {
             viewContainer.container.setAttribute("x-inject-data", JSON.stringify(extraData));
+
+            // 如果是参数变化导致的容器复用，直接更新 Alpine 组件数据
+            if (isReusedWithParamChange) {
+                this._updateAlpineComponentData(viewContainer.container, extraData);
+            }
         }
         return viewContainer;
+    }
+
+    /**
+     * 直接更新 Alpine 组件的响应式数据
+     * 用于参数变化时同步更新已初始化的组件状态
+     */
+    private _updateAlpineComponentData(container: HTMLElement, newData: Record<string, any>): void {
+        try {
+            const Alpine = (globalThis as any).Alpine;
+            if (!Alpine) return;
+
+            const componentData = Alpine.$data(container);
+            if (componentData) {
+                // 直接赋值即可触发 Alpine 的响应式更新
+                Object.entries(newData).forEach(([key, value]) => {
+                    if (key in componentData) {
+                        componentData[key] = value;
+                    }
+                });
+            }
+        } catch (error) {
+            console.warn('Failed to update Alpine component data:', error);
+        }
     }
 
     // 监听属性变化

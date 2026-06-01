@@ -1,0 +1,2352 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 20,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": ".agents/skills/tsdown/references/README.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 139,
+      "nonEmptyLines": 110,
+      "sections": [
+        {
+          "heading": "tsdown Skill References",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Created Files (35 total)",
+          "level": 2,
+          "line": 5
+        },
+        {
+          "heading": "Core Guides (3)",
+          "level": 3,
+          "line": 7
+        },
+        {
+          "heading": "Configuration Options (20)",
+          "level": 3,
+          "line": 12
+        },
+        {
+          "heading": "Executable (1)",
+          "level": 3,
+          "line": 34
+        },
+        {
+          "heading": "Advanced Topics (6)",
+          "level": 3,
+          "line": 37
+        },
+        {
+          "heading": "Advanced (continued)",
+          "level": 3,
+          "line": 44
+        },
+        {
+          "heading": "Framework Recipes (5)",
+          "level": 3,
+          "line": 47
+        },
+        {
+          "heading": "Reference (1)",
+          "level": 3,
+          "line": 54
+        },
+        {
+          "heading": "Coverage Status",
+          "level": 2,
+          "line": 57
+        },
+        {
+          "heading": "Current Skill Features",
+          "level": 2,
+          "line": 61
+        },
+        {
+          "heading": "✅ Core Functionality",
+          "level": 3,
+          "line": 65
+        },
+        {
+          "heading": "✅ Build Options",
+          "level": 3,
+          "line": 73
+        },
+        {
+          "heading": "✅ Advanced Features",
+          "level": 3,
+          "line": 83
+        },
+        {
+          "heading": "✅ Framework & Runtime Support",
+          "level": 3,
+          "line": 95
+        },
+        {
+          "heading": "✅ Migration",
+          "level": 3,
+          "line": 102
+        },
+        {
+          "heading": "Usage",
+          "level": 2,
+          "line": 106
+        },
+        {
+          "heading": "File Naming Convention",
+          "level": 2,
+          "line": 110
+        },
+        {
+          "heading": "Creating New Reference Files",
+          "level": 2,
+          "line": 119
+        },
+        {
+          "heading": "Updating Existing Files",
+          "level": 2,
+          "line": 130
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 20
+      }
+    },
+    {
+      "path": ".agents/skills/tsdown/references/advanced-benchmark.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 8,
+      "nonEmptyLines": 5,
+      "sections": [
+        {
+          "heading": "Benchmark",
+          "level": 1,
+          "line": 1
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": ".agents/skills/tsdown/references/advanced-ci.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 89,
+      "nonEmptyLines": 67,
+      "sections": [
+        {
+          "heading": "CI Environment Support",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 5
+        },
+        {
+          "heading": "CI-Aware Values",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "Supported Options",
+          "level": 2,
+          "line": 20
+        },
+        {
+          "heading": "Usage",
+          "level": 2,
+          "line": 33
+        },
+        {
+          "heading": "String Form",
+          "level": 3,
+          "line": 35
+        },
+        {
+          "heading": "Object Form",
+          "level": 3,
+          "line": 45
+        },
+        {
+          "heading": "Config Function",
+          "level": 3,
+          "line": 62
+        },
+        {
+          "heading": "Typical CI Configuration",
+          "level": 2,
+          "line": 73
+        },
+        {
+          "heading": "Related Options",
+          "level": 2,
+          "line": 86
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 10
+      }
+    },
+    {
+      "path": ".agents/skills/tsdown/references/advanced-hooks.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 363,
+      "nonEmptyLines": 288,
+      "sections": [
+        {
+          "heading": "Lifecycle Hooks",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 5
+        },
+        {
+          "heading": "Usage Patterns",
+          "level": 2,
+          "line": 11
+        },
+        {
+          "heading": "Object Syntax",
+          "level": 3,
+          "line": 13
+        },
+        {
+          "heading": "Function Syntax",
+          "level": 3,
+          "line": 29
+        },
+        {
+          "heading": "Available Hooks",
+          "level": 2,
+          "line": 46
+        },
+        {
+          "heading": "`build:prepare`",
+          "level": 3,
+          "line": 48
+        },
+        {
+          "heading": "`build:before`",
+          "level": 3,
+          "line": 77
+        },
+        {
+          "heading": "`build:done`",
+          "level": 3,
+          "line": 111
+        },
+        {
+          "heading": "Common Patterns",
+          "level": 2,
+          "line": 147
+        },
+        {
+          "heading": "Build Notifications",
+          "level": 3,
+          "line": 149
+        },
+        {
+          "heading": "Conditional Plugin Injection",
+          "level": 3,
+          "line": 165
+        },
+        {
+          "heading": "Custom File Copy",
+          "level": 3,
+          "line": 180
+        },
+        {
+          "heading": "Build Metrics",
+          "level": 3,
+          "line": 195
+        },
+        {
+          "heading": "Format-Specific Logic",
+          "level": 3,
+          "line": 216
+        },
+        {
+          "heading": "Deployment Hook",
+          "level": 3,
+          "line": 237
+        },
+        {
+          "heading": "Advanced Usage",
+          "level": 2,
+          "line": 252
+        },
+        {
+          "heading": "Multiple Hooks",
+          "level": 3,
+          "line": 254
+        },
+        {
+          "heading": "Async Hooks",
+          "level": 3,
+          "line": 272
+        },
+        {
+          "heading": "Error Handling",
+          "level": 3,
+          "line": 289
+        },
+        {
+          "heading": "Hookable API",
+          "level": 2,
+          "line": 306
+        },
+        {
+          "heading": "Tips",
+          "level": 2,
+          "line": 331
+        },
+        {
+          "heading": "Troubleshooting",
+          "level": 2,
+          "line": 340
+        },
+        {
+          "heading": "Hook Not Called",
+          "level": 3,
+          "line": 342
+        },
+        {
+          "heading": "Build Fails in Hook",
+          "level": 3,
+          "line": 348
+        },
+        {
+          "heading": "Context Undefined",
+          "level": 3,
+          "line": 354
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "line": 359
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 27
+      }
+    },
+    {
+      "path": ".agents/skills/tsdown/references/advanced-plugins.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 381,
+      "nonEmptyLines": 279,
+      "sections": [
+        {
+          "heading": "Plugins",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 5
+        },
+        {
+          "heading": "Supported Ecosystems",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "1. Rolldown Plugins",
+          "level": 3,
+          "line": 11
+        },
+        {
+          "heading": "2. Unplugin",
+          "level": 3,
+          "line": 25
+        },
+        {
+          "heading": "3. Rollup Plugins",
+          "level": 3,
+          "line": 44
+        },
+        {
+          "heading": "4. Vite Plugins",
+          "level": 3,
+          "line": 73
+        },
+        {
+          "heading": "Usage",
+          "level": 2,
+          "line": 92
+        },
+        {
+          "heading": "Basic Plugin Usage",
+          "level": 3,
+          "line": 94
+        },
+        {
+          "heading": "Multiple Plugins",
+          "level": 3,
+          "line": 106
+        },
+        {
+          "heading": "Conditional Plugins",
+          "level": 3,
+          "line": 123
+        },
+        {
+          "heading": "Common Plugin Patterns",
+          "level": 2,
+          "line": 136
+        },
+        {
+          "heading": "JSON Import",
+          "level": 3,
+          "line": 138
+        },
+        {
+          "heading": "Node Resolve",
+          "level": 3,
+          "line": 148
+        },
+        {
+          "heading": "CommonJS",
+          "level": 3,
+          "line": 158
+        },
+        {
+          "heading": "Replace",
+          "level": 3,
+          "line": 168
+        },
+        {
+          "heading": "Auto Import",
+          "level": 3,
+          "line": 183
+        },
+        {
+          "heading": "Vue Components",
+          "level": 3,
+          "line": 198
+        },
+        {
+          "heading": "Framework-Specific Plugins",
+          "level": 2,
+          "line": 212
+        },
+        {
+          "heading": "React",
+          "level": 3,
+          "line": 214
+        },
+        {
+          "heading": "Vue",
+          "level": 3,
+          "line": 228
+        },
+        {
+          "heading": "Solid",
+          "level": 3,
+          "line": 242
+        },
+        {
+          "heading": "Svelte",
+          "level": 3,
+          "line": 256
+        },
+        {
+          "heading": "Writing Custom Plugins",
+          "level": 2,
+          "line": 270
+        },
+        {
+          "heading": "Basic Plugin Structure",
+          "level": 3,
+          "line": 274
+        },
+        {
+          "heading": "Using Custom Plugin",
+          "level": 3,
+          "line": 298
+        },
+        {
+          "heading": "Plugin Configuration",
+          "level": 2,
+          "line": 308
+        },
+        {
+          "heading": "Plugin-Specific Options",
+          "level": 3,
+          "line": 310
+        },
+        {
+          "heading": "Plugin Order",
+          "level": 3,
+          "line": 314
+        },
+        {
+          "heading": "Troubleshooting",
+          "level": 2,
+          "line": 328
+        },
+        {
+          "heading": "Type Errors with Rollup/Vite Plugins",
+          "level": 3,
+          "line": 330
+        },
+        {
+          "heading": "Plugin Not Working",
+          "level": 3,
+          "line": 345
+        },
+        {
+          "heading": "Vite Plugin Fails",
+          "level": 3,
+          "line": 352
+        },
+        {
+          "heading": "Resources",
+          "level": 2,
+          "line": 360
+        },
+        {
+          "heading": "Tips",
+          "level": 2,
+          "line": 367
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "line": 376
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 36
+      }
+    },
+    {
+      "path": ".agents/skills/tsdown/references/advanced-programmatic.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 378,
+      "nonEmptyLines": 288,
+      "sections": [
+        {
+          "heading": "Programmatic Usage",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 5
+        },
+        {
+          "heading": "Basic Usage",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "Simple Build",
+          "level": 3,
+          "line": 11
+        },
+        {
+          "heading": "With Options",
+          "level": 3,
+          "line": 23
+        },
+        {
+          "heading": "API Reference",
+          "level": 2,
+          "line": 39
+        },
+        {
+          "heading": "build()",
+          "level": 3,
+          "line": 41
+        },
+        {
+          "heading": "Configuration Object",
+          "level": 2,
+          "line": 60
+        },
+        {
+          "heading": "Common Patterns",
+          "level": 2,
+          "line": 89
+        },
+        {
+          "heading": "Custom Build Script",
+          "level": 3,
+          "line": 91
+        },
+        {
+          "heading": "Multiple Builds",
+          "level": 3,
+          "line": 118
+        },
+        {
+          "heading": "Conditional Build",
+          "level": 3,
+          "line": 141
+        },
+        {
+          "heading": "With Error Handling",
+          "level": 3,
+          "line": 157
+        },
+        {
+          "heading": "Automated Workflow",
+          "level": 3,
+          "line": 175
+        },
+        {
+          "heading": "Build with Post-Processing",
+          "level": 3,
+          "line": 207
+        },
+        {
+          "heading": "Watch Mode",
+          "level": 2,
+          "line": 228
+        },
+        {
+          "heading": "Integration Examples",
+          "level": 2,
+          "line": 242
+        },
+        {
+          "heading": "With Task Runner",
+          "level": 3,
+          "line": 244
+        },
+        {
+          "heading": "With Custom CLI",
+          "level": 3,
+          "line": 264
+        },
+        {
+          "heading": "With CI/CD",
+          "level": 3,
+          "line": 288
+        },
+        {
+          "heading": "TypeScript Support",
+          "level": 2,
+          "line": 310
+        },
+        {
+          "heading": "Tips",
+          "level": 2,
+          "line": 325
+        },
+        {
+          "heading": "Troubleshooting",
+          "level": 2,
+          "line": 334
+        },
+        {
+          "heading": "Import Errors",
+          "level": 3,
+          "line": 336
+        },
+        {
+          "heading": "Type Errors",
+          "level": 3,
+          "line": 343
+        },
+        {
+          "heading": "Build Fails Silently",
+          "level": 3,
+          "line": 350
+        },
+        {
+          "heading": "Options Not Working",
+          "level": 3,
+          "line": 362
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "line": 373
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 28
+      }
+    },
+    {
+      "path": ".agents/skills/tsdown/references/advanced-rolldown-options.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 117,
+      "nonEmptyLines": 89,
+      "sections": [
+        {
+          "heading": "Customizing Rolldown Options",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 5
+        },
+        {
+          "heading": "Input Options",
+          "level": 2,
+          "line": 11
+        },
+        {
+          "heading": "Using an Object",
+          "level": 3,
+          "line": 13
+        },
+        {
+          "heading": "Using a Function",
+          "level": 3,
+          "line": 23
+        },
+        {
+          "heading": "Output Options",
+          "level": 2,
+          "line": 36
+        },
+        {
+          "heading": "Using an Object",
+          "level": 3,
+          "line": 38
+        },
+        {
+          "heading": "Using a Function",
+          "level": 3,
+          "line": 48
+        },
+        {
+          "heading": "Common Use Cases",
+          "level": 2,
+          "line": 61
+        },
+        {
+          "heading": "Preserve Legal Comments",
+          "level": 3,
+          "line": 63
+        },
+        {
+          "heading": "Custom Working Directory",
+          "level": 3,
+          "line": 74
+        },
+        {
+          "heading": "Format-Specific Options",
+          "level": 3,
+          "line": 85
+        },
+        {
+          "heading": "When to Use",
+          "level": 2,
+          "line": 100
+        },
+        {
+          "heading": "Tips",
+          "level": 2,
+          "line": 106
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "line": 113
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 15
+      }
+    },
+    {
+      "path": ".agents/skills/tsdown/references/guide-getting-started.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 178,
+      "nonEmptyLines": 130,
+      "sections": [
+        {
+          "heading": "Getting Started",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Installation",
+          "level": 2,
+          "line": 5
+        },
+        {
+          "heading": "Quick Start Templates",
+          "level": 2,
+          "line": 20
+        },
+        {
+          "heading": "First Bundle",
+          "level": 2,
+          "line": 34
+        },
+        {
+          "heading": "1. Create Source Files",
+          "level": 3,
+          "line": 36
+        },
+        {
+          "heading": "2. Create Config File",
+          "level": 3,
+          "line": 49
+        },
+        {
+          "heading": "3. Run Build",
+          "level": 3,
+          "line": 60
+        },
+        {
+          "heading": "4. Test Output",
+          "level": 3,
+          "line": 68
+        },
+        {
+          "heading": "Add to npm Scripts",
+          "level": 2,
+          "line": 75
+        },
+        {
+          "heading": "CLI Commands",
+          "level": 2,
+          "line": 91
+        },
+        {
+          "heading": "Basic Configurations",
+          "level": 2,
+          "line": 110
+        },
+        {
+          "heading": "TypeScript Library (ESM + CJS)",
+          "level": 3,
+          "line": 112
+        },
+        {
+          "heading": "Browser Library (IIFE)",
+          "level": 3,
+          "line": 123
+        },
+        {
+          "heading": "Multiple Entry Points",
+          "level": 3,
+          "line": 135
+        },
+        {
+          "heading": "Using Plugins",
+          "level": 2,
+          "line": 149
+        },
+        {
+          "heading": "Watch Mode",
+          "level": 2,
+          "line": 162
+        },
+        {
+          "heading": "Next Steps",
+          "level": 2,
+          "line": 172
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 17
+      }
+    },
+    {
+      "path": ".agents/skills/tsdown/references/guide-introduction.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 42,
+      "nonEmptyLines": 28,
+      "sections": [
+        {
+          "heading": "Introduction",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Why tsdown?",
+          "level": 2,
+          "line": 5
+        },
+        {
+          "heading": "Plugin Ecosystem",
+          "level": 2,
+          "line": 13
+        },
+        {
+          "heading": "What Can It Bundle?",
+          "level": 2,
+          "line": 17
+        },
+        {
+          "heading": "Key Differences from Rolldown",
+          "level": 2,
+          "line": 25
+        },
+        {
+          "heading": "Prior Arts",
+          "level": 2,
+          "line": 35
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "line": 39
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 7
+      }
+    },
+    {
+      "path": ".agents/skills/tsdown/references/guide-migrate-from-tsup.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 189,
+      "nonEmptyLines": 141,
+      "sections": [
+        {
+          "heading": "Migrate from tsup",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 5
+        },
+        {
+          "heading": "Automatic Migration",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "Single Package",
+          "level": 3,
+          "line": 11
+        },
+        {
+          "heading": "Monorepo",
+          "level": 3,
+          "line": 17
+        },
+        {
+          "heading": "Migration Options",
+          "level": 3,
+          "line": 27
+        },
+        {
+          "heading": "Key Differences",
+          "level": 2,
+          "line": 34
+        },
+        {
+          "heading": "Default Values",
+          "level": 3,
+          "line": 36
+        },
+        {
+          "heading": "New Features in tsdown",
+          "level": 3,
+          "line": 45
+        },
+        {
+          "heading": "Node Protocol Control",
+          "level": 4,
+          "line": 47
+        },
+        {
+          "heading": "Better Workspace Support",
+          "level": 4,
+          "line": 57
+        },
+        {
+          "heading": "Migration Checklist",
+          "level": 2,
+          "line": 65
+        },
+        {
+          "heading": "Common Migration Patterns",
+          "level": 2,
+          "line": 74
+        },
+        {
+          "heading": "Basic Library",
+          "level": 3,
+          "line": 76
+        },
+        {
+          "heading": "With Custom Target",
+          "level": 3,
+          "line": 97
+        },
+        {
+          "heading": "CLI Scripts",
+          "level": 3,
+          "line": 117
+        },
+        {
+          "heading": "Feature Compatibility",
+          "level": 2,
+          "line": 139
+        },
+        {
+          "heading": "Supported tsup Features",
+          "level": 3,
+          "line": 141
+        },
+        {
+          "heading": "Missing Features",
+          "level": 3,
+          "line": 155
+        },
+        {
+          "heading": "Troubleshooting",
+          "level": 2,
+          "line": 159
+        },
+        {
+          "heading": "Build Fails After Migration",
+          "level": 3,
+          "line": 161
+        },
+        {
+          "heading": "Different Output",
+          "level": 3,
+          "line": 168
+        },
+        {
+          "heading": "Performance Issues",
+          "level": 3,
+          "line": 174
+        },
+        {
+          "heading": "Getting Help",
+          "level": 2,
+          "line": 181
+        },
+        {
+          "heading": "Acknowledgements",
+          "level": 2,
+          "line": 187
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 25
+      }
+    },
+    {
+      "path": ".agents/skills/tsdown/references/option-cjs-default.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 98,
+      "nonEmptyLines": 71,
+      "sections": [
+        {
+          "heading": "CJS Default Export",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 5
+        },
+        {
+          "heading": "Type",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "Basic Usage",
+          "level": 2,
+          "line": 15
+        },
+        {
+          "heading": "Enabled (Default)",
+          "level": 3,
+          "line": 17
+        },
+        {
+          "heading": "Disabled",
+          "level": 3,
+          "line": 27
+        },
+        {
+          "heading": "How It Works",
+          "level": 2,
+          "line": 37
+        },
+        {
+          "heading": "With `cjsDefault: true` (Default)",
+          "level": 3,
+          "line": 39
+        },
+        {
+          "heading": "With `cjsDefault: false`",
+          "level": 3,
+          "line": 69
+        },
+        {
+          "heading": "When to Disable",
+          "level": 2,
+          "line": 83
+        },
+        {
+          "heading": "Tips",
+          "level": 2,
+          "line": 89
+        },
+        {
+          "heading": "Related Options",
+          "level": 2,
+          "line": 95
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 12
+      }
+    },
+    {
+      "path": ".agents/skills/tsdown/references/option-cleaning.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 275,
+      "nonEmptyLines": 209,
+      "sections": [
+        {
+          "heading": "Output Directory Cleaning",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 5
+        },
+        {
+          "heading": "Basic Usage",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "CLI",
+          "level": 3,
+          "line": 11
+        },
+        {
+          "heading": "Config File",
+          "level": 3,
+          "line": 21
+        },
+        {
+          "heading": "Behavior",
+          "level": 2,
+          "line": 30
+        },
+        {
+          "heading": "With Cleaning (Default)",
+          "level": 3,
+          "line": 32
+        },
+        {
+          "heading": "Without Cleaning",
+          "level": 3,
+          "line": 44
+        },
+        {
+          "heading": "Common Patterns",
+          "level": 2,
+          "line": 60
+        },
+        {
+          "heading": "Production Build",
+          "level": 3,
+          "line": 62
+        },
+        {
+          "heading": "Development Mode",
+          "level": 3,
+          "line": 73
+        },
+        {
+          "heading": "Multiple Builds",
+          "level": 3,
+          "line": 83
+        },
+        {
+          "heading": "Monorepo Package",
+          "level": 3,
+          "line": 100
+        },
+        {
+          "heading": "Preserve Static Files",
+          "level": 3,
+          "line": 110
+        },
+        {
+          "heading": "Clean Patterns",
+          "level": 2,
+          "line": 123
+        },
+        {
+          "heading": "Selective Cleaning",
+          "level": 3,
+          "line": 125
+        },
+        {
+          "heading": "Clean Specific Directories",
+          "level": 3,
+          "line": 142
+        },
+        {
+          "heading": "Watch Mode Behavior",
+          "level": 2,
+          "line": 159
+        },
+        {
+          "heading": "Clean on First Build Only",
+          "level": 3,
+          "line": 163
+        },
+        {
+          "heading": "Always Clean",
+          "level": 3,
+          "line": 177
+        },
+        {
+          "heading": "Tips",
+          "level": 2,
+          "line": 188
+        },
+        {
+          "heading": "Troubleshooting",
+          "level": 2,
+          "line": 197
+        },
+        {
+          "heading": "Important Files Deleted",
+          "level": 3,
+          "line": 199
+        },
+        {
+          "heading": "Stale Files in Output",
+          "level": 3,
+          "line": 205
+        },
+        {
+          "heading": "Slow Rebuilds in Watch",
+          "level": 3,
+          "line": 210
+        },
+        {
+          "heading": "CLI Examples",
+          "level": 2,
+          "line": 215
+        },
+        {
+          "heading": "Examples",
+          "level": 2,
+          "line": 231
+        },
+        {
+          "heading": "Safe Production Build",
+          "level": 3,
+          "line": 233
+        },
+        {
+          "heading": "Incremental Development",
+          "level": 3,
+          "line": 241
+        },
+        {
+          "heading": "Multi-Stage Build",
+          "level": 3,
+          "line": 252
+        },
+        {
+          "heading": "Related Options",
+          "level": 2,
+          "line": 270
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 31
+      }
+    },
+    {
+      "path": ".agents/skills/tsdown/references/option-config-file.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 281,
+      "nonEmptyLines": 214,
+      "sections": [
+        {
+          "heading": "Configuration File",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 5
+        },
+        {
+          "heading": "Supported File Names",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "Basic Configuration",
+          "level": 2,
+          "line": 22
+        },
+        {
+          "heading": "TypeScript Config",
+          "level": 3,
+          "line": 24
+        },
+        {
+          "heading": "JavaScript Config",
+          "level": 3,
+          "line": 38
+        },
+        {
+          "heading": "JSON Config",
+          "level": 3,
+          "line": 49
+        },
+        {
+          "heading": "Package.json Config",
+          "level": 3,
+          "line": 60
+        },
+        {
+          "heading": "Multiple Configurations",
+          "level": 2,
+          "line": 74
+        },
+        {
+          "heading": "Dynamic Configuration",
+          "level": 2,
+          "line": 98
+        },
+        {
+          "heading": "Config Loaders",
+          "level": 2,
+          "line": 120
+        },
+        {
+          "heading": "Auto Loader (Default)",
+          "level": 3,
+          "line": 124
+        },
+        {
+          "heading": "Native Loader",
+          "level": 3,
+          "line": 132
+        },
+        {
+          "heading": "Unrun Loader",
+          "level": 3,
+          "line": 140
+        },
+        {
+          "heading": "Custom Config Path",
+          "level": 2,
+          "line": 150
+        },
+        {
+          "heading": "Disable Config File",
+          "level": 2,
+          "line": 160
+        },
+        {
+          "heading": "Extend Vite/Vitest Config (Experimental)",
+          "level": 2,
+          "line": 168
+        },
+        {
+          "heading": "Workspace / Monorepo",
+          "level": 2,
+          "line": 182
+        },
+        {
+          "heading": "Common Patterns",
+          "level": 2,
+          "line": 197
+        },
+        {
+          "heading": "Library with Multiple Builds",
+          "level": 3,
+          "line": 199
+        },
+        {
+          "heading": "Development vs Production",
+          "level": 3,
+          "line": 220
+        },
+        {
+          "heading": "Monorepo Root Config",
+          "level": 3,
+          "line": 232
+        },
+        {
+          "heading": "Per-Package Override",
+          "level": 3,
+          "line": 246
+        },
+        {
+          "heading": "Config Precedence",
+          "level": 2,
+          "line": 257
+        },
+        {
+          "heading": "Tips",
+          "level": 2,
+          "line": 267
+        },
+        {
+          "heading": "Related Options",
+          "level": 2,
+          "line": 277
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 26
+      }
+    },
+    {
+      "path": ".agents/skills/tsdown/references/option-css.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 301,
+      "nonEmptyLines": 222,
+      "sections": [
+        {
+          "heading": "CSS Support",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Getting Started",
+          "level": 2,
+          "line": 7
+        },
+        {
+          "heading": "CSS Import",
+          "level": 2,
+          "line": 17
+        },
+        {
+          "heading": "`@import` Inlining",
+          "level": 3,
+          "line": 29
+        },
+        {
+          "heading": "Inline CSS (`?inline`)",
+          "level": 3,
+          "line": 33
+        },
+        {
+          "heading": "CSS Pre-processors",
+          "level": 2,
+          "line": 44
+        },
+        {
+          "heading": "Preprocessor Options",
+          "level": 3,
+          "line": 68
+        },
+        {
+          "heading": "`additionalData`",
+          "level": 3,
+          "line": 88
+        },
+        {
+          "heading": "CSS Minification",
+          "level": 2,
+          "line": 107
+        },
+        {
+          "heading": "CSS Target",
+          "level": 2,
+          "line": 119
+        },
+        {
+          "heading": "CSS Transformer",
+          "level": 2,
+          "line": 134
+        },
+        {
+          "heading": "PostCSS Options",
+          "level": 3,
+          "line": 149
+        },
+        {
+          "heading": "Lightning CSS (Syntax Lowering)",
+          "level": 2,
+          "line": 165
+        },
+        {
+          "heading": "Custom Lightning CSS Options",
+          "level": 3,
+          "line": 183
+        },
+        {
+          "heading": "CSS Modules",
+          "level": 2,
+          "line": 200
+        },
+        {
+          "heading": "Configuration",
+          "level": 3,
+          "line": 209
+        },
+        {
+          "heading": "Optional Dependencies (PostCSS path)",
+          "level": 3,
+          "line": 225
+        },
+        {
+          "heading": "Code Splitting",
+          "level": 2,
+          "line": 231
+        },
+        {
+          "heading": "Merged (Default)",
+          "level": 3,
+          "line": 233
+        },
+        {
+          "heading": "Per-Chunk Splitting",
+          "level": 3,
+          "line": 245
+        },
+        {
+          "heading": "Preserving CSS Imports (`css.inject`)",
+          "level": 2,
+          "line": 255
+        },
+        {
+          "heading": "PostCSS Optional Peer Dependencies",
+          "level": 2,
+          "line": 267
+        },
+        {
+          "heading": "Options Reference",
+          "level": 2,
+          "line": 283
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "line": 298
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 24
+      }
+    },
+    {
+      "path": ".agents/skills/tsdown/references/option-dependencies.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 385,
+      "nonEmptyLines": 300,
+      "sections": [
+        {
+          "heading": "Dependencies",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 5
+        },
+        {
+          "heading": "Default Behavior",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "Auto-Externalized",
+          "level": 3,
+          "line": 11
+        },
+        {
+          "heading": "Conditionally Bundled",
+          "level": 3,
+          "line": 19
+        },
+        {
+          "heading": "Configuration Options",
+          "level": 2,
+          "line": 26
+        },
+        {
+          "heading": "`deps.neverBundle`",
+          "level": 3,
+          "line": 41
+        },
+        {
+          "heading": "`deps.alwaysBundle`",
+          "level": 3,
+          "line": 59
+        },
+        {
+          "heading": "`deps.onlyBundle`",
+          "level": 3,
+          "line": 75
+        },
+        {
+          "heading": "`deps.skipNodeModulesBundle`",
+          "level": 3,
+          "line": 99
+        },
+        {
+          "heading": "Common Patterns",
+          "level": 2,
+          "line": 116
+        },
+        {
+          "heading": "React Component Library",
+          "level": 3,
+          "line": 118
+        },
+        {
+          "heading": "Utility Library with Shared Deps",
+          "level": 3,
+          "line": 135
+        },
+        {
+          "heading": "Monorepo Package",
+          "level": 3,
+          "line": 148
+        },
+        {
+          "heading": "CLI Tool (Bundle Everything)",
+          "level": 3,
+          "line": 163
+        },
+        {
+          "heading": "Library with Specific Externals",
+          "level": 3,
+          "line": 177
+        },
+        {
+          "heading": "Declaration Files",
+          "level": 2,
+          "line": 194
+        },
+        {
+          "heading": "Complex Type Resolution",
+          "level": 3,
+          "line": 198
+        },
+        {
+          "heading": "CLI Usage",
+          "level": 2,
+          "line": 218
+        },
+        {
+          "heading": "Never Bundle",
+          "level": 3,
+          "line": 220
+        },
+        {
+          "heading": "Skip Node Modules",
+          "level": 3,
+          "line": 227
+        },
+        {
+          "heading": "Migration from Deprecated Options",
+          "level": 2,
+          "line": 233
+        },
+        {
+          "heading": "Examples by Use Case",
+          "level": 2,
+          "line": 243
+        },
+        {
+          "heading": "Framework Component",
+          "level": 3,
+          "line": 245
+        },
+        {
+          "heading": "Standalone App",
+          "level": 3,
+          "line": 256
+        },
+        {
+          "heading": "Shared Library",
+          "level": 3,
+          "line": 267
+        },
+        {
+          "heading": "Monorepo Package",
+          "level": 3,
+          "line": 279
+        },
+        {
+          "heading": "Troubleshooting",
+          "level": 2,
+          "line": 297
+        },
+        {
+          "heading": "Dependency Bundled Unexpectedly",
+          "level": 3,
+          "line": 299
+        },
+        {
+          "heading": "Missing Dependency at Runtime",
+          "level": 3,
+          "line": 321
+        },
+        {
+          "heading": "Type Resolution Errors",
+          "level": 3,
+          "line": 343
+        },
+        {
+          "heading": "Summary",
+          "level": 2,
+          "line": 355
+        },
+        {
+          "heading": "Tips",
+          "level": 2,
+          "line": 371
+        },
+        {
+          "heading": "Related Options",
+          "level": 2,
+          "line": 380
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 34
+      }
+    },
+    {
+      "path": ".agents/skills/tsdown/references/option-dts.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 251,
+      "nonEmptyLines": 184,
+      "sections": [
+        {
+          "heading": "TypeScript Declaration Files",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 5
+        },
+        {
+          "heading": "Enabling DTS Generation",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "Auto-Enabled",
+          "level": 3,
+          "line": 14
+        },
+        {
+          "heading": "Manual Enable",
+          "level": 3,
+          "line": 20
+        },
+        {
+          "heading": "CLI",
+          "level": 4,
+          "line": 22
+        },
+        {
+          "heading": "Config File",
+          "level": 4,
+          "line": 28
+        },
+        {
+          "heading": "Performance",
+          "level": 2,
+          "line": 36
+        },
+        {
+          "heading": "With `isolatedDeclarations` (Recommended)",
+          "level": 3,
+          "line": 38
+        },
+        {
+          "heading": "Without `isolatedDeclarations`",
+          "level": 3,
+          "line": 51
+        },
+        {
+          "heading": "Declaration Maps",
+          "level": 2,
+          "line": 55
+        },
+        {
+          "heading": "Enable in tsconfig.json",
+          "level": 3,
+          "line": 59
+        },
+        {
+          "heading": "Enable in tsdown Config",
+          "level": 3,
+          "line": 69
+        },
+        {
+          "heading": "Advanced Options",
+          "level": 2,
+          "line": 79
+        },
+        {
+          "heading": "Custom Compiler Options",
+          "level": 3,
+          "line": 81
+        },
+        {
+          "heading": "Build Process",
+          "level": 2,
+          "line": 95
+        },
+        {
+          "heading": "Common Patterns",
+          "level": 2,
+          "line": 100
+        },
+        {
+          "heading": "Basic Library",
+          "level": 3,
+          "line": 102
+        },
+        {
+          "heading": "Multiple Entry Points",
+          "level": 3,
+          "line": 117
+        },
+        {
+          "heading": "With Monorepo Support",
+          "level": 3,
+          "line": 134
+        },
+        {
+          "heading": "Fast Build (Isolated Declarations)",
+          "level": 3,
+          "line": 146
+        },
+        {
+          "heading": "Troubleshooting",
+          "level": 2,
+          "line": 168
+        },
+        {
+          "heading": "Missing Types",
+          "level": 3,
+          "line": 170
+        },
+        {
+          "heading": "Slow Generation",
+          "level": 3,
+          "line": 178
+        },
+        {
+          "heading": "Declaration Errors",
+          "level": 3,
+          "line": 182
+        },
+        {
+          "heading": "Report Issues",
+          "level": 3,
+          "line": 186
+        },
+        {
+          "heading": "Vue Support",
+          "level": 3,
+          "line": 190
+        },
+        {
+          "heading": "Oxc Transform",
+          "level": 3,
+          "line": 202
+        },
+        {
+          "heading": "Custom TSConfig",
+          "level": 3,
+          "line": 214
+        },
+        {
+          "heading": "Available DTS Options",
+          "level": 2,
+          "line": 226
+        },
+        {
+          "heading": "Tips",
+          "level": 2,
+          "line": 239
+        },
+        {
+          "heading": "Related Options",
+          "level": 2,
+          "line": 247
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 32
+      }
+    },
+    {
+      "path": ".agents/skills/tsdown/references/option-entry.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 211,
+      "nonEmptyLines": 159,
+      "sections": [
+        {
+          "heading": "Entry Points",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 5
+        },
+        {
+          "heading": "Usage Patterns",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "CLI",
+          "level": 3,
+          "line": 11
+        },
+        {
+          "heading": "Config File",
+          "level": 3,
+          "line": 24
+        },
+        {
+          "heading": "Single Entry",
+          "level": 4,
+          "line": 26
+        },
+        {
+          "heading": "Multiple Entries (Array)",
+          "level": 4,
+          "line": 34
+        },
+        {
+          "heading": "Named Entries (Object)",
+          "level": 4,
+          "line": 42
+        },
+        {
+          "heading": "Glob Patterns",
+          "level": 2,
+          "line": 59
+        },
+        {
+          "heading": "All TypeScript Files",
+          "level": 3,
+          "line": 63
+        },
+        {
+          "heading": "Exclude Test Files",
+          "level": 3,
+          "line": 71
+        },
+        {
+          "heading": "Object Entries with Glob Patterns",
+          "level": 3,
+          "line": 79
+        },
+        {
+          "heading": "Negation Patterns in Object Entries",
+          "level": 4,
+          "line": 92
+        },
+        {
+          "heading": "Mixed Entries",
+          "level": 3,
+          "line": 121
+        },
+        {
+          "heading": "Windows Compatibility",
+          "level": 3,
+          "line": 138
+        },
+        {
+          "heading": "Common Patterns",
+          "level": 2,
+          "line": 150
+        },
+        {
+          "heading": "Library with Main Export",
+          "level": 3,
+          "line": 152
+        },
+        {
+          "heading": "Library with Multiple Exports",
+          "level": 3,
+          "line": 162
+        },
+        {
+          "heading": "CLI Tool",
+          "level": 3,
+          "line": 176
+        },
+        {
+          "heading": "Preserve Directory Structure",
+          "level": 3,
+          "line": 188
+        },
+        {
+          "heading": "Tips",
+          "level": 2,
+          "line": 205
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 21
+      }
+    },
+    {
+      "path": ".agents/skills/tsdown/references/option-exe.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 120,
+      "nonEmptyLines": 92,
+      "sections": [
+        {
+          "heading": "Executable - `exe`",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Requirements",
+          "level": 2,
+          "line": 5
+        },
+        {
+          "heading": "Basic Usage",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Behavior When Enabled",
+          "level": 2,
+          "line": 19
+        },
+        {
+          "heading": "Advanced Configuration",
+          "level": 2,
+          "line": 27
+        },
+        {
+          "heading": "`ExeOptions`",
+          "level": 2,
+          "line": 43
+        },
+        {
+          "heading": "`SeaConfig`",
+          "level": 2,
+          "line": 51
+        },
+        {
+          "heading": "Cross-Platform Builds",
+          "level": 2,
+          "line": 64
+        },
+        {
+          "heading": "`ExeTarget`",
+          "level": 3,
+          "line": 94
+        },
+        {
+          "heading": "Caching",
+          "level": 3,
+          "line": 102
+        },
+        {
+          "heading": "Platform Notes",
+          "level": 2,
+          "line": 109
+        },
+        {
+          "heading": "CLI",
+          "level": 2,
+          "line": 115
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 12
+      }
+    },
+    {
+      "path": ".agents/skills/tsdown/references/option-lint.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 127,
+      "nonEmptyLines": 93,
+      "sections": [
+        {
+          "heading": "Package Validation (publint & attw)",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 5
+        },
+        {
+          "heading": "Installation",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "publint",
+          "level": 2,
+          "line": 22
+        },
+        {
+          "heading": "Enable",
+          "level": 3,
+          "line": 26
+        },
+        {
+          "heading": "Configuration",
+          "level": 3,
+          "line": 34
+        },
+        {
+          "heading": "CLI",
+          "level": 3,
+          "line": 44
+        },
+        {
+          "heading": "attw (Are the types wrong?)",
+          "level": 2,
+          "line": 50
+        },
+        {
+          "heading": "Enable",
+          "level": 3,
+          "line": 54
+        },
+        {
+          "heading": "Configuration",
+          "level": 3,
+          "line": 62
+        },
+        {
+          "heading": "Profiles",
+          "level": 3,
+          "line": 74
+        },
+        {
+          "heading": "Ignore Rules",
+          "level": 3,
+          "line": 82
+        },
+        {
+          "heading": "CLI",
+          "level": 3,
+          "line": 101
+        },
+        {
+          "heading": "CI Integration",
+          "level": 2,
+          "line": 107
+        },
+        {
+          "heading": "Related Options",
+          "level": 2,
+          "line": 124
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 15
+      }
+    },
+    {
+      "path": ".agents/skills/tsdown/references/option-log-level.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 91,
+      "nonEmptyLines": 64,
+      "sections": [
+        {
+          "heading": "Log Level",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 5
+        },
+        {
+          "heading": "Type",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "Basic Usage",
+          "level": 2,
+          "line": 17
+        },
+        {
+          "heading": "CLI",
+          "level": 3,
+          "line": 19
+        },
+        {
+          "heading": "Config File",
+          "level": 3,
+          "line": 35
+        },
+        {
+          "heading": "Available Levels",
+          "level": 2,
+          "line": 44
+        },
+        {
+          "heading": "Common Patterns",
+          "level": 2,
+          "line": 53
+        },
+        {
+          "heading": "CI/CD Pipeline",
+          "level": 3,
+          "line": 55
+        },
+        {
+          "heading": "Scripting",
+          "level": 3,
+          "line": 64
+        },
+        {
+          "heading": "Fail on Warnings",
+          "level": 2,
+          "line": 73
+        },
+        {
+          "heading": "Related Options",
+          "level": 2,
+          "line": 87
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 12
+      }
+    }
+  ]
+}
