@@ -1,340 +1,1737 @@
 {
   "scriptCompleted": true,
-  "filesAnalyzed": 20,
+  "filesAnalyzed": 10,
   "filesSkipped": [],
   "results": [
     {
-      "path": ".claude/commands/gsd/fast.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 30,
-      "nonEmptyLines": 26,
+      "path": "src/components/base/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 126,
+      "nonEmptyLines": 116,
+      "classes": [
+        {
+          "name": "KylinRouterElementBase",
+          "startLine": 21,
+          "endLine": 126,
+          "methods": [
+            "connectedCallback",
+            "disconnectedCallback",
+            "_getRouterSync",
+            "getRouter",
+            "render"
+          ],
+          "properties": [
+            "router",
+            "_contextRequested",
+            "_contextCallback"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "KylinRouterElementBase",
+          "line": 21,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "connectedCallback",
+          "callee": "super.connectedCallback",
+          "lineNumber": 33
+        },
+        {
+          "caller": "connectedCallback",
+          "callee": "this._getRouterSync",
+          "lineNumber": 37
+        },
+        {
+          "caller": "connectedCallback",
+          "callee": "this.requestUpdate",
+          "lineNumber": 40
+        },
+        {
+          "caller": "connectedCallback",
+          "callee": "this.getRouter",
+          "lineNumber": 43
+        },
+        {
+          "caller": "disconnectedCallback",
+          "callee": "super.disconnectedCallback",
+          "lineNumber": 50
+        },
+        {
+          "caller": "_getRouterSync",
+          "callee": "walk.push",
+          "lineNumber": 68
+        },
+        {
+          "caller": "_getRouterSync",
+          "callee": "currentElement.tagName.toLowerCase",
+          "lineNumber": 70
+        },
+        {
+          "caller": "_getRouterSync",
+          "callee": "currentElement.hasAttribute",
+          "lineNumber": 77
+        },
+        {
+          "caller": "getRouter",
+          "callee": "callback",
+          "lineNumber": 97
+        },
+        {
+          "caller": "getRouter",
+          "callee": "triggerEvent",
+          "lineNumber": 101
+        },
+        {
+          "caller": "getRouter",
+          "callee": "callback",
+          "lineNumber": 106
+        },
+        {
+          "caller": "render",
+          "callee": "html",
+          "lineNumber": 124
+        }
+      ],
       "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
+        "importCount": 2,
+        "exportCount": 1,
         "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
+        "classCount": 1
       }
     },
     {
-      "path": ".claude/commands/gsd/forensics.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 56,
-      "nonEmptyLines": 48,
+      "path": "src/components/link/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 126,
+      "nonEmptyLines": 110,
+      "functions": [
+        {
+          "name": "isInternalLink",
+          "startLine": 12,
+          "endLine": 15,
+          "params": [
+            "path"
+          ]
+        },
+        {
+          "name": "isDangerousProtocol",
+          "startLine": 21,
+          "endLine": 24,
+          "params": [
+            "path"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "KylinLinkElement",
+          "startLine": 27,
+          "endLine": 120,
+          "methods": [
+            "_getComputedRel",
+            "handleClick",
+            "render"
+          ],
+          "properties": [
+            "to",
+            "replace",
+            "target",
+            "rel"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "isInternalLink",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "isDangerousProtocol",
+          "line": 21,
+          "isDefault": false
+        },
+        {
+          "name": "KylinLinkElement",
+          "line": 26,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "isInternalLink",
+          "callee": "path.startsWith",
+          "lineNumber": 14
+        },
+        {
+          "caller": "isInternalLink",
+          "callee": "path.includes",
+          "lineNumber": 14
+        },
+        {
+          "caller": "isDangerousProtocol",
+          "callee": "path.trim().toLowerCase",
+          "lineNumber": 22
+        },
+        {
+          "caller": "isDangerousProtocol",
+          "callee": "path.trim",
+          "lineNumber": 22
+        },
+        {
+          "caller": "isDangerousProtocol",
+          "callee": "trimmed.startsWith",
+          "lineNumber": 23
+        },
+        {
+          "caller": "isDangerousProtocol",
+          "callee": "trimmed.startsWith",
+          "lineNumber": 23
+        },
+        {
+          "caller": "handleClick",
+          "callee": "isDangerousProtocol",
+          "lineNumber": 66
+        },
+        {
+          "caller": "handleClick",
+          "callee": "event.preventDefault",
+          "lineNumber": 67
+        },
+        {
+          "caller": "handleClick",
+          "callee": "isInternalLink",
+          "lineNumber": 72
+        },
+        {
+          "caller": "handleClick",
+          "callee": "super.getRouter",
+          "lineNumber": 76
+        },
+        {
+          "caller": "handleClick",
+          "callee": "target.startsWith",
+          "lineNumber": 88
+        },
+        {
+          "caller": "handleClick",
+          "callee": "joinPath",
+          "lineNumber": 89
+        },
+        {
+          "caller": "handleClick",
+          "callee": "target.startsWith",
+          "lineNumber": 93
+        },
+        {
+          "caller": "handleClick",
+          "callee": "joinPath",
+          "lineNumber": 94
+        },
+        {
+          "caller": "handleClick",
+          "callee": "this.router.replace",
+          "lineNumber": 100
+        },
+        {
+          "caller": "handleClick",
+          "callee": "this.router.push",
+          "lineNumber": 102
+        },
+        {
+          "caller": "handleClick",
+          "callee": "event.preventDefault",
+          "lineNumber": 107
+        },
+        {
+          "caller": "render",
+          "callee": "this._getComputedRel",
+          "lineNumber": 111
+        },
+        {
+          "caller": "render",
+          "callee": "html",
+          "lineNumber": 112
+        }
+      ],
       "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
+        "importCount": 3,
+        "exportCount": 3,
+        "functionCount": 2,
+        "classCount": 1
       }
     },
     {
-      "path": ".claude/commands/gsd/help.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 24,
-      "nonEmptyLines": 21,
+      "path": "src/features/routes.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 116,
+      "nonEmptyLines": 109,
+      "classes": [
+        {
+          "name": "KylinRouteTable",
+          "startLine": 24,
+          "endLine": 116,
+          "methods": [
+            "constructor",
+            "load",
+            "match",
+            "_applyRouteOptions",
+            "forEach"
+          ],
+          "properties": [
+            "root",
+            "current",
+            "namedRouteItems",
+            "router"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "KylinRouteTable",
+          "line": 24,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "toArray",
+          "callee": "arg",
+          "lineNumber": 49
+        },
+        {
+          "caller": "toArray",
+          "callee": "fetch(arg).then",
+          "lineNumber": 51
+        },
+        {
+          "caller": "toArray",
+          "callee": "fetch",
+          "lineNumber": 51
+        },
+        {
+          "caller": "toArray",
+          "callee": "res.json",
+          "lineNumber": 51
+        },
+        {
+          "caller": "toArray",
+          "callee": "Array.isArray",
+          "lineNumber": 53
+        },
+        {
+          "caller": "load",
+          "callee": "toArray",
+          "lineNumber": 55
+        },
+        {
+          "caller": "load",
+          "callee": "normalizeRoutes",
+          "lineNumber": 57
+        },
+        {
+          "caller": "load",
+          "callee": "this._applyRouteOptions",
+          "lineNumber": 59
+        },
+        {
+          "caller": "load",
+          "callee": "this.router.emit",
+          "lineNumber": 60
+        },
+        {
+          "caller": "match",
+          "callee": "matchRoute",
+          "lineNumber": 69
+        },
+        {
+          "caller": "processRoute",
+          "callee": "this.namedRouteItems!.set",
+          "lineNumber": 84
+        },
+        {
+          "caller": "processRoute",
+          "callee": "overrideItems.forEach",
+          "lineNumber": 88
+        },
+        {
+          "caller": "processRoute",
+          "callee": "r.children.forEach",
+          "lineNumber": 98
+        },
+        {
+          "caller": "_applyRouteOptions",
+          "callee": "processRoute",
+          "lineNumber": 101
+        },
+        {
+          "caller": "forEachRoute",
+          "callee": "callback",
+          "lineNumber": 109
+        },
+        {
+          "caller": "forEachRoute",
+          "callee": "route.children.forEach",
+          "lineNumber": 111
+        },
+        {
+          "caller": "forEachRoute",
+          "callee": "forEachRoute",
+          "lineNumber": 111
+        },
+        {
+          "caller": "forEach",
+          "callee": "forEachRoute",
+          "lineNumber": 114
+        }
+      ],
       "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
+        "importCount": 4,
+        "exportCount": 1,
         "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
+        "classCount": 1
       }
     },
     {
-      "path": ".claude/commands/gsd/health.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 22,
-      "nonEmptyLines": 20,
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
-      }
-    },
-    {
-      "path": ".claude/commands/gsd/intel.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 179,
-      "nonEmptyLines": 123,
-      "sections": [
+      "path": "src/utils/extractQueryParams.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 23,
+      "nonEmptyLines": 19,
+      "functions": [
         {
-          "heading": "Step 0 -- Banner",
-          "level": 2,
-          "line": 13
+          "name": "extractQueryParams",
+          "startLine": 10,
+          "endLine": 23,
+          "params": [
+            "search"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "extractQueryParams",
+          "line": 10,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "extractQueryParams",
+          "callee": "search.startsWith",
+          "lineNumber": 15
         },
         {
-          "heading": "Step 1 -- Config Gate",
-          "level": 2,
-          "line": 23
+          "caller": "extractQueryParams",
+          "callee": "search.slice",
+          "lineNumber": 15
         },
         {
-          "heading": "Step 2 -- Parse Argument",
-          "level": 2,
-          "line": 49
-        },
-        {
-          "heading": "Step 2a -- Query",
-          "level": 3,
-          "line": 75
-        },
-        {
-          "heading": "Step 2b -- Status",
-          "level": 3,
-          "line": 90
-        },
-        {
-          "heading": "Step 2c -- Diff",
-          "level": 3,
-          "line": 105
-        },
-        {
-          "heading": "Step 3 -- Refresh (Agent Spawn)",
-          "level": 2,
-          "line": 124
-        },
-        {
-          "heading": "Step 4 -- Post-Refresh Summary",
-          "level": 2,
-          "line": 159
-        },
-        {
-          "heading": "Anti-Patterns",
-          "level": 2,
-          "line": 174
+          "caller": "extractQueryParams",
+          "callee": "searchParams.forEach",
+          "lineNumber": 18
         }
       ],
       "metrics": {
         "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 9
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
       }
     },
     {
-      "path": ".claude/commands/gsd/insert-phase.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 32,
-      "nonEmptyLines": 25,
+      "path": "src/utils/isExternalLink.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 49,
+      "nonEmptyLines": 46,
+      "functions": [
+        {
+          "name": "isExternalLink",
+          "startLine": 18,
+          "endLine": 49,
+          "params": [
+            "url"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "isExternalLink",
+          "line": 18,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "isExternalLink",
+          "callee": "url.trim",
+          "lineNumber": 20
+        },
+        {
+          "caller": "isExternalLink",
+          "callee": "url.startsWith",
+          "lineNumber": 25
+        },
+        {
+          "caller": "isExternalLink",
+          "callee": "document.createElement",
+          "lineNumber": 27
+        },
+        {
+          "caller": "isExternalLink",
+          "callee": "/^[a-z][a-z0-9+.-]*:/i.test",
+          "lineNumber": 33
+        },
+        {
+          "caller": "isExternalLink",
+          "callee": "document.createElement",
+          "lineNumber": 34
+        }
+      ],
       "metrics": {
         "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
       }
     },
     {
-      "path": ".claude/commands/gsd/import.md",
-      "language": "markdown",
-      "fileCategory": "docs",
+      "path": "src/utils/joinPath.ts",
+      "language": "typescript",
+      "fileCategory": "code",
       "totalLines": 36,
-      "nonEmptyLines": 30,
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
-      }
-    },
-    {
-      "path": ".claude/commands/gsd/join-discord.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 19,
-      "nonEmptyLines": 14,
-      "sections": [
+      "nonEmptyLines": 33,
+      "functions": [
         {
-          "heading": "Join the GSD Discord",
-          "level": 1,
-          "line": 12
+          "name": "joinPath",
+          "startLine": 18,
+          "endLine": 36,
+          "params": [
+            "base",
+            "path"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "joinPath",
+          "line": 18,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "joinPath",
+          "callee": "base.replace",
+          "lineNumber": 20
+        },
+        {
+          "caller": "joinPath",
+          "callee": "path.replace",
+          "lineNumber": 22
         }
       ],
       "metrics": {
         "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 1
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
       }
     },
     {
-      "path": ".claude/commands/gsd/list-phase-assumptions.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 46,
-      "nonEmptyLines": 38,
+      "path": "src/utils/matchRoute.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 1158,
+      "nonEmptyLines": 1030,
+      "functions": [
+        {
+          "name": "normalizeUrl",
+          "startLine": 88,
+          "endLine": 93,
+          "params": [
+            "url"
+          ]
+        },
+        {
+          "name": "normalizePath",
+          "startLine": 108,
+          "endLine": 125,
+          "params": [
+            "path"
+          ]
+        },
+        {
+          "name": "resolveRedirectPath",
+          "startLine": 145,
+          "endLine": 185,
+          "params": [
+            "target",
+            "currentMatch"
+          ]
+        },
+        {
+          "name": "resolveRedirect",
+          "startLine": 205,
+          "endLine": 295,
+          "params": [
+            "target",
+            "namedRoutes",
+            "matchedRoute"
+          ]
+        },
+        {
+          "name": "escapeRegex",
+          "startLine": 300,
+          "endLine": 302,
+          "params": [
+            "str"
+          ]
+        },
+        {
+          "name": "stripHash",
+          "startLine": 307,
+          "endLine": 310,
+          "params": [
+            "pathname"
+          ]
+        },
+        {
+          "name": "parseQueryString",
+          "startLine": 316,
+          "endLine": 324,
+          "params": [
+            "pathname"
+          ]
+        },
+        {
+          "name": "compileSegments",
+          "startLine": 338,
+          "endLine": 421,
+          "params": [
+            "pattern",
+            "fullMatch"
+          ]
+        },
+        {
+          "name": "extractParamNames",
+          "startLine": 427,
+          "endLine": 445,
+          "params": [
+            "path"
+          ]
+        },
+        {
+          "name": "replacePathParams",
+          "startLine": 451,
+          "endLine": 469,
+          "params": [
+            "path",
+            "params"
+          ]
+        },
+        {
+          "name": "findDefaultRoute",
+          "startLine": 480,
+          "endLine": 529,
+          "params": [
+            "routes",
+            "parentMatchedRoute",
+            "inputQuery",
+            "id"
+          ]
+        },
+        {
+          "name": "createUnmatchedRouteItem",
+          "startLine": 534,
+          "endLine": 557,
+          "params": [
+            "unmatchedPath",
+            "parentMatchedRoute",
+            "inputQuery",
+            "id"
+          ]
+        },
+        {
+          "name": "createRouteMatcher",
+          "startLine": 568,
+          "endLine": 645,
+          "params": [
+            "route",
+            "isPrefix"
+          ]
+        },
+        {
+          "name": "processSingleRoute",
+          "startLine": 651,
+          "endLine": 780,
+          "params": [
+            "route",
+            "path",
+            "parentMatchedRoute",
+            "inputQuery",
+            "id"
+          ]
+        },
+        {
+          "name": "_matchRoutesInternal",
+          "startLine": 782,
+          "endLine": 825,
+          "params": [
+            "path",
+            "routes",
+            "parentMatchedRoute",
+            "inputQuery",
+            "id"
+          ]
+        },
+        {
+          "name": "matchRoute",
+          "startLine": 849,
+          "endLine": 1158,
+          "params": [
+            "path",
+            "roots",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "createRouteMatcher",
+          "line": 568,
+          "isDefault": false
+        },
+        {
+          "name": "matchRoute",
+          "line": 849,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeUrl",
+          "callee": "url.replace",
+          "lineNumber": 92
+        },
+        {
+          "caller": "normalizePath",
+          "callee": "normalized.startsWith",
+          "lineNumber": 112
+        },
+        {
+          "caller": "normalizePath",
+          "callee": "normalized.replace",
+          "lineNumber": 117
+        },
+        {
+          "caller": "normalizePath",
+          "callee": "normalized.toLowerCase",
+          "lineNumber": 124
+        },
+        {
+          "caller": "resolveRedirectPath",
+          "callee": "target.startsWith",
+          "lineNumber": 147
+        },
+        {
+          "caller": "resolveRedirectPath",
+          "callee": "currentMatch.path.split(\"/\").filter(Boolean).slice(0, -1).join",
+          "lineNumber": 152
+        },
+        {
+          "caller": "resolveRedirectPath",
+          "callee": "currentMatch.path.split(\"/\").filter(Boolean).slice",
+          "lineNumber": 152
+        },
+        {
+          "caller": "resolveRedirectPath",
+          "callee": "currentMatch.path.split(\"/\").filter",
+          "lineNumber": 152
+        },
+        {
+          "caller": "resolveRedirectPath",
+          "callee": "currentMatch.path.split",
+          "lineNumber": 152
+        },
+        {
+          "caller": "resolveRedirectPath",
+          "callee": "parentPath.split",
+          "lineNumber": 153
+        },
+        {
+          "caller": "resolveRedirectPath",
+          "callee": "target.startsWith",
+          "lineNumber": 156
+        },
+        {
+          "caller": "resolveRedirectPath",
+          "callee": "target.slice",
+          "lineNumber": 157
+        },
+        {
+          "caller": "resolveRedirectPath",
+          "callee": "newSegments.join",
+          "lineNumber": 159
+        },
+        {
+          "caller": "resolveRedirectPath",
+          "callee": "target.startsWith",
+          "lineNumber": 163
+        },
+        {
+          "caller": "resolveRedirectPath",
+          "callee": "remaining.startsWith",
+          "lineNumber": 168
+        },
+        {
+          "caller": "resolveRedirectPath",
+          "callee": "remaining.slice",
+          "lineNumber": 169
+        },
+        {
+          "caller": "resolveRedirectPath",
+          "callee": "newSegments.pop",
+          "lineNumber": 171
+        },
+        {
+          "caller": "resolveRedirectPath",
+          "callee": "newSegments.push",
+          "lineNumber": 177
+        },
+        {
+          "caller": "resolveRedirectPath",
+          "callee": "newSegments.join",
+          "lineNumber": 180
+        },
+        {
+          "caller": "resolveRedirectPath",
+          "callee": "joinPath",
+          "lineNumber": 184
+        },
+        {
+          "caller": "resolveRedirect",
+          "callee": "(target as RedirectFunction)",
+          "lineNumber": 212
+        },
+        {
+          "caller": "resolveRedirect",
+          "callee": "resolveRedirect",
+          "lineNumber": 216
+        },
+        {
+          "caller": "resolveRedirect",
+          "callee": "isExternalLink",
+          "lineNumber": 222
+        },
+        {
+          "caller": "resolveRedirect",
+          "callee": "resolveRedirectPath",
+          "lineNumber": 230
+        },
+        {
+          "caller": "resolveRedirect",
+          "callee": "isExternalLink",
+          "lineNumber": 239
+        },
+        {
+          "caller": "resolveRedirect",
+          "callee": "resolveRedirectPath",
+          "lineNumber": 248
+        },
+        {
+          "caller": "resolveRedirect",
+          "callee": "namedRoutes?.get",
+          "lineNumber": 257
+        },
+        {
+          "caller": "resolveRedirect",
+          "callee": "weakRef?.deref",
+          "lineNumber": 258
+        },
+        {
+          "caller": "resolveRedirect",
+          "callee": "Object.entries",
+          "lineNumber": 274
+        },
+        {
+          "caller": "resolveRedirect",
+          "callee": "targetPath.replace(`:${key}`, value).replace",
+          "lineNumber": 275
+        },
+        {
+          "caller": "resolveRedirect",
+          "callee": "targetPath.replace",
+          "lineNumber": 275
+        },
+        {
+          "caller": "resolveRedirect",
+          "callee": "new URLSearchParams(namedTarget.query).toString",
+          "lineNumber": 281
+        },
+        {
+          "caller": "resolveRedirect",
+          "callee": "resolveRedirectPath",
+          "lineNumber": 288
+        },
+        {
+          "caller": "escapeRegex",
+          "callee": "str.replace",
+          "lineNumber": 301
+        },
+        {
+          "caller": "stripHash",
+          "callee": "pathname.indexOf",
+          "lineNumber": 308
+        },
+        {
+          "caller": "stripHash",
+          "callee": "pathname.slice",
+          "lineNumber": 309
+        },
+        {
+          "caller": "parseQueryString",
+          "callee": "stripHash",
+          "lineNumber": 317
+        },
+        {
+          "caller": "parseQueryString",
+          "callee": "cleaned.split",
+          "lineNumber": 318
+        },
+        {
+          "caller": "parseQueryString",
+          "callee": "extractQueryParams",
+          "lineNumber": 321
+        },
+        {
+          "caller": "compileSegments",
+          "callee": "pattern.split(\"/\").filter",
+          "lineNumber": 342
+        },
+        {
+          "caller": "compileSegments",
+          "callee": "pattern.split",
+          "lineNumber": 342
+        },
+        {
+          "caller": "compileSegments",
+          "callee": "regexParts.push",
+          "lineNumber": 354
+        },
+        {
+          "caller": "compileSegments",
+          "callee": "regexParts.push",
+          "lineNumber": 361
+        },
+        {
+          "caller": "compileSegments",
+          "callee": "rawSegment.match",
+          "lineNumber": 366
+        },
+        {
+          "caller": "compileSegments",
+          "callee": "paramNames.push",
+          "lineNumber": 370
+        },
+        {
+          "caller": "compileSegments",
+          "callee": "regexParts.push",
+          "lineNumber": 371
+        },
+        {
+          "caller": "compileSegments",
+          "callee": "rawSegment.match",
+          "lineNumber": 376
+        },
+        {
+          "caller": "compileSegments",
+          "callee": "paramNames.push",
+          "lineNumber": 380
+        },
+        {
+          "caller": "compileSegments",
+          "callee": "regexParts.push",
+          "lineNumber": 381
+        },
+        {
+          "caller": "compileSegments",
+          "callee": "regexParts.push",
+          "lineNumber": 386
+        },
+        {
+          "caller": "compileSegments",
+          "callee": "escapeRegex",
+          "lineNumber": 386
+        },
+        {
+          "caller": "compileSegments",
+          "callee": "rawSegment.toLowerCase",
+          "lineNumber": 386
+        },
+        {
+          "caller": "compileSegments",
+          "callee": "regexParts\r\n            .slice(0, -1)\r\n            .map((p) => \"/\" + p)\r\n            .join",
+          "lineNumber": 398
+        },
+        {
+          "caller": "compileSegments",
+          "callee": "regexParts\r\n            .slice(0, -1)\r\n            .map",
+          "lineNumber": 398
+        },
+        {
+          "caller": "compileSegments",
+          "callee": "regexParts\r\n            .slice",
+          "lineNumber": 398
+        },
+        {
+          "caller": "compileSegments",
+          "callee": "regexParts.map((p) => \"/\" + p).join",
+          "lineNumber": 404
+        },
+        {
+          "caller": "compileSegments",
+          "callee": "regexParts.map",
+          "lineNumber": 404
+        },
+        {
+          "caller": "extractParamNames",
+          "callee": "path.split(\"/\").filter",
+          "lineNumber": 431
+        },
+        {
+          "caller": "extractParamNames",
+          "callee": "path.split",
+          "lineNumber": 431
+        },
+        {
+          "caller": "extractParamNames",
+          "callee": "segment.match",
+          "lineNumber": 434
+        },
+        {
+          "caller": "extractParamNames",
+          "callee": "paramNames.push",
+          "lineNumber": 436
+        },
+        {
+          "caller": "extractParamNames",
+          "callee": "segment.match",
+          "lineNumber": 439
+        },
+        {
+          "caller": "extractParamNames",
+          "callee": "paramNames.push",
+          "lineNumber": 441
+        },
+        {
+          "caller": "replacePathParams",
+          "callee": "path.split(\"/\").filter",
+          "lineNumber": 452
+        },
+        {
+          "caller": "replacePathParams",
+          "callee": "path.split",
+          "lineNumber": 452
+        },
+        {
+          "caller": "replacePathParams",
+          "callee": "segments.map",
+          "lineNumber": 453
+        },
+        {
+          "caller": "replacePathParams",
+          "callee": "segment.match",
+          "lineNumber": 455
+        },
+        {
+          "caller": "replacePathParams",
+          "callee": "segment.match",
+          "lineNumber": 461
+        },
+        {
+          "caller": "replacePathParams",
+          "callee": "replacedSegments.join",
+          "lineNumber": 468
+        },
+        {
+          "caller": "findDefaultRoute",
+          "callee": "joinPath",
+          "lineNumber": 489
+        },
+        {
+          "caller": "findDefaultRoute",
+          "callee": "replacePathParams",
+          "lineNumber": 496
+        },
+        {
+          "caller": "findDefaultRoute",
+          "callee": "normalizeUrl",
+          "lineNumber": 497
+        },
+        {
+          "caller": "findDefaultRoute",
+          "callee": "getRouteHash",
+          "lineNumber": 509
+        },
+        {
+          "caller": "findDefaultRoute",
+          "callee": "findDefaultRoute",
+          "lineNumber": 513
+        },
+        {
+          "caller": "createUnmatchedRouteItem",
+          "callee": "joinPath",
+          "lineNumber": 544
+        },
+        {
+          "caller": "createUnmatchedRouteItem",
+          "callee": "normalizeUrl",
+          "lineNumber": 545
+        },
+        {
+          "caller": "createUnmatchedRouteItem",
+          "callee": "joinPath",
+          "lineNumber": 545
+        },
+        {
+          "caller": "createUnmatchedRouteItem",
+          "callee": "fullPath.replace",
+          "lineNumber": 554
+        },
+        {
+          "caller": "createRouteMatcher",
+          "callee": "compileSegments",
+          "lineNumber": 577
+        },
+        {
+          "caller": "createRouteMatcher",
+          "callee": "normalizePath",
+          "lineNumber": 580
+        },
+        {
+          "caller": "createRouteMatcher",
+          "callee": "parseQueryString",
+          "lineNumber": 580
+        },
+        {
+          "caller": "createRouteMatcher",
+          "callee": "normalized.match",
+          "lineNumber": 581
+        },
+        {
+          "caller": "createRouteMatcher",
+          "callee": "paramNames.forEach",
+          "lineNumber": 585
+        },
+        {
+          "caller": "createRouteMatcher",
+          "callee": "rawPattern.replace",
+          "lineNumber": 610
+        },
+        {
+          "caller": "createRouteMatcher",
+          "callee": "cleanedPattern.startsWith",
+          "lineNumber": 611
+        },
+        {
+          "caller": "createRouteMatcher",
+          "callee": "compileSegments",
+          "lineNumber": 613
+        },
+        {
+          "caller": "createRouteMatcher",
+          "callee": "normalizePath",
+          "lineNumber": 616
+        },
+        {
+          "caller": "createRouteMatcher",
+          "callee": "parseQueryString",
+          "lineNumber": 616
+        },
+        {
+          "caller": "createRouteMatcher",
+          "callee": "normalized.match",
+          "lineNumber": 617
+        },
+        {
+          "caller": "createRouteMatcher",
+          "callee": "paramNames.forEach",
+          "lineNumber": 621
+        },
+        {
+          "caller": "processSingleRoute",
+          "callee": "createRouteMatcher",
+          "lineNumber": 663
+        },
+        {
+          "caller": "processSingleRoute",
+          "callee": "matcher",
+          "lineNumber": 664
+        },
+        {
+          "caller": "processSingleRoute",
+          "callee": "normalizeUrl",
+          "lineNumber": 667
+        },
+        {
+          "caller": "processSingleRoute",
+          "callee": "path.slice",
+          "lineNumber": 668
+        },
+        {
+          "caller": "processSingleRoute",
+          "callee": "normalizeUrl",
+          "lineNumber": 670
+        },
+        {
+          "caller": "processSingleRoute",
+          "callee": "joinPath",
+          "lineNumber": 670
+        },
+        {
+          "caller": "processSingleRoute",
+          "callee": "joinPath",
+          "lineNumber": 671
+        },
+        {
+          "caller": "processSingleRoute",
+          "callee": "Object.assign",
+          "lineNumber": 673
+        },
+        {
+          "caller": "processSingleRoute",
+          "callee": "getRouteHash",
+          "lineNumber": 686
+        },
+        {
+          "caller": "processSingleRoute",
+          "callee": "findDefaultRoute",
+          "lineNumber": 692
+        },
+        {
+          "caller": "processSingleRoute",
+          "callee": "_matchRoutesInternal",
+          "lineNumber": 703
+        },
+        {
+          "caller": "processSingleRoute",
+          "callee": "_matchRoutesInternal",
+          "lineNumber": 725
+        },
+        {
+          "caller": "processSingleRoute",
+          "callee": "route.path.endsWith",
+          "lineNumber": 739
+        },
+        {
+          "caller": "processSingleRoute",
+          "callee": "createUnmatchedRouteItem",
+          "lineNumber": 740
+        },
+        {
+          "caller": "processSingleRoute",
+          "callee": "createUnmatchedRouteItem",
+          "lineNumber": 750
+        },
+        {
+          "caller": "processSingleRoute",
+          "callee": "createUnmatchedRouteItem",
+          "lineNumber": 770
+        },
+        {
+          "caller": "_matchRoutesInternal",
+          "callee": "route.path.includes",
+          "lineNumber": 792
+        },
+        {
+          "caller": "_matchRoutesInternal",
+          "callee": "processSingleRoute",
+          "lineNumber": 794
+        },
+        {
+          "caller": "_matchRoutesInternal",
+          "callee": "route.path.includes",
+          "lineNumber": 806
+        },
+        {
+          "caller": "_matchRoutesInternal",
+          "callee": "processSingleRoute",
+          "lineNumber": 808
+        },
+        {
+          "caller": "_matchRoutesInternal",
+          "callee": "createUnmatchedRouteItem",
+          "lineNumber": 820
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "parseQueryString",
+          "lineNumber": 854
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "normalizePath",
+          "lineNumber": 855
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "getRouteHash",
+          "lineNumber": 873
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "_matchRoutesInternal",
+          "lineNumber": 877
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "childMatches.some",
+          "lineNumber": 886
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "findDefaultRoute",
+          "lineNumber": 893
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "getRouteHash",
+          "lineNumber": 922
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "findDefaultRoute",
+          "lineNumber": 925
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "childMatches.slice",
+          "lineNumber": 961
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "redirectChain.some",
+          "lineNumber": 972
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "childMatches.slice",
+          "lineNumber": 976
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "resolveRedirect",
+          "lineNumber": 988
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "childMatches.map",
+          "lineNumber": 996
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "childMatches.slice",
+          "lineNumber": 1005
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "childMatches.slice",
+          "lineNumber": 1019
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "matchRoute",
+          "lineNumber": 1031
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "recursiveResult.some",
+          "lineNumber": 1038
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "recursiveResult.slice(1).some",
+          "lineNumber": 1047
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "recursiveResult.slice",
+          "lineNumber": 1047
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "childMatches.slice",
+          "lineNumber": 1052
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "recursiveResult.map",
+          "lineNumber": 1063
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "resolveRedirect",
+          "lineNumber": 1071
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "childMatches.slice",
+          "lineNumber": 1086
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "childMatches.slice",
+          "lineNumber": 1100
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "matchRoute",
+          "lineNumber": 1114
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "recursiveResult.some",
+          "lineNumber": 1121
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "recursiveResult.slice(1).some",
+          "lineNumber": 1130
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "recursiveResult.slice",
+          "lineNumber": 1130
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "childMatches.slice",
+          "lineNumber": 1135
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "recursiveResult.map",
+          "lineNumber": 1146
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "childMatches.map",
+          "lineNumber": 1154
+        }
+      ],
       "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
+        "importCount": 6,
+        "exportCount": 2,
+        "functionCount": 16,
+        "classCount": 0
       }
     },
     {
-      "path": ".claude/commands/gsd/list-workspaces.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 19,
-      "nonEmptyLines": 17,
+      "path": "src/utils/normalizeRoutes.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 220,
+      "nonEmptyLines": 191,
+      "functions": [
+        {
+          "name": "splitPath",
+          "startLine": 27,
+          "endLine": 38,
+          "params": [
+            "path"
+          ]
+        },
+        {
+          "name": "isRootRoute",
+          "startLine": 43,
+          "endLine": 46,
+          "params": [
+            "route"
+          ]
+        },
+        {
+          "name": "getOrCreateNode",
+          "startLine": 54,
+          "endLine": 66,
+          "params": [
+            "node",
+            "segment"
+          ]
+        },
+        {
+          "name": "isDefaultRoute",
+          "startLine": 71,
+          "endLine": 73,
+          "params": [
+            "route"
+          ]
+        },
+        {
+          "name": "treeToArray",
+          "startLine": 78,
+          "endLine": 95,
+          "params": [
+            "node"
+          ]
+        },
+        {
+          "name": "processRoute",
+          "startLine": 102,
+          "endLine": 146,
+          "params": [
+            "root",
+            "route"
+          ]
+        },
+        {
+          "name": "normalizeRoutes",
+          "startLine": 167,
+          "endLine": 220,
+          "params": [
+            "routes"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "normalizeRoutes",
+          "line": 167,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "splitPath",
+          "callee": "path.trim",
+          "lineNumber": 28
+        },
+        {
+          "caller": "splitPath",
+          "callee": "trimmed.replace",
+          "lineNumber": 33
+        },
+        {
+          "caller": "splitPath",
+          "callee": "cleaned.split(\"/\").filter",
+          "lineNumber": 37
+        },
+        {
+          "caller": "splitPath",
+          "callee": "cleaned.split",
+          "lineNumber": 37
+        },
+        {
+          "caller": "isRootRoute",
+          "callee": "route.path.trim",
+          "lineNumber": 44
+        },
+        {
+          "caller": "getOrCreateNode",
+          "callee": "node.children.has",
+          "lineNumber": 58
+        },
+        {
+          "caller": "getOrCreateNode",
+          "callee": "node.children.set",
+          "lineNumber": 60
+        },
+        {
+          "caller": "getOrCreateNode",
+          "callee": "node.children.get",
+          "lineNumber": 65
+        },
+        {
+          "caller": "treeToArray",
+          "callee": "treeToArray",
+          "lineNumber": 88
+        },
+        {
+          "caller": "treeToArray",
+          "callee": "result.push",
+          "lineNumber": 91
+        },
+        {
+          "caller": "processRoute",
+          "callee": "splitPath",
+          "lineNumber": 103
+        },
+        {
+          "caller": "processRoute",
+          "callee": "isDefaultRoute",
+          "lineNumber": 107
+        },
+        {
+          "caller": "processRoute",
+          "callee": "processRoute",
+          "lineNumber": 111
+        },
+        {
+          "caller": "processRoute",
+          "callee": "getOrCreateNode",
+          "lineNumber": 127
+        },
+        {
+          "caller": "processRoute",
+          "callee": "processRoute",
+          "lineNumber": 141
+        },
+        {
+          "caller": "normalizeRoutes",
+          "callee": "Array.isArray",
+          "lineNumber": 169
+        },
+        {
+          "caller": "normalizeRoutes",
+          "callee": "routesArray.find",
+          "lineNumber": 177
+        },
+        {
+          "caller": "normalizeRoutes",
+          "callee": "routesArray.filter",
+          "lineNumber": 178
+        },
+        {
+          "caller": "normalizeRoutes",
+          "callee": "isRootRoute",
+          "lineNumber": 178
+        },
+        {
+          "caller": "normalizeRoutes",
+          "callee": "processRoute",
+          "lineNumber": 191
+        },
+        {
+          "caller": "normalizeRoutes",
+          "callee": "processRoute",
+          "lineNumber": 198
+        },
+        {
+          "caller": "normalizeRoutes",
+          "callee": "Object.assign",
+          "lineNumber": 209
+        },
+        {
+          "caller": "normalizeRoutes",
+          "callee": "treeToArray",
+          "lineNumber": 213
+        }
+      ],
       "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 7,
+        "classCount": 0
       }
     },
     {
-      "path": ".claude/commands/gsd/map-codebase.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 71,
-      "nonEmptyLines": 60,
+      "path": "src/utils/prefixBaseUrl.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 28,
+      "nonEmptyLines": 24,
+      "functions": [
+        {
+          "name": "prefixBaseUrl",
+          "startLine": 3,
+          "endLine": 28,
+          "params": [
+            "url",
+            "base"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "prefixBaseUrl",
+          "line": 3,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "prefixBaseUrl",
+          "callee": "url.includes",
+          "lineNumber": 5
+        },
+        {
+          "caller": "prefixBaseUrl",
+          "callee": "url.startsWith",
+          "lineNumber": 5
+        },
+        {
+          "caller": "prefixBaseUrl",
+          "callee": "url.startsWith",
+          "lineNumber": 17
+        },
+        {
+          "caller": "prefixBaseUrl",
+          "callee": "url.startsWith",
+          "lineNumber": 19
+        },
+        {
+          "caller": "prefixBaseUrl",
+          "callee": "joinPath",
+          "lineNumber": 23
+        },
+        {
+          "caller": "prefixBaseUrl",
+          "callee": "joinPath",
+          "lineNumber": 27
+        }
+      ],
       "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
       }
     },
     {
-      "path": ".claude/commands/gsd/manager.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 40,
-      "nonEmptyLines": 33,
+      "path": "src/utils/triggerEvent.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 9,
+      "nonEmptyLines": 9,
+      "functions": [
+        {
+          "name": "triggerEvent",
+          "startLine": 1,
+          "endLine": 9,
+          "params": [
+            "el",
+            "eventName",
+            "detail"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "triggerEvent",
+          "line": 1,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "triggerEvent",
+          "callee": "el.dispatchEvent",
+          "lineNumber": 2
+        }
+      ],
       "metrics": {
         "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
-      }
-    },
-    {
-      "path": ".claude/commands/gsd/milestone-summary.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 51,
-      "nonEmptyLines": 44,
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
-      }
-    },
-    {
-      "path": ".claude/commands/gsd/new-milestone.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 44,
-      "nonEmptyLines": 37,
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
-      }
-    },
-    {
-      "path": ".claude/commands/gsd/new-project.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 46,
-      "nonEmptyLines": 40,
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
-      }
-    },
-    {
-      "path": ".claude/commands/gsd/new-workspace.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 44,
-      "nonEmptyLines": 38,
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
-      }
-    },
-    {
-      "path": ".claude/commands/gsd/next.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 26,
-      "nonEmptyLines": 22,
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
-      }
-    },
-    {
-      "path": ".claude/commands/gsd/note.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 34,
-      "nonEmptyLines": 29,
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
-      }
-    },
-    {
-      "path": ".claude/commands/gsd/pause-work.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 38,
-      "nonEmptyLines": 32,
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
-      }
-    },
-    {
-      "path": ".claude/commands/gsd/plan-milestone-gaps.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 34,
-      "nonEmptyLines": 28,
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
       }
     }
   ]

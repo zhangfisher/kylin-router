@@ -78,7 +78,7 @@ export class DataLoader extends RouteDataLoaderBase<
      * @returns
      */
     protected getAutoUrl(matched: KylinMatchedRouteItem, source: boolean): string | undefined {
-        if (source === true) {
+        if (source === true && matched.route) {
             const viewSrc = matched.route.view;
             const viewUrl = typeof viewSrc === "function" ? viewSrc(matched) : viewSrc;
             if (viewUrl === "string") {

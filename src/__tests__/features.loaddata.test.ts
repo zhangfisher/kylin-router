@@ -1,24 +1,14 @@
-// MutationObserver mock 必须在所有导入之前设置
-// 因为导入 DataLoader 会触发 Alpine.js 加载，而 Alpine.js 需要 MutationObserver
-// @ts-ignore
-globalThis.MutationObserver = class MockMutationObserver {
-    constructor(callback: MutationCallback) {}
-    disconnect() {}
-    observe(node: Node, options: any) {}
-    takeRecords(): MutationRecord[] { return []; }
-};
-
 /**
  * DataLoader 单元测试
  * 测试数据加载功能：静态数据、远程数据、缓存、abort
  * 包含成功场景、错误场景、边缘场景和不同错误格式的测试
  */
 
-import { describe, it, expect, beforeEach, afterEach, spyOn, beforeAll } from "bun:test";
+import { describe, it, expect, beforeEach, afterEach, spyOn } from "bun:test";
 import { DataLoader } from "../features/dataLoader";
 import type { KylinRouter } from "../router";
 import type { KylinMatchedRouteItem } from "../types/routes";
-import { KylinRouterError } from "../errors";
+
 import { setupTestEnvironment } from "./test-setup";
 
 // 初始化其他测试环境（window, document 等）
@@ -54,11 +44,7 @@ const createMockRouter = (): Partial<KylinRouter> => ({
 });
 
 // 创建模拟的 matched route
-function createMockedRoute(
-    path: string,
-    data: any,
-    id: number = 1,
-): KylinMatchedRouteItem {
+function createMockedRoute(path: string, data: any, id: number = 1): KylinMatchedRouteItem {
     return {
         route: {
             name: "test",
@@ -357,7 +343,10 @@ describe("DataLoader", () => {
                     return {
                         ok: true,
                         status: 200,
-                        json: async () => [{ id: 1, name: "Alice" }, { id: 2, name: "Bob" }],
+                        json: async () => [
+                            { id: 1, name: "Alice" },
+                            { id: 2, name: "Bob" },
+                        ],
                     } as Response;
                 } else if (url === "http://api.example.com/empty.json") {
                     return {
@@ -666,7 +655,10 @@ describe("DataLoader", () => {
                 } as Response;
             });
 
-            const matchedRoute = createMockedRoute("/invalid", "http://api.example.com/invalid.json");
+            const matchedRoute = createMockedRoute(
+                "/invalid",
+                "http://api.example.com/invalid.json",
+            );
 
             await dataLoader.loadDatas([matchedRoute]);
             await new Promise((resolve) => setTimeout(resolve, 50));
@@ -689,7 +681,10 @@ describe("DataLoader", () => {
                 } as Response;
             });
 
-            const matchedRoute = createMockedRoute("/malformed", "http://api.example.com/malformed.json");
+            const matchedRoute = createMockedRoute(
+                "/malformed",
+                "http://api.example.com/malformed.json",
+            );
 
             await dataLoader.loadDatas([matchedRoute]);
             await new Promise((resolve) => setTimeout(resolve, 50));
@@ -967,7 +962,10 @@ describe("DataLoader", () => {
         });
 
         it("应该正确替换 URL 中的 {id} 参数", async () => {
-            const matchedRoute = createMockedRoute("/user/123", "http://api.example.com/user/{id}.json");
+            const matchedRoute = createMockedRoute(
+                "/user/123",
+                "http://api.example.com/user/{id}.json",
+            );
             matchedRoute.params = { id: "123" };
 
             await dataLoader.loadDatas([matchedRoute]);

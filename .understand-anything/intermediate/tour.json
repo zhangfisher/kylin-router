@@ -1,0 +1,103 @@
+[
+  {
+    "order": 1,
+    "title": "Package Entry Point & Public API",
+    "description": "The main package entry point exports the router factory function, Web Components (kylin-link, kylin-outlet, kylin-loading), TypeScript types, and utility functions. This file defines the public API surface that consumers of the library will interact with.",
+    "nodeIds": ["file:src/index.ts", "file:src/components/index.ts"]
+  },
+  {
+    "order": 2,
+    "title": "Core Router Architecture",
+    "description": "KylinRouter is the central orchestrator that uses ts-mixer to compose multiple feature mixins into a unified router class. It integrates with the History 5.3.0 API for URL management, provides navigation methods (push, replace, back, forward, go), manages the routing lifecycle, and coordinates cleanup operations.",
+    "nodeIds": ["file:src/router.ts", "file:src/features/index.ts"],
+    "languageLesson": "Mixin composition pattern with ts-mixer enables multiple inheritance by stacking feature classes. Each mixin adds specific capabilities (context, hooks, loading, etc.) while the base KylinRouter class orchestrates the composition and provides unified navigation APIs."
+  },
+  {
+    "order": 3,
+    "title": "Type System & Domain Models",
+    "description": "The type definitions layer establishes the vocabulary for the entire routing system. Key interfaces include RouteItem (route configuration), RouterOptions (configuration), HookType (lifecycle events), and event types. These types define the contracts between components and ensure type safety throughout the router.",
+    "nodeIds": ["file:src/types/index.ts", "file:src/types/routes.ts", "file:src/types/config.ts"]
+  },
+  {
+    "order": 4,
+    "title": "Context Propagation System",
+    "description": "The context mixin enables router instance injection without prop drilling by using custom context events. Components can synchronously or asynchronously access the router instance through the requestRouterContext method, which traverses parent elements and context events to find the host element with the router.",
+    "nodeIds": ["file:src/features/context.ts", "file:src/components/base/index.ts"],
+    "languageLesson": "Custom context events in Web Components provide a lightweight alternative to React Context. The system uses composed events that bubble through the DOM tree, allowing deeply nested components to access shared state without prop drilling."
+  },
+  {
+    "order": 5,
+    "title": "Lifecycle Hooks System",
+    "description": "The hooks system provides lifecycle management for navigation events. It supports global hooks (beforeEach, afterEach, renderEach) and route-level guards (beforeEnter, afterLeave) with timeout support and parallel execution. Hooks can interrupt navigation by returning false, enabling powerful control flow.",
+    "nodeIds": ["file:src/features/hooks.ts", "class:src/features/hooks.ts:HookManager", "file:src/types/hooks.ts"],
+    "languageLesson": "Hook patterns in routing systems enable cross-cutting concerns like authentication, data prefetching, and analytics. The HookManager class implements async/parallel execution with configurable timeouts and proper cleanup to prevent memory leaks."
+  },
+  {
+    "order": 6,
+    "title": "Component Base Class",
+    "description": "KylinRouterElementBase serves as the foundation for all router-aware components. It provides context injection, uses Light DOM (not Shadow DOM) for better style penetration, and implements standard LitElement patterns. Components extend this base to gain automatic router access.",
+    "nodeIds": ["class:src/components/base/index.ts:KylinRouterElementBase", "file:src/components/base/index.ts"],
+    "languageLesson": "Light DOM vs Shadow DOM: Router components use Light DOM (return this as renderRoot) to allow global styles and CSS variables to affect component rendering. Shadow DOM would isolate styles but break global theming systems."
+  },
+  {
+    "order": 7,
+    "title": "Navigation Components",
+    "description": "The router provides Web Components for navigation interfaces. Kylin-link enables declarative navigation with active state handling, while kylin-loading and kylin-feedback components display loading states and route feedback. These components use the base class for router access and follow LitElement conventions.",
+    "nodeIds": ["file:src/components/link/index.ts", "file:src/components/loading/index.ts", "file:src/components/feedback/index.ts"]
+  },
+  {
+    "order": 8,
+    "title": "Route Matching Engine",
+    "description": "The route matching system supports static paths, dynamic parameters (:id), wildcards (* for single segment, ** for multi-segment), and complex patterns. The compileSegments function converts route patterns into regex with named capture groups, enabling fast and accurate URL-to-route matching.",
+    "nodeIds": ["file:src/utils/matchRoute.ts", "file:src/utils/normalizeRoutes.ts"],
+    "languageLesson": "Route matching strategies: Pre-compiled regex patterns provide O(1) lookup performance after compilation. The system handles edge cases like trailing slashes, URL encoding, and special characters through careful regex construction and normalization."
+  },
+  {
+    "order": 9,
+    "title": "Data Loading System",
+    "description": "The data loading feature provides route-based data fetching through loader functions that execute before component rendering. It supports async operations, error handling, and integration with the hooks system for data preloading. The base loader extends this with caching and concurrent request management.",
+    "nodeIds": ["file:src/features/dataLoader.ts", "file:src/features/baseLoader.ts", "file:src/types/data.ts"],
+    "languageLesson": "Route loaders follow a data fetching pattern where the component only renders after its data is available. This prevents flash of empty content and enables loading states, error boundaries, and optimistic UI updates."
+  },
+  {
+    "order": 10,
+    "title": "View Loading & Rendering",
+    "description": "The view loader handles dynamic component imports and rendering, supporting code splitting for optimal bundle size. It integrates with the keep-alive feature for component caching, preserving component state across navigations. The render mixin coordinates the rendering pipeline with layout support.",
+    "nodeIds": ["file:src/features/viewLoader.ts", "file:src/features/render.ts", "file:src/features/keepAlive.ts"],
+    "languageLesson": "Code splitting with dynamic imports reduces initial bundle size by loading route components on-demand. Keep-alive caching preserves component state (form inputs, scroll position) when navigating away and back, improving perceived performance."
+  },
+  {
+    "order": 11,
+    "title": "Outlet Component & Layouts",
+    "description": "The kylin-outlet component is the core rendering container that displays route content. It supports multiple layout strategies: base (simple rendering), stack (nested outlets), collapse (accordion-style), and tabs (tabbed navigation). The component manages view containers and coordinates with the parent router.",
+    "nodeIds": ["file:src/components/outlet/index.ts", "file:src/components/outlet/viewContainer.ts", "file:src/components/outlet/base.layout.ts", "file:src/components/outlet/stack.layout.ts"],
+    "languageLesson": "Outlet-based rendering enables nested routing by allowing routes to render child outlets. The layout system patterns (stack, collapse, tabs) provide flexible UI patterns for displaying hierarchical content without tight coupling to specific UI frameworks."
+  },
+  {
+    "order": 12,
+    "title": "Advanced Features: Modal & Transitions",
+    "description": "The modal feature provides stack-based modal navigation with URL synchronization, backdrop handling, and animated transitions. The transition mixin coordinates route change animations using CSS transitions. Both features integrate with the hooks system and emit events for external handling.",
+    "nodeIds": ["file:src/features/modal.ts", "file:src/features/transition.ts", "file:src/types/modals.ts"],
+    "languageLesson": "Modal routing patterns allow modals to be URL-addressable and navigation-aware. Users can deep-link to a modal state, refresh the page to keep the modal open, and use browser back/forward to dismiss modals, creating a consistent navigation experience."
+  },
+  {
+    "order": 13,
+    "title": "Utilities & Helper Functions",
+    "description": "The utilities layer provides path manipulation (joinPath, prefixBaseUrl), parameter extraction (extractQueryParams, getRouteVars), hash generation (generateRouteHash, quickHash), and DOM utilities (traverseOutlet, findOutlet). These helpers are used throughout the router for consistent data transformation.",
+    "nodeIds": ["file:src/utils/index.ts", "file:src/utils/joinPath.ts", "file:src/utils/params.ts", "file:src/utils/traverseOutlet.ts"]
+  },
+  {
+    "order": 14,
+    "title": "Error Handling & Error Pages",
+    "description": "The error handling system provides custom error classes and default error page components. KylinRouterError extends native Error with router-specific context. Default 404 and 500 components handle route matching failures and data loading errors with user-friendly messages.",
+    "nodeIds": ["file:src/errors.ts", "class:src/errors.ts:KylinRouterError", "file:src/pages/errors/404.ts", "file:src/pages/errors/500.ts"],
+    "languageLesson": "Error boundaries in routing systems catch failures at both the route matching level (404) and data loading level (500). Providing default error pages ensures graceful degradation while allowing custom error components for branded experiences."
+  },
+  {
+    "order": 15,
+    "title": "Project Configuration & Build",
+    "description": "The configuration layer defines the build system with Vite 8.0.1, TypeScript 6.0.2 in strict mode, and development tooling. The package.json manages dependencies (Lit 3.3.2, History 5.3.0) and scripts for development, building, and testing. Configuration ensures type safety and optimal bundle output.",
+    "nodeIds": ["config:package.json", "config:tsconfig.json", "config:vite.config.ts", "config:package-lock.json"],
+    "languageLesson": "Vite provides fast HMR during development and optimized production builds. TypeScript strict mode catches errors at compile time. The build configuration targets ES2021 for modern browsers while maintaining compatibility through appropriate polyfill strategies."
+  }
+]

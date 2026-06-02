@@ -1,257 +1,1159 @@
 {
   "nodes": [
     {
-      "id": "document:.claude/commands/gsd/fast.md",
-      "type": "document",
-      "name": "fast.md",
-      "filePath": ".claude/commands/gsd/fast.md",
-      "summary": "GSD快速任务命令，用于执行小型任务而无需生成子代理或规划开销。适用于拼写错误修复、配置变更、小型重构等可在2分钟内完成的任务。",
-      "tags": ["gsd命令", "快速执行", "小型任务", "工作流"],
-      "complexity": "simple"
-    },
-    {
-      "id": "document:.claude/commands/gsd/forensics.md",
-      "type": "document",
-      "name": "forensics.md",
-      "filePath": ".claude/commands/gsd/forensics.md",
-      "summary": "GSD事后分析命令，用于诊断失败的GSD工作流执行。通过分析git历史、`.planning/`文件和文件系统状态来检测异常并生成结构化诊断报告。",
-      "tags": ["gsd命令", "诊断分析", "故障调查", "事后分析"],
-      "complexity": "moderate"
-    },
-    {
-      "id": "document:.claude/commands/gsd/help.md",
-      "type": "document",
-      "name": "help.md",
-      "filePath": ".claude/commands/gsd/help.md",
-      "summary": "GSD帮助命令，显示完整的GSD命令参考和使用指南。输出参考内容，不添加项目特定分析或下一步建议。",
-      "tags": ["gsd命令", "帮助文档", "命令参考", "用户指南"],
-      "complexity": "simple"
-    },
-    {
-      "id": "document:.claude/commands/gsd/health.md",
-      "type": "document",
-      "name": "health.md",
-      "filePath": ".claude/commands/gsd/health.md",
-      "summary": "GSD健康检查命令，验证`.planning/`目录的完整性并报告可操作的问题。检查缺失文件、无效配置、不一致状态和孤立计划。支持--repair标志进行修复。",
-      "tags": ["gsd命令", "健康检查", "诊断工具", "目录维护"],
-      "complexity": "simple"
-    },
-    {
-      "id": "document:.claude/commands/gsd/intel.md",
-      "type": "document",
-      "name": "intel.md",
-      "filePath": ".claude/commands/gsd/intel.md",
-      "summary": "GSD情报系统命令，用于查询、检查或刷新`.planning/intel/`中的代码库情报文件。支持查询、状态检查、差异对比和刷新操作，提供代码库结构和关系的实时索引。",
-      "tags": ["gsd命令", "代码分析", "情报系统", "索引管理"],
+      "id": "file:src/components/base/index.ts",
+      "type": "file",
+      "name": "base/index.ts",
+      "filePath": "src/components/base/index.ts",
+      "summary": "Base component class providing router instance access through context injection and DOM traversal for router-aware components.",
+      "tags": ["component", "base-class", "context-injection", "router-access", "web-components"],
       "complexity": "moderate",
-      "languageNotes": "包含9个主要步骤的详细操作流程，支持多种子命令模式"
+      "languageNotes": "Uses LitElement base class with custom context event system for router instance propagation. Implements synchronous and asynchronous router retrieval patterns."
     },
     {
-      "id": "document:.claude/commands/gsd/insert-phase.md",
-      "type": "document",
-      "name": "insert-phase.md",
-      "filePath": ".claude/commands/gsd/insert-phase.md",
-      "summary": "GSD插入阶段命令，用于在现有阶段之间插入紧急工作作为小数十阶段。允许在不破坏现有计划结构的情况下插入高优先级任务。",
-      "tags": ["gsd命令", "阶段管理", "紧急任务", "计划调整"],
-      "complexity": "simple"
-    },
-    {
-      "id": "document:.claude/commands/gsd/import.md",
-      "type": "document",
-      "name": "import.md",
-      "filePath": ".claude/commands/gsd/import.md",
-      "summary": "GSD导入命令，用于导入外部计划并将其集成到GSD工作流中。支持从其他来源获取计划并转换为GSD兼容格式。",
-      "tags": ["gsd命令", "计划导入", "数据迁移", "工作流集成"],
-      "complexity": "simple"
-    },
-    {
-      "id": "document:.claude/commands/gsd/join-discord.md",
-      "type": "document",
-      "name": "join-discord.md",
-      "filePath": ".claude/commands/gsd/join-discord.md",
-      "summary": "GSD社区加入命令，提供加入GSD Discord社区的链接和信息。支持用户获取社区支持和参与讨论。",
-      "tags": ["gsd命令", "社区支持", "discord", "用户交流"],
-      "complexity": "simple"
-    },
-    {
-      "id": "document:.claude/commands/gsd/list-phase-assumptions.md",
-      "type": "document",
-      "name": "list-phase-assumptions.md",
-      "filePath": ".claude/commands/gsd/list-phase-assumptions.md",
-      "summary": "GSD阶段假设列表命令，展示Claude在阶段规划中做出的假设。帮助用户了解AI的推理过程和潜在的隐含决策。",
-      "tags": ["gsd命令", "假设分析", "透明度", "决策追踪"],
-      "complexity": "simple"
-    },
-    {
-      "id": "document:.claude/commands/gsd/list-workspaces.md",
-      "type": "document",
-      "name": "list-workspaces.md",
-      "filePath": ".claude/commands/gsd/list-workspaces.md",
-      "summary": "GSD工作空间列表命令，列出所有活跃的GSD工作空间。支持多项目管理和工作空间状态监控。",
-      "tags": ["gsd命令", "工作空间管理", "多项目支持", "状态监控"],
-      "complexity": "simple"
-    },
-    {
-      "id": "document:.claude/commands/gsd/map-codebase.md",
-      "type": "document",
-      "name": "map-codebase.md",
-      "filePath": ".claude/commands/gsd/map-codebase.md",
-      "summary": "GSD代码库映射命令，使用并行分析代理来分析代码库结构。生成项目的架构映射、依赖关系和模块关系图。",
-      "tags": ["gsd命令", "代码分析", "架构映射", "依赖分析"],
+      "id": "class:src/components/base/index.ts:KylinRouterElementBase",
+      "type": "class",
+      "name": "KylinRouterElementBase",
+      "filePath": "src/components/base/index.ts",
+      "lineRange": [21, 126],
+      "summary": "Base class for router-aware components that provides router instance injection and lifecycle management for custom elements.",
+      "tags": ["base-class", "component", "context-injection", "router-aware", "lifecycle-management"],
       "complexity": "moderate"
     },
     {
-      "id": "document:.claude/commands/gsd/manager.md",
-      "type": "document",
-      "name": "manager.md",
-      "filePath": ".claude/commands/gsd/manager.md",
-      "summary": "GSD管理器命令，提供交互式命令中心用于管理GSD工作流。集中访问所有GSD功能和状态信息。",
-      "tags": ["gsd命令", "管理界面", "命令中心", "工作流管理"],
+      "id": "file:src/components/link/index.ts",
+      "type": "file",
+      "name": "link/index.ts",
+      "filePath": "src/components/link/index.ts",
+      "summary": "Link component providing declarative navigation with internal route handling and security checks for dangerous protocols.",
+      "tags": ["component", "navigation", "link", "security", "web-components"],
+      "complexity": "moderate",
+      "languageNotes": "Extends KylinRouterElementBase for router access. Implements security checks for dangerous protocols (javascript:, data:, etc.) and distinguishes internal vs external links."
+    },
+    {
+      "id": "function:src/components/link/index.ts:isInternalLink",
+      "type": "function",
+      "name": "isInternalLink",
+      "filePath": "src/components/link/index.ts",
+      "lineRange": [12, 15],
+      "summary": "Checks if a path is an internal link by verifying it starts with '/' and does not contain protocol indicators.",
+      "tags": ["utility", "validation", "link-check", "navigation"],
       "complexity": "simple"
     },
     {
-      "id": "document:.claude/commands/gsd/milestone-summary.md",
-      "type": "document",
-      "name": "milestone-summary.md",
-      "filePath": ".claude/commands/gsd/milestone-summary.md",
-      "summary": "GSD里程碑摘要命令，生成项目里程碑进度的综合报告。总结完成的工作、状态统计和关键成果。",
-      "tags": ["gsd命令", "里程碑管理", "进度报告", "项目总结"],
+      "id": "function:src/components/link/index.ts:isDangerousProtocol",
+      "type": "function",
+      "name": "isDangerousProtocol",
+      "filePath": "src/components/link/index.ts",
+      "lineRange": [21, 24],
+      "summary": "Security check that identifies potentially dangerous URL protocols like javascript:, data:, and vbscript:.",
+      "tags": ["security", "validation", "link-check", "xss-prevention"],
       "complexity": "simple"
     },
     {
-      "id": "document:.claude/commands/gsd/new-milestone.md",
-      "type": "document",
-      "name": "new-milestone.md",
-      "filePath": ".claude/commands/gsd/new-milestone.md",
-      "summary": "GSD新里程碑命令，启动新的里程碑周期。管理项目的主要版本和发布周期的开始过程。",
-      "tags": ["gsd命令", "里程碑创建", "周期管理", "版本规划"],
+      "id": "class:src/components/link/index.ts:KylinLinkElement",
+      "type": "class",
+      "name": "KylinLinkElement",
+      "filePath": "src/components/link/index.ts",
+      "lineRange": [27, 120],
+      "summary": "Custom element for declarative navigation that intercepts click events and routes to internal paths using the router.",
+      "tags": ["component", "navigation", "link", "event-handling", "router-integration"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/features/routes.ts",
+      "type": "file",
+      "name": "routes.ts",
+      "filePath": "src/features/routes.ts",
+      "summary": "Route table feature providing route loading, matching, and management with support for named routes and override options.",
+      "tags": ["feature", "routing", "route-matching", "route-management", "data-structures"],
+      "complexity": "moderate",
+      "languageNotes": "Implements route table pattern with internal route storage and matching capabilities. Supports dynamic route loading and named route resolution."
+    },
+    {
+      "id": "class:src/features/routes.ts:KylinRouteTable",
+      "type": "class",
+      "name": "KylinRouteTable",
+      "filePath": "src/features/routes.ts",
+      "lineRange": [24, 116],
+      "summary": "Route table manager that loads, normalizes, and matches routes against paths with support for named routes and custom options.",
+      "tags": ["route-management", "route-matching", "data-structures", "route-loading", "configuration"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/utils/extractQueryParams.ts",
+      "type": "file",
+      "name": "extractQueryParams.ts",
+      "filePath": "src/utils/extractQueryParams.ts",
+      "summary": "Utility for extracting and parsing query parameters from URL search strings into key-value objects.",
+      "tags": ["utility", "url-parsing", "query-parameters", "parsing"],
       "complexity": "simple"
     },
     {
-      "id": "document:.claude/commands/gsd/new-project.md",
-      "type": "document",
-      "name": "new-project.md",
-      "filePath": ".claude/commands/gsd/new-project.md",
-      "summary": "GSD新项目命令，通过深度上下文收集初始化新项目并创建PROJECT.md。支持自动模式，创建项目配置、需求文档、路线图和状态文件。",
-      "tags": ["gsd命令", "项目初始化", "配置创建", "上下文收集"],
+      "id": "function:src/utils/extractQueryParams.ts:extractQueryParams",
+      "type": "function",
+      "name": "extractQueryParams",
+      "filePath": "src/utils/extractQueryParams.ts",
+      "lineRange": [10, 23],
+      "summary": "Parses URL search strings into structured query parameter objects with proper string trimming and type handling.",
+      "tags": ["utility", "url-parsing", "query-parameters", "parsing"],
       "complexity": "simple"
     },
     {
-      "id": "document:.claude/commands/gsd/new-workspace.md",
-      "type": "document",
-      "name": "new-workspace.md",
-      "filePath": ".claude/commands/gsd/new-workspace.md",
-      "summary": "GSD新工作空间命令，创建独立的GSD工作空间。支持多项目环境下的隔离工作区管理。",
-      "tags": ["gsd命令", "工作空间创建", "项目隔离", "环境管理"],
+      "id": "file:src/utils/isExternalLink.ts",
+      "type": "file",
+      "name": "isExternalLink.ts",
+      "filePath": "src/utils/isExternalLink.ts",
+      "summary": "Utility for detecting external links by analyzing URL protocols and distinguishing them from internal routes.",
+      "tags": ["utility", "validation", "link-check", "security", "url-parsing"],
       "complexity": "simple"
     },
     {
-      "id": "document:.claude/commands/gsd/next.md",
-      "type": "document",
-      "name": "next.md",
-      "filePath": ".claude/commands/gsd/next.md",
-      "summary": "GSD下一步命令，自动检测当前项目状态并推进到下一个逻辑GSD工作流步骤。读取STATE.md、ROADMAP.md和阶段目录来确定下一步操作。",
-      "tags": ["gsd命令", "自动推进", "状态检测", "工作流自动化"],
+      "id": "function:src/utils/isExternalLink.ts:isExternalLink",
+      "type": "function",
+      "name": "isExternalLink",
+      "filePath": "src/utils/isExternalLink.ts",
+      "lineRange": [18, 49],
+      "summary": "Detects external links by checking for URL protocols and using DOM anchor element parsing for accurate protocol detection.",
+      "tags": ["utility", "validation", "link-check", "security", "url-parsing"],
       "complexity": "simple"
     },
     {
-      "id": "document:.claude/commands/gsd/note.md",
-      "type": "document",
-      "name": "note.md",
-      "filePath": ".claude/commands/gsd/note.md",
-      "summary": "GSD笔记命令，零摩擦的想法捕获工具。快速记录想法、待办事项和临时笔记，支持快速想法收集。",
-      "tags": ["gsd命令", "笔记记录", "想法捕获", "快速记录"],
+      "id": "file:src/utils/joinPath.ts",
+      "type": "file",
+      "name": "joinPath.ts",
+      "filePath": "src/utils/joinPath.ts",
+      "summary": "Path joining utility that safely combines base paths with relative paths while handling edge cases and duplicate separators.",
+      "tags": ["utility", "path-manipulation", "url-parsing", "path-joining"],
       "complexity": "simple"
     },
     {
-      "id": "document:.claude/commands/gsd/pause-work.md",
-      "type": "document",
-      "name": "pause-work.md",
-      "filePath": ".claude/commands/gsd/pause-work.md",
-      "summary": "GSD暂停工作命令，在暂停会话时创建上下文交接。记录当前状态和未完成任务，便于后续恢复工作。",
-      "tags": ["gsd命令", "会话管理", "上下文保存", "工作暂停"],
+      "id": "function:src/utils/joinPath.ts:joinPath",
+      "type": "function",
+      "name": "joinPath",
+      "filePath": "src/utils/joinPath.ts",
+      "lineRange": [18, 36],
+      "summary": "Combines base and relative paths with proper separator handling and edge case prevention for empty or malformed inputs.",
+      "tags": ["utility", "path-manipulation", "url-parsing", "path-joining"],
       "complexity": "simple"
     },
     {
-      "id": "document:.claude/commands/gsd/plan-milestone-gaps.md",
-      "type": "document",
-      "name": "plan-milestone-gaps.md",
-      "filePath": ".claude/commands/gsd/plan-milestone-gaps.md",
-      "summary": "GSD里程碑缺口规划命令，创建阶段来关闭所有确定的项目缺口。分析和补充项目规划中的空白领域。",
-      "tags": ["gsd命令", "缺口分析", "规划补充", "项目完善"],
+      "id": "file:src/utils/matchRoute.ts",
+      "type": "file",
+      "name": "matchRoute.ts",
+      "filePath": "src/utils/matchRoute.ts",
+      "summary": "Core route matching engine with support for parameters, wildcards, redirects, defaults, and complex routing patterns including recursive matching.",
+      "tags": ["routing", "route-matching", "core-logic", "pattern-matching", "redirect-handling"],
+      "complexity": "complex",
+      "languageNotes": "Implements sophisticated route matching with parameterized routes (e.g., /users/:id), wildcard patterns (* and **), redirect resolution, default route handling, and recursive route matching. Contains 16 functions handling various aspects of route matching."
+    },
+    {
+      "id": "function:src/utils/matchRoute.ts:normalizeUrl",
+      "type": "function",
+      "name": "normalizeUrl",
+      "filePath": "src/utils/matchRoute.ts",
+      "lineRange": [88, 93],
+      "summary": "Normalizes URL strings by removing extra whitespace and standardizing separators for consistent matching.",
+      "tags": ["utility", "normalization", "url-parsing", "route-matching"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/utils/matchRoute.ts:normalizePath",
+      "type": "function",
+      "name": "normalizePath",
+      "filePath": "src/utils/matchRoute.ts",
+      "lineRange": [108, 125],
+      "summary": "Comprehensive path normalization handling case sensitivity, trailing slashes, and hash/query string separation.",
+      "tags": ["utility", "normalization", "url-parsing", "route-matching"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/utils/matchRoute.ts:resolveRedirectPath",
+      "type": "function",
+      "name": "resolveRedirectPath",
+      "filePath": "src/utils/matchRoute.ts",
+      "lineRange": [145, 185],
+      "summary": "Resolves redirect paths relative to current match location, handling relative paths (..), absolute paths, and parameter substitution.",
+      "tags": ["routing", "redirect-handling", "path-resolution", "parameter-substitution"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/utils/matchRoute.ts:resolveRedirect",
+      "type": "function",
+      "name": "resolveRedirect",
+      "filePath": "src/utils/matchRoute.ts",
+      "lineRange": [205, 295],
+      "summary": "Resolves redirect targets supporting function redirects, named routes, parameter substitution, and external link detection with loop prevention.",
+      "tags": ["routing", "redirect-handling", "parameter-substitution", "named-routes", "loop-prevention"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/utils/matchRoute.ts:escapeRegex",
+      "type": "function",
+      "name": "escapeRegex",
+      "filePath": "src/utils/matchRoute.ts",
+      "lineRange": [300, 302],
+      "summary": "Escapes special regex characters in strings to prevent unintended regex behavior when used in pattern matching.",
+      "tags": ["utility", "regex", "escaping", "pattern-matching"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/utils/matchRoute.ts:stripHash",
+      "type": "function",
+      "name": "stripHash",
+      "filePath": "src/utils/matchRoute.ts",
+      "lineRange": [307, 310],
+      "summary": "Removes hash fragments from pathname strings for clean path comparison and matching.",
+      "tags": ["utility", "url-parsing", "hash-handling", "route-matching"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/utils/matchRoute.ts:parseQueryString",
+      "type": "function",
+      "name": "parseQueryString",
+      "filePath": "src/utils/matchRoute.ts",
+      "lineRange": [316, 324],
+      "summary": "Parses pathname strings to separate hash fragments and extract query parameters for route processing.",
+      "tags": ["utility", "url-parsing", "query-parameters", "hash-handling"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/utils/matchRoute.ts:compileSegments",
+      "type": "function",
+      "name": "compileSegments",
+      "filePath": "src/utils/matchRoute.ts",
+      "lineRange": [338, 421],
+      "summary": "Compiles route path patterns into regex matchers with parameter extraction and support for wildcards and parameterized segments.",
+      "tags": ["routing", "pattern-matching", "regex-compilation", "parameter-extraction", "wildcards"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/utils/matchRoute.ts:extractParamNames",
+      "type": "function",
+      "name": "extractParamNames",
+      "filePath": "src/utils/matchRoute.ts",
+      "lineRange": [427, 445],
+      "summary": "Extracts parameter names from route patterns, supporting both :param syntax and {param} syntax for parameterized routes.",
+      "tags": ["routing", "parameter-extraction", "pattern-parsing", "route-analysis"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/utils/matchRoute.ts:replacePathParams",
+      "type": "function",
+      "name": "replacePathParams",
+      "filePath": "src/utils/matchRoute.ts",
+      "lineRange": [451, 469],
+      "summary": "Replaces parameter placeholders in route paths with actual values, supporting both :param and {param} syntax patterns.",
+      "tags": ["routing", "parameter-substitution", "path-generation", "route-building"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/utils/matchRoute.ts:findDefaultRoute",
+      "type": "function",
+      "name": "findDefaultRoute",
+      "filePath": "src/utils/matchRoute.ts",
+      "lineRange": [480, 529],
+      "summary": "Recursively searches for default routes (index routes) within nested route structures when no explicit path match is found.",
+      "tags": ["routing", "default-routes", "recursive-search", "route-resolution"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/utils/matchRoute.ts:createUnmatchedRouteItem",
+      "type": "function",
+      "name": "createUnmatchedRouteItem",
+      "filePath": "src/utils/matchRoute.ts",
+      "lineRange": [534, 557],
+      "summary": "Creates route items for unmatched paths, typically used for wildcard routes or fallback route handling in the matching process.",
+      "tags": ["routing", "fallback-handling", "route-creation", "wildcard-handling"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/utils/matchRoute.ts:createRouteMatcher",
+      "type": "function",
+      "name": "createRouteMatcher",
+      "filePath": "src/utils/matchRoute.ts",
+      "lineRange": [568, 645],
+      "summary": "Creates compiled route matchers with parameter extraction capabilities and support for case-insensitive matching and query string handling.",
+      "tags": ["routing", "pattern-matching", "matcher-creation", "parameter-extraction"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/utils/matchRoute.ts:processSingleRoute",
+      "type": "function",
+      "name": "processSingleRoute",
+      "filePath": "src/utils/matchRoute.ts",
+      "lineRange": [651, 780],
+      "summary": "Processes individual route definitions with pattern matching, parameter extraction, recursive child processing, and wildcard route handling.",
+      "tags": ["routing", "route-processing", "pattern-matching", "recursive-processing"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/utils/matchRoute.ts:_matchRoutesInternal",
+      "type": "function",
+      "name": "_matchRoutesInternal",
+      "filePath": "src/utils/matchRoute.ts",
+      "lineRange": [782, 825],
+      "summary": "Internal recursive route matching function that processes route arrays and handles wildcard routes and parameterized path matching.",
+      "tags": ["routing", "route-matching", "recursive-matching", "internal-logic"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/utils/matchRoute.ts:matchRoute",
+      "type": "function",
+      "name": "matchRoute",
+      "filePath": "src/utils/matchRoute.ts",
+      "lineRange": [849, 1158],
+      "summary": "Main route matching function with comprehensive support for parameters, wildcards, redirects, defaults, recursive matching, and complex routing scenarios.",
+      "tags": ["routing", "route-matching", "core-logic", "redirect-handling", "wildcard-matching"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/utils/normalizeRoutes.ts",
+      "type": "file",
+      "name": "normalizeRoutes.ts",
+      "filePath": "src/utils/normalizeRoutes.ts",
+      "summary": "Route normalization utility that converts route arrays to tree structures and back, handling duplicate path merging and default route placement.",
+      "tags": ["routing", "route-normalization", "data-structures", "tree-processing", "route-organization"],
+      "complexity": "moderate",
+      "languageNotes": "Implements tree-based route normalization with automatic duplicate path merging and default route (index route) handling. Uses recursive tree building and flattening algorithms."
+    },
+    {
+      "id": "function:src/utils/normalizeRoutes.ts:splitPath",
+      "type": "function",
+      "name": "splitPath",
+      "filePath": "src/utils/normalizeRoutes.ts",
+      "lineRange": [27, 38],
+      "summary": "Splits route paths into normalized segments with proper trimming and separator handling for tree construction.",
+      "tags": ["utility", "path-parsing", "segmentation", "route-normalization"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/utils/normalizeRoutes.ts:isRootRoute",
+      "type": "function",
+      "name": "isRootRoute",
+      "filePath": "src/utils/normalizeRoutes.ts",
+      "lineRange": [43, 46],
+      "summary": "Identifies root routes by checking if the path is exactly '/' after trimming whitespace.",
+      "tags": ["utility", "route-detection", "root-route", "validation"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/utils/normalizeRoutes.ts:getOrCreateNode",
+      "type": "function",
+      "name": "getOrCreateNode",
+      "filePath": "src/utils/normalizeRoutes.ts",
+      "lineRange": [54, 66],
+      "summary": "Tree navigation helper that retrieves existing child nodes or creates new ones during route tree construction.",
+      "tags": ["utility", "tree-navigation", "node-creation", "route-tree"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/utils/normalizeRoutes.ts:isDefaultRoute",
+      "type": "function",
+      "name": "isDefaultRoute",
+      "filePath": "src/utils/normalizeRoutes.ts",
+      "lineRange": [71, 73],
+      "summary": "Detects default (index) routes by checking for empty path strings or '/' path patterns.",
+      "tags": ["utility", "route-detection", "default-route", "validation"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/utils/normalizeRoutes.ts:treeToArray",
+      "type": "function",
+      "name": "treeToArray",
+      "filePath": "src/utils/normalizeRoutes.ts",
+      "lineRange": [78, 95],
+      "summary": "Recursively flattens route tree structures back into arrays while preserving hierarchical relationships and metadata.",
+      "tags": ["utility", "tree-flattening", "recursive-processing", "route-normalization"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/utils/normalizeRoutes.ts:processRoute",
+      "type": "function",
+      "name": "processRoute",
+      "filePath": "src/utils/normalizeRoutes.ts",
+      "lineRange": [102, 146],
+      "summary": "Processes individual routes during tree construction, handling path splitting, default route detection, and recursive child processing.",
+      "tags": ["routing", "route-processing", "tree-building", "recursive-processing"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/utils/normalizeRoutes.ts:normalizeRoutes",
+      "type": "function",
+      "name": "normalizeRoutes",
+      "filePath": "src/utils/normalizeRoutes.ts",
+      "lineRange": [167, 220],
+      "summary": "Main route normalization function that converts route arrays to tree structures for duplicate merging and back to normalized arrays.",
+      "tags": ["routing", "route-normalization", "data-transformation", "tree-processing"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/utils/prefixBaseUrl.ts",
+      "type": "file",
+      "name": "prefixBaseUrl.ts",
+      "filePath": "src/utils/prefixBaseUrl.ts",
+      "summary": "URL prefix utility that prepends base URLs to paths while handling absolute URLs, existing prefixes, and proper path joining.",
+      "tags": ["utility", "url-parsing", "path-manipulation", "base-url", "prefixing"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/utils/prefixBaseUrl.ts:prefixBaseUrl",
+      "type": "function",
+      "name": "prefixBaseUrl",
+      "filePath": "src/utils/prefixBaseUrl.ts",
+      "lineRange": [3, 28],
+      "summary": "Prefixes base URLs to relative paths while handling absolute URLs, already-prefixed paths, and proper separator management.",
+      "tags": ["utility", "url-parsing", "path-manipulation", "base-url", "prefixing"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/utils/triggerEvent.ts",
+      "type": "file",
+      "name": "triggerEvent.ts",
+      "filePath": "src/utils/triggerEvent.ts",
+      "summary": "Event triggering utility that dispatches custom events with detail payloads on DOM elements for component communication.",
+      "tags": ["utility", "event-dispatching", "dom-events", "component-communication"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/utils/triggerEvent.ts:triggerEvent",
+      "type": "function",
+      "name": "triggerEvent",
+      "filePath": "src/utils/triggerEvent.ts",
+      "lineRange": [1, 9],
+      "summary": "Dispatches custom events on specified DOM elements with optional detail payloads for cross-component communication.",
+      "tags": ["utility", "event-dispatching", "dom-events", "component-communication"],
       "complexity": "simple"
     }
   ],
   "edges": [
     {
-      "source": "document:.claude/commands/gsd/fast.md",
-      "target": "document:.claude/commands/gsd/help.md",
-      "type": "related",
+      "source": "file:src/components/base/index.ts",
+      "target": "file:src/router.ts",
+      "type": "imports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.7
     },
     {
-      "source": "document:.claude/commands/gsd/forensics.md",
-      "target": "document:.claude/commands/gsd/health.md",
-      "type": "related",
+      "source": "file:src/components/base/index.ts",
+      "target": "file:src/utils/triggerEvent.ts",
+      "type": "imports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.7
     },
     {
-      "source": "document:.claude/commands/gsd/help.md",
-      "target": "document:.claude/commands/gsd/next.md",
-      "type": "related",
+      "source": "file:src/components/base/index.ts",
+      "target": "class:src/components/base/index.ts:KylinRouterElementBase",
+      "type": "contains",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 1.0
     },
     {
-      "source": "document:.claude/commands/gsd/new-project.md",
-      "target": "document:.claude/commands/gsd/manager.md",
-      "type": "related",
+      "source": "file:src/components/base/index.ts",
+      "target": "class:src/components/base/index.ts:KylinRouterElementBase",
+      "type": "exports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.8
     },
     {
-      "source": "document:.claude/commands/gsd/new-workspace.md",
-      "target": "document:.claude/commands/gsd/list-workspaces.md",
-      "type": "related",
+      "source": "class:src/components/base/index.ts:KylinRouterElementBase",
+      "target": "function:src/utils/triggerEvent.ts:triggerEvent",
+      "type": "calls",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.8
     },
     {
-      "source": "document:.claude/commands/gsd/next.md",
-      "target": "document:.claude/commands/gsd/milestone-summary.md",
-      "type": "related",
+      "source": "file:src/components/link/index.ts",
+      "target": "file:src/components/base/index.ts",
+      "type": "imports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.7
     },
     {
-      "source": "document:.claude/commands/gsd/milestone-summary.md",
-      "target": "document:.claude/commands/gsd/new-milestone.md",
-      "type": "related",
+      "source": "file:src/components/link/index.ts",
+      "target": "file:src/router.ts",
+      "type": "imports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.7
     },
     {
-      "source": "document:.claude/commands/gsd/pause-work.md",
-      "target": "document:.claude/commands/gsd/note.md",
-      "type": "related",
+      "source": "file:src/components/link/index.ts",
+      "target": "file:src/utils/joinPath.ts",
+      "type": "imports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.7
     },
     {
-      "source": "document:.claude/commands/gsd/map-codebase.md",
-      "target": "document:.claude/commands/gsd/intel.md",
-      "type": "related",
+      "source": "file:src/components/link/index.ts",
+      "target": "function:src/components/link/index.ts:isInternalLink",
+      "type": "contains",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 1.0
     },
     {
-      "source": "document:.claude/commands/gsd/plan-milestone-gaps.md",
-      "target": "document:.claude/commands/gsd/new-milestone.md",
-      "type": "related",
+      "source": "file:src/components/link/index.ts",
+      "target": "function:src/components/link/index.ts:isInternalLink",
+      "type": "exports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/link/index.ts",
+      "target": "function:src/components/link/index.ts:isDangerousProtocol",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/link/index.ts",
+      "target": "function:src/components/link/index.ts:isDangerousProtocol",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/link/index.ts",
+      "target": "class:src/components/link/index.ts:KylinLinkElement",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/link/index.ts",
+      "target": "class:src/components/link/index.ts:KylinLinkElement",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/link/index.ts",
+      "target": "class:src/components/base/index.ts:KylinRouterElementBase",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "class:src/components/link/index.ts:KylinLinkElement",
+      "target": "function:src/components/link/index.ts:isDangerousProtocol",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:src/components/link/index.ts:KylinLinkElement",
+      "target": "function:src/components/link/index.ts:isInternalLink",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:src/components/link/index.ts:KylinLinkElement",
+      "target": "function:src/utils/joinPath.ts:joinPath",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/features/routes.ts",
+      "target": "file:src/router.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/routes.ts",
+      "target": "file:src/types/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/routes.ts",
+      "target": "file:src/utils/matchRoute.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/routes.ts",
+      "target": "file:src/utils/normalizeRoutes.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/routes.ts",
+      "target": "class:src/features/routes.ts:KylinRouteTable",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/features/routes.ts",
+      "target": "class:src/features/routes.ts:KylinRouteTable",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:src/features/routes.ts:KylinRouteTable",
+      "target": "function:src/utils/normalizeRoutes.ts:normalizeRoutes",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:src/features/routes.ts:KylinRouteTable",
+      "target": "function:src/utils/matchRoute.ts:matchRoute",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/utils/extractQueryParams.ts",
+      "target": "function:src/utils/extractQueryParams.ts:extractQueryParams",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/extractQueryParams.ts",
+      "target": "function:src/utils/extractQueryParams.ts:extractQueryParams",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/utils/isExternalLink.ts",
+      "target": "function:src/utils/isExternalLink.ts:isExternalLink",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/isExternalLink.ts",
+      "target": "function:src/utils/isExternalLink.ts:isExternalLink",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/utils/joinPath.ts",
+      "target": "function:src/utils/joinPath.ts:joinPath",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/joinPath.ts",
+      "target": "function:src/utils/joinPath.ts:joinPath",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "file:src/errors.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "file:src/types/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "file:src/utils/extractQueryParams.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "file:src/utils/getRouteHash.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "file:src/utils/isExternalLink.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "file:src/utils/joinPath.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "function:src/utils/matchRoute.ts:normalizeUrl",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "function:src/utils/matchRoute.ts:normalizePath",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "function:src/utils/matchRoute.ts:resolveRedirectPath",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "function:src/utils/matchRoute.ts:resolveRedirect",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "function:src/utils/matchRoute.ts:escapeRegex",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "function:src/utils/matchRoute.ts:stripHash",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "function:src/utils/matchRoute.ts:parseQueryString",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "function:src/utils/matchRoute.ts:compileSegments",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "function:src/utils/matchRoute.ts:extractParamNames",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "function:src/utils/matchRoute.ts:replacePathParams",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "function:src/utils/matchRoute.ts:findDefaultRoute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "function:src/utils/matchRoute.ts:createUnmatchedRouteItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "function:src/utils/matchRoute.ts:createRouteMatcher",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "function:src/utils/matchRoute.ts:processSingleRoute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "function:src/utils/matchRoute.ts:_matchRoutesInternal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "function:src/utils/matchRoute.ts:matchRoute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "function:src/utils/matchRoute.ts:createRouteMatcher",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/utils/matchRoute.ts",
+      "target": "function:src/utils/matchRoute.ts:matchRoute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:parseQueryString",
+      "target": "function:src/utils/extractQueryParams.ts:extractQueryParams",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:resolveRedirectPath",
+      "target": "function:src/utils/joinPath.ts:joinPath",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:resolveRedirect",
+      "target": "function:src/utils/isExternalLink.ts:isExternalLink",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:findDefaultRoute",
+      "target": "function:src/utils/joinPath.ts:joinPath",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:findDefaultRoute",
+      "target": "function:src/utils/matchRoute.ts:normalizeUrl",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:findDefaultRoute",
+      "target": "function:src/utils/matchRoute.ts:replacePathParams",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:createUnmatchedRouteItem",
+      "target": "function:src/utils/joinPath.ts:joinPath",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:createUnmatchedRouteItem",
+      "target": "function:src/utils/matchRoute.ts:normalizeUrl",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:createRouteMatcher",
+      "target": "function:src/utils/matchRoute.ts:compileSegments",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:createRouteMatcher",
+      "target": "function:src/utils/matchRoute.ts:normalizePath",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:createRouteMatcher",
+      "target": "function:src/utils/matchRoute.ts:parseQueryString",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:processSingleRoute",
+      "target": "function:src/utils/matchRoute.ts:createRouteMatcher",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:processSingleRoute",
+      "target": "function:src/utils/matchRoute.ts:normalizeUrl",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:processSingleRoute",
+      "target": "function:src/utils/joinPath.ts:joinPath",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:processSingleRoute",
+      "target": "function:src/utils/matchRoute.ts:findDefaultRoute",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:processSingleRoute",
+      "target": "function:src/utils/matchRoute.ts:_matchRoutesInternal",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:processSingleRoute",
+      "target": "function:src/utils/matchRoute.ts:createUnmatchedRouteItem",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:_matchRoutesInternal",
+      "target": "function:src/utils/matchRoute.ts:processSingleRoute",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:_matchRoutesInternal",
+      "target": "function:src/utils/matchRoute.ts:createUnmatchedRouteItem",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:matchRoute",
+      "target": "function:src/utils/matchRoute.ts:parseQueryString",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:matchRoute",
+      "target": "function:src/utils/matchRoute.ts:normalizePath",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:matchRoute",
+      "target": "function:src/utils/matchRoute.ts:_matchRoutesInternal",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:matchRoute",
+      "target": "function:src/utils/matchRoute.ts:findDefaultRoute",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:matchRoute",
+      "target": "function:src/utils/matchRoute.ts:resolveRedirect",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/matchRoute.ts:matchRoute",
+      "target": "function:src/utils/matchRoute.ts:matchRoute",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/utils/normalizeRoutes.ts",
+      "target": "file:src/types/routes.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/utils/normalizeRoutes.ts",
+      "target": "function:src/utils/normalizeRoutes.ts:splitPath",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/normalizeRoutes.ts",
+      "target": "function:src/utils/normalizeRoutes.ts:isRootRoute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/normalizeRoutes.ts",
+      "target": "function:src/utils/normalizeRoutes.ts:getOrCreateNode",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/normalizeRoutes.ts",
+      "target": "function:src/utils/normalizeRoutes.ts:isDefaultRoute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/normalizeRoutes.ts",
+      "target": "function:src/utils/normalizeRoutes.ts:treeToArray",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/normalizeRoutes.ts",
+      "target": "function:src/utils/normalizeRoutes.ts:processRoute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/normalizeRoutes.ts",
+      "target": "function:src/utils/normalizeRoutes.ts:normalizeRoutes",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/normalizeRoutes.ts",
+      "target": "function:src/utils/normalizeRoutes.ts:normalizeRoutes",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/normalizeRoutes.ts:treeToArray",
+      "target": "function:src/utils/normalizeRoutes.ts:treeToArray",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/normalizeRoutes.ts:processRoute",
+      "target": "function:src/utils/normalizeRoutes.ts:splitPath",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/normalizeRoutes.ts:processRoute",
+      "target": "function:src/utils/normalizeRoutes.ts:isDefaultRoute",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/normalizeRoutes.ts:processRoute",
+      "target": "function:src/utils/normalizeRoutes.ts:processRoute",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/normalizeRoutes.ts:processRoute",
+      "target": "function:src/utils/normalizeRoutes.ts:getOrCreateNode",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/normalizeRoutes.ts:normalizeRoutes",
+      "target": "function:src/utils/normalizeRoutes.ts:isRootRoute",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/normalizeRoutes.ts:normalizeRoutes",
+      "target": "function:src/utils/normalizeRoutes.ts:processRoute",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/normalizeRoutes.ts:normalizeRoutes",
+      "target": "function:src/utils/normalizeRoutes.ts:treeToArray",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/utils/prefixBaseUrl.ts",
+      "target": "file:src/utils/joinPath.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/utils/prefixBaseUrl.ts",
+      "target": "function:src/utils/prefixBaseUrl.ts:prefixBaseUrl",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/prefixBaseUrl.ts",
+      "target": "function:src/utils/prefixBaseUrl.ts:prefixBaseUrl",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/prefixBaseUrl.ts:prefixBaseUrl",
+      "target": "function:src/utils/joinPath.ts:joinPath",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/utils/triggerEvent.ts",
+      "target": "function:src/utils/triggerEvent.ts:triggerEvent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/triggerEvent.ts",
+      "target": "function:src/utils/triggerEvent.ts:triggerEvent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
     }
   ]
 }

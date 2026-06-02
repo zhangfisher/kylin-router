@@ -1,0 +1,22 @@
+{
+  "projectRoot": "E:/Work/Code/kylin-router",
+  "batchFiles": [
+    {"path": "src/directives/cssVar.ts", "language": "typescript", "sizeLines": 84, "fileCategory": "code"},
+    {"path": "src/directives/injectData.ts", "language": "typescript", "sizeLines": 86, "fileCategory": "code"},
+    {"path": "src/features/alpine.ts", "language": "typescript", "sizeLines": 115, "fileCategory": "code"},
+    {"path": "src/types/modals.ts", "language": "typescript", "sizeLines": 140, "fileCategory": "code"}
+  ],
+  "batchImportData": {
+    "src/directives/cssVar.ts": [],
+    "src/directives/injectData.ts": [],
+    "src/features/alpine.ts": [
+      "src/directives/cssVar.ts",
+      "src/directives/injectData.ts",
+      "src/router.ts",
+      "src/types/modals.ts"
+    ],
+    "src/types/modals.ts": [
+      "src/types/routes.ts"
+    ]
+  }
+}

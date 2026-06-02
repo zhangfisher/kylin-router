@@ -1,187 +1,730 @@
 {
   "nodes": [
     {
-      "id": "document:.claude/commands/gsd/add-backlog.md",
-      "type": "document",
-      "name": "add-backlog.md",
-      "filePath": ".claude/commands/gsd/add-backlog.md",
-      "summary": "GSD工作流命令文档 - 将想法添加到待办事项积压清单（999.x编号系统），用于暂存未准备好进入主动规划阶段的项目想法。",
-      "tags": ["gsd-命令", "工作流", "待办管理", "积压清单", "文档"],
+      "id": "file:src/errors.ts",
+      "type": "file",
+      "name": "errors.ts",
+      "filePath": "src/errors.ts",
+      "summary": "Defines a hierarchy of custom error classes for router-specific exception handling, including route errors, external navigation errors, not-found errors, and redirect loop detection.",
+      "tags": ["error-handling", "type-definition", "exception-hierarchy"],
       "complexity": "simple"
     },
     {
-      "id": "document:.claude/commands/gsd/add-phase.md",
-      "type": "document",
-      "name": "add-phase.md",
-      "filePath": ".claude/commands/gsd/add-phase.md",
-      "summary": "GSD工作流命令文档 - 在当前里程碑末尾添加新阶段，扩展项目规划和执行的时间线。",
-      "tags": ["gsd-命令", "工作流", "阶段管理", "规划", "文档"],
-      "complexity": "simple"
+      "id": "class:src/errors.ts:KylinRouterError",
+      "type": "class",
+      "name": "KylinRouterError",
+      "filePath": "src/errors.ts",
+      "lineRange": [3, 11],
+      "summary": "Base error class for router-specific errors with HTTP status code and route information.",
+      "tags": ["error-handling", "base-class", "http-status"]
     },
     {
-      "id": "document:.claude/commands/gsd/add-tests.md",
-      "type": "document",
-      "name": "add-tests.md",
-      "filePath": ".claude/commands/gsd/add-tests.md",
-      "summary": "GSD工作流命令文档 - 为已完成的阶段生成测试用例，确保代码质量和功能完整性。",
-      "tags": ["gsd-命令", "测试", "质量保证", "工作流", "文档"],
-      "complexity": "simple"
+      "id": "class:src/errors.ts:KylinRouteError",
+      "type": "class",
+      "name": "KylinRouteError",
+      "filePath": "src/errors.ts",
+      "lineRange": [20, 26],
+      "summary": "Error class for general route-related exceptions during navigation.",
+      "tags": ["error-handling", "route-error"]
     },
     {
-      "id": "document:.claude/commands/gsd/add-todo.md",
-      "type": "document",
-      "name": "add-todo.md",
-      "filePath": ".claude/commands/gsd/add-todo.md",
-      "summary": "GSD工作流命令文档 - 捕获想法或任务为待办事项，快速记录需要处理的工作项。",
-      "tags": ["gsd-命令", "待办管理", "任务跟踪", "工作流", "文档"],
-      "complexity": "simple"
+      "id": "class:src/errors.ts:KylinExternalRouteError",
+      "type": "class",
+      "name": "KylinExternalRouteError",
+      "filePath": "src/errors.ts",
+      "lineRange": [30, 39],
+      "summary": "Error class for external navigation failures with target URL and route name context.",
+      "tags": ["error-handling", "external-navigation"]
     },
     {
-      "id": "document:.claude/commands/gsd/analyze-dependencies.md",
-      "type": "document",
-      "name": "analyze-dependencies.md",
-      "filePath": ".claude/commands/gsd/analyze-dependencies.md",
-      "summary": "GSD工作流命令文档 - 分析阶段间的依赖关系，优化执行顺序并识别阻塞任务。",
-      "tags": ["gsd-命令", "依赖分析", "工作流", "优化", "文档"],
-      "complexity": "simple"
+      "id": "class:src/errors.ts:KylinNotFoundRouteError",
+      "type": "class",
+      "name": "KylinNotFoundRouteError",
+      "filePath": "src/errors.ts",
+      "lineRange": [44, 51],
+      "summary": "Error class thrown when no matching route is found for a given path.",
+      "tags": ["error-handling", "not-found"]
     },
     {
-      "id": "document:.claude/commands/gsd/audit-milestone.md",
-      "type": "document",
-      "name": "audit-milestone.md",
-      "filePath": ".claude/commands/gsd/audit-milestone.md",
-      "summary": "GSD工作流命令文档 - 审计里程碑完成情况，验证所有交付物和阶段是否达到完成标准。",
-      "tags": ["gsd-命令", "审计", "里程碑", "质量保证", "文档"],
-      "complexity": "simple"
+      "id": "class:src/errors.ts:KylinMaxRedirectRouteError",
+      "type": "class",
+      "name": "KylinMaxRedirectRouteError",
+      "filePath": "src/errors.ts",
+      "lineRange": [56, 61],
+      "summary": "Error class thrown when maximum redirect limit is exceeded, protecting against infinite redirect chains.",
+      "tags": ["error-handling", "redirect-limit"]
     },
     {
-      "id": "document:.claude/commands/gsd/audit-fix.md",
-      "type": "document",
-      "name": "audit-fix.md",
-      "filePath": ".claude/commands/gsd/audit-fix.md",
-      "summary": "GSD工作流命令文档 - 自动化审计到修复的管道，从审计发现的问题直接生成修复计划。",
-      "tags": ["gsd-命令", "审计", "自动修复", "管道", "文档"],
-      "complexity": "simple"
+      "id": "class:src/errors.ts:KylinLoopRouteError",
+      "type": "class",
+      "name": "KylinLoopRouteError",
+      "filePath": "src/errors.ts",
+      "lineRange": [66, 71],
+      "summary": "Error class thrown when a redirect loop is detected in route configuration.",
+      "tags": ["error-handling", "redirect-loop"]
     },
     {
-      "id": "document:.claude/commands/gsd/audit-uat.md",
-      "type": "document",
-      "name": "audit-uat.md",
-      "filePath": ".claude/commands/gsd/audit-uat.md",
-      "summary": "GSD工作流命令文档 - 跨阶段用户验收测试审计，验证所有输出是否符合用户需求。",
-      "tags": ["gsd-命令", "审计", "用户验收测试", "质量保证", "文档"],
-      "complexity": "simple"
-    },
-    {
-      "id": "document:.claude/commands/gsd/autonomous.md",
-      "type": "document",
-      "name": "autonomous.md",
-      "filePath": ".claude/commands/gsd/autonomous.md",
-      "summary": "GSD工作流命令文档 - 自动运行所有剩余阶段，实现无人值守的项目执行和完成。",
-      "tags": ["gsd-命令", "自动化", "工作流", "执行", "文档"],
-      "complexity": "simple"
-    },
-    {
-      "id": "document:.claude/commands/gsd/code-review-fix.md",
-      "type": "document",
-      "name": "code-review-fix.md",
-      "filePath": ".claude/commands/gsd/code-review-fix.md",
-      "summary": "GSD工作流命令文档 - 自动修复代码审查中发现的问题，应用审查报告中的建议修复。",
-      "tags": ["gsd-命令", "代码审查", "自动修复", "质量保证", "文档"],
-      "complexity": "simple"
-    },
-    {
-      "id": "document:.claude/commands/gsd/code-review.md",
-      "type": "document",
-      "name": "code-review.md",
-      "filePath": ".claude/commands/gsd/code-review.md",
-      "summary": "GSD工作流命令文档 - 审查阶段变更的源文件，检测漏洞、安全问题和代码质量问题，支持多种审查深度。",
-      "tags": ["gsd-命令", "代码审查", "质量保证", "安全", "文档"],
-      "complexity": "moderate"
-    },
-    {
-      "id": "document:.claude/commands/gsd/cleanup.md",
-      "type": "document",
-      "name": "cleanup.md",
-      "filePath": ".claude/commands/gsd/cleanup.md",
-      "summary": "GSD工作流命令文档 - 归档累积的阶段数据，清理已完成的工作并保持项目结构整洁。",
-      "tags": ["gsd-命令", "清理", "归档", "维护", "文档"],
-      "complexity": "simple"
-    },
-    {
-      "id": "document:.claude/commands/gsd/complete-milestone.md",
-      "type": "document",
-      "name": "complete-milestone.md",
-      "filePath": ".claude/commands/gsd/complete-milestone.md",
-      "summary": "GSD工作流命令文档 - 归档已完成的里程碑，整理项目成果并为下一周期做准备，包含136行详细文档。",
-      "tags": ["gsd-命令", "里程碑", "归档", "完成标准", "文档"],
-      "complexity": "moderate"
-    },
-    {
-      "id": "document:.claude/commands/gsd/check-todos.md",
-      "type": "document",
-      "name": "check-todos.md",
-      "filePath": ".claude/commands/gsd/check-todos.md",
-      "summary": "GSD工作流命令文档 - 列出待处理的待办事项并选择性执行，管理任务队列。",
-      "tags": ["gsd-命令", "待办管理", "任务执行", "工作流", "文档"],
-      "complexity": "simple"
-    },
-    {
-      "id": "document:.claude/commands/gsd/debug.md",
-      "type": "document",
-      "name": "debug.md",
-      "filePath": ".claude/commands/gsd/debug.md",
-      "summary": "GSD工作流命令文档 - 系统化调试工作流，使用科学方法进行问题诊断和修复，支持子代理隔离和持久化状态，包含5个主要步骤和186行详细文档。",
-      "tags": ["gsd-命令", "调试", "问题诊断", "子代理", "工作流", "文档"],
+      "id": "file:src/features/baseLoader.ts",
+      "type": "file",
+      "name": "baseLoader.ts",
+      "filePath": "src/features/baseLoader.ts",
+      "summary": "Abstract base loader class providing core functionality for loading route resources with caching, signal-based abort handling, and error management. Used as foundation for data and view loaders.",
+      "tags": ["base-class", "loader", "caching", "async-loading", "error-handling"],
       "complexity": "complex",
-      "languageNotes": "采用子代理隔离模式处理上下文密集型调试任务，提供诊断模式和检查点恢复机制"
+      "languageNotes": "Uses template method pattern with abstract methods for extensibility. Implements sophisticated caching with TTL and signal-based request cancellation."
     },
     {
-      "id": "document:.claude/commands/gsd/do.md",
-      "type": "document",
-      "name": "do.md",
-      "filePath": ".claude/commands/gsd/do.md",
-      "summary": "GSD工作流命令文档 - 自由文本路由命令，根据输入内容智能分发到合适的GSD工作流。",
-      "tags": ["gsd-命令", "路由", "工作流", "智能分发", "文档"],
+      "id": "file:src/features/dataLoader.ts",
+      "type": "file",
+      "name": "dataLoader.ts",
+      "filePath": "src/features/dataLoader.ts",
+      "summary": "Concrete loader implementation for fetching and processing JSON data with Alpine.js store integration. Extends BaseLoader with data-specific handling and automatic URL resolution.",
+      "tags": ["data-loading", "alpine-integration", "json", "loader-implementation"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:src/features/dataLoader.ts:DataLoader",
+      "type": "class",
+      "name": "DataLoader",
+      "filePath": "src/features/dataLoader.ts",
+      "lineRange": [23, 101],
+      "summary": "Data loader implementation that fetches JSON data and integrates with Alpine.js stores or data functions, providing automatic URL resolution and data caching.",
+      "tags": ["data-loading", "alpine-integration", "json", "caching"]
+    },
+    {
+      "id": "file:src/features/viewLoader.ts",
+      "type": "file",
+      "name": "viewLoader.ts",
+      "filePath": "src/features/viewLoader.ts",
+      "summary": "Concrete loader implementation for fetching HTML views with style scoping and sanitization. Extends BaseLoader with view-specific processing including DOM parsing and CSS isolation.",
+      "tags": ["view-loading", "html", "style-scoping", "loader-implementation"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:src/features/viewLoader.ts:ViewLoader",
+      "type": "class",
+      "name": "ViewLoader",
+      "filePath": "src/features/viewLoader.ts",
+      "lineRange": [21, 107],
+      "summary": "View loader implementation that fetches HTML content, applies style scoping for CSS isolation, and sanitizes HTML for security, with automatic template extraction support.",
+      "tags": ["view-loading", "html", "style-scoping", "security"]
+    },
+    {
+      "id": "file:src/types/config.ts",
+      "type": "file",
+      "name": "config.ts",
+      "filePath": "src/types/config.ts",
+      "summary": "TypeScript type definitions for router configuration options, including logger, routes, base URL, and various feature settings for guards, preloading, transitions, and keep-alive.",
+      "tags": ["type-definition", "configuration", "router-options"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/types/data.ts",
+      "type": "file",
+      "name": "data.ts",
+      "filePath": "src/types/data.ts",
+      "summary": "TypeScript type definitions for data loading functionality, including load function signatures, data source types, and cached data structures with TTL support.",
+      "tags": ["type-definition", "data-loading", "caching"],
       "complexity": "simple"
     },
     {
-      "id": "document:.claude/commands/gsd/docs-update.md",
-      "type": "document",
-      "name": "docs-update.md",
-      "filePath": ".claude/commands/gsd/docs-update.md",
-      "summary": "GSD工作流命令文档 - 生成或更新项目文档，确保文档与代码实现保持同步。",
-      "tags": ["gsd-命令", "文档", "更新", "维护", "文档"],
+      "id": "file:src/types/hooks.ts",
+      "type": "file",
+      "name": "hooks.ts",
+      "filePath": "src/types/hooks.ts",
+      "summary": "TypeScript type definitions for router lifecycle hooks, including beforeEnter, beforeLeave, afterEach, and onError callback signatures for route navigation control.",
+      "tags": ["type-definition", "lifecycle-hooks", "navigation-guards"],
       "complexity": "simple"
     },
     {
-      "id": "document:.claude/commands/gsd/execute-phase.md",
-      "type": "document",
-      "name": "execute-phase.md",
-      "filePath": ".claude/commands/gsd/execute-phase.md",
-      "summary": "GSD工作流命令文档 - 使用波次并行化执行阶段中的所有计划，编排器保持精简，每个子代理独立处理自己的计划，支持波次过滤和交互式执行。",
-      "tags": ["gsd-命令", "执行", "并行化", "子代理", "工作流", "文档"],
-      "complexity": "moderate",
-      "languageNotes": "采用波次并行化执行模式，支持依赖分析和智能子代理分配"
+      "id": "file:src/types/routes.ts",
+      "type": "file",
+      "name": "routes.ts",
+      "filePath": "src/types/routes.ts",
+      "summary": "Comprehensive TypeScript type definitions for route configuration, including route items, meta objects, modal configs, and route state. Supports nested routes, redirects, and various route properties.",
+      "tags": ["type-definition", "route-configuration", "nested-routes", "modal-system"],
+      "complexity": "complex",
+      "languageNotes": "Defines recursive route structure supporting unlimited nesting depth with meta properties, redirect chains, and modal state management."
     },
     {
-      "id": "document:.claude/commands/gsd/explore.md",
-      "type": "document",
-      "name": "explore.md",
-      "filePath": ".claude/commands/gsd/explore.md",
-      "summary": "GSD工作流命令文档 - 苏格拉底式创意探索和想法孵化，通过对话式交互生成新概念。",
-      "tags": ["gsd-命令", "探索", "创意", "对话", "文档"],
+      "id": "file:src/utils/getJsonFileFromUrl.ts",
+      "type": "file",
+      "name": "getJsonFileFromUrl.ts",
+      "filePath": "src/utils/getJsonFileFromUrl.ts",
+      "summary": "Utility function that extracts JSON file paths from URLs, supporting both automatic data file discovery and manual specification with hash-based cache busting.",
+      "tags": ["url-processing", "path-extraction", "utility", "auto-discovery"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/utils/getJsonFileFromUrl.ts:getJsonFileFromUrl",
+      "type": "function",
+      "name": "getJsonFileFromUrl",
+      "filePath": "src/utils/getJsonFileFromUrl.ts",
+      "lineRange": [11, 50],
+      "summary": "Extracts JSON file path from URL by removing query parameters, hashes, and file extensions, with support for automatic data file resolution and cache busting.",
+      "tags": ["url-processing", "path-extraction", "utility"]
+    },
+    {
+      "id": "file:src/utils/sanitizeHTML.ts",
+      "type": "file",
+      "name": "sanitizeHTML.ts",
+      "filePath": "src/utils/sanitizeHTML.ts",
+      "summary": "Security utility that sanitizes HTML content by removing potentially dangerous elements and attributes like scripts, iframes, and event handlers to prevent XSS attacks.",
+      "tags": ["security", "html-sanitization", "xss-prevention", "utility"],
       "complexity": "simple"
     },
     {
-      "id": "document:.claude/commands/gsd/fast.md",
-      "type": "document",
-      "name": "fast.md",
-      "filePath": ".claude/commands/gsd/fast.md",
-      "summary": "GSD工作流命令文档 - 内联执行琐碎任务，为小型工作提供快速通道，无需完整规划流程。",
-      "tags": ["gsd-命令", "快速执行", "小型任务", "工作流", "文档"],
-      "complexity": "simple"
+      "id": "function:src/utils/sanitizeHTML.ts:sanitizeHTML",
+      "type": "function",
+      "name": "sanitizeHTML",
+      "filePath": "src/utils/sanitizeHTML.ts",
+      "lineRange": [13, 30],
+      "summary": "Removes dangerous HTML elements and attributes including scripts, iframes, forms, and inline event handlers to prevent XSS vulnerabilities in dynamically loaded content.",
+      "tags": ["security", "html-sanitization", "xss-prevention"]
+    },
+    {
+      "id": "file:src/utils/scopeStyle.ts",
+      "type": "file",
+      "name": "scopeStyle.ts",
+      "filePath": "src/utils/scopeStyle.ts",
+      "summary": "Style scoping utility that isolates CSS rules to specific components by adding attribute selectors, transforming CSS syntax, and preserving global styles while implementing scoped styles.",
+      "tags": ["css-scoping", "style-isolation", "css-transformation", "vue-style-support"],
+      "complexity": "complex",
+      "languageNotes": "Implements Vue-like scoped CSS with attribute selectors, handles v-bind expressions, and preserves global/root selectors (html, body, :root)."
+    },
+    {
+      "id": "function:src/utils/scopeStyle.ts:camelToKebab",
+      "type": "function",
+      "name": "camelToKebab",
+      "filePath": "src/utils/scopeStyle.ts",
+      "lineRange": [26, 28],
+      "summary": "Converts camelCase property names to kebab-case for CSS compatibility.",
+      "tags": ["utility", "string-transformation", "css"]
+    },
+    {
+      "id": "function:src/utils/scopeStyle.ts:isRootSelector",
+      "type": "function",
+      "name": "isRootSelector",
+      "filePath": "src/utils/scopeStyle.ts",
+      "lineRange": [33, 36],
+      "summary": "Identifies root-level selectors (html, body, :root) that should not be scoped to preserve global styles.",
+      "tags": ["css", "selector-matching", "root-detection"]
+    },
+    {
+      "id": "function:src/utils/scopeStyle.ts:transformSelector",
+      "type": "function",
+      "name": "transformSelector",
+      "filePath": "src/utils/scopeStyle.ts",
+      "lineRange": [44, 60],
+      "summary": "Transforms CSS selectors by adding scope attribute prefixes to non-root selectors, preserving global selectors and handling comma-separated selector groups.",
+      "tags": ["css-transformation", "selector-scoping", "css"]
+    },
+    {
+      "id": "function:src/utils/scopeStyle.ts:parseVBindExpression",
+      "type": "function",
+      "name": "parseVBindExpression",
+      "filePath": "src/utils/scopeStyle.ts",
+      "lineRange": [67, 71],
+      "summary": "Parses Vue v-bind expressions to extract property names and default values for CSS custom properties.",
+      "tags": ["vue-integration", "expression-parsing", "v-bind"]
+    },
+    {
+      "id": "function:src/utils/scopeStyle.ts:transformVBind",
+      "type": "function",
+      "name": "transformVBind",
+      "filePath": "src/utils/scopeStyle.ts",
+      "lineRange": [79, 91],
+      "summary": "Transforms Vue v-bind expressions in CSS to CSS custom properties with fallback values, enabling reactive style binding.",
+      "tags": ["vue-integration", "css-transformation", "v-bind"]
+    },
+    {
+      "id": "function:src/utils/scopeStyle.ts:transformCSS",
+      "type": "function",
+      "name": "transformCSS",
+      "filePath": "src/utils/scopeStyle.ts",
+      "lineRange": [101, 141],
+      "summary": "Transforms CSS rules by applying scope prefixes to selectors and converting v-bind expressions to CSS custom properties, creating isolated style blocks.",
+      "tags": ["css-transformation", "scoping", "vue-integration"]
+    },
+    {
+      "id": "function:src/utils/scopeStyle.ts:scopeStyles",
+      "type": "function",
+      "name": "scopeStyles",
+      "filePath": "src/utils/scopeStyle.ts",
+      "lineRange": [149, 198],
+      "summary": "Main entry point that extracts style tags from HTML, applies scoped transformation while respecting global flags, and returns scoped HTML with transformed styles.",
+      "tags": ["style-scoping", "css-isolation", "html-processing"]
     }
   ],
-  "edges": []
+  "edges": [
+    {
+      "source": "file:src/errors.ts",
+      "target": "file:src/types/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/errors.ts",
+      "target": "class:src/errors.ts:KylinRouterError",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/errors.ts",
+      "target": "class:src/errors.ts:KylinRouteError",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/errors.ts",
+      "target": "class:src/errors.ts:KylinExternalRouteError",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/errors.ts",
+      "target": "class:src/errors.ts:KylinNotFoundRouteError",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/errors.ts",
+      "target": "class:src/errors.ts:KylinMaxRedirectRouteError",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/errors.ts",
+      "target": "class:src/errors.ts:KylinLoopRouteError",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/errors.ts",
+      "target": "class:src/errors.ts:KylinRouterError",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/errors.ts",
+      "target": "class:src/errors.ts:KylinRouteError",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/errors.ts",
+      "target": "class:src/errors.ts:KylinExternalRouteError",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/errors.ts",
+      "target": "class:src/errors.ts:KylinNotFoundRouteError",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/errors.ts",
+      "target": "class:src/errors.ts:KylinMaxRedirectRouteError",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/errors.ts",
+      "target": "class:src/errors.ts:KylinLoopRouteError",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/features/baseLoader.ts",
+      "target": "file:src/errors.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/baseLoader.ts",
+      "target": "file:src/router.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/baseLoader.ts",
+      "target": "file:src/types/routes.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/baseLoader.ts",
+      "target": "file:src/utils/getRouteVars.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/baseLoader.ts",
+      "target": "file:src/utils/getSignalHash.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/baseLoader.ts",
+      "target": "file:src/utils/prefixBaseUrl.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/baseLoader.ts",
+      "target": "class:src/features/baseLoader.ts:BaseLoader",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/features/dataLoader.ts",
+      "target": "file:src/features/baseLoader.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/dataLoader.ts",
+      "target": "file:src/router.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/dataLoader.ts",
+      "target": "file:src/types/data.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/dataLoader.ts",
+      "target": "file:src/types/routes.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/dataLoader.ts",
+      "target": "file:src/utils/getJsonFileFromUrl.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/dataLoader.ts",
+      "target": "class:src/features/dataLoader.ts:DataLoader",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/features/dataLoader.ts",
+      "target": "class:src/features/dataLoader.ts:DataLoader",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:src/features/dataLoader.ts:DataLoader",
+      "target": "file:src/features/baseLoader.ts",
+      "type": "inherits",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "file:src/features/viewLoader.ts",
+      "target": "file:src/features/baseLoader.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/viewLoader.ts",
+      "target": "file:src/router.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/viewLoader.ts",
+      "target": "file:src/types/routes.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/viewLoader.ts",
+      "target": "file:src/utils/sanitizeHTML.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/viewLoader.ts",
+      "target": "file:src/utils/scopeStyle.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/viewLoader.ts",
+      "target": "class:src/features/viewLoader.ts:ViewLoader",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/features/viewLoader.ts",
+      "target": "class:src/features/viewLoader.ts:ViewLoader",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:src/features/viewLoader.ts:ViewLoader",
+      "target": "file:src/features/baseLoader.ts",
+      "type": "inherits",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "file:src/types/config.ts",
+      "target": "file:src/logger.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/types/config.ts",
+      "target": "file:src/types/data.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/types/config.ts",
+      "target": "file:src/types/hooks.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/types/config.ts",
+      "target": "file:src/types/routes.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/types/data.ts",
+      "target": "file:src/features/baseLoader.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/types/data.ts",
+      "target": "file:src/types/routes.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/types/hooks.ts",
+      "target": "file:src/errors.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/types/hooks.ts",
+      "target": "file:src/router.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/types/hooks.ts",
+      "target": "file:src/types/data.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/types/hooks.ts",
+      "target": "file:src/types/routes.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/types/routes.ts",
+      "target": "file:src/features/baseLoader.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/types/routes.ts",
+      "target": "file:src/types/config.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/types/routes.ts",
+      "target": "file:src/types/data.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/types/routes.ts",
+      "target": "file:src/types/hooks.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/types/routes.ts",
+      "target": "file:src/types/modals.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/utils/getJsonFileFromUrl.ts",
+      "target": "function:src/utils/getJsonFileFromUrl.ts:getJsonFileFromUrl",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/getJsonFileFromUrl.ts",
+      "target": "function:src/utils/getJsonFileFromUrl.ts:getJsonFileFromUrl",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/utils/sanitizeHTML.ts",
+      "target": "function:src/utils/sanitizeHTML.ts:sanitizeHTML",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/sanitizeHTML.ts",
+      "target": "function:src/utils/sanitizeHTML.ts:sanitizeHTML",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/utils/scopeStyle.ts",
+      "target": "function:src/utils/scopeStyle.ts:camelToKebab",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/scopeStyle.ts",
+      "target": "function:src/utils/scopeStyle.ts:isRootSelector",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/scopeStyle.ts",
+      "target": "function:src/utils/scopeStyle.ts:transformSelector",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/scopeStyle.ts",
+      "target": "function:src/utils/scopeStyle.ts:parseVBindExpression",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/scopeStyle.ts",
+      "target": "function:src/utils/scopeStyle.ts:transformVBind",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/scopeStyle.ts",
+      "target": "function:src/utils/scopeStyle.ts:transformCSS",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/scopeStyle.ts",
+      "target": "function:src/utils/scopeStyle.ts:scopeStyles",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/scopeStyle.ts",
+      "target": "function:src/utils/scopeStyle.ts:scopeStyles",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/features/dataLoader.ts",
+      "target": "function:src/utils/getJsonFileFromUrl.ts:getJsonFileFromUrl",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/features/viewLoader.ts",
+      "target": "function:src/utils/sanitizeHTML.ts:sanitizeHTML",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/features/viewLoader.ts",
+      "target": "function:src/utils/scopeStyle.ts:scopeStyles",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/features/baseLoader.ts",
+      "target": "class:src/errors.ts:KylinRouterError",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
 }

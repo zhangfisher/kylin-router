@@ -39,6 +39,12 @@ export type BaseLoaderSource<Data = any> =
  */
 export interface BaseLoaderOptions<Data = any> {
     /**
+     * 加载器名称
+     * 可选：用于标识加载器的名称，
+     * 对于数据加载器，名称将Alpine.data(name)的键名，
+     */
+    name?: string;
+    /**
      * 数据/视图来源
      * - TData: 直接的数据/视图值（如对象、HTMLElement）
      * - string: URL 地址
@@ -46,11 +52,10 @@ export interface BaseLoaderOptions<Data = any> {
      */
     from: BaseLoaderSource<Data>;
     /**
-     * 加载器名称
-     * 可选：用于标识加载器的名称，
-     * 对于数据加载器，名称将Alpine.data(name)的键名，
+     * 路由hash值，用于生成缓存键
+     * 例如："{path}"表示使用路由的路径作为hash值
      */
-    name?: string;
+    hash?: string;
     /** 缓存时间（毫秒），0 表示不缓存 */
     cache?: number;
     /** 加载超时时间（毫秒） */
@@ -66,11 +71,6 @@ export interface BaseLoaderOptions<Data = any> {
      * 决定response.text()或response.json()的调用
      */
     datatype?: "json" | "text";
-    /**
-     * 路由hash值，用于生成缓存键
-     * 例如："{path}"表示使用路由的路径作为hash值
-     */
-    hash?: string;
 }
 
 /**
@@ -186,6 +186,11 @@ export abstract class RouteDataLoaderBase<
         }
     }
 
+    private _createErrorSignal(matched: KylinMatchedRouteItem, error: any) {
+        const signal = this.createSignal(matched);
+        this.onLoadError(matched, error, signal);
+    }
+
     /**
      * 加载单个路由
      */
@@ -195,13 +200,18 @@ export abstract class RouteDataLoaderBase<
 
         const options = this.getRouteOptions(matched);
 
-        const source = this.getSource(matched, options);
-        if (!source) return;
+        let source: any;
+        try {
+            source = this.getSource(matched, options);
+            if (!source) return;
+        } catch (e: any) {
+            this._createErrorSignal(matched, e);
+            return;
+        }
 
         // 检查 source 是否是错误对象
         if (source instanceof Error) {
-            const signal = this.createSignal(matched);
-            this.onLoadError(matched, source as any, signal);
+            this._createErrorSignal(matched, source);
             return;
         }
 
@@ -216,19 +226,21 @@ export abstract class RouteDataLoaderBase<
         this.abortPendingLoad(matched);
 
         // 4. 执行加载
-        this.startLoad(matched, options);
+        this.startLoad(matched, source, options);
     }
 
     /**
      * 执行加载
      */
-    protected startLoad(matched: KylinMatchedRouteItem, options: Required<TOptions>): void {
+    protected startLoad(
+        matched: KylinMatchedRouteItem,
+        source: string | TData,
+        options: Required<TOptions>,
+    ): void {
         // 每次加载创建新的信号，旧的信号会被自动 abort
         let signal = this.createSignal(matched);
         // 设置 hash，确保静态数据源也有 hash
         signal.meta.hash = this._getHash(matched, options);
-        // 获取数据源
-        const source = this.getSource(matched, options)!;
         // 成功和错误处理
         const onSuccess = (data: TData) => {
             this.onLoadSuccess(matched, data, options, signal);

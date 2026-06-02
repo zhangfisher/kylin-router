@@ -1,326 +1,1120 @@
 {
   "nodes": [
     {
-      "id": "document:.agents/skills/tsdown/references/README.md",
-      "type": "document",
-      "name": "README.md",
-      "filePath": ".agents/skills/tsdown/references/README.md",
-      "summary": "tsdown 技能参考文档的索引文件，提供了完整的文档结构概览、命名规范和更新指南。包含35个参考文件的分类索引（核心指南、配置选项、高级主题、框架配方等），并详细说明了当前功能的覆盖状态和文档维护流程。",
-      "tags": ["documentation", "index", "reference", "documentation-guide", "metadata"],
-      "complexity": "moderate"
-    },
-    {
-      "id": "document:.agents/skills/tsdown/references/advanced-benchmark.md",
-      "type": "document",
-      "name": "advanced-benchmark.md",
-      "filePath": ".agents/skills/tsdown/references/advanced-benchmark.md",
-      "summary": "基准测试文档的占位符文件，目前仅包含标题，尚未编写具体内容。该文档预定用于说明 tsdown 的性能基准测试方法和最佳实践。",
-      "tags": ["documentation", "benchmark", "performance", "placeholder"],
+      "id": "file:src/components/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "src/components/index.ts",
+      "summary": "Component barrel file that re-exports all router-aware components for external use.",
+      "tags": ["barrel", "exports", "components"],
       "complexity": "simple"
     },
     {
-      "id": "document:.agents/skills/tsdown/references/advanced-ci.md",
-      "type": "document",
-      "name": "advanced-ci.md",
-      "filePath": ".agents/skills/tsdown/references/advanced-ci.md",
-      "summary": "CI 环境支持文档，详细说明了 tsdown 在持续集成环境中的配置方法和 CI 感知值的使用。涵盖 string、object 和 config function 三种配置形式，以及典型的 CI 环境配置示例。",
-      "tags": ["documentation", "ci-cd", "configuration", "deployment", "automation"],
+      "id": "file:src/features/context.ts",
+      "type": "file",
+      "name": "context.ts",
+      "filePath": "src/features/context.ts",
+      "summary": "Context propagation mixin that enables router instance injection through custom context events, allowing components to access the router without prop drilling.",
+      "tags": ["mixin", "context", "dependency-injection", "event-driven"],
       "complexity": "moderate"
     },
     {
-      "id": "document:.agents/skills/tsdown/references/advanced-hooks.md",
-      "type": "document",
-      "name": "advanced-hooks.md",
-      "filePath": ".agents/skills/tsdown/references/advanced-hooks.md",
-      "summary": "生命周期钩子文档，全面介绍了 tsdown 的构建钩子系统。包含 build:prepare、build:before、build:done 三个核心钩子的详细用法、常见模式（构建通知、条件插件注入、自定义文件复制、构建指标）、高级用法（多钩子、异步钩子、错误处理）以及完整的故障排查指南。",
-      "tags": ["documentation", "lifecycle", "hooks", "build-automation", "extensibility"],
-      "complexity": "complex"
-    },
-    {
-      "id": "document:.agents/skills/tsdown/references/advanced-plugins.md",
-      "type": "document",
-      "name": "advanced-plugins.md",
-      "filePath": ".agents/skills/tsdown/references/advanced-plugins.md",
-      "summary": "插件系统文档，详细说明了 tsdown 支持的四种插件生态系统（Rolldown、Unplugin、Rollup、Vite）。涵盖基础用法、常见插件模式（JSON导入、Node解析、CommonJS、替换、自动导入、Vue组件等）、框架特定插件（React、Vue、Solid、Svelte）、自定义插件编写以及完整的故障排查流程。",
-      "tags": ["documentation", "plugins", "extensibility", "integration", "framework"],
-      "complexity": "complex"
-    },
-    {
-      "id": "document:.agents/skills/tsdown/references/advanced-programmatic.md",
-      "type": "document",
-      "name": "advanced-programmatic.md",
-      "filePath": ".agents/skills/tsdown/references/advanced-programmatic.md",
-      "summary": "编程式用法文档，详细说明了如何在 Node.js 环境中以编程方式调用 tsdown 的 build() API。包含 API 参考、配置对象详解、常见模式（自定义构建脚本、多构建、条件构建、错误处理、自动化工作流、后处理）、监听模式、集成示例（任务运行器、自定义CLI、CI/CD）以及 TypeScript 支持说明。",
-      "tags": ["documentation", "api", "programmatic", "automation", "integration"],
-      "complexity": "complex"
-    },
-    {
-      "id": "document:.agents/skills/tsdown/references/advanced-rolldown-options.md",
-      "type": "document",
-      "name": "advanced-rolldown-options.md",
-      "filePath": ".agents/skills/tsdown/references/advanced-rolldown-options.md",
-      "summary": "Rolldown 选项自定义文档，说明了如何通过 rolldown.input 和 rolldown.output 选项深度定制底层 Rolldown 打包器的行为。涵盖 object 和 function 两种配置形式、常见用例（保留法律注释、自定义工作目录、格式特定选项）以及使用时机建议。",
-      "tags": ["documentation", "rolldown", "configuration", "advanced", "customization"],
+      "id": "class:src/features/context.ts:Context",
+      "type": "class",
+      "name": "Context",
+      "filePath": "src/features/context.ts",
+      "lineRange": [11, 44],
+      "summary": "Mixin class that provides context provider functionality for router instance propagation through DOM events.",
+      "tags": ["mixin", "context-provider", "event-handling", "dependency-injection"],
       "complexity": "moderate"
     },
     {
-      "id": "document:.agents/skills/tsdown/references/guide-getting-started.md",
-      "type": "document",
-      "name": "guide-getting-started.md",
-      "filePath": ".agents/skills/tsdown/references/guide-getting-started.md",
-      "summary": "快速入门指南，提供了 tsdown 的完整上手流程。包含安装步骤、快速启动模板、首次打包实践（创建源文件、配置文件、运行构建、测试输出）、npm 脚本集成、CLI 命令概览、基础配置示例（TypeScript库、浏览器库、多入口点）、插件使用和监听模式等核心知识点。",
-      "tags": ["documentation", "getting-started", "tutorial", "quick-start", "beginner"],
-      "complexity": "moderate"
-    },
-    {
-      "id": "document:.agents/skills/tsdown/references/guide-introduction.md",
-      "type": "document",
-      "name": "guide-introduction.md",
-      "filePath": ".agents/skills/tsdown/references/guide-introduction.md",
-      "summary": "项目介绍文档，阐述了 tsdown 的设计理念和核心价值。说明了选择 tsdown 的理由、插件生态系统支持、可打包的内容范围、与原生 Rolldown 的关键差异以及相关的前身项目参考。",
-      "tags": ["documentation", "introduction", "overview", "philosophy", "comparison"],
+      "id": "file:src/features/emitter.ts",
+      "type": "file",
+      "name": "emitter.ts",
+      "filePath": "src/features/emitter.ts",
+      "summary": "Event emitter mixin that provides publish-subscribe functionality for router events using the mitt library.",
+      "tags": ["mixin", "events", "pub-sub", "communication"],
       "complexity": "simple"
     },
     {
-      "id": "document:.agents/skills/tsdown/references/guide-migrate-from-tsup.md",
-      "type": "document",
-      "name": "guide-migrate-from-tsup.md",
-      "filePath": ".agents/skills/tsdown/references/guide-migrate-from-tsup.md",
-      "summary": "从 tsup 迁移指南，提供了完整的迁移流程和注意事项。包含自动迁移工具（单包和 monorepo）、关键差异（默认值、新特性如 Node 协议控制和更好的工作区支持）、迁移清单、常见迁移模式（基础库、自定义目标、CLI脚本）、功能兼容性矩阵（支持的功能和缺失的功能）、故障排查以及致谢部分。",
-      "tags": ["documentation", "migration", "tsup", "upgrade-guide", "compatibility"],
-      "complexity": "moderate"
-    },
-    {
-      "id": "document:.agents/skills/tsdown/references/option-cjs-default.md",
-      "type": "document",
-      "name": "option-cjs-default.md",
-      "filePath": ".agents/skills/tsdown/references/option-cjs-default.md",
-      "summary": "CJS 默认导出配置文档，详细说明了 cjsDefault 选项的作用和配置方法。涵盖了启用/禁用的基本用法、工作原理（true 时使用 __esModule 标记，false 时使用 direct export）、禁用时机以及相关选项参考。",
-      "tags": ["documentation", "configuration", "commonjs", "exports", "interop"],
-      "complexity": "moderate"
-    },
-    {
-      "id": "document:.agents/skills/tsdown/references/option-cleaning.md",
-      "type": "document",
-      "name": "option-cleaning.md",
-      "filePath": ".agents/skills/tsdown/references/option-cleaning.md",
-      "summary": "输出目录清理配置文档，全面说明了 cleaning 选项用于控制构建前清理输出目录的行为。涵盖 CLI 和配置文件用法、清理与不清理的行为差异、常见模式（生产构建、开发模式、多构建、monorepo包、保留静态文件）、清理模式（选择性清理、清理特定目录）、监听模式行为（首次构建清理、始终清理）、故障排查以及丰富的 CLI 和配置示例。",
-      "tags": ["documentation", "configuration", "cleaning", "build-automation", "output-management"],
-      "complexity": "complex"
-    },
-    {
-      "id": "document:.agents/skills/tsdown/references/option-config-file.md",
-      "type": "document",
-      "name": "option-config-file.md",
-      "filePath": ".agents/skills/tsdown/references/option-config-file.md",
-      "summary": "配置文件文档，详细说明了 tsdown 配置文件的命名规范、格式支持和加载机制。涵盖支持的文件名、基础配置（TypeScript、JavaScript、JSON、package.json）、多配置、动态配置、配置加载器（自动、原生、unrun）、自定义配置路径、禁用配置文件、扩展 Vite/Vitest 配置（实验性）、工作区/monorepo 支持、常见模式、配置优先级以及相关选项。",
-      "tags": ["documentation", "configuration", "config-file", "monorepo", "typescript"],
-      "complexity": "complex"
-    },
-    {
-      "id": "document:.agents/skills/tsdown/references/option-css.md",
-      "type": "document",
-      "name": "option-css.md",
-      "filePath": ".agents/skills/tsdown/references/option-css.md",
-      "summary": "CSS 支持文档，全面介绍了 tsdown 对 CSS 的处理能力。涵盖快速入门、CSS 导入（@import 内联、inline 查询）、CSS 预处理器（Sass、Less、Stylus）及其选项（additionalData、renderOptions）、CSS 压缩、CSS target、CSS 转换器（PostCSS 选项）、Lightning CSS 语法降级、自定义 Lightning CSS 选项、CSS Modules、可选依赖（PostCSS 路径）、代码分割（合并和分块）、css.inject 保留 CSS 导入、PostCSS 可选对等依赖以及完整的选项参考。",
-      "tags": ["documentation", "css", "styling", "preprocessor", "postcss"],
-      "complexity": "complex"
-    },
-    {
-      "id": "document:.agents/skills/tsdown/references/option-dependencies.md",
-      "type": "document",
-      "name": "option-dependencies.md",
-      "filePath": ".agents/skills/tsdown/references/option-dependencies.md",
-      "summary": "依赖管理配置文档，深入说明了 tsdown 的依赖打包策略和外部化控制。涵盖默认行为（自动外部化、条件打包）、配置选项（deps.neverBundle、deps.alwaysBundle、deps.onlyBundle、deps.skipNodeModulesBundle）、常见模式（React组件库、共享依赖工具库、monorepo包、CLI工具、特定外部库）、声明文件处理、复杂类型解析、CLI 用法、已弃用选项的迁移、按用例分类的示例（框架组件、独立应用、共享库、monorepo包）、故障排查、总结以及相关选项。",
-      "tags": ["documentation", "dependencies", "bundling", "externals", "tree-shaking"],
-      "complexity": "complex"
-    },
-    {
-      "id": "document:.agents/skills/tsdown/references/option-dts.md",
-      "type": "document",
-      "name": "option-dts.md",
-      "filePath": ".agents/skills/tsdown/references/option-dts.md",
-      "summary": "TypeScript 声明文件生成文档，详细说明了 dts 选项的用法和性能优化。涵盖启用方式（自动启用和手动启用、CLI 和配置文件）、性能（isolatedDeclarations 推荐模式与非模式对比）、声明映射（在 tsconfig.json 和 tsdown 配置中启用）、高级选项（自定义编译器选项）、构建过程、常见模式（基础库、多入口点、monorepo 支持、快速构建）、故障排查（缺失类型、生成缓慢、声明错误、报告问题、Vue 支持、Oxc 转换、自定义 TSConfig）、可用 DTS 选项以及相关选项。",
-      "tags": ["documentation", "typescript", "declarations", "dts", "types"],
-      "complexity": "complex"
-    },
-    {
-      "id": "document:.agents/skills/tsdown/references/option-entry.md",
-      "type": "document",
-      "name": "option-entry.md",
-      "filePath": ".agents/skills/tsdown/references/option-entry.md",
-      "summary": "入口点配置文档，全面说明了 entry 选项的用法和模式。涵盖用法模式（CLI 和配置文件、单入口、数组多入口、对象命名入口）、通配符模式（所有 TypeScript 文件、排除测试文件、对象入口的通配符、对象入口的否定模式、混合入口）、Windows 兼容性、常见模式（主导出库、多导出库、CLI 工具、保留目录结构）以及相关提示。",
-      "tags": ["documentation", "entry-points", "configuration", "glob-patterns", "bundling"],
-      "complexity": "moderate"
-    },
-    {
-      "id": "document:.agents/skills/tsdown/references/option-exe.md",
-      "type": "document",
-      "name": "option-exe.md",
-      "filePath": ".agents/skills/tsdown/references/option-exe.md",
-      "summary": "可执行文件生成配置文档，说明了 exe 选项用于将打包输出转换为独立可执行文件的能力。涵盖系统要求（Node.js 版本）、基本用法、启用时的行为、高级配置（ExeOptions 和 SeaConfig）、跨平台构建（ExeTarget、缓存）、平台注意事项以及 CLI 用法。",
-      "tags": ["documentation", "executable", "deployment", "standalone", "node-sea"],
-      "complexity": "moderate"
-    },
-    {
-      "id": "document:.agents/skills/tsdown/references/option-lint.md",
-      "type": "document",
-      "name": "option-lint.md",
-      "filePath": ".agents/skills/tsdown/references/option-lint.md",
-      "summary": "包验证配置文档，说明了如何通过 publint 和 attw 工具验证发布包的正确性。涵盖安装步骤、publint 的启用和配置（level、strict、fail）、CLI 用法、attw 的启用和配置（level、profile、ignore rules）、CI 集成以及相关选项。",
-      "tags": ["documentation", "linting", "validation", "publint", "attw"],
-      "complexity": "moderate"
-    },
-    {
-      "id": "document:.agents/skills/tsdown/references/option-log-level.md",
-      "type": "document",
-      "name": "option-log-level.md",
-      "filePath": ".agents/skills/tsdown/references/option-log-level.md",
-      "summary": "日志级别配置文档，说明了 logLevel 选项用于控制构建输出详细程度的用法。涵盖类型定义、基本用法（CLI 和配置文件）、可用级别、常见模式（CI/CD 流水线、脚本编写）、警告时失败以及相关选项。",
-      "tags": ["documentation", "configuration", "logging", "cli", "output"],
+      "id": "class:src/features/emitter.ts:Emitter",
+      "type": "class",
+      "name": "Emitter",
+      "filePath": "src/features/emitter.ts",
+      "lineRange": [13, 13],
+      "summary": "Mixin class that adds event emitter capabilities to the router for component communication.",
+      "tags": ["mixin", "events", "pub-sub"],
       "complexity": "simple"
+    },
+    {
+      "id": "file:src/features/hooks.ts",
+      "type": "file",
+      "name": "hooks.ts",
+      "filePath": "src/features/hooks.ts",
+      "summary": "Hook management system that provides lifecycle hooks for route navigation, rendering, and error handling with timeout support and parallel execution.",
+      "tags": ["hooks", "lifecycle", "middleware", "async", "timeout"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:src/features/hooks.ts:HookManager",
+      "type": "class",
+      "name": "HookManager",
+      "filePath": "src/features/hooks.ts",
+      "lineRange": [20, 203],
+      "summary": "Manages routing lifecycle hooks including before/after route, before/after render, and error handlers with Promise-based execution and timeout protection.",
+      "tags": ["lifecycle", "hooks", "async", "timeout", "error-handling", "middleware"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/features/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "src/features/index.ts",
+      "summary": "Features barrel file that imports and initializes all router feature mixins.",
+      "tags": ["barrel", "exports", "features"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/features/keepAlive.ts",
+      "type": "file",
+      "name": "keepAlive.ts",
+      "filePath": "src/features/keepAlive.ts",
+      "summary": "Keep-alive mixin that provides component caching functionality to preserve component state across navigations.",
+      "tags": ["mixin", "caching", "state-management", "performance"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/features/keepAlive.ts:KeepAlive",
+      "type": "class",
+      "name": "KeepAlive",
+      "filePath": "src/features/keepAlive.ts",
+      "lineRange": [12, 14],
+      "summary": "Mixin class that adds component caching capabilities to preserve state across route transitions.",
+      "tags": ["mixin", "caching", "state-management"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/features/modal.ts",
+      "type": "file",
+      "name": "modal.ts",
+      "filePath": "src/features/modal.ts",
+      "summary": "Comprehensive modal management system with stack-based navigation, backdrop handling, URL synchronization, and animated transitions for complex multi-modal scenarios.",
+      "tags": ["modal", "stack", "navigation", "animations", "url-management", "complex"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:src/features/modal.ts:Modal",
+      "type": "class",
+      "name": "Modal",
+      "filePath": "src/features/modal.ts",
+      "lineRange": [32, 1155],
+      "summary": "Advanced modal manager with stack-based navigation, backdrop management, URL synchronization, animated transitions, and comprehensive lifecycle management for nested modal scenarios.",
+      "tags": ["modal", "stack", "navigation", "animations", "url-sync", "lifecycle", "complex"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/features/preload.ts",
+      "type": "file",
+      "name": "preload.ts",
+      "filePath": "src/features/preload.ts",
+      "summary": "Preload mixin that provides intelligent route and component preloading for improved navigation performance.",
+      "tags": ["mixin", "performance", "preloading", "optimization"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/features/preload.ts:Preload",
+      "type": "class",
+      "name": "Preload",
+      "filePath": "src/features/preload.ts",
+      "lineRange": [9, 11],
+      "summary": "Mixin class that adds preloading capabilities for routes and components to enhance navigation performance.",
+      "tags": ["mixin", "performance", "preloading"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/features/redirect.ts",
+      "type": "file",
+      "name": "redirect.ts",
+      "filePath": "src/features/redirect.ts",
+      "summary": "Redirect mixin that provides client-side redirect functionality with guard support for route protection.",
+      "tags": ["mixin", "redirect", "navigation", "guards"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/features/redirect.ts:Redirect",
+      "type": "class",
+      "name": "Redirect",
+      "filePath": "src/features/redirect.ts",
+      "lineRange": [10, 12],
+      "summary": "Mixin class that adds redirect capabilities with guard support for route protection and navigation control.",
+      "tags": ["mixin", "redirect", "guards", "navigation"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/features/transition.ts",
+      "type": "file",
+      "name": "transition.ts",
+      "filePath": "src/features/transition.ts",
+      "summary": "Transition mixin that provides animated transition effects for route changes and modal operations.",
+      "tags": ["mixin", "animations", "transitions", "ux"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/features/transition.ts:Transition",
+      "type": "class",
+      "name": "Transition",
+      "filePath": "src/features/transition.ts",
+      "lineRange": [7, 9],
+      "summary": "Mixin class that adds transition animation capabilities for route changes and modal operations.",
+      "tags": ["mixin", "animations", "transitions"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "src/index.ts",
+      "summary": "Main package entry point that exports the router factory, components, types, and utilities for external consumption.",
+      "tags": ["entry-point", "exports", "barrel", "public-api"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/index.ts:createRouter",
+      "type": "function",
+      "name": "createRouter",
+      "filePath": "src/index.ts",
+      "lineRange": [24, 30],
+      "summary": "Factory function that creates and initializes a KylinRouter instance with the provided host element and configuration options.",
+      "tags": ["factory", "constructor", "public-api"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/logger.ts",
+      "type": "file",
+      "name": "logger.ts",
+      "filePath": "src/logger.ts",
+      "summary": "Logging utility with message tokenization, configurable output levels, and styled console output for debugging and monitoring router behavior.",
+      "tags": ["logging", "debugging", "utility", "output"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/logger.ts:tokenizeMessage",
+      "type": "function",
+      "name": "tokenizeMessage",
+      "filePath": "src/logger.ts",
+      "lineRange": [12, 34],
+      "summary": "Parses log messages to extract style tokens and text segments for formatted console output with syntax highlighting.",
+      "tags": ["parsing", "tokenization", "formatting", "utility"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/logger.ts:createLogger",
+      "type": "function",
+      "name": "createLogger",
+      "filePath": "src/logger.ts",
+      "lineRange": [36, 106],
+      "summary": "Factory function that creates a logger instance with debug, info, warn, and error methods supporting styled output and configurable verbosity.",
+      "tags": ["factory", "logging", "debug", "output"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/pages/errors/404.ts",
+      "type": "file",
+      "name": "404.ts",
+      "filePath": "src/pages/errors/404.ts",
+      "summary": "Default 404 not found error page component that renders a user-friendly error message when route matching fails.",
+      "tags": ["error-page", "component", "not-found", "fallback"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/pages/errors/404.ts:NotFoundPage",
+      "type": "function",
+      "name": "NotFoundPage",
+      "filePath": "src/pages/errors/404.ts",
+      "lineRange": [8, 18],
+      "summary": "Creates a DOM element for displaying 404 not found error messages with basic styling.",
+      "tags": ["error-page", "component", "fallback"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/pages/errors/500.ts",
+      "type": "file",
+      "name": "500.ts",
+      "filePath": "src/pages/errors/500.ts",
+      "summary": "Default 500 server error page component that renders error details when route data loading or execution fails.",
+      "tags": ["error-page", "component", "server-error", "fallback"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/pages/errors/500.ts:ServiceErrorPage",
+      "type": "function",
+      "name": "ServiceErrorPage",
+      "filePath": "src/pages/errors/500.ts",
+      "lineRange": [6, 17],
+      "summary": "Creates a DOM element for displaying 500 server error messages with error details.",
+      "tags": ["error-page", "component", "fallback"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/pages/errors/default.ts",
+      "type": "file",
+      "name": "default.ts",
+      "filePath": "src/pages/errors/default.ts",
+      "summary": "Generic error page component that renders error information for unhandled errors during route navigation.",
+      "tags": ["error-page", "component", "fallback", "error-handling"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/pages/errors/default.ts:DefaultErrorPage",
+      "type": "function",
+      "name": "DefaultErrorPage",
+      "filePath": "src/pages/errors/default.ts",
+      "lineRange": [7, 21],
+      "summary": "Creates a DOM element for displaying generic error messages with detailed error information.",
+      "tags": ["error-page", "component", "error-handling"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/pages/errors/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "src/pages/errors/index.ts",
+      "summary": "Error pages barrel that exports all default error page components for route fallback rendering.",
+      "tags": ["barrel", "exports", "error-pages"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/router.ts",
+      "type": "file",
+      "name": "router.ts",
+      "filePath": "src/router.ts",
+      "summary": "Core router orchestrator that combines all mixins, manages history navigation, coordinates route matching, loading, rendering, and provides the main API for routing operations.",
+      "tags": ["core", "router", "orchestrator", "history", "navigation", "mixin-composition"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:src/router.ts:KylinRouter",
+      "type": "class",
+      "name": "KylinRouter",
+      "filePath": "src/router.ts",
+      "lineRange": [35, 447],
+      "summary": "Central router class composed of multiple mixins that provides navigation API, history management, route coordination, and lifecycle management for the entire routing system.",
+      "tags": ["core", "router", "orchestrator", "navigation", "history", "mixin-composition", "lifecycle"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/types/events.ts",
+      "type": "file",
+      "name": "events.ts",
+      "filePath": "src/types/events.ts",
+      "summary": "Type definitions for router events including modal events, route events, and event payloads that define the event system contract.",
+      "tags": ["types", "events", "type-definitions", "contracts"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/types/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "src/types/index.ts",
+      "summary": "Core type definitions for rendering including RenderMode, TemplateData, RenderContext, and RenderOptions used throughout the routing system.",
+      "tags": ["types", "exports", "type-definitions", "rendering"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/types/utils.ts",
+      "type": "file",
+      "name": "utils.ts",
+      "filePath": "src/types/utils.ts",
+      "summary": "Utility type definitions placeholder for shared type utilities used across the router codebase.",
+      "tags": ["types", "utilities", "type-definitions"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/utils/getBaseUrl.ts",
+      "type": "file",
+      "name": "getBaseUrl.ts",
+      "filePath": "src/utils/getBaseUrl.ts",
+      "summary": "Utility function that extracts the base URL from the current window location for routing configuration and path resolution.",
+      "tags": ["utility", "url", "path-resolution", "browser"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/utils/getBaseUrl.ts:getBaseUrl",
+      "type": "function",
+      "name": "getBaseUrl",
+      "filePath": "src/utils/getBaseUrl.ts",
+      "lineRange": [30, 59],
+      "summary": "Extracts the base URL from window.location.pathname by identifying directory paths and handling trailing slashes for proper route configuration.",
+      "tags": ["utility", "url", "path-resolution"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/utils/getRouteDataOptions.ts",
+      "type": "file",
+      "name": "getRouteDataOptions.ts",
+      "filePath": "src/utils/getRouteDataOptions.ts",
+      "summary": "Utility function that merges route-specific and global data loading options for determining how route data should be fetched.",
+      "tags": ["utility", "options", "data-loading", "configuration"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/utils/getRouteDataOptions.ts:getRouteDataOptions",
+      "type": "function",
+      "name": "getRouteDataOptions",
+      "filePath": "src/utils/getRouteDataOptions.ts",
+      "lineRange": [4, 17],
+      "summary": "Combines route-level data options with global router configuration to determine the final data loading strategy for a route.",
+      "tags": ["utility", "options", "data-loading", "configuration"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/utils/getRouteViewOptions.ts",
+      "type": "file",
+      "name": "getRouteViewOptions.ts",
+      "filePath": "src/utils/getRouteViewOptions.ts",
+      "summary": "Utility function that merges route-specific and global view loading options for determining how route components should be loaded.",
+      "tags": ["utility", "options", "view-loading", "configuration"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/utils/getRouteViewOptions.ts:getRouteViewOptions",
+      "type": "function",
+      "name": "getRouteViewOptions",
+      "filePath": "src/utils/getRouteViewOptions.ts",
+      "lineRange": [4, 17],
+      "summary": "Combines route-level view options with global router configuration to determine the final component loading strategy for a route.",
+      "tags": ["utility", "options", "view-loading", "configuration"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/utils/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "src/utils/index.ts",
+      "summary": "Utilities barrel file that re-exports all routing utility functions for external and internal use.",
+      "tags": ["barrel", "exports", "utilities"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/utils/isRouteItem.ts",
+      "type": "file",
+      "name": "isRouteItem.ts",
+      "filePath": "src/utils/isRouteItem.ts",
+      "summary": "Type guard utility that validates whether an object conforms to the RouteItem interface for type-safe route handling.",
+      "tags": ["utility", "type-guard", "validation", "type-safety"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/utils/isRouteItem.ts:isRouteItem",
+      "type": "function",
+      "name": "isRouteItem",
+      "filePath": "src/utils/isRouteItem.ts",
+      "lineRange": [6, 12],
+      "summary": "Type guard function that checks if an object is a valid RouteItem by verifying required properties for runtime type validation.",
+      "tags": ["type-guard", "validation", "type-safety", "utility"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/utils/removePathPrefix.ts",
+      "type": "file",
+      "name": "removePathPrefix.ts",
+      "filePath": "src/utils/removePathPrefix.ts",
+      "summary": "Path manipulation utility that removes a configured base prefix from paths for normalized route matching and processing.",
+      "tags": ["utility", "path", "normalization", "string-manipulation"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/utils/removePathPrefix.ts:removePathPrefix",
+      "type": "function",
+      "name": "removePathPrefix",
+      "filePath": "src/utils/removePathPrefix.ts",
+      "lineRange": [22, 54],
+      "summary": "Removes a base prefix from a given path with proper slash normalization and validation for consistent route path handling.",
+      "tags": ["utility", "path", "normalization", "string-manipulation"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/utils/traverseOutlet.ts",
+      "type": "file",
+      "name": "traverseOutlet.ts",
+      "filePath": "src/utils/traverseOutlet.ts",
+      "summary": "DOM traversal utility that finds and organizes outlet components by nesting level for hierarchical route rendering and context management.",
+      "tags": ["utility", "dom", "traversal", "outlet", "hierarchical"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/utils/traverseOutlet.ts:traverseOutlet",
+      "type": "function",
+      "name": "traverseOutlet",
+      "filePath": "src/utils/traverseOutlet.ts",
+      "lineRange": [10, 42],
+      "summary": "Traverses the DOM to find all outlet components, calculates their nesting levels, and returns them grouped by depth for proper route rendering hierarchy.",
+      "tags": ["dom", "traversal", "outlet", "hierarchical", "grouping"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/utils/traverseOutlet.ts:calculateOutletLevel",
+      "type": "function",
+      "name": "calculateOutletLevel",
+      "filePath": "src/utils/traverseOutlet.ts",
+      "lineRange": [52, 65],
+      "summary": "Calculates the nesting depth of an outlet element by counting parent outlet elements for determining render hierarchy and context propagation.",
+      "tags": ["dom", "traversal", "outlet", "depth-calculation"],
+      "complexity": "moderate"
     }
   ],
   "edges": [
     {
-      "source": "document:.agents/skills/tsdown/references/README.md",
-      "target": "document:.agents/skills/tsdown/references/guide-getting-started.md",
-      "type": "documents",
+      "source": "file:src/features/context.ts",
+      "target": "file:src/router.ts",
+      "type": "imports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.7
     },
     {
-      "source": "document:.agents/skills/tsdown/references/README.md",
-      "target": "document:.agents/skills/tsdown/references/guide-introduction.md",
-      "type": "documents",
+      "source": "file:src/features/context.ts",
+      "target": "class:src/features/context.ts:Context",
+      "type": "contains",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 1.0
     },
     {
-      "source": "document:.agents/skills/tsdown/references/README.md",
-      "target": "document:.agents/skills/tsdown/references/guide-migrate-from-tsup.md",
-      "type": "documents",
+      "source": "file:src/features/context.ts",
+      "target": "class:src/features/context.ts:Context",
+      "type": "exports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.8
     },
     {
-      "source": "document:.agents/skills/tsdown/references/guide-getting-started.md",
-      "target": "document:.agents/skills/tsdown/references/option-entry.md",
-      "type": "related",
+      "source": "file:src/features/emitter.ts",
+      "target": "file:src/router.ts",
+      "type": "imports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.7
     },
     {
-      "source": "document:.agents/skills/tsdown/references/guide-getting-started.md",
-      "target": "document:.agents/skills/tsdown/references/option-config-file.md",
-      "type": "related",
+      "source": "file:src/features/emitter.ts",
+      "target": "file:src/types/events.ts",
+      "type": "imports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.7
     },
     {
-      "source": "document:.agents/skills/tsdown/references/guide-getting-started.md",
-      "target": "document:.agents/skills/tsdown/references/advanced-plugins.md",
-      "type": "related",
+      "source": "file:src/features/emitter.ts",
+      "target": "file:src/utils/index.ts",
+      "type": "imports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.7
     },
     {
-      "source": "document:.agents/skills/tsdown/references/advanced-hooks.md",
-      "target": "document:.agents/skills/tsdown/references/advanced-plugins.md",
-      "type": "related",
+      "source": "file:src/features/emitter.ts",
+      "target": "class:src/features/emitter.ts:Emitter",
+      "type": "contains",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 1.0
     },
     {
-      "source": "document:.agents/skills/tsdown/references/advanced-programmatic.md",
-      "target": "document:.agents/skills/tsdown/references/option-config-file.md",
-      "type": "related",
+      "source": "file:src/features/emitter.ts",
+      "target": "class:src/features/emitter.ts:Emitter",
+      "type": "exports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.8
     },
     {
-      "source": "document:.agents/skills/tsdown/references/advanced-plugins.md",
-      "target": "document:.agents/skills/tsdown/references/option-dependencies.md",
-      "type": "related",
+      "source": "file:src/features/hooks.ts",
+      "target": "file:src/router.ts",
+      "type": "imports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.7
     },
     {
-      "source": "document:.agents/skills/tsdown/references/advanced-ci.md",
-      "target": "document:.agents/skills/tsdown/references/option-lint.md",
-      "type": "related",
+      "source": "file:src/features/hooks.ts",
+      "target": "file:src/types/index.ts",
+      "type": "imports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.7
     },
     {
-      "source": "document:.agents/skills/tsdown/references/guide-migrate-from-tsup.md",
-      "target": "document:.agents/skills/tsdown/references/option-dependencies.md",
-      "type": "related",
+      "source": "file:src/features/hooks.ts",
+      "target": "file:src/types/utils.ts",
+      "type": "imports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.7
     },
     {
-      "source": "document:.agents/skills/tsdown/references/option-dependencies.md",
-      "target": "document:.agents/skills/tsdown/references/option-dts.md",
-      "type": "related",
+      "source": "file:src/features/hooks.ts",
+      "target": "class:src/features/hooks.ts:HookManager",
+      "type": "contains",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 1.0
     },
     {
-      "source": "document:.agents/skills/tsdown/references/option-config-file.md",
-      "target": "document:.agents/skills/tsdown/references/option-entry.md",
-      "type": "related",
+      "source": "file:src/features/hooks.ts",
+      "target": "class:src/features/hooks.ts:HookManager",
+      "type": "exports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.8
     },
     {
-      "source": "document:.agents/skills/tsdown/references/option-config-file.md",
-      "target": "document:.agents/skills/tsdown/references/option-css.md",
-      "type": "related",
+      "source": "file:src/features/keepAlive.ts",
+      "target": "file:src/router.ts",
+      "type": "imports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.7
     },
     {
-      "source": "document:.agents/skills/tsdown/references/option-config-file.md",
-      "target": "document:.agents/skills/tsdown/references/option-cleaning.md",
-      "type": "related",
+      "source": "file:src/features/keepAlive.ts",
+      "target": "class:src/features/keepAlive.ts:KeepAlive",
+      "type": "contains",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 1.0
     },
     {
-      "source": "document:.agents/skills/tsdown/references/option-lint.md",
-      "target": "document:.agents/skills/tsdown/references/advanced-ci.md",
-      "type": "related",
+      "source": "file:src/features/keepAlive.ts",
+      "target": "class:src/features/keepAlive.ts:KeepAlive",
+      "type": "exports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.8
     },
     {
-      "source": "document:.agents/skills/tsdown/references/option-log-level.md",
-      "target": "document:.agents/skills/tsdown/references/advanced-ci.md",
-      "type": "related",
+      "source": "file:src/features/modal.ts",
+      "target": "file:src/router.ts",
+      "type": "imports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.7
     },
     {
-      "source": "document:.agents/skills/tsdown/references/advanced-rolldown-options.md",
-      "target": "document:.agents/skills/tsdown/references/option-dependencies.md",
-      "type": "related",
+      "source": "file:src/features/modal.ts",
+      "target": "file:src/types/index.ts",
+      "type": "imports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.7
     },
     {
-      "source": "document:.agents/skills/tsdown/references/option-exe.md",
-      "target": "document:.agents/skills/tsdown/references/option-entry.md",
-      "type": "related",
+      "source": "file:src/features/modal.ts",
+      "target": "class:src/features/modal.ts:Modal",
+      "type": "contains",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 1.0
     },
     {
-      "source": "document:.agents/skills/tsdown/references/option-cjs-default.md",
-      "target": "document:.agents/skills/tsdown/references/option-dependencies.md",
-      "type": "related",
+      "source": "file:src/features/modal.ts",
+      "target": "class:src/features/modal.ts:Modal",
+      "type": "exports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/features/preload.ts",
+      "target": "file:src/router.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/preload.ts",
+      "target": "class:src/features/preload.ts:Preload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/features/preload.ts",
+      "target": "class:src/features/preload.ts:Preload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/features/redirect.ts",
+      "target": "file:src/router.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/redirect.ts",
+      "target": "class:src/features/redirect.ts:Redirect",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/features/redirect.ts",
+      "target": "class:src/features/redirect.ts:Redirect",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/features/transition.ts",
+      "target": "file:src/router.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/transition.ts",
+      "target": "class:src/features/transition.ts:Transition",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/features/transition.ts",
+      "target": "class:src/features/transition.ts:Transition",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/index.ts",
+      "target": "file:src/components/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/index.ts",
+      "target": "file:src/router.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/index.ts",
+      "target": "file:src/types/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/index.ts",
+      "target": "file:src/utils/params.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/index.ts",
+      "target": "function:src/index.ts:createRouter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/index.ts",
+      "target": "function:src/index.ts:createRouter",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/logger.ts",
+      "target": "file:src/types/config.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/logger.ts",
+      "target": "function:src/logger.ts:tokenizeMessage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/logger.ts",
+      "target": "function:src/logger.ts:createLogger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/logger.ts",
+      "target": "function:src/logger.ts:createLogger",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/pages/errors/404.ts",
+      "target": "file:src/types/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/pages/errors/404.ts",
+      "target": "function:src/pages/errors/404.ts:NotFoundPage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/pages/errors/404.ts",
+      "target": "function:src/pages/errors/404.ts:NotFoundPage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/pages/errors/500.ts",
+      "target": "file:src/types/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/pages/errors/500.ts",
+      "target": "function:src/pages/errors/500.ts:ServiceErrorPage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/pages/errors/500.ts",
+      "target": "function:src/pages/errors/500.ts:ServiceErrorPage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/pages/errors/default.ts",
+      "target": "file:src/types/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/pages/errors/default.ts",
+      "target": "function:src/pages/errors/default.ts:DefaultErrorPage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/pages/errors/default.ts",
+      "target": "function:src/pages/errors/default.ts:DefaultErrorPage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/pages/errors/index.ts",
+      "target": "file:src/pages/errors/404.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/pages/errors/index.ts",
+      "target": "file:src/pages/errors/500.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/pages/errors/index.ts",
+      "target": "file:src/pages/errors/default.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/router.ts",
+      "target": "file:src/features/alpine.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/router.ts",
+      "target": "file:src/features/hooks.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/router.ts",
+      "target": "file:src/features/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/router.ts",
+      "target": "file:src/features/routes.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/router.ts",
+      "target": "file:src/logger.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/router.ts",
+      "target": "file:src/pages/errors/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/router.ts",
+      "target": "file:src/types/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/router.ts",
+      "target": "file:src/utils/getBaseUrl.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/router.ts",
+      "target": "file:src/utils/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/router.ts",
+      "target": "file:src/utils/removePathPrefix.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/router.ts",
+      "target": "file:src/utils/traverseOutlet.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/router.ts",
+      "target": "class:src/router.ts:KylinRouter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/router.ts",
+      "target": "class:src/router.ts:KylinRouter",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/router.ts",
+      "target": "class:src/features/hooks.ts:HookManager",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/types/events.ts",
+      "target": "file:src/types/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/types/events.ts",
+      "target": "file:src/types/routes.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/utils/getRouteDataOptions.ts",
+      "target": "file:src/router.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/utils/getRouteDataOptions.ts",
+      "target": "file:src/types/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/utils/getRouteDataOptions.ts",
+      "target": "function:src/utils/getRouteDataOptions.ts:getRouteDataOptions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/getRouteDataOptions.ts",
+      "target": "function:src/utils/getRouteDataOptions.ts:getRouteDataOptions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/utils/getRouteViewOptions.ts",
+      "target": "file:src/router.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/utils/getRouteViewOptions.ts",
+      "target": "file:src/types/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/utils/getRouteViewOptions.ts",
+      "target": "function:src/utils/getRouteViewOptions.ts:getRouteViewOptions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/getRouteViewOptions.ts",
+      "target": "function:src/utils/getRouteViewOptions.ts:getRouteViewOptions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/utils/isRouteItem.ts",
+      "target": "file:src/types/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/utils/isRouteItem.ts",
+      "target": "function:src/utils/isRouteItem.ts:isRouteItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/isRouteItem.ts",
+      "target": "function:src/utils/isRouteItem.ts:isRouteItem",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/utils/getBaseUrl.ts",
+      "target": "function:src/utils/getBaseUrl.ts:getBaseUrl",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/getBaseUrl.ts",
+      "target": "function:src/utils/getBaseUrl.ts:getBaseUrl",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/utils/removePathPrefix.ts",
+      "target": "function:src/utils/removePathPrefix.ts:removePathPrefix",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/removePathPrefix.ts",
+      "target": "function:src/utils/removePathPrefix.ts:removePathPrefix",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/utils/traverseOutlet.ts",
+      "target": "function:src/utils/traverseOutlet.ts:traverseOutlet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/traverseOutlet.ts",
+      "target": "function:src/utils/traverseOutlet.ts:traverseOutlet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/utils/traverseOutlet.ts",
+      "target": "function:src/utils/traverseOutlet.ts:calculateOutletLevel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src/index.ts:createRouter",
+      "target": "class:src/router.ts:KylinRouter",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/logger.ts:createLogger",
+      "target": "function:src/logger.ts:tokenizeMessage",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:src/router.ts:KylinRouter",
+      "target": "function:src/logger.ts:createLogger",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:src/router.ts:KylinRouter",
+      "target": "function:src/utils/getBaseUrl.ts:getBaseUrl",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:src/router.ts:KylinRouter",
+      "target": "function:src/utils/traverseOutlet.ts:traverseOutlet",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:src/router.ts:KylinRouter",
+      "target": "function:src/utils/removePathPrefix.ts:removePathPrefix",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:src/router.ts:KylinRouter",
+      "target": "function:src/utils/getRouteDataOptions.ts:getRouteDataOptions",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:src/router.ts:KylinRouter",
+      "target": "function:src/utils/getRouteViewOptions.ts:getRouteViewOptions",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
     }
   ]
 }

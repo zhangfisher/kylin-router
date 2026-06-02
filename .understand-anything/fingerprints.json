@@ -1,0 +1,3214 @@
+{
+  "version": "1.0.0",
+  "gitCommitHash": "b4885266a39d0cb0ca8f446dfe69d9c2e5108d73",
+  "generatedAt": "2026-06-02T13:26:43.942Z",
+  "files": {
+    "src/index.ts": {
+      "filePath": "src/index.ts",
+      "contentHash": "8809984773e6ea51c7f07433802d14110365d40f580e0b24a5d3f81c77a4b4a7",
+      "functions": [
+        {
+          "name": "createRouter",
+          "params": [
+            "host",
+            "options"
+          ],
+          "returnType": "KylinRouter",
+          "exported": true,
+          "lineCount": 7
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "./components",
+          "specifiers": []
+        },
+        {
+          "source": "./utils/params",
+          "specifiers": []
+        },
+        {
+          "source": "./router",
+          "specifiers": [
+            "KylinRouter"
+          ]
+        },
+        {
+          "source": "./types",
+          "specifiers": [
+            "KylinRouterOptionsType"
+          ]
+        }
+      ],
+      "exports": [
+        "KylinRouterOptiopns",
+        "createRouter"
+      ],
+      "totalLines": 31,
+      "hasStructuralAnalysis": true
+    },
+    "src/router.ts": {
+      "filePath": "src/router.ts",
+      "contentHash": "fed457c24af6fdbd4583d90f6682ad8d3a23d3abfc37bac65d8f06dc0a7bbcd6",
+      "functions": [],
+      "classes": [
+        {
+          "name": "KylinRouter",
+          "methods": [
+            "constructor",
+            "mode",
+            "base",
+            "debug",
+            "logger",
+            "location",
+            "_matchRoute",
+            "onRouteUpdate",
+            "_ensureAttached",
+            "handleGuardFailure",
+            "push",
+            "replace",
+            "home",
+            "back",
+            "forward",
+            "go",
+            "attach",
+            "detach"
+          ],
+          "properties": [
+            "_cleanups",
+            "host",
+            "history",
+            "outlets",
+            "routes",
+            "hooks",
+            "viewLoader",
+            "dataLoader",
+            "_logger",
+            "isNavigating",
+            "_pendingNavigationType",
+            "previous",
+            "options",
+            "attached",
+            "currentNavVersion",
+            "_renderVersion",
+            "_currentRenderAbortController",
+            "abortController",
+            "modalContainer",
+            "modalState",
+            "maxModals",
+            "alpineManager"
+          ],
+          "exported": true,
+          "lineCount": 413
+        }
+      ],
+      "imports": [
+        {
+          "source": "@/utils/traverseOutlet",
+          "specifiers": [
+            "OutletRefs"
+          ]
+        },
+        {
+          "source": "history",
+          "specifiers": [
+            "createBrowserHistory",
+            "createHashHistory"
+          ]
+        },
+        {
+          "source": "history",
+          "specifiers": [
+            "Update"
+          ]
+        },
+        {
+          "source": "./types/index",
+          "specifiers": [
+            "KylinRouterOptions",
+            "KylinRouteItem",
+            "ModalState",
+            "KylinMatchedRouteItem"
+          ]
+        },
+        {
+          "source": "ts-mixer",
+          "specifiers": [
+            "Mixin"
+          ]
+        },
+        {
+          "source": "./features",
+          "specifiers": [
+            "Context",
+            "KeepAlive",
+            "Transition",
+            "Preload",
+            "Render",
+            "DataLoader",
+            "ViewLoader",
+            "Emitter",
+            "Redirect",
+            "Modal"
+          ]
+        },
+        {
+          "source": "@/utils/getBaseUrl",
+          "specifiers": [
+            "getBaseUrl"
+          ]
+        },
+        {
+          "source": "./features/hooks",
+          "specifiers": [
+            "HookManager"
+          ]
+        },
+        {
+          "source": "./features/routes",
+          "specifiers": [
+            "KylinRouteTable"
+          ]
+        },
+        {
+          "source": "./features/alpine",
+          "specifiers": [
+            "AlpineManager"
+          ]
+        },
+        {
+          "source": "./utils",
+          "specifiers": [
+            "joinPath",
+            "matchRoute"
+          ]
+        },
+        {
+          "source": "./logger",
+          "specifiers": [
+            "createLogger",
+            "KylinRouterLogger"
+          ]
+        },
+        {
+          "source": "./utils/removePathPrefix",
+          "specifiers": [
+            "removePathPrefix"
+          ]
+        },
+        {
+          "source": "./pages/errors",
+          "specifiers": [
+            "errorPages"
+          ]
+        }
+      ],
+      "exports": [
+        "KylinRouter"
+      ],
+      "totalLines": 448,
+      "hasStructuralAnalysis": true
+    },
+    "src/errors.ts": {
+      "filePath": "src/errors.ts",
+      "contentHash": "2cf46f434cbfd58fd80e9029ae1d50cfad66f183ac1dd19cbe821302aed0ba1e",
+      "functions": [],
+      "classes": [
+        {
+          "name": "KylinRouterError",
+          "methods": [
+            "constructor"
+          ],
+          "properties": [
+            "status",
+            "route"
+          ],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "KylinRouteError",
+          "methods": [
+            "constructor"
+          ],
+          "properties": [
+            "route"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "KylinExternalRouteError",
+          "methods": [
+            "constructor"
+          ],
+          "properties": [
+            "target",
+            "url",
+            "name"
+          ],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "KylinNotFoundRouteError",
+          "methods": [
+            "constructor"
+          ],
+          "properties": [
+            "target"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "KylinMaxRedirectRouteError",
+          "methods": [
+            "constructor"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "KylinLoopRouteError",
+          "methods": [
+            "constructor"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 6
+        }
+      ],
+      "imports": [
+        {
+          "source": "./types",
+          "specifiers": [
+            "KylinMatchedRouteItem"
+          ]
+        }
+      ],
+      "exports": [
+        "KylinRouterError",
+        "KylinRouteError",
+        "KylinExternalRouteError",
+        "KylinNotFoundRouteError",
+        "KylinMaxRedirectRouteError",
+        "KylinLoopRouteError"
+      ],
+      "totalLines": 72,
+      "hasStructuralAnalysis": true
+    },
+    "src/logger.ts": {
+      "filePath": "src/logger.ts",
+      "contentHash": "03a7ad0c5d05bde5ffb06ed433c10ee90a8274d917e9cd8487e40008fe87d9ba",
+      "functions": [
+        {
+          "name": "tokenizeMessage",
+          "params": [
+            "message"
+          ],
+          "returnType": "Token[]",
+          "exported": false,
+          "lineCount": 23
+        },
+        {
+          "name": "createLogger",
+          "params": [
+            "options"
+          ],
+          "returnType": "KylinRouterLogger",
+          "exported": true,
+          "lineCount": 71
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "./types/config",
+          "specifiers": [
+            "KylinRouterOptions"
+          ]
+        }
+      ],
+      "exports": [
+        "createLogger"
+      ],
+      "totalLines": 107,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/base/index.ts": {
+      "filePath": "src/components/base/index.ts",
+      "contentHash": "79375660a29655d78670b35bc195ea37908f8ea132fd6c93b926edc8dc3ce866",
+      "functions": [],
+      "classes": [
+        {
+          "name": "KylinRouterElementBase",
+          "methods": [
+            "connectedCallback",
+            "disconnectedCallback",
+            "_getRouterSync",
+            "getRouter",
+            "render"
+          ],
+          "properties": [
+            "router",
+            "_contextRequested",
+            "_contextCallback"
+          ],
+          "exported": true,
+          "lineCount": 106
+        }
+      ],
+      "imports": [
+        {
+          "source": "@/router",
+          "specifiers": [
+            "KylinRouter"
+          ]
+        },
+        {
+          "source": "@/utils/triggerEvent",
+          "specifiers": [
+            "triggerEvent"
+          ]
+        },
+        {
+          "source": "lit",
+          "specifiers": [
+            "LitElement",
+            "html"
+          ]
+        }
+      ],
+      "exports": [
+        "KylinRouterElementBase"
+      ],
+      "totalLines": 127,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/link/index.ts": {
+      "filePath": "src/components/link/index.ts",
+      "contentHash": "98efc7aa90f4fec9b4e8642f252506e000e12e14feb2313a9fdb2ffc07b37e72",
+      "functions": [
+        {
+          "name": "isInternalLink",
+          "params": [
+            "path"
+          ],
+          "returnType": "boolean",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "isDangerousProtocol",
+          "params": [
+            "path"
+          ],
+          "returnType": "boolean",
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "classes": [
+        {
+          "name": "KylinLinkElement",
+          "methods": [
+            "_getComputedRel",
+            "handleClick",
+            "render"
+          ],
+          "properties": [
+            "to",
+            "replace",
+            "target",
+            "rel"
+          ],
+          "exported": true,
+          "lineCount": 94
+        }
+      ],
+      "imports": [
+        {
+          "source": "lit",
+          "specifiers": [
+            "html",
+            "nothing"
+          ]
+        },
+        {
+          "source": "lit/decorators.js",
+          "specifiers": [
+            "customElement",
+            "property"
+          ]
+        },
+        {
+          "source": "../base",
+          "specifiers": [
+            "KylinRouterElementBase"
+          ]
+        },
+        {
+          "source": "@/router",
+          "specifiers": [
+            "KylinRouter"
+          ]
+        },
+        {
+          "source": "@/utils/joinPath",
+          "specifiers": [
+            "joinPath"
+          ]
+        }
+      ],
+      "exports": [
+        "isInternalLink",
+        "isDangerousProtocol",
+        "KylinLinkElement"
+      ],
+      "totalLines": 127,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/outlet/index.ts": {
+      "filePath": "src/components/outlet/index.ts",
+      "contentHash": "900d30c9851e73734a0f2dbc9273b21f41fe3f28f5f97d009ee4ee9670a562ba",
+      "functions": [],
+      "classes": [
+        {
+          "name": "KylinOutlet",
+          "methods": [
+            "createRenderRoot",
+            "_getLayout",
+            "_switchLayout",
+            "requestUpdate",
+            "connectedCallback",
+            "_injectStyles",
+            "disconnectedCallback",
+            "getViewContainer",
+            "createViewContainer",
+            "_updateAlpineComponentData",
+            "updated",
+            "_setupMutationObserver",
+            "onSlotChange",
+            "getViewContainers",
+            "findOutlet",
+            "showViewContainer",
+            "renderView",
+            "render"
+          ],
+          "properties": [
+            "keepalive",
+            "loading",
+            "view",
+            "layout",
+            "tabDirection",
+            "mutationObserver",
+            "_layoutInstance"
+          ],
+          "exported": true,
+          "lineCount": 336
+        }
+      ],
+      "imports": [
+        {
+          "source": "lit/decorators.js",
+          "specifiers": [
+            "customElement",
+            "property"
+          ]
+        },
+        {
+          "source": "./styles",
+          "specifiers": [
+            "commonStyles"
+          ]
+        },
+        {
+          "source": "../base",
+          "specifiers": [
+            "KylinRouterElementBase"
+          ]
+        },
+        {
+          "source": "lit",
+          "specifiers": [
+            "html"
+          ]
+        },
+        {
+          "source": "./viewContainer",
+          "specifiers": [
+            "ViewContainer",
+            "ViewContainerOptions"
+          ]
+        },
+        {
+          "source": "@/types",
+          "specifiers": [
+            "KylinMatchedRouteItem"
+          ]
+        },
+        {
+          "source": "./base.layout",
+          "specifiers": [
+            "OutletLayoutBase"
+          ]
+        },
+        {
+          "source": "./stack.layout",
+          "specifiers": [
+            "StackLayout"
+          ]
+        },
+        {
+          "source": "./tabs.layout",
+          "specifiers": [
+            "TabsLayout"
+          ]
+        },
+        {
+          "source": "./collapse.layout",
+          "specifiers": [
+            "CollapseLayout"
+          ]
+        },
+        {
+          "source": "@/utils/findOutlet",
+          "specifiers": [
+            "findOutlet"
+          ]
+        }
+      ],
+      "exports": [
+        "KylinOutlet"
+      ],
+      "totalLines": 356,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/loading/index.ts": {
+      "filePath": "src/components/loading/index.ts",
+      "contentHash": "4e800a771881884a5c37fd2484f959fba9569399a165be758291db3a51c4d9b7",
+      "functions": [],
+      "classes": [
+        {
+          "name": "KylinLoadingElement",
+          "methods": [
+            "connectedCallback",
+            "render"
+          ],
+          "properties": [
+            "styles",
+            "message"
+          ],
+          "exported": true,
+          "lineCount": 20
+        }
+      ],
+      "imports": [
+        {
+          "source": "lit",
+          "specifiers": [
+            "LitElement",
+            "html"
+          ]
+        },
+        {
+          "source": "lit/decorators.js",
+          "specifiers": [
+            "customElement",
+            "property"
+          ]
+        },
+        {
+          "source": "./styles",
+          "specifiers": [
+            "styles"
+          ]
+        }
+      ],
+      "exports": [
+        "KylinLoadingElement"
+      ],
+      "totalLines": 32,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/view-meta/index.ts": {
+      "filePath": "src/components/view-meta/index.ts",
+      "contentHash": "41f6a0f935b3dff30024787b966b0c34800d2046636a28c212092a7ba014592f",
+      "functions": [],
+      "classes": [
+        {
+          "name": "KylinViewMetaElement",
+          "methods": [
+            "createRenderRoot",
+            "get",
+            "set",
+            "getAll",
+            "has",
+            "getJSON",
+            "getBoolean",
+            "getArray",
+            "toString",
+            "render"
+          ],
+          "properties": [
+            "styles"
+          ],
+          "exported": true,
+          "lineCount": 162
+        }
+      ],
+      "imports": [
+        {
+          "source": "lit",
+          "specifiers": [
+            "LitElement",
+            "html",
+            "css"
+          ]
+        },
+        {
+          "source": "lit/decorators.js",
+          "specifiers": [
+            "customElement"
+          ]
+        }
+      ],
+      "exports": [
+        "KylinViewMetaElement"
+      ],
+      "totalLines": 197,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/feedback/index.ts": {
+      "filePath": "src/components/feedback/index.ts",
+      "contentHash": "8531b7fb7a70c39ef698125e338d1eb7591bac4a4aa0f3f34918ddb7e6c332b9",
+      "functions": [],
+      "classes": [
+        {
+          "name": "KylinFeedbackElement",
+          "methods": [
+            "_parsedActions",
+            "_renderIcon",
+            "_allActions",
+            "_handleAction",
+            "_renderActionButton",
+            "render"
+          ],
+          "properties": [
+            "styles",
+            "message",
+            "description",
+            "icon",
+            "type",
+            "actions",
+            "closeable",
+            "retryable",
+            "backable",
+            "inline"
+          ],
+          "exported": true,
+          "lineCount": 205
+        }
+      ],
+      "imports": [
+        {
+          "source": "really-relaxed-json",
+          "specifiers": [
+            "parseJson"
+          ]
+        },
+        {
+          "source": "lit",
+          "specifiers": [
+            "LitElement",
+            "html",
+            "TemplateResult"
+          ]
+        },
+        {
+          "source": "lit/directives/unsafe-html.js",
+          "specifiers": [
+            "unsafeHTML"
+          ]
+        },
+        {
+          "source": "lit/decorators.js",
+          "specifiers": [
+            "customElement",
+            "property"
+          ]
+        },
+        {
+          "source": "./styles",
+          "specifiers": [
+            "styles"
+          ]
+        }
+      ],
+      "exports": [
+        "KylinFeedbackElement"
+      ],
+      "totalLines": 286,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/index.ts": {
+      "filePath": "src/components/index.ts",
+      "contentHash": "d5c69f08fef50f7d744e2160234254575c7dadd86a4f695046df357c62a70fde",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 7,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/outlet/base.layout.ts": {
+      "filePath": "src/components/outlet/base.layout.ts",
+      "contentHash": "59548df36f03b139a3b6e1a6173a319980ba5a89db1ef7273c490407462c0a95",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "./index",
+          "specifiers": [
+            "KylinOutlet"
+          ]
+        },
+        {
+          "source": "lit",
+          "specifiers": [
+            "css"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 47,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/outlet/stack.layout.ts": {
+      "filePath": "src/components/outlet/stack.layout.ts",
+      "contentHash": "57908431b56cb49d35e4aa694c337efcdd6703d192d4ec48bff54ad0c5aa1cdd",
+      "functions": [],
+      "classes": [
+        {
+          "name": "StackLayout",
+          "methods": [
+            "init",
+            "cleanup",
+            "onSlotChange",
+            "onPropertyChanged"
+          ],
+          "properties": [
+            "styles"
+          ],
+          "exported": true,
+          "lineCount": 32
+        }
+      ],
+      "imports": [
+        {
+          "source": "./base.layout",
+          "specifiers": [
+            "OutletLayoutBase"
+          ]
+        },
+        {
+          "source": "./index",
+          "specifiers": [
+            "KylinOutlet"
+          ]
+        },
+        {
+          "source": "lit",
+          "specifiers": [
+            "css"
+          ]
+        }
+      ],
+      "exports": [
+        "StackLayout"
+      ],
+      "totalLines": 41,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/outlet/tabs.layout.ts": {
+      "filePath": "src/components/outlet/tabs.layout.ts",
+      "contentHash": "abe857bf7398c133457cf6784f22fced6d1e4a4c7ee31a1bb3a41591acee2b37",
+      "functions": [],
+      "classes": [
+        {
+          "name": "TabsLayout",
+          "methods": [
+            "init",
+            "cleanup",
+            "onSlotChange",
+            "onPropertyChanged",
+            "_createTabsHeader",
+            "_repositionHeader",
+            "_rebuildTabs",
+            "_extractLabelFromUrl",
+            "_setupActiveObserver",
+            "_syncTabActiveState"
+          ],
+          "properties": [
+            "styles",
+            "_tabsHeader",
+            "_observer"
+          ],
+          "exported": true,
+          "lineCount": 251
+        }
+      ],
+      "imports": [
+        {
+          "source": "./base.layout",
+          "specifiers": [
+            "OutletLayoutBase"
+          ]
+        },
+        {
+          "source": "./index",
+          "specifiers": [
+            "KylinOutlet"
+          ]
+        },
+        {
+          "source": "lit",
+          "specifiers": [
+            "css"
+          ]
+        }
+      ],
+      "exports": [
+        "TabsLayout"
+      ],
+      "totalLines": 262,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/outlet/collapse.layout.ts": {
+      "filePath": "src/components/outlet/collapse.layout.ts",
+      "contentHash": "4b0c452dc5f977d398e0d0131db6ad153126edcec7a2036e9485a4e01639c616",
+      "functions": [],
+      "classes": [
+        {
+          "name": "CollapseLayout",
+          "methods": [
+            "init",
+            "cleanup",
+            "onSlotChange",
+            "onPropertyChanged",
+            "_handleClick",
+            "_updateExpandedState",
+            "getExpandedIds",
+            "setExpandedIds",
+            "toggleExpanded",
+            "expand",
+            "collapse"
+          ],
+          "properties": [
+            "styles",
+            "_expandedIds",
+            "_clickHandler"
+          ],
+          "exported": true,
+          "lineCount": 173
+        }
+      ],
+      "imports": [
+        {
+          "source": "./base.layout",
+          "specifiers": [
+            "OutletLayoutBase"
+          ]
+        },
+        {
+          "source": "./index",
+          "specifiers": [
+            "KylinOutlet"
+          ]
+        },
+        {
+          "source": "lit",
+          "specifiers": [
+            "css"
+          ]
+        }
+      ],
+      "exports": [
+        "CollapseLayout"
+      ],
+      "totalLines": 184,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/outlet/viewContainer.ts": {
+      "filePath": "src/components/outlet/viewContainer.ts",
+      "contentHash": "e88e5085137f76bd8ea7beb1088d900d8afddfb623dcfc59d12afd4d15517815",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ViewContainer",
+          "methods": [
+            "constructor",
+            "viewHash",
+            "dataHash",
+            "_createContainer",
+            "_showLoading",
+            "_hideLoading",
+            "_getContainer",
+            "_getContainers",
+            "_active",
+            "abort",
+            "resolve",
+            "reject",
+            "finally"
+          ],
+          "properties": [
+            "outlet",
+            "container",
+            "options",
+            "_isNewContainer"
+          ],
+          "exported": true,
+          "lineCount": 122
+        }
+      ],
+      "imports": [
+        {
+          "source": ".",
+          "specifiers": [
+            "KylinOutlet"
+          ]
+        }
+      ],
+      "exports": [
+        "ViewContainer"
+      ],
+      "totalLines": 130,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/outlet/styles.ts": {
+      "filePath": "src/components/outlet/styles.ts",
+      "contentHash": "ec532b5f58e363ecd71d52d1e6a5471853f5f7c9a8d534ea9f48a40289b97e6c",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "lit",
+          "specifiers": [
+            "css"
+          ]
+        }
+      ],
+      "exports": [
+        "styles"
+      ],
+      "totalLines": 52,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/loading/styles.ts": {
+      "filePath": "src/components/loading/styles.ts",
+      "contentHash": "139527732d23400af27684f57458ee44cbbc10a53b19e63add0ee1721121ffbe",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "lit",
+          "specifiers": [
+            "css"
+          ]
+        }
+      ],
+      "exports": [
+        "styles"
+      ],
+      "totalLines": 38,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/feedback/styles.ts": {
+      "filePath": "src/components/feedback/styles.ts",
+      "contentHash": "95704d24062c5af0d3933893a3f260619745800356686b5026a61e58f98b4d55",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "lit",
+          "specifiers": [
+            "css"
+          ]
+        }
+      ],
+      "exports": [
+        "styles"
+      ],
+      "totalLines": 133,
+      "hasStructuralAnalysis": true
+    },
+    "src/directives/cssVar.ts": {
+      "filePath": "src/directives/cssVar.ts",
+      "contentHash": "8700587ca36d423385ff5540f02156536462c56a6a41a0ee2f7531357c9ff31a",
+      "functions": [
+        {
+          "name": "registerCssVarDirective",
+          "params": [
+            "Alpine"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 40
+        },
+        {
+          "name": "toCssValue",
+          "params": [
+            "value"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 12
+        },
+        {
+          "name": "install",
+          "params": [
+            "Alpine"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "alpinejs",
+          "specifiers": [
+            "Alpine"
+          ]
+        }
+      ],
+      "exports": [
+        "registerCssVarDirective",
+        "install"
+      ],
+      "totalLines": 85,
+      "hasStructuralAnalysis": true
+    },
+    "src/directives/injectData.ts": {
+      "filePath": "src/directives/injectData.ts",
+      "contentHash": "375e0dc83e559c8a0f37af2e2e56b6075f461c9b477d44489391dda575efb35c",
+      "functions": [
+        {
+          "name": "registerInjectDataDirective",
+          "params": [
+            "Alpine"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 66
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "alpinejs",
+          "specifiers": [
+            "Alpine"
+          ]
+        }
+      ],
+      "exports": [
+        "registerInjectDataDirective"
+      ],
+      "totalLines": 87,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/context.ts": {
+      "filePath": "src/features/context.ts",
+      "contentHash": "e41554e84a1dd20a87e9ea02af26be44bab647f125828a4b8c2f0b3b12f8459d",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Context",
+          "methods": [
+            "attachContextProvider",
+            "removeContextProvider",
+            "onContextRequest"
+          ],
+          "properties": [
+            "_onContextRequest"
+          ],
+          "exported": true,
+          "lineCount": 34
+        }
+      ],
+      "imports": [
+        {
+          "source": "@/router",
+          "specifiers": [
+            "KylinRouter"
+          ]
+        }
+      ],
+      "exports": [
+        "Context"
+      ],
+      "totalLines": 45,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/hooks.ts": {
+      "filePath": "src/features/hooks.ts",
+      "contentHash": "40a15063934d3524aade2b55d939f876c6a2f9d2d5f87f4390435841b9918123",
+      "functions": [],
+      "classes": [
+        {
+          "name": "HookManager",
+          "methods": [
+            "constructor",
+            "_addGlobalHooks",
+            "add",
+            "remove",
+            "clear",
+            "runBeforeRoute",
+            "runAfterRoute",
+            "runBeforeRender",
+            "runAfterRender",
+            "runRouteError",
+            "_runHooks",
+            "_runHook"
+          ],
+          "properties": [
+            "hooks",
+            "router",
+            "options"
+          ],
+          "exported": true,
+          "lineCount": 184
+        }
+      ],
+      "imports": [
+        {
+          "source": "@/router",
+          "specifiers": [
+            "KylinRouter"
+          ]
+        },
+        {
+          "source": "@/types",
+          "specifiers": [
+            "KylinRouterHooks",
+            "KylinRouterHookType",
+            "KylinRouterOptions",
+            "BeforeRouteHook",
+            "AfterRouteHook",
+            "BeforeRenderHook",
+            "AfterRenderHook",
+            "RouteErrorHook"
+          ]
+        },
+        {
+          "source": "@/types/utils",
+          "specifiers": [
+            "ArrayItem"
+          ]
+        }
+      ],
+      "exports": [
+        "HookManager"
+      ],
+      "totalLines": 204,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/baseLoader.ts": {
+      "filePath": "src/features/baseLoader.ts",
+      "contentHash": "6134451f95b27ae7157612d3347b4cc247be4efa0b7105c2809771e6a944eea9",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@/router",
+          "specifiers": [
+            "KylinRouter"
+          ]
+        },
+        {
+          "source": "@/types/routes",
+          "specifiers": [
+            "KylinMatchedRouteItem"
+          ]
+        },
+        {
+          "source": "asyncsignal",
+          "specifiers": [
+            "asyncSignal",
+            "IAsyncSignal"
+          ]
+        },
+        {
+          "source": "@/utils/getRouteVars",
+          "specifiers": [
+            "getRouteVars"
+          ]
+        },
+        {
+          "source": "@/utils/prefixBaseUrl",
+          "specifiers": [
+            "prefixBaseUrl"
+          ]
+        },
+        {
+          "source": "@/utils/getSignalHash",
+          "specifiers": [
+            "getSignalHash"
+          ]
+        },
+        {
+          "source": "@/errors",
+          "specifiers": [
+            "KylinRouterError"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 473,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/viewLoader.ts": {
+      "filePath": "src/features/viewLoader.ts",
+      "contentHash": "fc0417a6402dd3ce35aa5cc63b32214be3c635ab6ef008dedb83e68005b299f1",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ViewLoader",
+          "methods": [
+            "constructor",
+            "loadViews",
+            "loadView",
+            "onHandleData"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 87
+        }
+      ],
+      "imports": [
+        {
+          "source": "@/router",
+          "specifiers": [
+            "KylinRouter"
+          ]
+        },
+        {
+          "source": "@/types/routes",
+          "specifiers": [
+            "KylinMatchedRouteItem",
+            "KylinRouteViewOptions"
+          ]
+        },
+        {
+          "source": "./baseLoader",
+          "specifiers": [
+            "RouteDataLoaderBase"
+          ]
+        },
+        {
+          "source": "@/utils/sanitizeHTML",
+          "specifiers": [
+            "sanitizeHTML"
+          ]
+        },
+        {
+          "source": "@/utils/scopeStyle",
+          "specifiers": [
+            "scopeStyles"
+          ]
+        },
+        {
+          "source": "asyncsignal",
+          "specifiers": [
+            "IAsyncSignal"
+          ]
+        }
+      ],
+      "exports": [
+        "ViewLoader"
+      ],
+      "totalLines": 108,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/dataLoader.ts": {
+      "filePath": "src/features/dataLoader.ts",
+      "contentHash": "aea88cfb4ddbb01943b6401314afd6b51b9601d28a847af91210cff5c5624f5c",
+      "functions": [],
+      "classes": [
+        {
+          "name": "DataLoader",
+          "methods": [
+            "constructor",
+            "onHandleData",
+            "getAutoUrl",
+            "loadDatas"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 79
+        }
+      ],
+      "imports": [
+        {
+          "source": "@/router",
+          "specifiers": [
+            "KylinRouter"
+          ]
+        },
+        {
+          "source": "@/types/routes",
+          "specifiers": [
+            "KylinMatchedRouteItem"
+          ]
+        },
+        {
+          "source": "@/types/data",
+          "specifiers": [
+            "KylinRouteDataOptions"
+          ]
+        },
+        {
+          "source": "./baseLoader",
+          "specifiers": [
+            "RouteDataLoaderBase"
+          ]
+        },
+        {
+          "source": "alpinejs",
+          "specifiers": [
+            "Alpine"
+          ]
+        },
+        {
+          "source": "@/utils/getJsonFileFromUrl",
+          "specifiers": [
+            "getJsonFileFromUrl"
+          ]
+        },
+        {
+          "source": "asyncsignal",
+          "specifiers": [
+            "IAsyncSignal"
+          ]
+        },
+        {
+          "source": "es-toolkit/object",
+          "specifiers": [
+            "cloneDeep"
+          ]
+        }
+      ],
+      "exports": [
+        "DataLoader"
+      ],
+      "totalLines": 102,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/render.ts": {
+      "filePath": "src/features/render.ts",
+      "contentHash": "0586a9235816ee2194247b5d9c14fd655e934309c02cf26951fcc980c8eff040",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Render",
+          "methods": [
+            "_loadSignal",
+            "_loadView",
+            "_loadData",
+            "_routeReject",
+            "_getCommonRouteIndex",
+            "_getRootOutlet",
+            "_renderRoutes",
+            "_runBeforeRender",
+            "_runAfterRender",
+            "_getErrorPage",
+            "_findOutlet",
+            "_ensureDefaultOutlet"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 329
+        }
+      ],
+      "imports": [
+        {
+          "source": "@/utils/findOutlet",
+          "specifiers": [
+            "findOutlet"
+          ]
+        },
+        {
+          "source": "@/router",
+          "specifiers": [
+            "KylinRouter"
+          ]
+        },
+        {
+          "source": "@/types",
+          "specifiers": [
+            "KylinMatchedRouteItem",
+            "KylinRouteItem"
+          ]
+        },
+        {
+          "source": "@/components/outlet",
+          "specifiers": [
+            "KylinOutlet"
+          ]
+        },
+        {
+          "source": "asyncsignal",
+          "specifiers": [
+            "IAsyncSignal"
+          ]
+        },
+        {
+          "source": "@/errors",
+          "specifiers": [
+            "KylinRouterError"
+          ]
+        },
+        {
+          "source": "@/components/outlet/viewContainer",
+          "specifiers": [
+            "ViewContainer"
+          ]
+        },
+        {
+          "source": "alpinejs",
+          "specifiers": [
+            "Alpine"
+          ]
+        }
+      ],
+      "exports": [
+        "Render"
+      ],
+      "totalLines": 358,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/routes.ts": {
+      "filePath": "src/features/routes.ts",
+      "contentHash": "12b6cb6317f72467933f2295df7ba2d2d1b8a60b46e184d3b0ba493c2c4cd0cd",
+      "functions": [],
+      "classes": [
+        {
+          "name": "KylinRouteTable",
+          "methods": [
+            "constructor",
+            "load",
+            "match",
+            "_applyRouteOptions",
+            "forEach"
+          ],
+          "properties": [
+            "root",
+            "current",
+            "namedRouteItems",
+            "router"
+          ],
+          "exported": true,
+          "lineCount": 93
+        }
+      ],
+      "imports": [
+        {
+          "source": "@/router",
+          "specifiers": [
+            "KylinRouter"
+          ]
+        },
+        {
+          "source": "@/types",
+          "specifiers": [
+            "KylinRouteItem",
+            "KylinMatchedRouteItem"
+          ]
+        },
+        {
+          "source": "@/utils/matchRoute",
+          "specifiers": [
+            "matchRoute"
+          ]
+        },
+        {
+          "source": "@/utils/normalizeRoutes",
+          "specifiers": [
+            "normalizeRoutes"
+          ]
+        }
+      ],
+      "exports": [
+        "KylinRouteTable"
+      ],
+      "totalLines": 117,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/keepAlive.ts": {
+      "filePath": "src/features/keepAlive.ts",
+      "contentHash": "0a86fa3e7aaf6d93e1d8048186e1cdf074ebbf9d1be4752683612e58e1ac938e",
+      "functions": [],
+      "classes": [
+        {
+          "name": "KeepAlive",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "imports": [
+        {
+          "source": "@/router",
+          "specifiers": [
+            "KylinRouter"
+          ]
+        }
+      ],
+      "exports": [
+        "KeepAlive"
+      ],
+      "totalLines": 15,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/modal.ts": {
+      "filePath": "src/features/modal.ts",
+      "contentHash": "a75b876b6fd4dca4ad4c99af86c06c1f450963a78eb6c4f2e45d4b07990851c5",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Modal",
+          "methods": [
+            "openModal",
+            "closeModal",
+            "closeAllModals",
+            "hasOpenModals",
+            "modalCount",
+            "currentModal",
+            "_initModals",
+            "injectModalStyles",
+            "_createModalContainer",
+            "_setupModalEventListeners",
+            "_getModalConfig",
+            "_injectModalStyles",
+            "_closeTopModal",
+            "_createModalElement",
+            "createModalContainer",
+            "setupModalEventListeners",
+            "getModalConfig",
+            "closeTopModal",
+            "_createBackdrop",
+            "_renderModal",
+            "_applyModalStyles",
+            "_applyPositionStyles",
+            "_resolveModalRoute",
+            "_updateModalURL",
+            "_restoreModalURL"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 1124
+        }
+      ],
+      "imports": [
+        {
+          "source": "@/router",
+          "specifiers": [
+            "KylinRouter"
+          ]
+        },
+        {
+          "source": "@/types",
+          "specifiers": [
+            "KylinRouteItem",
+            "ModalConfig",
+            "ModalState",
+            "ModalStackItem",
+            "ModalOptions"
+          ]
+        }
+      ],
+      "exports": [
+        "Modal"
+      ],
+      "totalLines": 1156,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/transition.ts": {
+      "filePath": "src/features/transition.ts",
+      "contentHash": "4d14a7fcf9de40df7986642029fe454298e0f1a0907cd0690f37d73e4270dc20",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Transition",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "imports": [
+        {
+          "source": "@/router",
+          "specifiers": [
+            "KylinRouter"
+          ]
+        }
+      ],
+      "exports": [
+        "Transition"
+      ],
+      "totalLines": 10,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/preload.ts": {
+      "filePath": "src/features/preload.ts",
+      "contentHash": "789ed1adc393c2a3540638f1523b804114315c0b5984739168958def64cc089f",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Preload",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "imports": [
+        {
+          "source": "@/router",
+          "specifiers": [
+            "KylinRouter"
+          ]
+        }
+      ],
+      "exports": [
+        "Preload"
+      ],
+      "totalLines": 12,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/redirect.ts": {
+      "filePath": "src/features/redirect.ts",
+      "contentHash": "11a4634b6155aba37522123666aee366ca71913fc22e21b070f5aa4015cc92a4",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Redirect",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "imports": [
+        {
+          "source": "@/router",
+          "specifiers": [
+            "KylinRouter"
+          ]
+        }
+      ],
+      "exports": [
+        "Redirect"
+      ],
+      "totalLines": 13,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/emitter.ts": {
+      "filePath": "src/features/emitter.ts",
+      "contentHash": "6dba28401fc0c006bef4c6f79f6a93f1913d6fd72f8a4a8f7d5218901889e352",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Emitter",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 1
+        }
+      ],
+      "imports": [
+        {
+          "source": "@/router",
+          "specifiers": [
+            "KylinRouter"
+          ]
+        },
+        {
+          "source": "@/types/events",
+          "specifiers": [
+            "KylinRouterEvents"
+          ]
+        },
+        {
+          "source": "@/utils",
+          "specifiers": [
+            "EventEmitter"
+          ]
+        }
+      ],
+      "exports": [
+        "Emitter"
+      ],
+      "totalLines": 14,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/alpine.ts": {
+      "filePath": "src/features/alpine.ts",
+      "contentHash": "cb20d2a14838494d5b670347addfd607d9ac68581a2cc7883819a18719d0bec6",
+      "functions": [],
+      "classes": [
+        {
+          "name": "AlpineManager",
+          "methods": [
+            "constructor",
+            "initStore",
+            "bindHost",
+            "cleanup"
+          ],
+          "properties": [
+            "router"
+          ],
+          "exported": true,
+          "lineCount": 76
+        }
+      ],
+      "imports": [
+        {
+          "source": "alpinejs",
+          "specifiers": [
+            "Alpine"
+          ]
+        },
+        {
+          "source": "@/router",
+          "specifiers": [
+            "KylinRouter"
+          ]
+        },
+        {
+          "source": "@/types/modals",
+          "specifiers": [
+            "ModalOptions"
+          ]
+        },
+        {
+          "source": "@/directives/cssVar",
+          "specifiers": [
+            "registerCssVarDirective"
+          ]
+        },
+        {
+          "source": "@/directives/injectData",
+          "specifiers": [
+            "registerInjectDataDirective"
+          ]
+        }
+      ],
+      "exports": [
+        "AlpineManager"
+      ],
+      "totalLines": 116,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/index.ts": {
+      "filePath": "src/features/index.ts",
+      "contentHash": "104f806bbb432822a8768addfd91dce2c581109c1dda55f0d4a06a5b89d44bc6",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 13,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/index.ts": {
+      "filePath": "src/utils/index.ts",
+      "contentHash": "73ace63c390edd2bc409c70661f71d83ef1f69a86ef9f1e7b04dcf8d09935b4b",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 12,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/matchRoute.ts": {
+      "filePath": "src/utils/matchRoute.ts",
+      "contentHash": "b2a64bd4b1814b31ba18e43e2e839a0ea1b0683efab42a88ae44511817bdae25",
+      "functions": [
+        {
+          "name": "normalizeUrl",
+          "params": [
+            "url"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "normalizePath",
+          "params": [
+            "path"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 18
+        },
+        {
+          "name": "resolveRedirectPath",
+          "params": [
+            "target",
+            "currentMatch"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 41
+        },
+        {
+          "name": "resolveRedirect",
+          "params": [
+            "target",
+            "namedRoutes",
+            "matchedRoute"
+          ],
+          "returnType": "RedirectResolution | null",
+          "exported": false,
+          "lineCount": 91
+        },
+        {
+          "name": "escapeRegex",
+          "params": [
+            "str"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "stripHash",
+          "params": [
+            "pathname"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "parseQueryString",
+          "params": [
+            "pathname"
+          ],
+          "returnType": "{ pathname: string; query: Record<string, string> }",
+          "exported": false,
+          "lineCount": 9
+        },
+        {
+          "name": "compileSegments",
+          "params": [
+            "pattern",
+            "fullMatch"
+          ],
+          "returnType": "CompiledPattern",
+          "exported": false,
+          "lineCount": 84
+        },
+        {
+          "name": "extractParamNames",
+          "params": [
+            "path"
+          ],
+          "returnType": "string[]",
+          "exported": false,
+          "lineCount": 19
+        },
+        {
+          "name": "replacePathParams",
+          "params": [
+            "path",
+            "params"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 19
+        },
+        {
+          "name": "findDefaultRoute",
+          "params": [
+            "routes",
+            "parentMatchedRoute",
+            "inputQuery",
+            "id"
+          ],
+          "returnType": "KylinMatchedRouteItem[] | null",
+          "exported": false,
+          "lineCount": 50
+        },
+        {
+          "name": "createUnmatchedRouteItem",
+          "params": [
+            "unmatchedPath",
+            "parentMatchedRoute",
+            "inputQuery",
+            "id"
+          ],
+          "returnType": "KylinMatchedRouteItem",
+          "exported": false,
+          "lineCount": 24
+        },
+        {
+          "name": "createRouteMatcher",
+          "params": [
+            "route",
+            "isPrefix"
+          ],
+          "returnType": "(pathname: string) => RouteMatchResult",
+          "exported": true,
+          "lineCount": 78
+        },
+        {
+          "name": "processSingleRoute",
+          "params": [
+            "route",
+            "path",
+            "parentMatchedRoute",
+            "inputQuery",
+            "id"
+          ],
+          "returnType": "KylinMatchedRouteItem[] | null",
+          "exported": false,
+          "lineCount": 130
+        },
+        {
+          "name": "_matchRoutesInternal",
+          "params": [
+            "path",
+            "routes",
+            "parentMatchedRoute",
+            "inputQuery",
+            "id"
+          ],
+          "returnType": "KylinMatchedRouteItem[]",
+          "exported": false,
+          "lineCount": 44
+        },
+        {
+          "name": "matchRoute",
+          "params": [
+            "path",
+            "roots",
+            "options"
+          ],
+          "returnType": "KylinMatchedRouteItem[]",
+          "exported": true,
+          "lineCount": 310
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@/types",
+          "specifiers": [
+            "KylinRouteItem",
+            "KylinMatchedRouteItem",
+            "RedirectTarget",
+            "RedirectFunction",
+            "RedirectResult",
+            "NamedRedirectTarget"
+          ]
+        },
+        {
+          "source": "./joinPath",
+          "specifiers": [
+            "joinPath"
+          ]
+        },
+        {
+          "source": "./extractQueryParams",
+          "specifiers": [
+            "extractQueryParams"
+          ]
+        },
+        {
+          "source": "./getRouteHash",
+          "specifiers": [
+            "getRouteHash"
+          ]
+        },
+        {
+          "source": "@/errors",
+          "specifiers": [
+            "KylinMaxRedirectRouteError",
+            "KylinLoopRouteError",
+            "KylinNotFoundRouteError",
+            "KylinExternalRouteError"
+          ]
+        },
+        {
+          "source": "./isExternalLink",
+          "specifiers": [
+            "isExternalLink"
+          ]
+        }
+      ],
+      "exports": [
+        "createRouteMatcher",
+        "matchRoute"
+      ],
+      "totalLines": 1159,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/traverseOutlet.ts": {
+      "filePath": "src/utils/traverseOutlet.ts",
+      "contentHash": "c5db7787df9dd5e7d0dfabcea00952b820d2bd2c3886a6f37920cb17e93b4a3a",
+      "functions": [
+        {
+          "name": "traverseOutlet",
+          "params": [
+            "host"
+          ],
+          "returnType": "OutletRefs",
+          "exported": true,
+          "lineCount": 33
+        },
+        {
+          "name": "calculateOutletLevel",
+          "params": [
+            "outlet",
+            "host"
+          ],
+          "returnType": "number",
+          "exported": false,
+          "lineCount": 14
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "traverseOutlet"
+      ],
+      "totalLines": 66,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/findOutlet.ts": {
+      "filePath": "src/utils/findOutlet.ts",
+      "contentHash": "b358b6bcef8536e1d4ec6d3ca4b5b8fcae9e0f61404aebdc77b656ed34b0a685",
+      "functions": [
+        {
+          "name": "hasOutletAncestor",
+          "params": [
+            "el",
+            "root"
+          ],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "findOutlet",
+          "params": [
+            "el"
+          ],
+          "returnType": "KylinOutlet[]",
+          "exported": true,
+          "lineCount": 28
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@/components/outlet",
+          "specifiers": [
+            "KylinOutlet"
+          ]
+        }
+      ],
+      "exports": [
+        "findOutlet"
+      ],
+      "totalLines": 52,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/params.ts": {
+      "filePath": "src/utils/params.ts",
+      "contentHash": "8e8c2e22f1517b70264b1731bb8b927ce5c96582155da8ed6212759f864dd61b",
+      "functions": [
+        {
+          "name": "params",
+          "params": [
+            "str",
+            "...args"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 63
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "params"
+      ],
+      "totalLines": 99,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/parseParams.ts": {
+      "filePath": "src/utils/parseParams.ts",
+      "contentHash": "3531e3ba32786433c923f7556f9d3cfe53ff55d3855b1a7820e807e56851141c",
+      "functions": [
+        {
+          "name": "compilePathPattern",
+          "params": [
+            "pattern"
+          ],
+          "returnType": "{ regex: RegExp; paramNames: string[] }",
+          "exported": true,
+          "lineCount": 37
+        },
+        {
+          "name": "parsePathParams",
+          "params": [
+            "pattern",
+            "pathname"
+          ],
+          "returnType": "Record<string, string>",
+          "exported": true,
+          "lineCount": 21
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "compilePathPattern",
+        "parsePathParams"
+      ],
+      "totalLines": 91,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/extractQueryParams.ts": {
+      "filePath": "src/utils/extractQueryParams.ts",
+      "contentHash": "f089d7165fb3b5ab2607d6cfed64b23bbac82eccbe033af10b6d8f4a78e5d7cc",
+      "functions": [
+        {
+          "name": "extractQueryParams",
+          "params": [
+            "search"
+          ],
+          "returnType": "Record<string, string>",
+          "exported": true,
+          "lineCount": 14
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "extractQueryParams"
+      ],
+      "totalLines": 24,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/joinPath.ts": {
+      "filePath": "src/utils/joinPath.ts",
+      "contentHash": "6e4b1734d65d2e417b8286e0f2c6aab92b307ae0bcd5d3e45bce77f3d8b37b16",
+      "functions": [
+        {
+          "name": "joinPath",
+          "params": [
+            "base",
+            "path"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 19
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "joinPath"
+      ],
+      "totalLines": 37,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/getBaseUrl.ts": {
+      "filePath": "src/utils/getBaseUrl.ts",
+      "contentHash": "2d103003e842f0aae49b630f726b3c5a0c555fa281632e5570d0599b4b9a3b0a",
+      "functions": [
+        {
+          "name": "getBaseUrl",
+          "params": [],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 30
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "getBaseUrl"
+      ],
+      "totalLines": 60,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/prefixBaseUrl.ts": {
+      "filePath": "src/utils/prefixBaseUrl.ts",
+      "contentHash": "db59efb7b57ac0a8d7df57a2a57c4f3294b2dcb92aed0358876983388e0afc03",
+      "functions": [
+        {
+          "name": "prefixBaseUrl",
+          "params": [
+            "url",
+            "base"
+          ],
+          "exported": true,
+          "lineCount": 26
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "./joinPath",
+          "specifiers": [
+            "joinPath"
+          ]
+        }
+      ],
+      "exports": [
+        "prefixBaseUrl"
+      ],
+      "totalLines": 29,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/removePathPrefix.ts": {
+      "filePath": "src/utils/removePathPrefix.ts",
+      "contentHash": "fa996c9bd2a7ec9acd8197b619e81a9b02d9702f77fb97a8e3ffc5a0a94ad6b3",
+      "functions": [
+        {
+          "name": "removePathPrefix",
+          "params": [
+            "path",
+            "prefix"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 33
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "removePathPrefix"
+      ],
+      "totalLines": 55,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/hashUtils.ts": {
+      "filePath": "src/utils/hashUtils.ts",
+      "contentHash": "b615069c533ff550134e284257846bb72ce61bb6cb934db8c1cfb90f6fd399da",
+      "functions": [
+        {
+          "name": "normalizeHashPath",
+          "params": [
+            "hash"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 19
+        },
+        {
+          "name": "createHashHistoryFromLib",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "history",
+          "specifiers": [
+            "createHashHistory"
+          ]
+        }
+      ],
+      "exports": [
+        "normalizeHashPath",
+        "createHashHistoryFromLib"
+      ],
+      "totalLines": 56,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/quickHash.ts": {
+      "filePath": "src/utils/quickHash.ts",
+      "contentHash": "00315360dc656df7b97f5d9a0c4e0956e34ba2487bcc6e3f86b26ff3a31e659c",
+      "functions": [
+        {
+          "name": "quickHash",
+          "params": [
+            "str",
+            "length"
+          ],
+          "exported": true,
+          "lineCount": 28
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "quickHash"
+      ],
+      "totalLines": 35,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/getRouteHash.ts": {
+      "filePath": "src/utils/getRouteHash.ts",
+      "contentHash": "eb17a475b5d72566426b9bc7538430f0f27dbc583406c7d2d7ef0b4fa85479b5",
+      "functions": [
+        {
+          "name": "getRouteHash",
+          "params": [
+            "matched"
+          ],
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@/types",
+          "specifiers": [
+            "KylinMatchedRouteItem"
+          ]
+        },
+        {
+          "source": "./getSignalHash",
+          "specifiers": [
+            "getSignalHash"
+          ]
+        }
+      ],
+      "exports": [
+        "getRouteHash"
+      ],
+      "totalLines": 18,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/generateRouteHash.ts": {
+      "filePath": "src/utils/generateRouteHash.ts",
+      "contentHash": "cf57118784dac4b5638383a647fd8a2a8d56725c6cb4ab9b309d63601c235679",
+      "functions": [
+        {
+          "name": "generateRouteHash",
+          "params": [
+            "hash",
+            "vars"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 8
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "./params",
+          "specifiers": [
+            "replaceParams"
+          ]
+        },
+        {
+          "source": "./quickHash",
+          "specifiers": [
+            "quickHash"
+          ]
+        }
+      ],
+      "exports": [
+        "generateRouteHash"
+      ],
+      "totalLines": 37,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/getSignalHash.ts": {
+      "filePath": "src/utils/getSignalHash.ts",
+      "contentHash": "52332d50953b9afc31bc3fc2fbe56d9a50481f41c27a94bf3a797a5ef16f36f3",
+      "functions": [
+        {
+          "name": "getSignalHash",
+          "params": [
+            "hash",
+            "matched"
+          ],
+          "exported": true,
+          "lineCount": 6
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@/types",
+          "specifiers": [
+            "KylinMatchedRouteItem"
+          ]
+        },
+        {
+          "source": "./getRouteVars",
+          "specifiers": [
+            "getRouteVars"
+          ]
+        },
+        {
+          "source": "./params",
+          "specifiers": [
+            "replaceParams"
+          ]
+        },
+        {
+          "source": "./quickHash",
+          "specifiers": [
+            "quickHash"
+          ]
+        }
+      ],
+      "exports": [
+        "getSignalHash"
+      ],
+      "totalLines": 21,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/getId.ts": {
+      "filePath": "src/utils/getId.ts",
+      "contentHash": "5c6488e3ead0cb6b7c3ebb513097de4cf39da2d3ccd62c08507e9686c798d1ae",
+      "functions": [
+        {
+          "name": "getId",
+          "params": [
+            "len"
+          ],
+          "exported": true,
+          "lineCount": 7
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "getId"
+      ],
+      "totalLines": 8,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/getJsonFileFromUrl.ts": {
+      "filePath": "src/utils/getJsonFileFromUrl.ts",
+      "contentHash": "a479b627491eb224612ab901cc87856021fbe9690a2fc9bb7445f4a1ec9dd53e",
+      "functions": [
+        {
+          "name": "getJsonFileFromUrl",
+          "params": [
+            "url"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 40
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "getJsonFileFromUrl"
+      ],
+      "totalLines": 103,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/sanitizeHTML.ts": {
+      "filePath": "src/utils/sanitizeHTML.ts",
+      "contentHash": "04ebe6dc422369c0f5c1a6ab25ca009616a3a3a1cda2a0fb8a9b046057e1803a",
+      "functions": [
+        {
+          "name": "sanitizeHTML",
+          "params": [
+            "html"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 18
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "sanitizeHTML"
+      ],
+      "totalLines": 31,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/injectStylesheet.ts": {
+      "filePath": "src/utils/injectStylesheet.ts",
+      "contentHash": "8afb8a264e2b76f82fb0ce07e58dc43cf6406aef5ddb73fdb8079595ec9cf9d5",
+      "functions": [
+        {
+          "name": "injectStylesheet",
+          "params": [
+            "css",
+            "options"
+          ],
+          "exported": true,
+          "lineCount": 32
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "./getId",
+          "specifiers": [
+            "getId"
+          ]
+        }
+      ],
+      "exports": [
+        "injectStylesheet"
+      ],
+      "totalLines": 42,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/scopeStyle.ts": {
+      "filePath": "src/utils/scopeStyle.ts",
+      "contentHash": "d21e00d65cf277373662d94b27ad00d12069bf2a486bd2b24ef6c1cf167e44ba",
+      "functions": [
+        {
+          "name": "camelToKebab",
+          "params": [
+            "str"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "isRootSelector",
+          "params": [
+            "selector"
+          ],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "transformSelector",
+          "params": [
+            "selector",
+            "scopeId"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 17
+        },
+        {
+          "name": "parseVBindExpression",
+          "params": [
+            "expression"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "transformVBind",
+          "params": [
+            "value",
+            "vBindVars"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 13
+        },
+        {
+          "name": "transformCSS",
+          "params": [
+            "css",
+            "scopeId",
+            "isScoped",
+            "vBindVars"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 41
+        },
+        {
+          "name": "scopeStyles",
+          "params": [
+            "html",
+            "scopeId"
+          ],
+          "returnType": "ScopeStyleResult",
+          "exported": true,
+          "lineCount": 50
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "scopeStyles"
+      ],
+      "totalLines": 199,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/isRouteItem.ts": {
+      "filePath": "src/utils/isRouteItem.ts",
+      "contentHash": "522071108a2817172dd21557537455c730940db7dd8eba0ccf2f3469d142a3b9",
+      "functions": [
+        {
+          "name": "isRouteItem",
+          "params": [
+            "obj"
+          ],
+          "exported": true,
+          "lineCount": 7
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@/types",
+          "specifiers": [
+            "KylinRouteItem"
+          ]
+        }
+      ],
+      "exports": [
+        "isRouteItem"
+      ],
+      "totalLines": 13,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/isExternalLink.ts": {
+      "filePath": "src/utils/isExternalLink.ts",
+      "contentHash": "6efdee206c66e03eed7879e47826c616b5476439915a7310b547b79e5129826e",
+      "functions": [
+        {
+          "name": "isExternalLink",
+          "params": [
+            "url"
+          ],
+          "returnType": "boolean",
+          "exported": true,
+          "lineCount": 32
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "isExternalLink"
+      ],
+      "totalLines": 50,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/triggerEvent.ts": {
+      "filePath": "src/utils/triggerEvent.ts",
+      "contentHash": "b8c3956e1430cf44ebc05b5aad95913aa7428d1a9ec001dd626102afe00d26ca",
+      "functions": [
+        {
+          "name": "triggerEvent",
+          "params": [
+            "el",
+            "eventName",
+            "detail"
+          ],
+          "exported": true,
+          "lineCount": 9
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "triggerEvent"
+      ],
+      "totalLines": 10,
+      "hasStructuralAnalysis": true
+    },
+    "src/utils/normalizeRoutes.ts": {
+      "filePath": "src/utils/normalizeRoutes.ts",
+      "contentHash": "120552148a65a9f4b4cb4ab002dc2897d5ee40e060195a6fc4f30cd8190d30ea",
+      "functions": [
+        {
+          "name": "splitPath",
+          "params": [
+            "path"
+          ],
+          "returnType": "string[]",
+          "exported": false,
+          "lineCount": 12
+        },
+        {
+          "name": "isRootRoute",
+          "params": [
+            "route"
+          ],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "getOrCreateNode",
+          "params": [
+            "node",
+            "segment"
+          ],
+          "returnType": "{ node: RouteTreeNode; isNew: boolean }",
+          "exported": false,
+          "lineCount": 13
+        },
+        {
+          "name": "isDefaultRoute",
+          "params": [
+            "route"
+          ],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "treeToArray",
+          "params": [
+            "node"
+          ],
+          "returnType": "KylinRouteItem[]",
+          "exported": false,
+          "lineCount": 18
+        },
+        {
+          "name": "processRoute",
+          "params": [
+            "root",
+            "route"
+          ],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 45
+        },
+        {
+          "name": "normalizeRoutes",
+          "params": [
+            "routes"
+          ],
+          "returnType": "KylinRouteItem",
+          "exported": true,
+          "lineCount": 54
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@/types/routes",
+          "specifiers": [
+            "KylinRouteItem"
+          ]
+        }
+      ],
+      "exports": [
+        "normalizeRoutes"
+      ],
+      "totalLines": 221,
+      "hasStructuralAnalysis": true
+    },
+    "src/types/config.ts": {
+      "filePath": "src/types/config.ts",
+      "contentHash": "dfd675f0bf238b00e73b04586788b7571ca9e72b3296fd274e929c3f5af88b8f",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "./routes",
+          "specifiers": [
+            "KylinRoutes",
+            "KylinRouteItem",
+            "KylinMatchedRouteItem"
+          ]
+        },
+        {
+          "source": "lit",
+          "specifiers": [
+            "TemplateResult"
+          ]
+        },
+        {
+          "source": "./routes",
+          "specifiers": [
+            "KylinRouteViewOptions"
+          ]
+        },
+        {
+          "source": "./data",
+          "specifiers": [
+            "KylinRouteDataOptions"
+          ]
+        },
+        {
+          "source": "./hooks",
+          "specifiers": [
+            "AfterRenderHook",
+            "AfterRouteHook",
+            "BeforeRenderHook",
+            "BeforeRouteHook"
+          ]
+        },
+        {
+          "source": "@/logger",
+          "specifiers": [
+            "KylinRouterLogger"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 143,
+      "hasStructuralAnalysis": true
+    },
+    "src/types/index.ts": {
+      "filePath": "src/types/index.ts",
+      "contentHash": "89f49796049f72eb26e296279f34311b670f324a3be77fd70602533c277b5f4f",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "RenderMode",
+        "TemplateData",
+        "RenderContext",
+        "RenderOptions"
+      ],
+      "totalLines": 30,
+      "hasStructuralAnalysis": true
+    },
+    "src/__tests__/test-setup.ts": {
+      "filePath": "src/__tests__/test-setup.ts",
+      "contentHash": "0a1ff554a81fb7ef26924dc6a1a024bed2d36e092c1c77885e68422c263ef830",
+      "functions": [
+        {
+          "name": "setupTestEnvironment",
+          "params": [],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 33
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "happy-dom",
+          "specifiers": [
+            "Window"
+          ]
+        }
+      ],
+      "exports": [
+        "setupTestEnvironment"
+      ],
+      "totalLines": 48,
+      "hasStructuralAnalysis": true
+    },
+    "src/__tests__/utils.matchRoute.test.ts": {
+      "filePath": "src/__tests__/utils.matchRoute.test.ts",
+      "contentHash": "1895cd03a414b3d16bb7f26c294bc6c117b4466f03b23665744ae7c959033b91",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "bun:test",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "beforeAll"
+          ]
+        },
+        {
+          "source": "@/utils/matchRoute",
+          "specifiers": [
+            "matchRoute",
+            "createRouteMatcher"
+          ]
+        },
+        {
+          "source": "@/types",
+          "specifiers": [
+            "KylinRouteItem"
+          ]
+        },
+        {
+          "source": "@/utils",
+          "specifiers": [
+            "normalizeRoutes"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 2565,
+      "hasStructuralAnalysis": true
+    },
+    "src/__tests__/features.loaddata.test.ts": {
+      "filePath": "src/__tests__/features.loaddata.test.ts",
+      "contentHash": "6957f6827685a51b02876c017528c5eb2d44e81624e7b05f3127b8ee111f1a70",
+      "functions": [
+        {
+          "name": "createMockRouter",
+          "params": [],
+          "returnType": "Partial<KylinRouter>",
+          "exported": false,
+          "lineCount": 19
+        },
+        {
+          "name": "createMockedRoute",
+          "params": [
+            "path",
+            "data",
+            "id"
+          ],
+          "returnType": "KylinMatchedRouteItem",
+          "exported": false,
+          "lineCount": 20
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "bun:test",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "beforeEach",
+            "afterEach",
+            "spyOn",
+            "beforeAll"
+          ]
+        },
+        {
+          "source": "../features/dataLoader",
+          "specifiers": [
+            "DataLoader"
+          ]
+        },
+        {
+          "source": "../router",
+          "specifiers": [
+            "KylinRouter"
+          ]
+        },
+        {
+          "source": "../types/routes",
+          "specifiers": [
+            "KylinMatchedRouteItem"
+          ]
+        },
+        {
+          "source": "../errors",
+          "specifiers": [
+            "KylinRouterError"
+          ]
+        },
+        {
+          "source": "./test-setup",
+          "specifiers": [
+            "setupTestEnvironment"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 1086,
+      "hasStructuralAnalysis": true
+    },
+    "src/__tests__/features.loadview.test.ts": {
+      "filePath": "src/__tests__/features.loadview.test.ts",
+      "contentHash": "fbcc517d8835690fa1a4e744d7dcb34e546436fa00e9fe53e1cb1ca0a8149ee1",
+      "functions": [
+        {
+          "name": "createTestDOM",
+          "params": [],
+          "exported": false,
+          "lineCount": 31
+        },
+        {
+          "name": "createMockRouter",
+          "params": [],
+          "returnType": "any",
+          "exported": false,
+          "lineCount": 13
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "bun:test",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "beforeEach",
+            "afterEach"
+          ]
+        },
+        {
+          "source": "@/features/viewLoader",
+          "specifiers": [
+            "ViewLoader"
+          ]
+        },
+        {
+          "source": "@/types/routes",
+          "specifiers": [
+            "RouteViewLoadResult",
+            "KylinRouteViewOptions"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 415,
+      "hasStructuralAnalysis": true
+    },
+    "src/__tests__/router.core.test.ts": {
+      "filePath": "src/__tests__/router.core.test.ts",
+      "contentHash": "22dbd9f71695ce24f368e1333b02c47a16d9ce9b7de638a12bbd91ba557ae723",
+      "functions": [
+        {
+          "name": "createTestDOM",
+          "params": [],
+          "exported": false,
+          "lineCount": 29
+        },
+        {
+          "name": "createRouter",
+          "params": [
+            "host",
+            "options"
+          ],
+          "exported": false,
+          "lineCount": 6
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "bun:test",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "beforeEach",
+            "afterEach"
+          ]
+        },
+        {
+          "source": "@/router",
+          "specifiers": [
+            "KylinRouter"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 194,
+      "hasStructuralAnalysis": true
+    },
+    "src/__tests__/components.base.test.ts": {
+      "filePath": "src/__tests__/components.base.test.ts",
+      "contentHash": "a8ec6b187b2ce9dfec45b730ec5a722c1849706da5410d9635e812faa5a57bc1",
+      "functions": [
+        {
+          "name": "createTestEnvironment",
+          "params": [],
+          "exported": false,
+          "lineCount": 19
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "bun:test",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect"
+          ]
+        },
+        {
+          "source": "happy-dom",
+          "specifiers": [
+            "Window"
+          ]
+        },
+        {
+          "source": "@/router",
+          "specifiers": [
+            "KylinRouter"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 384,
+      "hasStructuralAnalysis": true
+    },
+    "src/__tests__/components.link.test.ts": {
+      "filePath": "src/__tests__/components.link.test.ts",
+      "contentHash": "f7f9a0df609b699059c33b1ec1beb47b1dbfc65c48b52c4fe58d0ce8679ef820",
+      "functions": [
+        {
+          "name": "createTestDOM",
+          "params": [],
+          "exported": false,
+          "lineCount": 27
+        },
+        {
+          "name": "createRouter",
+          "params": [
+            "host",
+            "options"
+          ],
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "simulateHandleClick",
+          "params": [
+            "to",
+            "replace",
+            "router",
+            "event"
+          ],
+          "exported": false,
+          "lineCount": 30
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "bun:test",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "beforeEach",
+            "afterEach"
+          ]
+        },
+        {
+          "source": "@/router",
+          "specifiers": [
+            "KylinRouter"
+          ]
+        },
+        {
+          "source": "@/components/link",
+          "specifiers": [
+            "isInternalLink",
+            "isDangerousProtocol"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 244,
+      "hasStructuralAnalysis": true
+    }
+  }
+}

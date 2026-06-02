@@ -1,2351 +1,1991 @@
 {
   "scriptCompleted": true,
-  "filesAnalyzed": 20,
+  "filesAnalyzed": 27,
   "filesSkipped": [],
   "results": [
     {
-      "path": ".agents/skills/tsdown/references/README.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 139,
-      "nonEmptyLines": 110,
-      "sections": [
-        {
-          "heading": "tsdown Skill References",
-          "level": 1,
-          "line": 1
-        },
-        {
-          "heading": "Created Files (35 total)",
-          "level": 2,
-          "line": 5
-        },
-        {
-          "heading": "Core Guides (3)",
-          "level": 3,
-          "line": 7
-        },
-        {
-          "heading": "Configuration Options (20)",
-          "level": 3,
-          "line": 12
-        },
-        {
-          "heading": "Executable (1)",
-          "level": 3,
-          "line": 34
-        },
-        {
-          "heading": "Advanced Topics (6)",
-          "level": 3,
-          "line": 37
-        },
-        {
-          "heading": "Advanced (continued)",
-          "level": 3,
-          "line": 44
-        },
-        {
-          "heading": "Framework Recipes (5)",
-          "level": 3,
-          "line": 47
-        },
-        {
-          "heading": "Reference (1)",
-          "level": 3,
-          "line": 54
-        },
-        {
-          "heading": "Coverage Status",
-          "level": 2,
-          "line": 57
-        },
-        {
-          "heading": "Current Skill Features",
-          "level": 2,
-          "line": 61
-        },
-        {
-          "heading": "✅ Core Functionality",
-          "level": 3,
-          "line": 65
-        },
-        {
-          "heading": "✅ Build Options",
-          "level": 3,
-          "line": 73
-        },
-        {
-          "heading": "✅ Advanced Features",
-          "level": 3,
-          "line": 83
-        },
-        {
-          "heading": "✅ Framework & Runtime Support",
-          "level": 3,
-          "line": 95
-        },
-        {
-          "heading": "✅ Migration",
-          "level": 3,
-          "line": 102
-        },
-        {
-          "heading": "Usage",
-          "level": 2,
-          "line": 106
-        },
-        {
-          "heading": "File Naming Convention",
-          "level": 2,
-          "line": 110
-        },
-        {
-          "heading": "Creating New Reference Files",
-          "level": 2,
-          "line": 119
-        },
-        {
-          "heading": "Updating Existing Files",
-          "level": 2,
-          "line": 130
-        }
-      ],
+      "path": "src/components/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 6,
+      "nonEmptyLines": 6,
       "metrics": {
         "importCount": 0,
         "exportCount": 0,
         "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 20
+        "classCount": 0
       }
     },
     {
-      "path": ".agents/skills/tsdown/references/advanced-benchmark.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 8,
-      "nonEmptyLines": 5,
-      "sections": [
+      "path": "src/features/context.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 44,
+      "nonEmptyLines": 41,
+      "classes": [
         {
-          "heading": "Benchmark",
-          "level": 1,
-          "line": 1
+          "name": "Context",
+          "startLine": 11,
+          "endLine": 44,
+          "methods": [
+            "attachContextProvider",
+            "removeContextProvider",
+            "onContextRequest"
+          ],
+          "properties": [
+            "_onContextRequest"
+          ]
         }
       ],
+      "exports": [
+        {
+          "name": "Context",
+          "line": 11,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "attachContextProvider",
+          "callee": "this.onContextRequest.bind",
+          "lineNumber": 18
+        },
+        {
+          "caller": "attachContextProvider",
+          "callee": "this.host.addEventListener",
+          "lineNumber": 19
+        },
+        {
+          "caller": "removeContextProvider",
+          "callee": "this.host.removeEventListener",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onContextRequest",
+          "callee": "event.stopPropagation",
+          "lineNumber": 39
+        },
+        {
+          "caller": "onContextRequest",
+          "callee": "contextRequestEvent.callback",
+          "lineNumber": 41
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "src/features/emitter.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 13,
+      "nonEmptyLines": 11,
+      "classes": [
+        {
+          "name": "Emitter",
+          "startLine": 13,
+          "endLine": 13,
+          "methods": [],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Emitter",
+          "line": 13,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "src/features/hooks.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 203,
+      "nonEmptyLines": 192,
+      "classes": [
+        {
+          "name": "HookManager",
+          "startLine": 20,
+          "endLine": 203,
+          "methods": [
+            "constructor",
+            "_addGlobalHooks",
+            "add",
+            "remove",
+            "clear",
+            "runBeforeRoute",
+            "runAfterRoute",
+            "runBeforeRender",
+            "runAfterRender",
+            "runRouteError",
+            "_runHooks",
+            "_runHook"
+          ],
+          "properties": [
+            "hooks",
+            "router",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "HookManager",
+          "line": 20,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "Object.assign",
+          "lineNumber": 48
+        },
+        {
+          "caller": "constructor",
+          "callee": "this._addGlobalHooks",
+          "lineNumber": 54
+        },
+        {
+          "caller": "_addGlobalHooks",
+          "callee": "Array.isArray",
+          "lineNumber": 67
+        },
+        {
+          "caller": "_addGlobalHooks",
+          "callee": "(this.hooks as any)[type].push",
+          "lineNumber": 68
+        },
+        {
+          "caller": "_addGlobalHooks",
+          "callee": "(this.hooks as any)[type].push",
+          "lineNumber": 70
+        },
+        {
+          "caller": "add",
+          "callee": "this.hooks[type].push",
+          "lineNumber": 81
+        },
+        {
+          "caller": "remove",
+          "callee": "this.hooks[type].indexOf",
+          "lineNumber": 89
+        },
+        {
+          "caller": "remove",
+          "callee": "this.hooks[type].splice",
+          "lineNumber": 91
+        },
+        {
+          "caller": "clear",
+          "callee": "(Object.keys(this.hooks) as any[]).forEach",
+          "lineNumber": 103
+        },
+        {
+          "caller": "clear",
+          "callee": "Object.keys",
+          "lineNumber": 103
+        },
+        {
+          "caller": "runBeforeRoute",
+          "callee": "this._runHooks",
+          "lineNumber": 110
+        },
+        {
+          "caller": "runAfterRoute",
+          "callee": "this._runHooks",
+          "lineNumber": 113
+        },
+        {
+          "caller": "runBeforeRender",
+          "callee": "this._runHooks",
+          "lineNumber": 116
+        },
+        {
+          "caller": "runAfterRender",
+          "callee": "this._runHooks",
+          "lineNumber": 119
+        },
+        {
+          "caller": "runRouteError",
+          "callee": "this._runHooks",
+          "lineNumber": 122
+        },
+        {
+          "caller": "_runHooks",
+          "callee": "Object.assign",
+          "lineNumber": 138
+        },
+        {
+          "caller": "_runHooks",
+          "callee": "to.flatMap",
+          "lineNumber": 148
+        },
+        {
+          "caller": "_runHooks",
+          "callee": "this._runHook.apply",
+          "lineNumber": 154
+        },
+        {
+          "caller": "_runHooks",
+          "callee": "this.router.logger.error",
+          "lineNumber": 162
+        },
+        {
+          "caller": "_runHooks",
+          "callee": "Promise.allSettled",
+          "lineNumber": 167
+        },
+        {
+          "caller": "_runHooks",
+          "callee": "hooks.map",
+          "lineNumber": 169
+        },
+        {
+          "caller": "_runHooks",
+          "callee": "this._runHook.apply",
+          "lineNumber": 170
+        },
+        {
+          "caller": "_runHook",
+          "callee": "setTimeout",
+          "lineNumber": 188
+        },
+        {
+          "caller": "_runHook",
+          "callee": "reject",
+          "lineNumber": 189
+        },
+        {
+          "caller": "_runHook",
+          "callee": "Promise.resolve((hook as any).apply(this.router, [args]))\r\n                .then((result) => {\r\n                    clearTimeout(timeout);\r\n                    resolve(result);\r\n                })\r\n                .catch",
+          "lineNumber": 192
+        },
+        {
+          "caller": "_runHook",
+          "callee": "Promise.resolve((hook as any).apply(this.router, [args]))\r\n                .then",
+          "lineNumber": 192
+        },
+        {
+          "caller": "_runHook",
+          "callee": "Promise.resolve",
+          "lineNumber": 192
+        },
+        {
+          "caller": "_runHook",
+          "callee": "(hook as any).apply",
+          "lineNumber": 192
+        },
+        {
+          "caller": "_runHook",
+          "callee": "clearTimeout",
+          "lineNumber": 194
+        },
+        {
+          "caller": "_runHook",
+          "callee": "resolve",
+          "lineNumber": 195
+        },
+        {
+          "caller": "_runHook",
+          "callee": "clearTimeout",
+          "lineNumber": 198
+        },
+        {
+          "caller": "_runHook",
+          "callee": "reject",
+          "lineNumber": 199
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "src/features/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 12,
+      "nonEmptyLines": 12,
       "metrics": {
         "importCount": 0,
         "exportCount": 0,
         "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 1
+        "classCount": 0
       }
     },
     {
-      "path": ".agents/skills/tsdown/references/advanced-ci.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 89,
-      "nonEmptyLines": 67,
-      "sections": [
+      "path": "src/features/keepAlive.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 14,
+      "nonEmptyLines": 11,
+      "classes": [
         {
-          "heading": "CI Environment Support",
-          "level": 1,
-          "line": 1
-        },
+          "name": "KeepAlive",
+          "startLine": 12,
+          "endLine": 14,
+          "methods": [],
+          "properties": []
+        }
+      ],
+      "exports": [
         {
-          "heading": "Overview",
-          "level": 2,
-          "line": 5
-        },
-        {
-          "heading": "CI-Aware Values",
-          "level": 2,
-          "line": 9
-        },
-        {
-          "heading": "Supported Options",
-          "level": 2,
-          "line": 20
-        },
-        {
-          "heading": "Usage",
-          "level": 2,
-          "line": 33
-        },
-        {
-          "heading": "String Form",
-          "level": 3,
-          "line": 35
-        },
-        {
-          "heading": "Object Form",
-          "level": 3,
-          "line": 45
-        },
-        {
-          "heading": "Config Function",
-          "level": 3,
-          "line": 62
-        },
-        {
-          "heading": "Typical CI Configuration",
-          "level": 2,
-          "line": 73
-        },
-        {
-          "heading": "Related Options",
-          "level": 2,
-          "line": 86
+          "name": "KeepAlive",
+          "line": 12,
+          "isDefault": false
         }
       ],
       "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
+        "importCount": 1,
+        "exportCount": 1,
         "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 10
+        "classCount": 1
       }
     },
     {
-      "path": ".agents/skills/tsdown/references/advanced-hooks.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 363,
-      "nonEmptyLines": 288,
-      "sections": [
+      "path": "src/features/modal.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 1155,
+      "nonEmptyLines": 1021,
+      "classes": [
         {
-          "heading": "Lifecycle Hooks",
-          "level": 1,
-          "line": 1
+          "name": "Modal",
+          "startLine": 32,
+          "endLine": 1155,
+          "methods": [
+            "openModal",
+            "closeModal",
+            "closeAllModals",
+            "hasOpenModals",
+            "modalCount",
+            "currentModal",
+            "_initModals",
+            "injectModalStyles",
+            "_createModalContainer",
+            "_setupModalEventListeners",
+            "_getModalConfig",
+            "_injectModalStyles",
+            "_closeTopModal",
+            "_createModalElement",
+            "createModalContainer",
+            "setupModalEventListeners",
+            "getModalConfig",
+            "closeTopModal",
+            "_createBackdrop",
+            "_renderModal",
+            "_applyModalStyles",
+            "_applyPositionStyles",
+            "_resolveModalRoute",
+            "_updateModalURL",
+            "_restoreModalURL"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Modal",
+          "line": 32,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "openModal",
+          "callee": "(this as any)._resolveModalRoute",
+          "lineNumber": 46
         },
         {
-          "heading": "Overview",
-          "level": 2,
-          "line": 5
+          "caller": "openModal",
+          "callee": "(this as any)._getModalConfig",
+          "lineNumber": 52
         },
         {
-          "heading": "Usage Patterns",
-          "level": 2,
-          "line": 11
+          "caller": "openModal",
+          "callee": "console.warn",
+          "lineNumber": 59
         },
         {
-          "heading": "Object Syntax",
-          "level": 3,
-          "line": 13
+          "caller": "openModal",
+          "callee": "(this as any)._createModalElement",
+          "lineNumber": 64
         },
         {
-          "heading": "Function Syntax",
-          "level": 3,
-          "line": 29
+          "caller": "openModal",
+          "callee": "(this as any)._createBackdrop",
+          "lineNumber": 69
         },
         {
-          "heading": "Available Hooks",
-          "level": 2,
-          "line": 46
+          "caller": "openModal",
+          "callee": "Date.now",
+          "lineNumber": 77
         },
         {
-          "heading": "`build:prepare`",
-          "level": 3,
-          "line": 48
+          "caller": "openModal",
+          "callee": "modalState.stack.push",
+          "lineNumber": 79
         },
         {
-          "heading": "`build:before`",
-          "level": 3,
-          "line": 77
+          "caller": "openModal",
+          "callee": "(this as any)._renderModal",
+          "lineNumber": 83
         },
         {
-          "heading": "`build:done`",
-          "level": 3,
-          "line": 111
+          "caller": "openModal",
+          "callee": "this.emit",
+          "lineNumber": 86
         },
         {
-          "heading": "Common Patterns",
-          "level": 2,
-          "line": 147
+          "caller": "openModal",
+          "callee": "setTimeout",
+          "lineNumber": 93
         },
         {
-          "heading": "Build Notifications",
-          "level": 3,
-          "line": 149
+          "caller": "openModal",
+          "callee": "(this as any)._closeTopModal",
+          "lineNumber": 96
         },
         {
-          "heading": "Conditional Plugin Injection",
-          "level": 3,
-          "line": 165
+          "caller": "openModal",
+          "callee": "(this as any)._updateModalURL",
+          "lineNumber": 102
         },
         {
-          "heading": "Custom File Copy",
-          "level": 3,
-          "line": 180
+          "caller": "closeModal",
+          "callee": "this.routes.match",
+          "lineNumber": 117
         },
         {
-          "heading": "Build Metrics",
-          "level": 3,
-          "line": 195
+          "caller": "closeModal",
+          "callee": "modalState.stack.findIndex",
+          "lineNumber": 125
         },
         {
-          "heading": "Format-Specific Logic",
-          "level": 3,
-          "line": 216
+          "caller": "closeModal",
+          "callee": "(this as any)._closeTopModal",
+          "lineNumber": 129
         },
         {
-          "heading": "Deployment Hook",
-          "level": 3,
-          "line": 237
+          "caller": "closeModal",
+          "callee": "(this as any)._closeTopModal",
+          "lineNumber": 134
         },
         {
-          "heading": "Advanced Usage",
-          "level": 2,
-          "line": 252
+          "caller": "closeAllModals",
+          "callee": "(this as any)._closeTopModal",
+          "lineNumber": 143
         },
         {
-          "heading": "Multiple Hooks",
-          "level": 3,
-          "line": 254
+          "caller": "_initModals",
+          "callee": "this._createModalContainer",
+          "lineNumber": 177
         },
         {
-          "heading": "Async Hooks",
-          "level": 3,
-          "line": 272
+          "caller": "_initModals",
+          "callee": "this._setupModalEventListeners",
+          "lineNumber": 178
         },
         {
-          "heading": "Error Handling",
-          "level": 3,
-          "line": 289
+          "caller": "_initModals",
+          "callee": "this._injectModalStyles",
+          "lineNumber": 179
         },
         {
-          "heading": "Hookable API",
-          "level": 2,
-          "line": 306
+          "caller": "injectModalStyles",
+          "callee": "document.querySelector",
+          "lineNumber": 187
         },
         {
-          "heading": "Tips",
-          "level": 2,
-          "line": 331
+          "caller": "injectModalStyles",
+          "callee": "document.createElement",
+          "lineNumber": 191
         },
         {
-          "heading": "Troubleshooting",
-          "level": 2,
-          "line": 340
+          "caller": "injectModalStyles",
+          "callee": "document.head.appendChild",
+          "lineNumber": 240
         },
         {
-          "heading": "Hook Not Called",
-          "level": 3,
-          "line": 342
+          "caller": "_createModalContainer",
+          "callee": "this.host.querySelector",
+          "lineNumber": 247
         },
         {
-          "heading": "Build Fails in Hook",
-          "level": 3,
-          "line": 348
+          "caller": "_createModalContainer",
+          "callee": "document.createElement",
+          "lineNumber": 249
         },
         {
-          "heading": "Context Undefined",
-          "level": 3,
-          "line": 354
+          "caller": "_createModalContainer",
+          "callee": "this.host.appendChild",
+          "lineNumber": 251
         },
         {
-          "heading": "Related",
-          "level": 2,
-          "line": 359
+          "caller": "_setupModalEventListeners",
+          "callee": "document.addEventListener",
+          "lineNumber": 263
+        },
+        {
+          "caller": "_setupModalEventListeners",
+          "callee": "(this as any)._getModalConfig",
+          "lineNumber": 266
+        },
+        {
+          "caller": "_setupModalEventListeners",
+          "callee": "(this as any)._closeTopModal",
+          "lineNumber": 268
+        },
+        {
+          "caller": "_injectModalStyles",
+          "callee": "document.querySelector",
+          "lineNumber": 291
+        },
+        {
+          "caller": "_injectModalStyles",
+          "callee": "document.createElement",
+          "lineNumber": 295
+        },
+        {
+          "caller": "_injectModalStyles",
+          "callee": "document.head.appendChild",
+          "lineNumber": 807
+        },
+        {
+          "caller": "_closeTopModal",
+          "callee": "Promise.resolve",
+          "lineNumber": 817
+        },
+        {
+          "caller": "_closeTopModal",
+          "callee": "modalState.stack.pop",
+          "lineNumber": 820
+        },
+        {
+          "caller": "_closeTopModal",
+          "callee": "Promise.resolve",
+          "lineNumber": 821
+        },
+        {
+          "caller": "_closeTopModal",
+          "callee": "stackItem.element.classList.add",
+          "lineNumber": 824
+        },
+        {
+          "caller": "_closeTopModal",
+          "callee": "stackItem.backdrop.classList.add",
+          "lineNumber": 826
+        },
+        {
+          "caller": "_closeTopModal",
+          "callee": "setTimeout",
+          "lineNumber": 831
+        },
+        {
+          "caller": "_closeTopModal",
+          "callee": "stackItem.element.remove",
+          "lineNumber": 833
+        },
+        {
+          "caller": "_closeTopModal",
+          "callee": "stackItem.backdrop?.remove",
+          "lineNumber": 834
+        },
+        {
+          "caller": "_closeTopModal",
+          "callee": "this.emit",
+          "lineNumber": 840
+        },
+        {
+          "caller": "_closeTopModal",
+          "callee": "(this as any)._restoreModalURL",
+          "lineNumber": 846
+        },
+        {
+          "caller": "_closeTopModal",
+          "callee": "resolve",
+          "lineNumber": 848
+        },
+        {
+          "caller": "_createModalElement",
+          "callee": "document.createElement",
+          "lineNumber": 857
+        },
+        {
+          "caller": "_createModalElement",
+          "callee": "(this as any).viewLoader.loadView",
+          "lineNumber": 865
+        },
+        {
+          "caller": "_createModalElement",
+          "callee": "loadResult.then",
+          "lineNumber": 870
+        },
+        {
+          "caller": "_createModalElement",
+          "callee": "this.renderToOutlet",
+          "lineNumber": 873
+        },
+        {
+          "caller": "_createModalElement",
+          "callee": "templateElement.content.cloneNode",
+          "lineNumber": 887
+        },
+        {
+          "caller": "_createModalElement",
+          "callee": "element.appendChild",
+          "lineNumber": 888
+        },
+        {
+          "caller": "_createModalElement",
+          "callee": "element.appendChild",
+          "lineNumber": 891
+        },
+        {
+          "caller": "_createModalElement",
+          "callee": "Promise.resolve",
+          "lineNumber": 896
+        },
+        {
+          "caller": "createModalContainer",
+          "callee": "this.host.querySelector",
+          "lineNumber": 904
+        },
+        {
+          "caller": "createModalContainer",
+          "callee": "document.createElement",
+          "lineNumber": 906
+        },
+        {
+          "caller": "createModalContainer",
+          "callee": "this.host.appendChild",
+          "lineNumber": 908
+        },
+        {
+          "caller": "setupModalEventListeners",
+          "callee": "document.addEventListener",
+          "lineNumber": 920
+        },
+        {
+          "caller": "setupModalEventListeners",
+          "callee": "this.getModalConfig",
+          "lineNumber": 922
+        },
+        {
+          "caller": "setupModalEventListeners",
+          "callee": "this.closeTopModal",
+          "lineNumber": 924
+        },
+        {
+          "caller": "closeTopModal",
+          "callee": "this.modalState.stack.pop",
+          "lineNumber": 948
+        },
+        {
+          "caller": "closeTopModal",
+          "callee": "stackItem.element.remove",
+          "lineNumber": 952
+        },
+        {
+          "caller": "closeTopModal",
+          "callee": "stackItem.backdrop?.remove",
+          "lineNumber": 953
+        },
+        {
+          "caller": "closeTopModal",
+          "callee": "this.emit",
+          "lineNumber": 959
+        },
+        {
+          "caller": "closeTopModal",
+          "callee": "this._restoreModalURL",
+          "lineNumber": 965
+        },
+        {
+          "caller": "_createBackdrop",
+          "callee": "document.createElement",
+          "lineNumber": 976
+        },
+        {
+          "caller": "_createBackdrop",
+          "callee": "backdrop.addEventListener",
+          "lineNumber": 981
+        },
+        {
+          "caller": "_createBackdrop",
+          "callee": "(this as any)._closeTopModal",
+          "lineNumber": 982
+        },
+        {
+          "caller": "_renderModal",
+          "callee": "(this as any)._getModalConfig",
+          "lineNumber": 996
+        },
+        {
+          "caller": "_renderModal",
+          "callee": "modalContainer.appendChild",
+          "lineNumber": 1000
+        },
+        {
+          "caller": "_renderModal",
+          "callee": "(this as any)._applyModalStyles",
+          "lineNumber": 1004
+        },
+        {
+          "caller": "_renderModal",
+          "callee": "modalContainer.appendChild",
+          "lineNumber": 1007
+        },
+        {
+          "caller": "_renderModal",
+          "callee": "Promise.resolve",
+          "lineNumber": 1009
+        },
+        {
+          "caller": "_applyModalStyles",
+          "callee": "element.classList.add",
+          "lineNumber": 1027
+        },
+        {
+          "caller": "_applyModalStyles",
+          "callee": "element.classList.add",
+          "lineNumber": 1028
+        },
+        {
+          "caller": "_applyModalStyles",
+          "callee": "(this as any)._applyPositionStyles",
+          "lineNumber": 1031
+        },
+        {
+          "caller": "_resolveModalRoute",
+          "callee": "this.routes.match",
+          "lineNumber": 1131
         }
       ],
       "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
+        "importCount": 2,
+        "exportCount": 1,
         "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 27
+        "classCount": 1
       }
     },
     {
-      "path": ".agents/skills/tsdown/references/advanced-plugins.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 381,
-      "nonEmptyLines": 279,
-      "sections": [
+      "path": "src/features/preload.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 11,
+      "nonEmptyLines": 8,
+      "classes": [
         {
-          "heading": "Plugins",
-          "level": 1,
-          "line": 1
-        },
+          "name": "Preload",
+          "startLine": 9,
+          "endLine": 11,
+          "methods": [],
+          "properties": []
+        }
+      ],
+      "exports": [
         {
-          "heading": "Overview",
-          "level": 2,
-          "line": 5
-        },
-        {
-          "heading": "Supported Ecosystems",
-          "level": 2,
-          "line": 9
-        },
-        {
-          "heading": "1. Rolldown Plugins",
-          "level": 3,
-          "line": 11
-        },
-        {
-          "heading": "2. Unplugin",
-          "level": 3,
-          "line": 25
-        },
-        {
-          "heading": "3. Rollup Plugins",
-          "level": 3,
-          "line": 44
-        },
-        {
-          "heading": "4. Vite Plugins",
-          "level": 3,
-          "line": 73
-        },
-        {
-          "heading": "Usage",
-          "level": 2,
-          "line": 92
-        },
-        {
-          "heading": "Basic Plugin Usage",
-          "level": 3,
-          "line": 94
-        },
-        {
-          "heading": "Multiple Plugins",
-          "level": 3,
-          "line": 106
-        },
-        {
-          "heading": "Conditional Plugins",
-          "level": 3,
-          "line": 123
-        },
-        {
-          "heading": "Common Plugin Patterns",
-          "level": 2,
-          "line": 136
-        },
-        {
-          "heading": "JSON Import",
-          "level": 3,
-          "line": 138
-        },
-        {
-          "heading": "Node Resolve",
-          "level": 3,
-          "line": 148
-        },
-        {
-          "heading": "CommonJS",
-          "level": 3,
-          "line": 158
-        },
-        {
-          "heading": "Replace",
-          "level": 3,
-          "line": 168
-        },
-        {
-          "heading": "Auto Import",
-          "level": 3,
-          "line": 183
-        },
-        {
-          "heading": "Vue Components",
-          "level": 3,
-          "line": 198
-        },
-        {
-          "heading": "Framework-Specific Plugins",
-          "level": 2,
-          "line": 212
-        },
-        {
-          "heading": "React",
-          "level": 3,
-          "line": 214
-        },
-        {
-          "heading": "Vue",
-          "level": 3,
-          "line": 228
-        },
-        {
-          "heading": "Solid",
-          "level": 3,
-          "line": 242
-        },
-        {
-          "heading": "Svelte",
-          "level": 3,
-          "line": 256
-        },
-        {
-          "heading": "Writing Custom Plugins",
-          "level": 2,
-          "line": 270
-        },
-        {
-          "heading": "Basic Plugin Structure",
-          "level": 3,
-          "line": 274
-        },
-        {
-          "heading": "Using Custom Plugin",
-          "level": 3,
-          "line": 298
-        },
-        {
-          "heading": "Plugin Configuration",
-          "level": 2,
-          "line": 308
-        },
-        {
-          "heading": "Plugin-Specific Options",
-          "level": 3,
-          "line": 310
-        },
-        {
-          "heading": "Plugin Order",
-          "level": 3,
-          "line": 314
-        },
-        {
-          "heading": "Troubleshooting",
-          "level": 2,
-          "line": 328
-        },
-        {
-          "heading": "Type Errors with Rollup/Vite Plugins",
-          "level": 3,
-          "line": 330
-        },
-        {
-          "heading": "Plugin Not Working",
-          "level": 3,
-          "line": 345
-        },
-        {
-          "heading": "Vite Plugin Fails",
-          "level": 3,
-          "line": 352
-        },
-        {
-          "heading": "Resources",
-          "level": 2,
-          "line": 360
-        },
-        {
-          "heading": "Tips",
-          "level": 2,
-          "line": 367
-        },
-        {
-          "heading": "Related",
-          "level": 2,
-          "line": 376
+          "name": "Preload",
+          "line": 9,
+          "isDefault": false
         }
       ],
       "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
+        "importCount": 1,
+        "exportCount": 1,
         "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 36
+        "classCount": 1
       }
     },
     {
-      "path": ".agents/skills/tsdown/references/advanced-programmatic.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 378,
-      "nonEmptyLines": 288,
-      "sections": [
+      "path": "src/features/redirect.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 12,
+      "nonEmptyLines": 9,
+      "classes": [
         {
-          "heading": "Programmatic Usage",
-          "level": 1,
-          "line": 1
-        },
+          "name": "Redirect",
+          "startLine": 10,
+          "endLine": 12,
+          "methods": [],
+          "properties": []
+        }
+      ],
+      "exports": [
         {
-          "heading": "Overview",
-          "level": 2,
-          "line": 5
-        },
-        {
-          "heading": "Basic Usage",
-          "level": 2,
-          "line": 9
-        },
-        {
-          "heading": "Simple Build",
-          "level": 3,
-          "line": 11
-        },
-        {
-          "heading": "With Options",
-          "level": 3,
-          "line": 23
-        },
-        {
-          "heading": "API Reference",
-          "level": 2,
-          "line": 39
-        },
-        {
-          "heading": "build()",
-          "level": 3,
-          "line": 41
-        },
-        {
-          "heading": "Configuration Object",
-          "level": 2,
-          "line": 60
-        },
-        {
-          "heading": "Common Patterns",
-          "level": 2,
-          "line": 89
-        },
-        {
-          "heading": "Custom Build Script",
-          "level": 3,
-          "line": 91
-        },
-        {
-          "heading": "Multiple Builds",
-          "level": 3,
-          "line": 118
-        },
-        {
-          "heading": "Conditional Build",
-          "level": 3,
-          "line": 141
-        },
-        {
-          "heading": "With Error Handling",
-          "level": 3,
-          "line": 157
-        },
-        {
-          "heading": "Automated Workflow",
-          "level": 3,
-          "line": 175
-        },
-        {
-          "heading": "Build with Post-Processing",
-          "level": 3,
-          "line": 207
-        },
-        {
-          "heading": "Watch Mode",
-          "level": 2,
-          "line": 228
-        },
-        {
-          "heading": "Integration Examples",
-          "level": 2,
-          "line": 242
-        },
-        {
-          "heading": "With Task Runner",
-          "level": 3,
-          "line": 244
-        },
-        {
-          "heading": "With Custom CLI",
-          "level": 3,
-          "line": 264
-        },
-        {
-          "heading": "With CI/CD",
-          "level": 3,
-          "line": 288
-        },
-        {
-          "heading": "TypeScript Support",
-          "level": 2,
-          "line": 310
-        },
-        {
-          "heading": "Tips",
-          "level": 2,
-          "line": 325
-        },
-        {
-          "heading": "Troubleshooting",
-          "level": 2,
-          "line": 334
-        },
-        {
-          "heading": "Import Errors",
-          "level": 3,
-          "line": 336
-        },
-        {
-          "heading": "Type Errors",
-          "level": 3,
-          "line": 343
-        },
-        {
-          "heading": "Build Fails Silently",
-          "level": 3,
-          "line": 350
-        },
-        {
-          "heading": "Options Not Working",
-          "level": 3,
-          "line": 362
-        },
-        {
-          "heading": "Related",
-          "level": 2,
-          "line": 373
+          "name": "Redirect",
+          "line": 10,
+          "isDefault": false
         }
       ],
       "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
+        "importCount": 1,
+        "exportCount": 1,
         "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 28
+        "classCount": 1
       }
     },
     {
-      "path": ".agents/skills/tsdown/references/advanced-rolldown-options.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 117,
-      "nonEmptyLines": 89,
-      "sections": [
+      "path": "src/features/transition.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 9,
+      "nonEmptyLines": 6,
+      "classes": [
         {
-          "heading": "Customizing Rolldown Options",
-          "level": 1,
-          "line": 1
-        },
+          "name": "Transition",
+          "startLine": 7,
+          "endLine": 9,
+          "methods": [],
+          "properties": []
+        }
+      ],
+      "exports": [
         {
-          "heading": "Overview",
-          "level": 2,
-          "line": 5
-        },
-        {
-          "heading": "Input Options",
-          "level": 2,
-          "line": 11
-        },
-        {
-          "heading": "Using an Object",
-          "level": 3,
-          "line": 13
-        },
-        {
-          "heading": "Using a Function",
-          "level": 3,
-          "line": 23
-        },
-        {
-          "heading": "Output Options",
-          "level": 2,
-          "line": 36
-        },
-        {
-          "heading": "Using an Object",
-          "level": 3,
-          "line": 38
-        },
-        {
-          "heading": "Using a Function",
-          "level": 3,
-          "line": 48
-        },
-        {
-          "heading": "Common Use Cases",
-          "level": 2,
-          "line": 61
-        },
-        {
-          "heading": "Preserve Legal Comments",
-          "level": 3,
-          "line": 63
-        },
-        {
-          "heading": "Custom Working Directory",
-          "level": 3,
-          "line": 74
-        },
-        {
-          "heading": "Format-Specific Options",
-          "level": 3,
-          "line": 85
-        },
-        {
-          "heading": "When to Use",
-          "level": 2,
-          "line": 100
-        },
-        {
-          "heading": "Tips",
-          "level": 2,
-          "line": 106
-        },
-        {
-          "heading": "Related",
-          "level": 2,
-          "line": 113
+          "name": "Transition",
+          "line": 7,
+          "isDefault": false
         }
       ],
       "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
+        "importCount": 1,
+        "exportCount": 1,
         "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 15
+        "classCount": 1
       }
     },
     {
-      "path": ".agents/skills/tsdown/references/guide-getting-started.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 178,
-      "nonEmptyLines": 130,
-      "sections": [
+      "path": "src/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 30,
+      "nonEmptyLines": 26,
+      "functions": [
         {
-          "heading": "Getting Started",
-          "level": 1,
-          "line": 1
+          "name": "createRouter",
+          "startLine": 24,
+          "endLine": 30,
+          "params": [
+            "host",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "KylinRouterOptiopns",
+          "line": 12,
+          "isDefault": false
         },
         {
-          "heading": "Installation",
-          "level": 2,
-          "line": 5
-        },
-        {
-          "heading": "Quick Start Templates",
-          "level": 2,
-          "line": 20
-        },
-        {
-          "heading": "First Bundle",
-          "level": 2,
-          "line": 34
-        },
-        {
-          "heading": "1. Create Source Files",
-          "level": 3,
-          "line": 36
-        },
-        {
-          "heading": "2. Create Config File",
-          "level": 3,
-          "line": 49
-        },
-        {
-          "heading": "3. Run Build",
-          "level": 3,
-          "line": 60
-        },
-        {
-          "heading": "4. Test Output",
-          "level": 3,
-          "line": 68
-        },
-        {
-          "heading": "Add to npm Scripts",
-          "level": 2,
-          "line": 75
-        },
-        {
-          "heading": "CLI Commands",
-          "level": 2,
-          "line": 91
-        },
-        {
-          "heading": "Basic Configurations",
-          "level": 2,
-          "line": 110
-        },
-        {
-          "heading": "TypeScript Library (ESM + CJS)",
-          "level": 3,
-          "line": 112
-        },
-        {
-          "heading": "Browser Library (IIFE)",
-          "level": 3,
-          "line": 123
-        },
-        {
-          "heading": "Multiple Entry Points",
-          "level": 3,
-          "line": 135
-        },
-        {
-          "heading": "Using Plugins",
-          "level": 2,
-          "line": 149
-        },
-        {
-          "heading": "Watch Mode",
-          "level": 2,
-          "line": 162
-        },
-        {
-          "heading": "Next Steps",
-          "level": 2,
-          "line": 172
+          "name": "createRouter",
+          "line": 24,
+          "isDefault": false
         }
       ],
       "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 17
+        "importCount": 4,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
       }
     },
     {
-      "path": ".agents/skills/tsdown/references/guide-introduction.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 42,
-      "nonEmptyLines": 28,
-      "sections": [
-        {
-          "heading": "Introduction",
-          "level": 1,
-          "line": 1
-        },
-        {
-          "heading": "Why tsdown?",
-          "level": 2,
-          "line": 5
-        },
-        {
-          "heading": "Plugin Ecosystem",
-          "level": 2,
-          "line": 13
-        },
-        {
-          "heading": "What Can It Bundle?",
-          "level": 2,
-          "line": 17
-        },
-        {
-          "heading": "Key Differences from Rolldown",
-          "level": 2,
-          "line": 25
-        },
-        {
-          "heading": "Prior Arts",
-          "level": 2,
-          "line": 35
-        },
-        {
-          "heading": "Related",
-          "level": 2,
-          "line": 39
-        }
-      ],
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 7
-      }
-    },
-    {
-      "path": ".agents/skills/tsdown/references/guide-migrate-from-tsup.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 189,
-      "nonEmptyLines": 141,
-      "sections": [
-        {
-          "heading": "Migrate from tsup",
-          "level": 1,
-          "line": 1
-        },
-        {
-          "heading": "Overview",
-          "level": 2,
-          "line": 5
-        },
-        {
-          "heading": "Automatic Migration",
-          "level": 2,
-          "line": 9
-        },
-        {
-          "heading": "Single Package",
-          "level": 3,
-          "line": 11
-        },
-        {
-          "heading": "Monorepo",
-          "level": 3,
-          "line": 17
-        },
-        {
-          "heading": "Migration Options",
-          "level": 3,
-          "line": 27
-        },
-        {
-          "heading": "Key Differences",
-          "level": 2,
-          "line": 34
-        },
-        {
-          "heading": "Default Values",
-          "level": 3,
-          "line": 36
-        },
-        {
-          "heading": "New Features in tsdown",
-          "level": 3,
-          "line": 45
-        },
-        {
-          "heading": "Node Protocol Control",
-          "level": 4,
-          "line": 47
-        },
-        {
-          "heading": "Better Workspace Support",
-          "level": 4,
-          "line": 57
-        },
-        {
-          "heading": "Migration Checklist",
-          "level": 2,
-          "line": 65
-        },
-        {
-          "heading": "Common Migration Patterns",
-          "level": 2,
-          "line": 74
-        },
-        {
-          "heading": "Basic Library",
-          "level": 3,
-          "line": 76
-        },
-        {
-          "heading": "With Custom Target",
-          "level": 3,
-          "line": 97
-        },
-        {
-          "heading": "CLI Scripts",
-          "level": 3,
-          "line": 117
-        },
-        {
-          "heading": "Feature Compatibility",
-          "level": 2,
-          "line": 139
-        },
-        {
-          "heading": "Supported tsup Features",
-          "level": 3,
-          "line": 141
-        },
-        {
-          "heading": "Missing Features",
-          "level": 3,
-          "line": 155
-        },
-        {
-          "heading": "Troubleshooting",
-          "level": 2,
-          "line": 159
-        },
-        {
-          "heading": "Build Fails After Migration",
-          "level": 3,
-          "line": 161
-        },
-        {
-          "heading": "Different Output",
-          "level": 3,
-          "line": 168
-        },
-        {
-          "heading": "Performance Issues",
-          "level": 3,
-          "line": 174
-        },
-        {
-          "heading": "Getting Help",
-          "level": 2,
-          "line": 181
-        },
-        {
-          "heading": "Acknowledgements",
-          "level": 2,
-          "line": 187
-        }
-      ],
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 25
-      }
-    },
-    {
-      "path": ".agents/skills/tsdown/references/option-cjs-default.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 98,
-      "nonEmptyLines": 71,
-      "sections": [
-        {
-          "heading": "CJS Default Export",
-          "level": 1,
-          "line": 1
-        },
-        {
-          "heading": "Overview",
-          "level": 2,
-          "line": 5
-        },
-        {
-          "heading": "Type",
-          "level": 2,
-          "line": 9
-        },
-        {
-          "heading": "Basic Usage",
-          "level": 2,
-          "line": 15
-        },
-        {
-          "heading": "Enabled (Default)",
-          "level": 3,
-          "line": 17
-        },
-        {
-          "heading": "Disabled",
-          "level": 3,
-          "line": 27
-        },
-        {
-          "heading": "How It Works",
-          "level": 2,
-          "line": 37
-        },
-        {
-          "heading": "With `cjsDefault: true` (Default)",
-          "level": 3,
-          "line": 39
-        },
-        {
-          "heading": "With `cjsDefault: false`",
-          "level": 3,
-          "line": 69
-        },
-        {
-          "heading": "When to Disable",
-          "level": 2,
-          "line": 83
-        },
-        {
-          "heading": "Tips",
-          "level": 2,
-          "line": 89
-        },
-        {
-          "heading": "Related Options",
-          "level": 2,
-          "line": 95
-        }
-      ],
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 12
-      }
-    },
-    {
-      "path": ".agents/skills/tsdown/references/option-cleaning.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 275,
-      "nonEmptyLines": 209,
-      "sections": [
-        {
-          "heading": "Output Directory Cleaning",
-          "level": 1,
-          "line": 1
-        },
-        {
-          "heading": "Overview",
-          "level": 2,
-          "line": 5
-        },
-        {
-          "heading": "Basic Usage",
-          "level": 2,
-          "line": 9
-        },
-        {
-          "heading": "CLI",
-          "level": 3,
-          "line": 11
-        },
-        {
-          "heading": "Config File",
-          "level": 3,
-          "line": 21
-        },
-        {
-          "heading": "Behavior",
-          "level": 2,
-          "line": 30
-        },
-        {
-          "heading": "With Cleaning (Default)",
-          "level": 3,
-          "line": 32
-        },
-        {
-          "heading": "Without Cleaning",
-          "level": 3,
-          "line": 44
-        },
-        {
-          "heading": "Common Patterns",
-          "level": 2,
-          "line": 60
-        },
-        {
-          "heading": "Production Build",
-          "level": 3,
-          "line": 62
-        },
-        {
-          "heading": "Development Mode",
-          "level": 3,
-          "line": 73
-        },
-        {
-          "heading": "Multiple Builds",
-          "level": 3,
-          "line": 83
-        },
-        {
-          "heading": "Monorepo Package",
-          "level": 3,
-          "line": 100
-        },
-        {
-          "heading": "Preserve Static Files",
-          "level": 3,
-          "line": 110
-        },
-        {
-          "heading": "Clean Patterns",
-          "level": 2,
-          "line": 123
-        },
-        {
-          "heading": "Selective Cleaning",
-          "level": 3,
-          "line": 125
-        },
-        {
-          "heading": "Clean Specific Directories",
-          "level": 3,
-          "line": 142
-        },
-        {
-          "heading": "Watch Mode Behavior",
-          "level": 2,
-          "line": 159
-        },
-        {
-          "heading": "Clean on First Build Only",
-          "level": 3,
-          "line": 163
-        },
-        {
-          "heading": "Always Clean",
-          "level": 3,
-          "line": 177
-        },
-        {
-          "heading": "Tips",
-          "level": 2,
-          "line": 188
-        },
-        {
-          "heading": "Troubleshooting",
-          "level": 2,
-          "line": 197
-        },
-        {
-          "heading": "Important Files Deleted",
-          "level": 3,
-          "line": 199
-        },
-        {
-          "heading": "Stale Files in Output",
-          "level": 3,
-          "line": 205
-        },
-        {
-          "heading": "Slow Rebuilds in Watch",
-          "level": 3,
-          "line": 210
-        },
-        {
-          "heading": "CLI Examples",
-          "level": 2,
-          "line": 215
-        },
-        {
-          "heading": "Examples",
-          "level": 2,
-          "line": 231
-        },
-        {
-          "heading": "Safe Production Build",
-          "level": 3,
-          "line": 233
-        },
-        {
-          "heading": "Incremental Development",
-          "level": 3,
-          "line": 241
-        },
-        {
-          "heading": "Multi-Stage Build",
-          "level": 3,
-          "line": 252
-        },
-        {
-          "heading": "Related Options",
-          "level": 2,
-          "line": 270
-        }
-      ],
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 31
-      }
-    },
-    {
-      "path": ".agents/skills/tsdown/references/option-config-file.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 281,
-      "nonEmptyLines": 214,
-      "sections": [
-        {
-          "heading": "Configuration File",
-          "level": 1,
-          "line": 1
-        },
-        {
-          "heading": "Overview",
-          "level": 2,
-          "line": 5
-        },
-        {
-          "heading": "Supported File Names",
-          "level": 2,
-          "line": 9
-        },
-        {
-          "heading": "Basic Configuration",
-          "level": 2,
-          "line": 22
-        },
-        {
-          "heading": "TypeScript Config",
-          "level": 3,
-          "line": 24
-        },
-        {
-          "heading": "JavaScript Config",
-          "level": 3,
-          "line": 38
-        },
-        {
-          "heading": "JSON Config",
-          "level": 3,
-          "line": 49
-        },
-        {
-          "heading": "Package.json Config",
-          "level": 3,
-          "line": 60
-        },
-        {
-          "heading": "Multiple Configurations",
-          "level": 2,
-          "line": 74
-        },
-        {
-          "heading": "Dynamic Configuration",
-          "level": 2,
-          "line": 98
-        },
-        {
-          "heading": "Config Loaders",
-          "level": 2,
-          "line": 120
-        },
-        {
-          "heading": "Auto Loader (Default)",
-          "level": 3,
-          "line": 124
-        },
-        {
-          "heading": "Native Loader",
-          "level": 3,
-          "line": 132
-        },
-        {
-          "heading": "Unrun Loader",
-          "level": 3,
-          "line": 140
-        },
-        {
-          "heading": "Custom Config Path",
-          "level": 2,
-          "line": 150
-        },
-        {
-          "heading": "Disable Config File",
-          "level": 2,
-          "line": 160
-        },
-        {
-          "heading": "Extend Vite/Vitest Config (Experimental)",
-          "level": 2,
-          "line": 168
-        },
-        {
-          "heading": "Workspace / Monorepo",
-          "level": 2,
-          "line": 182
-        },
-        {
-          "heading": "Common Patterns",
-          "level": 2,
-          "line": 197
-        },
-        {
-          "heading": "Library with Multiple Builds",
-          "level": 3,
-          "line": 199
-        },
-        {
-          "heading": "Development vs Production",
-          "level": 3,
-          "line": 220
-        },
-        {
-          "heading": "Monorepo Root Config",
-          "level": 3,
-          "line": 232
-        },
-        {
-          "heading": "Per-Package Override",
-          "level": 3,
-          "line": 246
-        },
-        {
-          "heading": "Config Precedence",
-          "level": 2,
-          "line": 257
-        },
-        {
-          "heading": "Tips",
-          "level": 2,
-          "line": 267
-        },
-        {
-          "heading": "Related Options",
-          "level": 2,
-          "line": 277
-        }
-      ],
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 26
-      }
-    },
-    {
-      "path": ".agents/skills/tsdown/references/option-css.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 301,
-      "nonEmptyLines": 222,
-      "sections": [
-        {
-          "heading": "CSS Support",
-          "level": 1,
-          "line": 1
-        },
-        {
-          "heading": "Getting Started",
-          "level": 2,
-          "line": 7
-        },
-        {
-          "heading": "CSS Import",
-          "level": 2,
-          "line": 17
-        },
-        {
-          "heading": "`@import` Inlining",
-          "level": 3,
-          "line": 29
-        },
-        {
-          "heading": "Inline CSS (`?inline`)",
-          "level": 3,
-          "line": 33
-        },
-        {
-          "heading": "CSS Pre-processors",
-          "level": 2,
-          "line": 44
-        },
-        {
-          "heading": "Preprocessor Options",
-          "level": 3,
-          "line": 68
-        },
-        {
-          "heading": "`additionalData`",
-          "level": 3,
-          "line": 88
-        },
-        {
-          "heading": "CSS Minification",
-          "level": 2,
-          "line": 107
-        },
-        {
-          "heading": "CSS Target",
-          "level": 2,
-          "line": 119
-        },
-        {
-          "heading": "CSS Transformer",
-          "level": 2,
-          "line": 134
-        },
-        {
-          "heading": "PostCSS Options",
-          "level": 3,
-          "line": 149
-        },
-        {
-          "heading": "Lightning CSS (Syntax Lowering)",
-          "level": 2,
-          "line": 165
-        },
-        {
-          "heading": "Custom Lightning CSS Options",
-          "level": 3,
-          "line": 183
-        },
-        {
-          "heading": "CSS Modules",
-          "level": 2,
-          "line": 200
-        },
-        {
-          "heading": "Configuration",
-          "level": 3,
-          "line": 209
-        },
-        {
-          "heading": "Optional Dependencies (PostCSS path)",
-          "level": 3,
-          "line": 225
-        },
-        {
-          "heading": "Code Splitting",
-          "level": 2,
-          "line": 231
-        },
-        {
-          "heading": "Merged (Default)",
-          "level": 3,
-          "line": 233
-        },
-        {
-          "heading": "Per-Chunk Splitting",
-          "level": 3,
-          "line": 245
-        },
-        {
-          "heading": "Preserving CSS Imports (`css.inject`)",
-          "level": 2,
-          "line": 255
-        },
-        {
-          "heading": "PostCSS Optional Peer Dependencies",
-          "level": 2,
-          "line": 267
-        },
-        {
-          "heading": "Options Reference",
-          "level": 2,
-          "line": 283
-        },
-        {
-          "heading": "Related",
-          "level": 2,
-          "line": 298
-        }
-      ],
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 24
-      }
-    },
-    {
-      "path": ".agents/skills/tsdown/references/option-dependencies.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 385,
-      "nonEmptyLines": 300,
-      "sections": [
-        {
-          "heading": "Dependencies",
-          "level": 1,
-          "line": 1
-        },
-        {
-          "heading": "Overview",
-          "level": 2,
-          "line": 5
-        },
-        {
-          "heading": "Default Behavior",
-          "level": 2,
-          "line": 9
-        },
-        {
-          "heading": "Auto-Externalized",
-          "level": 3,
-          "line": 11
-        },
-        {
-          "heading": "Conditionally Bundled",
-          "level": 3,
-          "line": 19
-        },
-        {
-          "heading": "Configuration Options",
-          "level": 2,
-          "line": 26
-        },
-        {
-          "heading": "`deps.neverBundle`",
-          "level": 3,
-          "line": 41
-        },
-        {
-          "heading": "`deps.alwaysBundle`",
-          "level": 3,
-          "line": 59
-        },
-        {
-          "heading": "`deps.onlyBundle`",
-          "level": 3,
-          "line": 75
-        },
-        {
-          "heading": "`deps.skipNodeModulesBundle`",
-          "level": 3,
-          "line": 99
-        },
-        {
-          "heading": "Common Patterns",
-          "level": 2,
-          "line": 116
-        },
-        {
-          "heading": "React Component Library",
-          "level": 3,
-          "line": 118
-        },
-        {
-          "heading": "Utility Library with Shared Deps",
-          "level": 3,
-          "line": 135
-        },
-        {
-          "heading": "Monorepo Package",
-          "level": 3,
-          "line": 148
-        },
-        {
-          "heading": "CLI Tool (Bundle Everything)",
-          "level": 3,
-          "line": 163
-        },
-        {
-          "heading": "Library with Specific Externals",
-          "level": 3,
-          "line": 177
-        },
-        {
-          "heading": "Declaration Files",
-          "level": 2,
-          "line": 194
-        },
-        {
-          "heading": "Complex Type Resolution",
-          "level": 3,
-          "line": 198
-        },
-        {
-          "heading": "CLI Usage",
-          "level": 2,
-          "line": 218
-        },
-        {
-          "heading": "Never Bundle",
-          "level": 3,
-          "line": 220
-        },
-        {
-          "heading": "Skip Node Modules",
-          "level": 3,
-          "line": 227
-        },
-        {
-          "heading": "Migration from Deprecated Options",
-          "level": 2,
-          "line": 233
-        },
-        {
-          "heading": "Examples by Use Case",
-          "level": 2,
-          "line": 243
-        },
-        {
-          "heading": "Framework Component",
-          "level": 3,
-          "line": 245
-        },
-        {
-          "heading": "Standalone App",
-          "level": 3,
-          "line": 256
-        },
-        {
-          "heading": "Shared Library",
-          "level": 3,
-          "line": 267
-        },
-        {
-          "heading": "Monorepo Package",
-          "level": 3,
-          "line": 279
-        },
-        {
-          "heading": "Troubleshooting",
-          "level": 2,
-          "line": 297
-        },
-        {
-          "heading": "Dependency Bundled Unexpectedly",
-          "level": 3,
-          "line": 299
-        },
-        {
-          "heading": "Missing Dependency at Runtime",
-          "level": 3,
-          "line": 321
-        },
-        {
-          "heading": "Type Resolution Errors",
-          "level": 3,
-          "line": 343
-        },
-        {
-          "heading": "Summary",
-          "level": 2,
-          "line": 355
-        },
-        {
-          "heading": "Tips",
-          "level": 2,
-          "line": 371
-        },
-        {
-          "heading": "Related Options",
-          "level": 2,
-          "line": 380
-        }
-      ],
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 34
-      }
-    },
-    {
-      "path": ".agents/skills/tsdown/references/option-dts.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 251,
-      "nonEmptyLines": 184,
-      "sections": [
-        {
-          "heading": "TypeScript Declaration Files",
-          "level": 1,
-          "line": 1
-        },
-        {
-          "heading": "Overview",
-          "level": 2,
-          "line": 5
-        },
-        {
-          "heading": "Enabling DTS Generation",
-          "level": 2,
-          "line": 12
-        },
-        {
-          "heading": "Auto-Enabled",
-          "level": 3,
-          "line": 14
-        },
-        {
-          "heading": "Manual Enable",
-          "level": 3,
-          "line": 20
-        },
-        {
-          "heading": "CLI",
-          "level": 4,
-          "line": 22
-        },
-        {
-          "heading": "Config File",
-          "level": 4,
-          "line": 28
-        },
-        {
-          "heading": "Performance",
-          "level": 2,
-          "line": 36
-        },
-        {
-          "heading": "With `isolatedDeclarations` (Recommended)",
-          "level": 3,
-          "line": 38
-        },
-        {
-          "heading": "Without `isolatedDeclarations`",
-          "level": 3,
-          "line": 51
-        },
-        {
-          "heading": "Declaration Maps",
-          "level": 2,
-          "line": 55
-        },
-        {
-          "heading": "Enable in tsconfig.json",
-          "level": 3,
-          "line": 59
-        },
-        {
-          "heading": "Enable in tsdown Config",
-          "level": 3,
-          "line": 69
-        },
-        {
-          "heading": "Advanced Options",
-          "level": 2,
-          "line": 79
-        },
-        {
-          "heading": "Custom Compiler Options",
-          "level": 3,
-          "line": 81
-        },
-        {
-          "heading": "Build Process",
-          "level": 2,
-          "line": 95
-        },
-        {
-          "heading": "Common Patterns",
-          "level": 2,
-          "line": 100
-        },
-        {
-          "heading": "Basic Library",
-          "level": 3,
-          "line": 102
-        },
-        {
-          "heading": "Multiple Entry Points",
-          "level": 3,
-          "line": 117
-        },
-        {
-          "heading": "With Monorepo Support",
-          "level": 3,
-          "line": 134
-        },
-        {
-          "heading": "Fast Build (Isolated Declarations)",
-          "level": 3,
-          "line": 146
-        },
-        {
-          "heading": "Troubleshooting",
-          "level": 2,
-          "line": 168
-        },
-        {
-          "heading": "Missing Types",
-          "level": 3,
-          "line": 170
-        },
-        {
-          "heading": "Slow Generation",
-          "level": 3,
-          "line": 178
-        },
-        {
-          "heading": "Declaration Errors",
-          "level": 3,
-          "line": 182
-        },
-        {
-          "heading": "Report Issues",
-          "level": 3,
-          "line": 186
-        },
-        {
-          "heading": "Vue Support",
-          "level": 3,
-          "line": 190
-        },
-        {
-          "heading": "Oxc Transform",
-          "level": 3,
-          "line": 202
-        },
-        {
-          "heading": "Custom TSConfig",
-          "level": 3,
-          "line": 214
-        },
-        {
-          "heading": "Available DTS Options",
-          "level": 2,
-          "line": 226
-        },
-        {
-          "heading": "Tips",
-          "level": 2,
-          "line": 239
-        },
-        {
-          "heading": "Related Options",
-          "level": 2,
-          "line": 247
-        }
-      ],
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 32
-      }
-    },
-    {
-      "path": ".agents/skills/tsdown/references/option-entry.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 211,
-      "nonEmptyLines": 159,
-      "sections": [
-        {
-          "heading": "Entry Points",
-          "level": 1,
-          "line": 1
-        },
-        {
-          "heading": "Overview",
-          "level": 2,
-          "line": 5
-        },
-        {
-          "heading": "Usage Patterns",
-          "level": 2,
-          "line": 9
-        },
-        {
-          "heading": "CLI",
-          "level": 3,
-          "line": 11
-        },
-        {
-          "heading": "Config File",
-          "level": 3,
-          "line": 24
-        },
-        {
-          "heading": "Single Entry",
-          "level": 4,
-          "line": 26
-        },
-        {
-          "heading": "Multiple Entries (Array)",
-          "level": 4,
-          "line": 34
-        },
-        {
-          "heading": "Named Entries (Object)",
-          "level": 4,
-          "line": 42
-        },
-        {
-          "heading": "Glob Patterns",
-          "level": 2,
-          "line": 59
-        },
-        {
-          "heading": "All TypeScript Files",
-          "level": 3,
-          "line": 63
-        },
-        {
-          "heading": "Exclude Test Files",
-          "level": 3,
-          "line": 71
-        },
-        {
-          "heading": "Object Entries with Glob Patterns",
-          "level": 3,
-          "line": 79
-        },
-        {
-          "heading": "Negation Patterns in Object Entries",
-          "level": 4,
-          "line": 92
-        },
-        {
-          "heading": "Mixed Entries",
-          "level": 3,
-          "line": 121
-        },
-        {
-          "heading": "Windows Compatibility",
-          "level": 3,
-          "line": 138
-        },
-        {
-          "heading": "Common Patterns",
-          "level": 2,
-          "line": 150
-        },
-        {
-          "heading": "Library with Main Export",
-          "level": 3,
-          "line": 152
-        },
-        {
-          "heading": "Library with Multiple Exports",
-          "level": 3,
-          "line": 162
-        },
-        {
-          "heading": "CLI Tool",
-          "level": 3,
-          "line": 176
-        },
-        {
-          "heading": "Preserve Directory Structure",
-          "level": 3,
-          "line": 188
-        },
-        {
-          "heading": "Tips",
-          "level": 2,
-          "line": 205
-        }
-      ],
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 21
-      }
-    },
-    {
-      "path": ".agents/skills/tsdown/references/option-exe.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 120,
+      "path": "src/logger.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 106,
       "nonEmptyLines": 92,
-      "sections": [
+      "functions": [
         {
-          "heading": "Executable - `exe`",
-          "level": 1,
-          "line": 1
+          "name": "tokenizeMessage",
+          "startLine": 12,
+          "endLine": 34,
+          "params": [
+            "message"
+          ]
         },
         {
-          "heading": "Requirements",
-          "level": 2,
-          "line": 5
+          "name": "createLogger",
+          "startLine": 36,
+          "endLine": 106,
+          "params": [
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "createLogger",
+          "line": 36,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "tokenizeMessage",
+          "callee": "regex.exec",
+          "lineNumber": 18
         },
         {
-          "heading": "Basic Usage",
-          "level": 2,
-          "line": 10
+          "caller": "tokenizeMessage",
+          "callee": "tokens.push",
+          "lineNumber": 21
         },
         {
-          "heading": "Behavior When Enabled",
-          "level": 2,
-          "line": 19
+          "caller": "tokenizeMessage",
+          "callee": "message.slice",
+          "lineNumber": 21
         },
         {
-          "heading": "Advanced Configuration",
-          "level": 2,
-          "line": 27
+          "caller": "tokenizeMessage",
+          "callee": "tokens.push",
+          "lineNumber": 24
         },
         {
-          "heading": "`ExeOptions`",
-          "level": 2,
-          "line": 43
+          "caller": "tokenizeMessage",
+          "callee": "tokens.push",
+          "lineNumber": 30
         },
         {
-          "heading": "`SeaConfig`",
-          "level": 2,
-          "line": 51
+          "caller": "tokenizeMessage",
+          "callee": "message.slice",
+          "lineNumber": 30
         },
         {
-          "heading": "Cross-Platform Builds",
-          "level": 2,
-          "line": 64
+          "caller": "createLog",
+          "callee": "[\"debug\", \"info\"].includes",
+          "lineNumber": 40
         },
         {
-          "heading": "`ExeTarget`",
-          "level": 3,
-          "line": 94
+          "caller": "createLog",
+          "callee": "output",
+          "lineNumber": 47
         },
         {
-          "heading": "Caching",
-          "level": 3,
-          "line": 102
+          "caller": "createLog",
+          "callee": "level.toUpperCase",
+          "lineNumber": 47
         },
         {
-          "heading": "Platform Notes",
-          "level": 2,
-          "line": 109
+          "caller": "createLog",
+          "callee": "arg",
+          "lineNumber": 55
         },
         {
-          "heading": "CLI",
-          "level": 2,
-          "line": 115
+          "caller": "createLog",
+          "callee": "Array.isArray",
+          "lineNumber": 56
+        },
+        {
+          "caller": "createLog",
+          "callee": "processedArgs.push",
+          "lineNumber": 57
+        },
+        {
+          "caller": "createLog",
+          "callee": "processedArgs.push",
+          "lineNumber": 59
+        },
+        {
+          "caller": "createLog",
+          "callee": "processedArgs.push",
+          "lineNumber": 62
+        },
+        {
+          "caller": "createLog",
+          "callee": "tokenizeMessage",
+          "lineNumber": 67
+        },
+        {
+          "caller": "createLog",
+          "callee": "level.toUpperCase",
+          "lineNumber": 70
+        },
+        {
+          "caller": "createLog",
+          "callee": "outputArgs.push",
+          "lineNumber": 82
+        },
+        {
+          "caller": "createLog",
+          "callee": "outputArgs.push",
+          "lineNumber": 87
+        },
+        {
+          "caller": "createLog",
+          "callee": "outputArgs.push",
+          "lineNumber": 94
+        },
+        {
+          "caller": "createLog",
+          "callee": "output",
+          "lineNumber": 97
+        },
+        {
+          "caller": "createLogger",
+          "callee": "createLog",
+          "lineNumber": 101
+        },
+        {
+          "caller": "createLogger",
+          "callee": "createLog",
+          "lineNumber": 102
+        },
+        {
+          "caller": "createLogger",
+          "callee": "createLog",
+          "lineNumber": 103
+        },
+        {
+          "caller": "createLogger",
+          "callee": "createLog",
+          "lineNumber": 104
         }
       ],
       "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 12
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
       }
     },
     {
-      "path": ".agents/skills/tsdown/references/option-lint.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 127,
-      "nonEmptyLines": 93,
-      "sections": [
+      "path": "src/pages/errors/404.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 18,
+      "nonEmptyLines": 16,
+      "functions": [
         {
-          "heading": "Package Validation (publint & attw)",
-          "level": 1,
-          "line": 1
-        },
+          "name": "NotFoundPage",
+          "startLine": 8,
+          "endLine": 18,
+          "params": [
+            "error",
+            "route"
+          ]
+        }
+      ],
+      "exports": [
         {
-          "heading": "Overview",
-          "level": 2,
-          "line": 5
-        },
+          "name": "NotFoundPage",
+          "line": 8,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
         {
-          "heading": "Installation",
-          "level": 2,
-          "line": 9
-        },
-        {
-          "heading": "publint",
-          "level": 2,
-          "line": 22
-        },
-        {
-          "heading": "Enable",
-          "level": 3,
-          "line": 26
-        },
-        {
-          "heading": "Configuration",
-          "level": 3,
-          "line": 34
-        },
-        {
-          "heading": "CLI",
-          "level": 3,
-          "line": 44
-        },
-        {
-          "heading": "attw (Are the types wrong?)",
-          "level": 2,
-          "line": 50
-        },
-        {
-          "heading": "Enable",
-          "level": 3,
-          "line": 54
-        },
-        {
-          "heading": "Configuration",
-          "level": 3,
-          "line": 62
-        },
-        {
-          "heading": "Profiles",
-          "level": 3,
-          "line": 74
-        },
-        {
-          "heading": "Ignore Rules",
-          "level": 3,
-          "line": 82
-        },
-        {
-          "heading": "CLI",
-          "level": 3,
-          "line": 101
-        },
-        {
-          "heading": "CI Integration",
-          "level": 2,
-          "line": 107
-        },
-        {
-          "heading": "Related Options",
-          "level": 2,
-          "line": 124
+          "caller": "NotFoundPage",
+          "callee": "document.createElement",
+          "lineNumber": 12
         }
       ],
       "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 15
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
       }
     },
     {
-      "path": ".agents/skills/tsdown/references/option-log-level.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 91,
-      "nonEmptyLines": 64,
-      "sections": [
+      "path": "src/pages/errors/500.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 17,
+      "nonEmptyLines": 16,
+      "functions": [
         {
-          "heading": "Log Level",
-          "level": 1,
-          "line": 1
+          "name": "ServiceErrorPage",
+          "startLine": 6,
+          "endLine": 17,
+          "params": [
+            "error",
+            "route"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ServiceErrorPage",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ServiceErrorPage",
+          "callee": "document.createElement",
+          "lineNumber": 10
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/pages/errors/default.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 21,
+      "nonEmptyLines": 18,
+      "functions": [
+        {
+          "name": "DefaultErrorPage",
+          "startLine": 7,
+          "endLine": 21,
+          "params": [
+            "error",
+            "route"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "DefaultErrorPage",
+          "line": 7,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "DefaultErrorPage",
+          "callee": "document.createElement",
+          "lineNumber": 14
         },
         {
-          "heading": "Overview",
-          "level": 2,
-          "line": 5
+          "caller": "DefaultErrorPage",
+          "callee": "String",
+          "lineNumber": 16
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/pages/errors/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 9,
+      "nonEmptyLines": 8,
+      "exports": [
+        {
+          "name": "errorPages",
+          "line": 5,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/router.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 447,
+      "nonEmptyLines": 394,
+      "classes": [
+        {
+          "name": "KylinRouter",
+          "startLine": 35,
+          "endLine": 447,
+          "methods": [
+            "constructor",
+            "mode",
+            "base",
+            "debug",
+            "logger",
+            "location",
+            "_matchRoute",
+            "onRouteUpdate",
+            "_ensureAttached",
+            "handleGuardFailure",
+            "push",
+            "replace",
+            "home",
+            "back",
+            "forward",
+            "go",
+            "attach",
+            "detach"
+          ],
+          "properties": [
+            "_cleanups",
+            "host",
+            "history",
+            "outlets",
+            "routes",
+            "hooks",
+            "viewLoader",
+            "dataLoader",
+            "_logger",
+            "isNavigating",
+            "_pendingNavigationType",
+            "previous",
+            "options",
+            "attached",
+            "currentNavVersion",
+            "_renderVersion",
+            "_currentRenderAbortController",
+            "abortController",
+            "modalContainer",
+            "modalState",
+            "maxModals",
+            "alpineManager"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "KylinRouter",
+          "line": 35,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 123
         },
         {
-          "heading": "Type",
-          "level": 2,
-          "line": 9
+          "caller": "constructor",
+          "callee": "document.querySelector",
+          "lineNumber": 125
         },
         {
-          "heading": "Basic Usage",
-          "level": 2,
-          "line": 17
+          "caller": "constructor",
+          "callee": "this.host.setAttribute",
+          "lineNumber": 129
         },
         {
-          "heading": "CLI",
-          "level": 3,
-          "line": 19
+          "caller": "constructor",
+          "callee": "Object.assign",
+          "lineNumber": 133
         },
         {
-          "heading": "Config File",
-          "level": 3,
-          "line": 35
+          "caller": "constructor",
+          "callee": "getBaseUrl",
+          "lineNumber": 136
         },
         {
-          "heading": "Available Levels",
-          "level": 2,
-          "line": 44
+          "caller": "constructor",
+          "callee": "this.attach",
+          "lineNumber": 154
         },
         {
-          "heading": "Common Patterns",
-          "level": 2,
-          "line": 53
+          "caller": "logger",
+          "callee": "createLogger",
+          "lineNumber": 181
         },
         {
-          "heading": "CI/CD Pipeline",
-          "level": 3,
-          "line": 55
+          "caller": "_matchRoute",
+          "callee": "matchRoute",
+          "lineNumber": 205
         },
         {
-          "heading": "Scripting",
-          "level": 3,
-          "line": 64
+          "caller": "onRouteUpdate",
+          "callee": "this._matchRoute",
+          "lineNumber": 219
         },
         {
-          "heading": "Fail on Warnings",
-          "level": 2,
-          "line": 73
+          "caller": "onRouteUpdate",
+          "callee": "removePathPrefix",
+          "lineNumber": 219
         },
         {
-          "heading": "Related Options",
-          "level": 2,
-          "line": 87
+          "caller": "onRouteUpdate",
+          "callee": "this.logger.debug",
+          "lineNumber": 224
+        },
+        {
+          "caller": "onRouteUpdate",
+          "callee": "this.hooks.runBeforeRoute",
+          "lineNumber": 231
+        },
+        {
+          "caller": "onRouteUpdate",
+          "callee": "this.logger.debug",
+          "lineNumber": 236
+        },
+        {
+          "caller": "onRouteUpdate",
+          "callee": "this.dataLoader.loadDatas",
+          "lineNumber": 241
+        },
+        {
+          "caller": "onRouteUpdate",
+          "callee": "this.viewLoader.loadViews",
+          "lineNumber": 242
+        },
+        {
+          "caller": "onRouteUpdate",
+          "callee": "this._renderRoutes",
+          "lineNumber": 244
+        },
+        {
+          "caller": "onRouteUpdate",
+          "callee": "this.hooks.runAfterRoute",
+          "lineNumber": 246
+        },
+        {
+          "caller": "handleGuardFailure",
+          "callee": "this.replace",
+          "lineNumber": 273
+        },
+        {
+          "caller": "handleGuardFailure",
+          "callee": "this.replace",
+          "lineNumber": 276
+        },
+        {
+          "caller": "push",
+          "callee": "this._ensureAttached",
+          "lineNumber": 280
+        },
+        {
+          "caller": "push",
+          "callee": "path.startsWith",
+          "lineNumber": 283
+        },
+        {
+          "caller": "push",
+          "callee": "path.slice",
+          "lineNumber": 284
+        },
+        {
+          "caller": "push",
+          "callee": "this.openModal",
+          "lineNumber": 286
+        },
+        {
+          "caller": "push",
+          "callee": "this.emit",
+          "lineNumber": 291
+        },
+        {
+          "caller": "push",
+          "callee": "this.history.push",
+          "lineNumber": 296
+        },
+        {
+          "caller": "push",
+          "callee": "this.history.push",
+          "lineNumber": 298
+        },
+        {
+          "caller": "replace",
+          "callee": "this._ensureAttached",
+          "lineNumber": 302
+        },
+        {
+          "caller": "replace",
+          "callee": "this.emit",
+          "lineNumber": 305
+        },
+        {
+          "caller": "replace",
+          "callee": "this.history.replace",
+          "lineNumber": 310
+        },
+        {
+          "caller": "replace",
+          "callee": "this.history.replace",
+          "lineNumber": 312
+        },
+        {
+          "caller": "home",
+          "callee": "this._ensureAttached",
+          "lineNumber": 321
+        },
+        {
+          "caller": "home",
+          "callee": "joinPath",
+          "lineNumber": 322
+        },
+        {
+          "caller": "home",
+          "callee": "this.replace",
+          "lineNumber": 323
+        },
+        {
+          "caller": "back",
+          "callee": "this._ensureAttached",
+          "lineNumber": 327
+        },
+        {
+          "caller": "back",
+          "callee": "this.closeTopModal",
+          "lineNumber": 332
+        },
+        {
+          "caller": "back",
+          "callee": "this.emit",
+          "lineNumber": 337
+        },
+        {
+          "caller": "back",
+          "callee": "this.history.back",
+          "lineNumber": 341
+        },
+        {
+          "caller": "forward",
+          "callee": "this._ensureAttached",
+          "lineNumber": 344
+        },
+        {
+          "caller": "forward",
+          "callee": "this.emit",
+          "lineNumber": 347
+        },
+        {
+          "caller": "forward",
+          "callee": "this.history.forward",
+          "lineNumber": 351
+        },
+        {
+          "caller": "go",
+          "callee": "this._ensureAttached",
+          "lineNumber": 354
+        },
+        {
+          "caller": "go",
+          "callee": "this.emit",
+          "lineNumber": 357
+        },
+        {
+          "caller": "go",
+          "callee": "this.history.go",
+          "lineNumber": 361
+        },
+        {
+          "caller": "attach",
+          "callee": "createHashHistory",
+          "lineNumber": 369
+        },
+        {
+          "caller": "attach",
+          "callee": "createBrowserHistory",
+          "lineNumber": 369
+        },
+        {
+          "caller": "attach",
+          "callee": "this.routes\r\n            .load()\r\n            .then(() => {\r\n                // 初始化组件加载器，传递全局视图选项\r\n                this.viewLoader = new ViewLoader(this);\r\n                // 初始化数据加载器，传递全局数据选项\r\n                this.dataLoader = new DataLoader(this);\r\n                // 开始监听路由变化\r\n                this._cleanups.push(this.history.listen(this.onRouteUpdate.bind(this)));\r\n\r\n                // 设置 context provider\r\n                this.attachContextProvider();\r\n\r\n                // 初始化模态容器\r\n                // this._initModals();\r\n\r\n                // 初始化 Alpine.js\r\n                this.alpineManager = new AlpineManager(this);\r\n\r\n                // 自动插入默认 outlet（如果 host 内部没有 outlet）\r\n                this._ensureDefaultOutlet();\r\n\r\n                // 标记为已绑定\r\n                this.attached = true;\r\n\r\n                this.emit(\"routes:attached\", undefined);\r\n\r\n                // 自动导航到主页\r\n                this.home();\r\n            })\r\n            .catch",
+          "lineNumber": 375
+        },
+        {
+          "caller": "attach",
+          "callee": "this.routes\r\n            .load()\r\n            .then",
+          "lineNumber": 375
+        },
+        {
+          "caller": "attach",
+          "callee": "this.routes\r\n            .load",
+          "lineNumber": 375
+        },
+        {
+          "caller": "attach",
+          "callee": "this._cleanups.push",
+          "lineNumber": 383
+        },
+        {
+          "caller": "attach",
+          "callee": "this.history.listen",
+          "lineNumber": 383
+        },
+        {
+          "caller": "attach",
+          "callee": "this.onRouteUpdate.bind",
+          "lineNumber": 383
+        },
+        {
+          "caller": "attach",
+          "callee": "this.attachContextProvider",
+          "lineNumber": 386
+        },
+        {
+          "caller": "attach",
+          "callee": "this._ensureDefaultOutlet",
+          "lineNumber": 395
+        },
+        {
+          "caller": "attach",
+          "callee": "this.emit",
+          "lineNumber": 400
+        },
+        {
+          "caller": "attach",
+          "callee": "this.home",
+          "lineNumber": 403
+        },
+        {
+          "caller": "attach",
+          "callee": "this.logger.error",
+          "lineNumber": 406
+        },
+        {
+          "caller": "detach",
+          "callee": "this._cleanups.forEach",
+          "lineNumber": 418
+        },
+        {
+          "caller": "detach",
+          "callee": "unsubscribe",
+          "lineNumber": 418
+        },
+        {
+          "caller": "detach",
+          "callee": "this.viewLoader.cleanup",
+          "lineNumber": 422
+        },
+        {
+          "caller": "detach",
+          "callee": "this.dataLoader.cleanup",
+          "lineNumber": 425
+        },
+        {
+          "caller": "detach",
+          "callee": "this.alpineManager.cleanup",
+          "lineNumber": 429
+        },
+        {
+          "caller": "detach",
+          "callee": "this.abortController.abort",
+          "lineNumber": 433
+        },
+        {
+          "caller": "detach",
+          "callee": "this.removeContextProvider",
+          "lineNumber": 436
+        },
+        {
+          "caller": "detach",
+          "callee": "this.host.removeAttribute",
+          "lineNumber": 440
+        }
+      ],
+      "metrics": {
+        "importCount": 11,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "src/types/events.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 53,
+      "nonEmptyLines": 52,
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/types/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 29,
+      "nonEmptyLines": 23,
+      "exports": [
+        {
+          "name": "RenderMode",
+          "line": 22,
+          "isDefault": false
+        },
+        {
+          "name": "TemplateData",
+          "line": 22,
+          "isDefault": false
+        },
+        {
+          "name": "RenderContext",
+          "line": 22,
+          "isDefault": false
+        },
+        {
+          "name": "RenderOptions",
+          "line": 22,
+          "isDefault": false
         }
       ],
       "metrics": {
         "importCount": 0,
+        "exportCount": 4,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/types/utils.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "metrics": {
+        "importCount": 0,
         "exportCount": 0,
         "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 12
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/utils/getBaseUrl.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 59,
+      "nonEmptyLines": 53,
+      "functions": [
+        {
+          "name": "getBaseUrl",
+          "startLine": 30,
+          "endLine": 59,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "getBaseUrl",
+          "line": 30,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "getBaseUrl",
+          "callee": "pathname.endsWith",
+          "lineNumber": 34
+        },
+        {
+          "caller": "getBaseUrl",
+          "callee": "pathname.endsWith",
+          "lineNumber": 34
+        },
+        {
+          "caller": "getBaseUrl",
+          "callee": "pathname.lastIndexOf",
+          "lineNumber": 36
+        },
+        {
+          "caller": "getBaseUrl",
+          "callee": "pathname.substring",
+          "lineNumber": 44
+        },
+        {
+          "caller": "getBaseUrl",
+          "callee": "pathname.endsWith",
+          "lineNumber": 48
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/utils/getRouteDataOptions.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 17,
+      "nonEmptyLines": 16,
+      "functions": [
+        {
+          "name": "getRouteDataOptions",
+          "startLine": 4,
+          "endLine": 17,
+          "params": [
+            "route",
+            "router"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "getRouteDataOptions",
+          "line": 4,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "getRouteDataOptions",
+          "callee": "Object.assign",
+          "lineNumber": 8
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/utils/getRouteViewOptions.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 17,
+      "nonEmptyLines": 16,
+      "functions": [
+        {
+          "name": "getRouteViewOptions",
+          "startLine": 4,
+          "endLine": 17,
+          "params": [
+            "route",
+            "router"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "getRouteViewOptions",
+          "line": 4,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "getRouteViewOptions",
+          "callee": "Object.assign",
+          "lineNumber": 8
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/utils/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 11,
+      "nonEmptyLines": 11,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/utils/isRouteItem.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 12,
+      "nonEmptyLines": 11,
+      "functions": [
+        {
+          "name": "isRouteItem",
+          "startLine": 6,
+          "endLine": 12,
+          "params": [
+            "obj"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "isRouteItem",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/utils/removePathPrefix.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 54,
+      "nonEmptyLines": 48,
+      "functions": [
+        {
+          "name": "removePathPrefix",
+          "startLine": 22,
+          "endLine": 54,
+          "params": [
+            "path",
+            "prefix"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "removePathPrefix",
+          "line": 22,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "removePathPrefix",
+          "callee": "prefix.endsWith",
+          "lineNumber": 34
+        },
+        {
+          "caller": "removePathPrefix",
+          "callee": "prefix.slice",
+          "lineNumber": 34
+        },
+        {
+          "caller": "removePathPrefix",
+          "callee": "path.startsWith",
+          "lineNumber": 37
+        },
+        {
+          "caller": "removePathPrefix",
+          "callee": "normalizedPath.startsWith",
+          "lineNumber": 46
+        },
+        {
+          "caller": "removePathPrefix",
+          "callee": "normalizedPath.slice",
+          "lineNumber": 47
+        },
+        {
+          "caller": "removePathPrefix",
+          "callee": "remaining.startsWith",
+          "lineNumber": 49
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/utils/traverseOutlet.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 65,
+      "nonEmptyLines": 54,
+      "functions": [
+        {
+          "name": "traverseOutlet",
+          "startLine": 10,
+          "endLine": 42,
+          "params": [
+            "host"
+          ]
+        },
+        {
+          "name": "calculateOutletLevel",
+          "startLine": 52,
+          "endLine": 65,
+          "params": [
+            "outlet",
+            "host"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "traverseOutlet",
+          "line": 10,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "traverseOutlet",
+          "callee": "Array.from",
+          "lineNumber": 12
+        },
+        {
+          "caller": "traverseOutlet",
+          "callee": "host.querySelectorAll",
+          "lineNumber": 12
+        },
+        {
+          "caller": "traverseOutlet",
+          "callee": "calculateOutletLevel",
+          "lineNumber": 25
+        },
+        {
+          "caller": "traverseOutlet",
+          "callee": "outletsWithLevel.push",
+          "lineNumber": 26
+        },
+        {
+          "caller": "traverseOutlet",
+          "callee": "Math.max",
+          "lineNumber": 30
+        },
+        {
+          "caller": "traverseOutlet",
+          "callee": "outletsWithLevel.map",
+          "lineNumber": 30
+        },
+        {
+          "caller": "traverseOutlet",
+          "callee": "Array.from",
+          "lineNumber": 33
+        },
+        {
+          "caller": "traverseOutlet",
+          "callee": "outletsWithLevel.forEach",
+          "lineNumber": 36
+        },
+        {
+          "caller": "traverseOutlet",
+          "callee": "groupedOutlets[level - 1].push",
+          "lineNumber": 38
+        },
+        {
+          "caller": "calculateOutletLevel",
+          "callee": "element.tagName.toLowerCase",
+          "lineNumber": 58
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
       }
     }
   ]

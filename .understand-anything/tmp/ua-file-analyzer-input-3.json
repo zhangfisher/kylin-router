@@ -1,47 +1,69 @@
 {
   "projectRoot": "E:/Work/Code/kylin-router",
   "batchFiles": [
-    {"path": ".claude/commands/gsd/add-backlog.md", "language": "markdown", "sizeLines": 71, "fileCategory": "docs"},
-    {"path": ".claude/commands/gsd/add-phase.md", "language": "markdown", "sizeLines": 70, "fileCategory": "docs"},
-    {"path": ".claude/commands/gsd/add-tests.md", "language": "markdown", "sizeLines": 82, "fileCategory": "docs"},
-    {"path": ".claude/commands/gsd/add-todo.md", "language": "markdown", "sizeLines": 84, "fileCategory": "docs"},
-    {"path": ".claude/commands/gsd/analyze-dependencies.md", "language": "markdown", "sizeLines": 81, "fileCategory": "docs"},
-    {"path": ".claude/commands/gsd/audit-milestone.md", "language": "markdown", "sizeLines": 87, "fileCategory": "docs"},
-    {"path": ".claude/commands/gsd/audit-fix.md", "language": "markdown", "sizeLines": 86, "fileCategory": "docs"},
-    {"path": ".claude/commands/gsd/audit-uat.md", "language": "markdown", "sizeLines": 81, "fileCategory": "docs"},
-    {"path": ".claude/commands/gsd/autonomous.md", "language": "markdown", "sizeLines": 81, "fileCategory": "docs"},
-    {"path": ".claude/commands/gsd/code-review-fix.md", "language": "markdown", "sizeLines": 85, "fileCategory": "docs"},
-    {"path": ".claude/commands/gsd/code-review.md", "language": "markdown", "sizeLines": 90, "fileCategory": "docs"},
-    {"path": ".claude/commands/gsd/cleanup.md", "language": "markdown", "sizeLines": 76, "fileCategory": "docs"},
-    {"path": ".claude/commands/gsd/complete-milestone.md", "language": "markdown", "sizeLines": 79, "fileCategory": "docs"},
-    {"path": ".claude/commands/gsd/check-todos.md", "language": "markdown", "sizeLines": 83, "fileCategory": "docs"},
-    {"path": ".claude/commands/gsd/debug.md", "language": "markdown", "sizeLines": 83, "fileCategory": "docs"},
-    {"path": ".claude/commands/gsd/do.md", "language": "markdown", "sizeLines": 83, "fileCategory": "docs"},
-    {"path": ".claude/commands/gsd/docs-update.md", "language": "markdown", "sizeLines": 80, "fileCategory": "docs"},
-    {"path": ".claude/commands/gsd/execute-phase.md", "language": "markdown", "sizeLines": 84, "fileCategory": "docs"},
-    {"path": ".claude/commands/gsd/explore.md", "language": "markdown", "sizeLines": 76, "fileCategory": "docs"},
-    {"path": ".claude/commands/gsd/fast.md", "language": "markdown", "sizeLines": 80, "fileCategory": "docs"}
+    {"path": "src/errors.ts", "language": "typescript", "sizeLines": 71, "fileCategory": "code"},
+    {"path": "src/features/baseLoader.ts", "language": "typescript", "sizeLines": 472, "fileCategory": "code"},
+    {"path": "src/features/dataLoader.ts", "language": "typescript", "sizeLines": 101, "fileCategory": "code"},
+    {"path": "src/features/viewLoader.ts", "language": "typescript", "sizeLines": 107, "fileCategory": "code"},
+    {"path": "src/types/config.ts", "language": "typescript", "sizeLines": 142, "fileCategory": "code"},
+    {"path": "src/types/data.ts", "language": "typescript", "sizeLines": 43, "fileCategory": "code"},
+    {"path": "src/types/hooks.ts", "language": "typescript", "sizeLines": 116, "fileCategory": "code"},
+    {"path": "src/types/routes.ts", "language": "typescript", "sizeLines": 448, "fileCategory": "code"},
+    {"path": "src/utils/getJsonFileFromUrl.ts", "language": "typescript", "sizeLines": 102, "fileCategory": "code"},
+    {"path": "src/utils/sanitizeHTML.ts", "language": "typescript", "sizeLines": 30, "fileCategory": "code"},
+    {"path": "src/utils/scopeStyle.ts", "language": "typescript", "sizeLines": 198, "fileCategory": "code"}
   ],
   "batchImportData": {
-  ".claude/commands/gsd/add-backlog.md": [],
-  ".claude/commands/gsd/add-phase.md": [],
-  ".claude/commands/gsd/add-tests.md": [],
-  ".claude/commands/gsd/add-todo.md": [],
-  ".claude/commands/gsd/analyze-dependencies.md": [],
-  ".claude/commands/gsd/audit-milestone.md": [],
-  ".claude/commands/gsd/audit-fix.md": [],
-  ".claude/commands/gsd/audit-uat.md": [],
-  ".claude/commands/gsd/autonomous.md": [],
-  ".claude/commands/gsd/code-review-fix.md": [],
-  ".claude/commands/gsd/code-review.md": [],
-  ".claude/commands/gsd/cleanup.md": [],
-  ".claude/commands/gsd/complete-milestone.md": [],
-  ".claude/commands/gsd/check-todos.md": [],
-  ".claude/commands/gsd/debug.md": [],
-  ".claude/commands/gsd/do.md": [],
-  ".claude/commands/gsd/docs-update.md": [],
-  ".claude/commands/gsd/execute-phase.md": [],
-  ".claude/commands/gsd/explore.md": [],
-  ".claude/commands/gsd/fast.md": []
+    "src/errors.ts": [
+      "src/types/index.ts"
+    ],
+    "src/features/baseLoader.ts": [
+      "src/errors.ts",
+      "src/router.ts",
+      "src/types/routes.ts",
+      "src/utils/getRouteVars.ts",
+      "src/utils/getSignalHash.ts",
+      "src/utils/prefixBaseUrl.ts"
+    ],
+    "src/features/dataLoader.ts": [
+      "src/features/baseLoader.ts",
+      "src/router.ts",
+      "src/types/data.ts",
+      "src/types/routes.ts",
+      "src/utils/getJsonFileFromUrl.ts"
+    ],
+    "src/features/viewLoader.ts": [
+      "src/features/baseLoader.ts",
+      "src/router.ts",
+      "src/types/routes.ts",
+      "src/utils/sanitizeHTML.ts",
+      "src/utils/scopeStyle.ts"
+    ],
+    "src/types/config.ts": [
+      "src/logger.ts",
+      "src/types/data.ts",
+      "src/types/hooks.ts",
+      "src/types/routes.ts"
+    ],
+    "src/types/data.ts": [
+      "src/features/baseLoader.ts",
+      "src/types/routes.ts"
+    ],
+    "src/types/hooks.ts": [
+      "src/errors.ts",
+      "src/router.ts",
+      "src/types/data.ts",
+      "src/types/routes.ts"
+    ],
+    "src/types/routes.ts": [
+      "src/features/baseLoader.ts",
+      "src/types/config.ts",
+      "src/types/data.ts",
+      "src/types/hooks.ts",
+      "src/types/modals.ts"
+    ],
+    "src/utils/getJsonFileFromUrl.ts": [],
+    "src/utils/sanitizeHTML.ts": [],
+    "src/utils/scopeStyle.ts": []
   }
 }

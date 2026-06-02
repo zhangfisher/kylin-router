@@ -1,378 +1,1386 @@
 {
   "scriptCompleted": true,
-  "filesAnalyzed": 19,
-  "filesSkipped": [
-    ".claude/commands/gsd/preload.md"
-  ],
+  "filesAnalyzed": 9,
+  "filesSkipped": [],
   "results": [
     {
-      "path": ".claude/commands/gsd/plan-phase.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 52,
-      "nonEmptyLines": 44,
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
-      }
-    },
-    {
-      "path": ".claude/commands/gsd/plant-seed.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 28,
-      "nonEmptyLines": 24,
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
-      }
-    },
-    {
-      "path": ".claude/commands/gsd/pr-branch.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 25,
-      "nonEmptyLines": 21,
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
-      }
-    },
-    {
-      "path": ".claude/commands/gsd/progress.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 24,
-      "nonEmptyLines": 21,
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
-      }
-    },
-    {
-      "path": ".claude/commands/gsd/profile-user.md",
-      "language": "markdown",
-      "fileCategory": "docs",
+      "path": "src/components/outlet/base.layout.ts",
+      "language": "typescript",
+      "fileCategory": "code",
       "totalLines": 46,
-      "nonEmptyLines": 40,
+      "nonEmptyLines": 39,
       "metrics": {
-        "importCount": 0,
+        "importCount": 1,
         "exportCount": 0,
         "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
+        "classCount": 0
       }
     },
     {
-      "path": ".claude/commands/gsd/quick.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 49,
-      "nonEmptyLines": 38,
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
-      }
-    },
-    {
-      "path": ".claude/commands/gsd/reapply-patches.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 272,
-      "nonEmptyLines": 219,
-      "sections": [
+      "path": "src/components/outlet/collapse.layout.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 183,
+      "nonEmptyLines": 157,
+      "classes": [
         {
-          "heading": "Step 1: Detect backed-up patches",
-          "level": 2,
-          "line": 15
+          "name": "CollapseLayout",
+          "startLine": 11,
+          "endLine": 183,
+          "methods": [
+            "init",
+            "cleanup",
+            "onSlotChange",
+            "onPropertyChanged",
+            "_handleClick",
+            "_updateExpandedState",
+            "getExpandedIds",
+            "setExpandedIds",
+            "toggleExpanded",
+            "expand",
+            "collapse"
+          ],
+          "properties": [
+            "styles",
+            "_expandedIds",
+            "_clickHandler"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "CollapseLayout",
+          "line": 11,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "init",
+          "callee": "this._handleClick.bind",
+          "lineNumber": 68
         },
         {
-          "heading": "Step 2: Determine baseline for three-way comparison",
-          "level": 2,
-          "line": 123
+          "caller": "init",
+          "callee": "this.outlet.addEventListener",
+          "lineNumber": 69
         },
         {
-          "heading": "Option A: Git history (most reliable)",
-          "level": 3,
-          "line": 132
+          "caller": "init",
+          "callee": "this.outlet.querySelector",
+          "lineNumber": 72
         },
         {
-          "heading": "Option B: Pristine snapshot directory",
-          "level": 3,
-          "line": 149
+          "caller": "init",
+          "callee": "this._expandedIds.add",
+          "lineNumber": 74
         },
         {
-          "heading": "Option C: No baseline available (two-way fallback)",
-          "level": 3,
-          "line": 156
+          "caller": "cleanup",
+          "callee": "this.outlet.removeEventListener",
+          "lineNumber": 80
         },
         {
-          "heading": "Step 3: Show patch summary",
-          "level": 2,
-          "line": 159
+          "caller": "cleanup",
+          "callee": "this._expandedIds.clear",
+          "lineNumber": 82
         },
         {
-          "heading": "Step 4: Merge each file",
-          "level": 2,
-          "line": 175
+          "caller": "onSlotChange",
+          "callee": "mutations.forEach",
+          "lineNumber": 87
         },
         {
-          "heading": "Three-way merge (when baseline is available)",
-          "level": 3,
-          "line": 183
+          "caller": "onSlotChange",
+          "callee": "mutation.removedNodes.forEach",
+          "lineNumber": 88
         },
         {
-          "heading": "Two-way merge (fallback when no baseline)",
-          "level": 3,
-          "line": 195
+          "caller": "onSlotChange",
+          "callee": "node.classList.contains",
+          "lineNumber": 89
         },
         {
-          "heading": "Git-enhanced two-way merge",
-          "level": 3,
-          "line": 210
+          "caller": "onSlotChange",
+          "callee": "this._expandedIds.delete",
+          "lineNumber": 90
         },
         {
-          "heading": "Post-merge verification",
-          "level": 3,
-          "line": 221
+          "caller": "onPropertyChanged",
+          "callee": "this._expandedIds.add",
+          "lineNumber": 99
         },
         {
-          "heading": "Step 5: Cleanup option",
-          "level": 2,
-          "line": 242
+          "caller": "onPropertyChanged",
+          "callee": "this._updateExpandedState",
+          "lineNumber": 100
         },
         {
-          "heading": "Step 6: Report",
-          "level": 2,
-          "line": 248
+          "caller": "_handleClick",
+          "callee": "target.closest",
+          "lineNumber": 109
+        },
+        {
+          "caller": "_handleClick",
+          "callee": "this._expandedIds.has",
+          "lineNumber": 112
+        },
+        {
+          "caller": "_handleClick",
+          "callee": "this._expandedIds.delete",
+          "lineNumber": 116
+        },
+        {
+          "caller": "_handleClick",
+          "callee": "this._expandedIds.add",
+          "lineNumber": 119
+        },
+        {
+          "caller": "_handleClick",
+          "callee": "this._updateExpandedState",
+          "lineNumber": 122
+        },
+        {
+          "caller": "_updateExpandedState",
+          "callee": "this.outlet.getViewContainers",
+          "lineNumber": 130
+        },
+        {
+          "caller": "_updateExpandedState",
+          "callee": "views.forEach",
+          "lineNumber": 132
+        },
+        {
+          "caller": "_updateExpandedState",
+          "callee": "this._expandedIds.has",
+          "lineNumber": 133
+        },
+        {
+          "caller": "_updateExpandedState",
+          "callee": "view.classList.add",
+          "lineNumber": 134
+        },
+        {
+          "caller": "_updateExpandedState",
+          "callee": "view.classList.remove",
+          "lineNumber": 136
+        },
+        {
+          "caller": "getExpandedIds",
+          "callee": "Array.from",
+          "lineNumber": 145
+        },
+        {
+          "caller": "setExpandedIds",
+          "callee": "this._updateExpandedState",
+          "lineNumber": 153
+        },
+        {
+          "caller": "toggleExpanded",
+          "callee": "this._expandedIds.has",
+          "lineNumber": 160
+        },
+        {
+          "caller": "toggleExpanded",
+          "callee": "this._expandedIds.delete",
+          "lineNumber": 161
+        },
+        {
+          "caller": "toggleExpanded",
+          "callee": "this._expandedIds.add",
+          "lineNumber": 163
+        },
+        {
+          "caller": "toggleExpanded",
+          "callee": "this._updateExpandedState",
+          "lineNumber": 165
+        },
+        {
+          "caller": "expand",
+          "callee": "this._expandedIds.add",
+          "lineNumber": 172
+        },
+        {
+          "caller": "expand",
+          "callee": "this._updateExpandedState",
+          "lineNumber": 173
+        },
+        {
+          "caller": "collapse",
+          "callee": "this._expandedIds.delete",
+          "lineNumber": 180
+        },
+        {
+          "caller": "collapse",
+          "callee": "this._updateExpandedState",
+          "lineNumber": 181
         }
       ],
       "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
+        "importCount": 2,
+        "exportCount": 1,
         "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 13
+        "classCount": 1
       }
     },
     {
-      "path": ".claude/commands/gsd/remove-phase.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 31,
-      "nonEmptyLines": 26,
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
-      }
-    },
-    {
-      "path": ".claude/commands/gsd/remove-workspace.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 26,
-      "nonEmptyLines": 23,
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
-      }
-    },
-    {
-      "path": ".claude/commands/gsd/research-phase.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 195,
-      "nonEmptyLines": 147,
-      "sections": [
+      "path": "src/components/outlet/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 355,
+      "nonEmptyLines": 318,
+      "classes": [
         {
-          "heading": "0. Initialize Context",
-          "level": 2,
-          "line": 39
+          "name": "KylinOutlet",
+          "startLine": 14,
+          "endLine": 349,
+          "methods": [
+            "createRenderRoot",
+            "_getLayout",
+            "_switchLayout",
+            "requestUpdate",
+            "connectedCallback",
+            "_injectStyles",
+            "disconnectedCallback",
+            "getViewContainer",
+            "createViewContainer",
+            "_updateAlpineComponentData",
+            "updated",
+            "_setupMutationObserver",
+            "onSlotChange",
+            "getViewContainers",
+            "findOutlet",
+            "showViewContainer",
+            "renderView",
+            "render"
+          ],
+          "properties": [
+            "keepalive",
+            "loading",
+            "view",
+            "layout",
+            "tabDirection",
+            "mutationObserver",
+            "_layoutInstance"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "KylinOutlet",
+          "line": 13,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "_switchLayout",
+          "callee": "this._layoutInstance.cleanup",
+          "lineNumber": 83
         },
         {
-          "heading": "1. Validate Phase",
-          "level": 2,
-          "line": 53
+          "caller": "_switchLayout",
+          "callee": "this._getLayout",
+          "lineNumber": 87
         },
         {
-          "heading": "2. Check Existing Research",
-          "level": 2,
-          "line": 61
+          "caller": "_switchLayout",
+          "callee": "this._layoutInstance?.init",
+          "lineNumber": 88
         },
         {
-          "heading": "3. Gather Phase Context",
-          "level": 2,
-          "line": 71
+          "caller": "requestUpdate",
+          "callee": "super.requestUpdate",
+          "lineNumber": 101
         },
         {
-          "heading": "4. Spawn gsd-phase-researcher Agent",
-          "level": 2,
-          "line": 80
+          "caller": "connectedCallback",
+          "callee": "super.connectedCallback",
+          "lineNumber": 105
         },
         {
-          "heading": "5. Handle Agent Return",
-          "level": 2,
-          "line": 151
+          "caller": "connectedCallback",
+          "callee": "this._injectStyles",
+          "lineNumber": 106
         },
         {
-          "heading": "6. Spawn Continuation Agent",
-          "level": 2,
-          "line": 159
+          "caller": "connectedCallback",
+          "callee": "this._setupMutationObserver",
+          "lineNumber": 107
+        },
+        {
+          "caller": "connectedCallback",
+          "callee": "this._switchLayout",
+          "lineNumber": 108
+        },
+        {
+          "caller": "_injectStyles",
+          "callee": "document.head.querySelector",
+          "lineNumber": 119
+        },
+        {
+          "caller": "_injectStyles",
+          "callee": "[\r\n            commonStyles.cssText,\r\n            StackLayout.styles.cssText,\r\n            TabsLayout.styles.cssText,\r\n            CollapseLayout.styles.cssText,\r\n        ].join",
+          "lineNumber": 125
+        },
+        {
+          "caller": "_injectStyles",
+          "callee": "document.createElement",
+          "lineNumber": 133
+        },
+        {
+          "caller": "_injectStyles",
+          "callee": "document.head.appendChild",
+          "lineNumber": 137
+        },
+        {
+          "caller": "disconnectedCallback",
+          "callee": "super.disconnectedCallback",
+          "lineNumber": 141
+        },
+        {
+          "caller": "disconnectedCallback",
+          "callee": "this.mutationObserver.disconnect",
+          "lineNumber": 143
+        },
+        {
+          "caller": "disconnectedCallback",
+          "callee": "this._layoutInstance.cleanup",
+          "lineNumber": 147
+        },
+        {
+          "caller": "getViewContainer",
+          "callee": "this.querySelector",
+          "lineNumber": 158
+        },
+        {
+          "caller": "createViewContainer",
+          "callee": "this.getViewContainer",
+          "lineNumber": 170
+        },
+        {
+          "caller": "createViewContainer",
+          "callee": "viewContainer.container.setAttribute",
+          "lineNumber": 175
+        },
+        {
+          "caller": "createViewContainer",
+          "callee": "Object.keys",
+          "lineNumber": 178
+        },
+        {
+          "caller": "createViewContainer",
+          "callee": "Object.keys",
+          "lineNumber": 181
+        },
+        {
+          "caller": "createViewContainer",
+          "callee": "Object.keys",
+          "lineNumber": 184
+        },
+        {
+          "caller": "createViewContainer",
+          "callee": "viewContainer.container.setAttribute",
+          "lineNumber": 185
+        },
+        {
+          "caller": "createViewContainer",
+          "callee": "JSON.stringify",
+          "lineNumber": 185
+        },
+        {
+          "caller": "createViewContainer",
+          "callee": "this._updateAlpineComponentData",
+          "lineNumber": 189
+        },
+        {
+          "caller": "_updateAlpineComponentData",
+          "callee": "Alpine.$data",
+          "lineNumber": 204
+        },
+        {
+          "caller": "_updateAlpineComponentData",
+          "callee": "Object.entries(newData).forEach",
+          "lineNumber": 207
+        },
+        {
+          "caller": "_updateAlpineComponentData",
+          "callee": "Object.entries",
+          "lineNumber": 207
+        },
+        {
+          "caller": "_updateAlpineComponentData",
+          "callee": "console.warn",
+          "lineNumber": 214
+        },
+        {
+          "caller": "updated",
+          "callee": "super.updated",
+          "lineNumber": 220
+        },
+        {
+          "caller": "updated",
+          "callee": "changedProperties.has",
+          "lineNumber": 223
+        },
+        {
+          "caller": "updated",
+          "callee": "this._switchLayout",
+          "lineNumber": 224
+        },
+        {
+          "caller": "updated",
+          "callee": "changedProperties.forEach",
+          "lineNumber": 229
+        },
+        {
+          "caller": "updated",
+          "callee": "this._layoutInstance!.onPropertyChanged",
+          "lineNumber": 230
+        },
+        {
+          "caller": "updated",
+          "callee": "changedProperties.has",
+          "lineNumber": 238
+        },
+        {
+          "caller": "updated",
+          "callee": "this.showViewContainer",
+          "lineNumber": 239
+        },
+        {
+          "caller": "_setupMutationObserver",
+          "callee": "this.onSlotChange",
+          "lineNumber": 248
+        },
+        {
+          "caller": "_setupMutationObserver",
+          "callee": "this.mutationObserver.observe",
+          "lineNumber": 258
+        },
+        {
+          "caller": "onSlotChange",
+          "callee": "mutations.filter",
+          "lineNumber": 268
+        },
+        {
+          "caller": "onSlotChange",
+          "callee": "this._layoutInstance?.onSlotChange",
+          "lineNumber": 276
+        },
+        {
+          "caller": "getViewContainers",
+          "callee": "Array.from",
+          "lineNumber": 282
+        },
+        {
+          "caller": "getViewContainers",
+          "callee": "this.querySelectorAll",
+          "lineNumber": 282
+        },
+        {
+          "caller": "findOutlet",
+          "callee": "this.getViewContainer",
+          "lineNumber": 286
+        },
+        {
+          "caller": "findOutlet",
+          "callee": "findOutlet",
+          "lineNumber": 288
+        },
+        {
+          "caller": "showViewContainer",
+          "callee": "this.getViewContainers",
+          "lineNumber": 300
+        },
+        {
+          "caller": "showViewContainer",
+          "callee": "viewContainers.forEach",
+          "lineNumber": 303
+        },
+        {
+          "caller": "showViewContainer",
+          "callee": "view.classList.add",
+          "lineNumber": 306
+        },
+        {
+          "caller": "showViewContainer",
+          "callee": "view.classList.remove",
+          "lineNumber": 308
+        },
+        {
+          "caller": "showViewContainer",
+          "callee": "viewContainers[0].classList.add",
+          "lineNumber": 312
+        },
+        {
+          "caller": "renderView",
+          "callee": "document.createElement",
+          "lineNumber": 331
+        },
+        {
+          "caller": "renderView",
+          "callee": "viewContainer.setAttribute",
+          "lineNumber": 332
+        },
+        {
+          "caller": "renderView",
+          "callee": "viewContainer.setAttribute",
+          "lineNumber": 336
+        },
+        {
+          "caller": "renderView",
+          "callee": "viewContainer.appendChild",
+          "lineNumber": 343
+        },
+        {
+          "caller": "render",
+          "callee": "html",
+          "lineNumber": 347
         }
       ],
       "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
+        "importCount": 9,
+        "exportCount": 1,
         "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 7
+        "classCount": 1
       }
     },
     {
-      "path": ".claude/commands/gsd/resume-work.md",
-      "language": "markdown",
-      "fileCategory": "docs",
+      "path": "src/components/outlet/stack.layout.ts",
+      "language": "typescript",
+      "fileCategory": "code",
       "totalLines": 40,
-      "nonEmptyLines": 33,
+      "nonEmptyLines": 34,
+      "classes": [
+        {
+          "name": "StackLayout",
+          "startLine": 9,
+          "endLine": 40,
+          "methods": [
+            "init",
+            "cleanup",
+            "onSlotChange",
+            "onPropertyChanged"
+          ],
+          "properties": [
+            "styles"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "StackLayout",
+          "line": 9,
+          "isDefault": false
+        }
+      ],
       "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
+        "importCount": 2,
+        "exportCount": 1,
         "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
+        "classCount": 1
       }
     },
     {
-      "path": ".claude/commands/gsd/review-backlog.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 62,
-      "nonEmptyLines": 51,
+      "path": "src/components/outlet/styles.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 51,
+      "nonEmptyLines": 46,
+      "exports": [
+        {
+          "name": "styles",
+          "line": 3,
+          "isDefault": false
+        }
+      ],
       "metrics": {
         "importCount": 0,
-        "exportCount": 0,
+        "exportCount": 1,
         "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
+        "classCount": 0
       }
     },
     {
-      "path": ".claude/commands/gsd/review.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 38,
-      "nonEmptyLines": 32,
+      "path": "src/components/outlet/tabs.layout.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 261,
+      "nonEmptyLines": 222,
+      "classes": [
+        {
+          "name": "TabsLayout",
+          "startLine": 11,
+          "endLine": 261,
+          "methods": [
+            "init",
+            "cleanup",
+            "onSlotChange",
+            "onPropertyChanged",
+            "_createTabsHeader",
+            "_repositionHeader",
+            "_rebuildTabs",
+            "_extractLabelFromUrl",
+            "_setupActiveObserver",
+            "_syncTabActiveState"
+          ],
+          "properties": [
+            "styles",
+            "_tabsHeader",
+            "_observer"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "TabsLayout",
+          "line": 11,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "init",
+          "callee": "this._createTabsHeader",
+          "lineNumber": 128
+        },
+        {
+          "caller": "init",
+          "callee": "this._setupActiveObserver",
+          "lineNumber": 129
+        },
+        {
+          "caller": "cleanup",
+          "callee": "this._tabsHeader.remove",
+          "lineNumber": 134
+        },
+        {
+          "caller": "cleanup",
+          "callee": "this._observer.disconnect",
+          "lineNumber": 137
+        },
+        {
+          "caller": "onSlotChange",
+          "callee": "this._rebuildTabs",
+          "lineNumber": 143
+        },
+        {
+          "caller": "onPropertyChanged",
+          "callee": "this._repositionHeader",
+          "lineNumber": 149
+        },
+        {
+          "caller": "_createTabsHeader",
+          "callee": "document.createElement",
+          "lineNumber": 159
+        },
+        {
+          "caller": "_createTabsHeader",
+          "callee": "this._repositionHeader",
+          "lineNumber": 163
+        },
+        {
+          "caller": "_createTabsHeader",
+          "callee": "this._rebuildTabs",
+          "lineNumber": 164
+        },
+        {
+          "caller": "_repositionHeader",
+          "callee": "this.outlet.appendChild",
+          "lineNumber": 176
+        },
+        {
+          "caller": "_repositionHeader",
+          "callee": "this.outlet.insertBefore",
+          "lineNumber": 178
+        },
+        {
+          "caller": "_rebuildTabs",
+          "callee": "this.outlet.getViewContainers",
+          "lineNumber": 188
+        },
+        {
+          "caller": "_rebuildTabs",
+          "callee": "views.forEach",
+          "lineNumber": 191
+        },
+        {
+          "caller": "_rebuildTabs",
+          "callee": "view.getAttribute",
+          "lineNumber": 192
+        },
+        {
+          "caller": "_rebuildTabs",
+          "callee": "document.createElement",
+          "lineNumber": 195
+        },
+        {
+          "caller": "_rebuildTabs",
+          "callee": "link.setAttribute",
+          "lineNumber": 196
+        },
+        {
+          "caller": "_rebuildTabs",
+          "callee": "view.getAttribute",
+          "lineNumber": 198
+        },
+        {
+          "caller": "_rebuildTabs",
+          "callee": "this._extractLabelFromUrl",
+          "lineNumber": 198
+        },
+        {
+          "caller": "_rebuildTabs",
+          "callee": "view.classList.contains",
+          "lineNumber": 201
+        },
+        {
+          "caller": "_rebuildTabs",
+          "callee": "link.classList.add",
+          "lineNumber": 202
+        },
+        {
+          "caller": "_rebuildTabs",
+          "callee": "this._tabsHeader!.appendChild",
+          "lineNumber": 205
+        },
+        {
+          "caller": "_extractLabelFromUrl",
+          "callee": "url.split(\"/\").filter",
+          "lineNumber": 213
+        },
+        {
+          "caller": "_extractLabelFromUrl",
+          "callee": "url.split",
+          "lineNumber": 213
+        },
+        {
+          "caller": "_extractLabelFromUrl",
+          "callee": "lastPart.charAt(0).toUpperCase",
+          "lineNumber": 216
+        },
+        {
+          "caller": "_extractLabelFromUrl",
+          "callee": "lastPart.charAt",
+          "lineNumber": 216
+        },
+        {
+          "caller": "_extractLabelFromUrl",
+          "callee": "lastPart.slice",
+          "lineNumber": 216
+        },
+        {
+          "caller": "_setupActiveObserver",
+          "callee": "mutations.forEach",
+          "lineNumber": 224
+        },
+        {
+          "caller": "_setupActiveObserver",
+          "callee": "target.classList.contains",
+          "lineNumber": 227
+        },
+        {
+          "caller": "_setupActiveObserver",
+          "callee": "this._syncTabActiveState",
+          "lineNumber": 228
+        },
+        {
+          "caller": "_setupActiveObserver",
+          "callee": "this._observer.observe",
+          "lineNumber": 234
+        },
+        {
+          "caller": "_syncTabActiveState",
+          "callee": "view.getAttribute",
+          "lineNumber": 247
+        },
+        {
+          "caller": "_syncTabActiveState",
+          "callee": "this._tabsHeader.querySelectorAll",
+          "lineNumber": 250
+        },
+        {
+          "caller": "_syncTabActiveState",
+          "callee": "links.forEach",
+          "lineNumber": 251
+        },
+        {
+          "caller": "_syncTabActiveState",
+          "callee": "link.getAttribute",
+          "lineNumber": 252
+        },
+        {
+          "caller": "_syncTabActiveState",
+          "callee": "view.classList.contains",
+          "lineNumber": 253
+        },
+        {
+          "caller": "_syncTabActiveState",
+          "callee": "link.classList.add",
+          "lineNumber": 254
+        },
+        {
+          "caller": "_syncTabActiveState",
+          "callee": "link.classList.remove",
+          "lineNumber": 256
+        }
+      ],
       "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
+        "importCount": 2,
+        "exportCount": 1,
         "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
+        "classCount": 1
       }
     },
     {
-      "path": ".claude/commands/gsd/secure-phase.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 35,
-      "nonEmptyLines": 31,
+      "path": "src/components/outlet/viewContainer.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 129,
+      "nonEmptyLines": 123,
+      "classes": [
+        {
+          "name": "ViewContainer",
+          "startLine": 8,
+          "endLine": 129,
+          "methods": [
+            "constructor",
+            "viewHash",
+            "dataHash",
+            "_createContainer",
+            "_showLoading",
+            "_hideLoading",
+            "_getContainer",
+            "_getContainers",
+            "_active",
+            "abort",
+            "resolve",
+            "reject",
+            "finally"
+          ],
+          "properties": [
+            "outlet",
+            "container",
+            "options",
+            "_isNewContainer"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ViewContainer",
+          "line": 8,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "Object.assign",
+          "lineNumber": 18
+        },
+        {
+          "caller": "constructor",
+          "callee": "this._createContainer",
+          "lineNumber": 26
+        },
+        {
+          "caller": "_createContainer",
+          "callee": "this._getContainer",
+          "lineNumber": 35
+        },
+        {
+          "caller": "_createContainer",
+          "callee": "container.remove",
+          "lineNumber": 42
+        },
+        {
+          "caller": "_createContainer",
+          "callee": "document.createElement",
+          "lineNumber": 46
+        },
+        {
+          "caller": "_createContainer",
+          "callee": "container.setAttribute",
+          "lineNumber": 47
+        },
+        {
+          "caller": "_createContainer",
+          "callee": "container.classList.add",
+          "lineNumber": 48
+        },
+        {
+          "caller": "_createContainer",
+          "callee": "this._showLoading",
+          "lineNumber": 49
+        },
+        {
+          "caller": "_createContainer",
+          "callee": "this.outlet.appendChild",
+          "lineNumber": 52
+        },
+        {
+          "caller": "_createContainer",
+          "callee": "this._active",
+          "lineNumber": 53
+        },
+        {
+          "caller": "_showLoading",
+          "callee": "el.querySelector",
+          "lineNumber": 58
+        },
+        {
+          "caller": "_showLoading",
+          "callee": "document.createElement",
+          "lineNumber": 60
+        },
+        {
+          "caller": "_showLoading",
+          "callee": "el.appendChild",
+          "lineNumber": 62
+        },
+        {
+          "caller": "_hideLoading",
+          "callee": "el.querySelector",
+          "lineNumber": 68
+        },
+        {
+          "caller": "_hideLoading",
+          "callee": "loading.remove",
+          "lineNumber": 69
+        },
+        {
+          "caller": "_getContainer",
+          "callee": "this.outlet.querySelector",
+          "lineNumber": 72
+        },
+        {
+          "caller": "_getContainers",
+          "callee": "this.outlet.querySelectorAll",
+          "lineNumber": 75
+        },
+        {
+          "caller": "_active",
+          "callee": "this._getContainers",
+          "lineNumber": 78
+        },
+        {
+          "caller": "_active",
+          "callee": "views.forEach",
+          "lineNumber": 79
+        },
+        {
+          "caller": "_active",
+          "callee": "view.classList.remove",
+          "lineNumber": 80
+        },
+        {
+          "caller": "_active",
+          "callee": "this.container.classList.add",
+          "lineNumber": 82
+        },
+        {
+          "caller": "abort",
+          "callee": "this.container.remove",
+          "lineNumber": 86
+        },
+        {
+          "caller": "resolve",
+          "callee": "Object.keys",
+          "lineNumber": 93
+        },
+        {
+          "caller": "resolve",
+          "callee": "this.container.setAttribute",
+          "lineNumber": 95
+        },
+        {
+          "caller": "resolve",
+          "callee": "this.container.setAttribute",
+          "lineNumber": 101
+        },
+        {
+          "caller": "resolve",
+          "callee": "cssVars.join",
+          "lineNumber": 101
+        },
+        {
+          "caller": "resolve",
+          "callee": "this.container.appendChild",
+          "lineNumber": 109
+        },
+        {
+          "caller": "reject",
+          "callee": "this.container.appendChild",
+          "lineNumber": 124
+        },
+        {
+          "caller": "finally",
+          "callee": "this._hideLoading",
+          "lineNumber": 127
+        }
+      ],
       "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
+        "importCount": 1,
+        "exportCount": 1,
         "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
+        "classCount": 1
       }
     },
     {
-      "path": ".claude/commands/gsd/session-report.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 19,
-      "nonEmptyLines": 17,
+      "path": "src/features/render.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 357,
+      "nonEmptyLines": 338,
+      "classes": [
+        {
+          "name": "Render",
+          "startLine": 29,
+          "endLine": 357,
+          "methods": [
+            "_loadSignal",
+            "_loadView",
+            "_loadData",
+            "_routeReject",
+            "_getCommonRouteIndex",
+            "_getRootOutlet",
+            "_renderRoutes",
+            "_runBeforeRender",
+            "_runAfterRender",
+            "_getErrorPage",
+            "_findOutlet",
+            "_ensureDefaultOutlet"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Render",
+          "line": 29,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "_loadSignal",
+          "callee": "signal",
+          "lineNumber": 36
+        },
+        {
+          "caller": "_loadView",
+          "callee": "this._loadSignal",
+          "lineNumber": 46
+        },
+        {
+          "caller": "_loadData",
+          "callee": "this._loadSignal",
+          "lineNumber": 50
+        },
+        {
+          "caller": "_routeReject",
+          "callee": "this.hooks.runRouteError",
+          "lineNumber": 58
+        },
+        {
+          "caller": "_routeReject",
+          "callee": "viewContainer.reject",
+          "lineNumber": 62
+        },
+        {
+          "caller": "_routeReject",
+          "callee": "this._getErrorPage",
+          "lineNumber": 62
+        },
+        {
+          "caller": "_getCommonRouteIndex",
+          "callee": "Math.min",
+          "lineNumber": 73
+        },
+        {
+          "caller": "_getCommonRouteIndex",
+          "callee": "this.logger.debug",
+          "lineNumber": 81
+        },
+        {
+          "caller": "_getRootOutlet",
+          "callee": "findOutlet",
+          "lineNumber": 85
+        },
+        {
+          "caller": "_getRootOutlet",
+          "callee": "document.createElement",
+          "lineNumber": 87
+        },
+        {
+          "caller": "_getRootOutlet",
+          "callee": "this.host.appendChild",
+          "lineNumber": 88
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "this._currentRenderAbortController.abort",
+          "lineNumber": 104
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "this._getRootOutlet",
+          "lineNumber": 112
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "this.logger.debug",
+          "lineNumber": 115
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "this._getCommonRouteIndex",
+          "lineNumber": 122
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "this.logger.debug",
+          "lineNumber": 125
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "this.logger.debug",
+          "lineNumber": 138
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "pendingViewContainer.abort",
+          "lineNumber": 141
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "this._getRootOutlet",
+          "lineNumber": 151
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "currentOutlet.findOutlet",
+          "lineNumber": 151
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "currentOutlet.getViewContainer",
+          "lineNumber": 165
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "currentOutlet.findOutlet",
+          "lineNumber": 172
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "this.logger.error",
+          "lineNumber": 180
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "currentOutlet.createViewContainer",
+          "lineNumber": 190
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "this._loadData",
+          "lineNumber": 199
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "this._loadView",
+          "lineNumber": 200
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "this.logger.debug",
+          "lineNumber": 201
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "this._routeReject",
+          "lineNumber": 208
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "this._runBeforeRender",
+          "lineNumber": 211
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "viewContainer?.resolve",
+          "lineNumber": 217
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "this._runAfterRender",
+          "lineNumber": 218
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "this.logger.error",
+          "lineNumber": 226
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "this._routeReject",
+          "lineNumber": 227
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "viewContainer.finally",
+          "lineNumber": 231
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "Alpine.initTree",
+          "lineNumber": 232
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "this.logger.error",
+          "lineNumber": 239
+        },
+        {
+          "caller": "_renderRoutes",
+          "callee": "Alpine.initTree",
+          "lineNumber": 247
+        },
+        {
+          "caller": "_runBeforeRender",
+          "callee": "this.hooks.runBeforeRender",
+          "lineNumber": 269
+        },
+        {
+          "caller": "_runBeforeRender",
+          "callee": "this.logger.error",
+          "lineNumber": 276
+        },
+        {
+          "caller": "_runAfterRender",
+          "callee": "this.hooks\r\n            .runAfterRender({\r\n                from,\r\n                to,\r\n                el,\r\n            })\r\n            .catch",
+          "lineNumber": 292
+        },
+        {
+          "caller": "_runAfterRender",
+          "callee": "this.hooks\r\n            .runAfterRender",
+          "lineNumber": 292
+        },
+        {
+          "caller": "_runAfterRender",
+          "callee": "this.logger.error",
+          "lineNumber": 299
+        },
+        {
+          "caller": "_getErrorPage",
+          "callee": "String",
+          "lineNumber": 314
+        },
+        {
+          "caller": "_getErrorPage",
+          "callee": "errorHandler",
+          "lineNumber": 322
+        },
+        {
+          "caller": "_getErrorPage",
+          "callee": "this.logger.error",
+          "lineNumber": 327
+        },
+        {
+          "caller": "_getErrorPage",
+          "callee": "fallbackHandler",
+          "lineNumber": 330
+        },
+        {
+          "caller": "_findOutlet",
+          "callee": "findOutlet",
+          "lineNumber": 341
+        },
+        {
+          "caller": "_ensureDefaultOutlet",
+          "callee": "findOutlet",
+          "lineNumber": 350
+        },
+        {
+          "caller": "_ensureDefaultOutlet",
+          "callee": "document.createElement",
+          "lineNumber": 354
+        },
+        {
+          "caller": "_ensureDefaultOutlet",
+          "callee": "this.host.appendChild",
+          "lineNumber": 355
+        }
+      ],
       "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
+        "importCount": 6,
+        "exportCount": 1,
         "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
+        "classCount": 1
       }
     },
     {
-      "path": ".claude/commands/gsd/set-profile.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 12,
-      "nonEmptyLines": 10,
+      "path": "src/utils/findOutlet.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 51,
+      "nonEmptyLines": 44,
+      "functions": [
+        {
+          "name": "hasOutletAncestor",
+          "startLine": 6,
+          "endLine": 16,
+          "params": [
+            "el",
+            "root"
+          ]
+        },
+        {
+          "name": "findOutlet",
+          "startLine": 24,
+          "endLine": 51,
+          "params": [
+            "el"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "findOutlet",
+          "line": 24,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "findOutlet",
+          "callee": "queue.shift",
+          "lineNumber": 32
+        },
+        {
+          "caller": "findOutlet",
+          "callee": "hasOutletAncestor",
+          "lineNumber": 37
+        },
+        {
+          "caller": "findOutlet",
+          "callee": "result.push",
+          "lineNumber": 42
+        },
+        {
+          "caller": "findOutlet",
+          "callee": "queue.push",
+          "lineNumber": 45
+        }
+      ],
       "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
-      }
-    },
-    {
-      "path": ".claude/commands/gsd/settings.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 36,
-      "nonEmptyLines": 31,
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
-      }
-    },
-    {
-      "path": ".claude/commands/gsd/ship.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 23,
-      "nonEmptyLines": 20,
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
-      }
-    },
-    {
-      "path": ".claude/commands/gsd/stats.md",
-      "language": "markdown",
-      "fileCategory": "docs",
-      "totalLines": 18,
-      "nonEmptyLines": 16,
-      "metrics": {
-        "importCount": 0,
-        "exportCount": 0,
-        "functionCount": 0,
-        "classCount": 0,
-        "sectionCount": 0
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
       }
     }
   ]

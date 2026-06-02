@@ -1,243 +1,467 @@
 {
   "nodes": [
     {
-      "id": "document:.claude/commands/gsd/plan-phase.md",
-      "type": "document",
-      "name": "plan-phase.md",
-      "filePath": ".claude/commands/gsd/plan-phase.md",
-      "summary": "GSD 阶段规划命令 - 创建详细的阶段执行计划（PLAN.md），集成研究和验证流程",
-      "tags": ["documentation", "gsd命令", "阶段规划", "工作流编排"],
+      "id": "file:src/components/outlet/base.layout.ts",
+      "type": "file",
+      "name": "base.layout.ts",
+      "filePath": "src/components/outlet/base.layout.ts",
+      "summary": "Abstract base class for outlet layout strategies that defines the common interface and lifecycle methods for layout implementations.",
+      "tags": ["base-class", "layout-strategy", "interface"],
+      "complexity": "simple",
+      "languageNotes": "Provides polymorphic interface for different layout behaviors without coupling to specific rendering logic."
+    },
+    {
+      "id": "file:src/components/outlet/collapse.layout.ts",
+      "type": "file",
+      "name": "collapse.layout.ts",
+      "filePath": "src/components/outlet/collapse.layout.ts",
+      "summary": "Implements collapsible accordion-style layout for outlets with expand/collapse functionality, expanded state management, and click handlers.",
+      "tags": ["layout-implementation", "accordion", "state-management", "ui-component"],
       "complexity": "moderate",
-      "languageNotes": "GSD 工作流系统的核心规划命令，支持多种参数模式和子代理协调"
+      "languageNotes": "Uses Set for tracking expanded state IDs and provides public API for expand/collapse operations."
     },
     {
-      "id": "document:.claude/commands/gsd/plant-seed.md",
-      "type": "document",
-      "name": "plant-seed.md",
-      "filePath": ".claude/commands/gsd/plant-seed.md",
-      "summary": "GSD 种子捕获命令 - 记录前瞻性想法和潜在功能到待办事项清单",
-      "tags": ["documentation", "gsd命令", "想法捕获", "待办事项"],
-      "complexity": "simple"
-    },
-    {
-      "id": "document:.claude/commands/gsd/pr-branch.md",
-      "type": "document",
-      "name": "pr-branch.md",
-      "filePath": ".claude/commands/gsd/pr-branch.md",
-      "summary": "GSD PR 分支命令 - 创建干净的 Pull Request 分支用于代码审查和合并",
-      "tags": ["documentation", "gsd命令", "git工作流", "分支管理"],
-      "complexity": "simple"
-    },
-    {
-      "id": "document:.claude/commands/gsd/progress.md",
-      "type": "document",
-      "name": "progress.md",
-      "filePath": ".claude/commands/gsd/progress.md",
-      "summary": "GSD 进度检查命令 - 显示项目进度、阶段状态和完成统计",
-      "tags": ["documentation", "gsd命令", "进度跟踪", "状态报告"],
-      "complexity": "simple"
-    },
-    {
-      "id": "document:.claude/commands/gsd/profile-user.md",
-      "type": "document",
-      "name": "profile-user.md",
-      "filePath": ".claude/commands/gsd/profile-user.md",
-      "summary": "GSD 用户画像命令 - 生成开发者行为分析和偏好配置文件",
-      "tags": ["documentation", "gsd命令", "用户画像", "行为分析"],
+      "id": "class:src/components/outlet/collapse.layout.ts:CollapseLayout",
+      "type": "class",
+      "name": "CollapseLayout",
+      "filePath": "src/components/outlet/collapse.layout.ts",
+      "lineRange": [11, 183],
+      "summary": "Layout strategy that manages collapsible views with accordion-style behavior, tracking expanded states and handling user interactions.",
+      "tags": ["layout-strategy", "state-management", "ui-logic"],
       "complexity": "moderate"
     },
     {
-      "id": "document:.claude/commands/gsd/quick.md",
-      "type": "document",
-      "name": "quick.md",
-      "filePath": ".claude/commands/gsd/quick.md",
-      "summary": "GSD 快速任务命令 - 以 GSD 工作流执行小型快速任务",
-      "tags": ["documentation", "gsd命令", "快速任务", "工作流"],
-      "complexity": "moderate"
-    },
-    {
-      "id": "document:.claude/commands/gsd/reapply-patches.md",
-      "type": "document",
-      "name": "reapply-patches.md",
-      "filePath": ".claude/commands/gsd/reapply-patches.md",
-      "summary": "GSD 补丁重应用命令 - GSD 更新后将本地修改重新合并到新版本，支持三向比较和冲突解决",
-      "tags": ["documentation", "gsd命令", "补丁管理", "版本更新", "冲突解决"],
+      "id": "file:src/components/outlet/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "src/components/outlet/index.ts",
+      "summary": "Core outlet component that manages route rendering, view containers, layout strategies, and provides the primary API for displaying route content in the DOM.",
+      "tags": ["component", "outlet", "route-rendering", "layout-manager", "view-container"],
       "complexity": "complex",
-      "languageNotes": "复杂的三向合并工作流，处理 Git 历史、基线快照和增强的两向回退逻辑"
+      "languageNotes": "Uses reactive properties and layout pattern switching with mutation observers for dynamic slot content."
     },
     {
-      "id": "document:.claude/commands/gsd/remove-phase.md",
-      "type": "document",
-      "name": "remove-phase.md",
-      "filePath": ".claude/commands/gsd/remove-phase.md",
-      "summary": "GSD 阶段移除命令 - 从路线图中删除未来阶段",
-      "tags": ["documentation", "gsd命令", "阶段管理", "路线图"],
+      "id": "class:src/components/outlet/index.ts:KylinOutlet",
+      "type": "class",
+      "name": "KylinOutlet",
+      "filePath": "src/components/outlet/index.ts",
+      "lineRange": [14, 349],
+      "summary": "Main outlet component that renders route content using configurable layout strategies, manages view containers, and handles Alpine.js integration.",
+      "tags": ["component", "outlet", "route-rendering", "layout-manager"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/components/outlet/stack.layout.ts",
+      "type": "file",
+      "name": "stack.layout.ts",
+      "filePath": "src/components/outlet/stack.layout.ts",
+      "summary": "Implements simple stack layout where all views are stacked vertically without special positioning or visibility management.",
+      "tags": ["layout-implementation", "stack", "simple-layout"],
       "complexity": "simple"
     },
     {
-      "id": "document:.claude/commands/gsd/remove-workspace.md",
-      "type": "document",
-      "name": "remove-workspace.md",
-      "filePath": ".claude/commands/gsd/remove-workspace.md",
-      "summary": "GSD 工作空间移除命令 - 删除 GSD 工作空间及其所有阶段数据",
-      "tags": ["documentation", "gsd命令", "工作空间管理", "清理"],
+      "id": "class:src/components/outlet/stack.layout.ts:StackLayout",
+      "type": "class",
+      "name": "StackLayout",
+      "filePath": "src/components/outlet/stack.layout.ts",
+      "lineRange": [9, 40],
+      "summary": "Minimal layout strategy that provides no-op implementations for layout lifecycle methods, resulting in default stacked rendering.",
+      "tags": ["layout-strategy", "minimal", "no-op"],
       "complexity": "simple"
     },
     {
-      "id": "document:.claude/commands/gsd/research-phase.md",
-      "type": "document",
-      "name": "research-phase.md",
-      "filePath": ".claude/commands/gsd/research-phase.md",
-      "summary": "GSD 阶段研究命令 - 独立研究阶段实现方案，生成技术调研文档（RESEARCH.md）",
-      "tags": ["documentation", "gsd命令", "技术调研", "子代理协调"],
+      "id": "file:src/components/outlet/styles.ts",
+      "type": "file",
+      "name": "styles.ts",
+      "filePath": "src/components/outlet/styles.ts",
+      "summary": "Exports common CSS styles and layout-specific styles for outlet components, providing consistent visual styling across different layout modes.",
+      "tags": ["styles", "css", "layout-styling"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/outlet/tabs.layout.ts",
+      "type": "file",
+      "name": "tabs.layout.ts",
+      "filePath": "src/components/outlet/tabs.layout.ts",
+      "summary": "Implements tabbed navigation layout with dynamic tab header generation, active state synchronization, and URL-based tab labels.",
+      "tags": ["layout-implementation", "tabs", "navigation", "active-state"],
       "complexity": "moderate",
-      "languageNotes": "使用 gsd-phase-researcher 子代理进行深度技术调研，支持检查点和继续模式"
+      "languageNotes": "Uses MutationObserver for active state changes and dynamically creates tab navigation elements."
     },
     {
-      "id": "document:.claude/commands/gsd/resume-work.md",
-      "type": "document",
-      "name": "resume-work.md",
-      "filePath": ".claude/commands/gsd/resume-work.md",
-      "summary": "GSD 工作恢复命令 - 从之前的会话恢复工作上下文",
-      "tags": ["documentation", "gsd命令", "会话恢复", "上下文管理"],
+      "id": "class:src/components/outlet/tabs.layout.ts:TabsLayout",
+      "type": "class",
+      "name": "TabsLayout",
+      "filePath": "src/components/outlet/tabs.layout.ts",
+      "lineRange": [11, 261],
+      "summary": "Layout strategy that creates tabbed navigation interface with synchronized active states and URL-based labeling for each view.",
+      "tags": ["layout-strategy", "tabs", "navigation", "synchronization"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/components/outlet/viewContainer.ts",
+      "type": "file",
+      "name": "viewContainer.ts",
+      "filePath": "src/components/outlet/viewContainer.ts",
+      "summary": "Manages individual view containers within outlets, providing lifecycle control, loading states, and content resolution/rejection with Alpine.js support.",
+      "tags": ["view-management", "container", "lifecycle", "loading-state"],
+      "complexity": "moderate",
+      "languageNotes": "Implements Promise-like interface with resolve/reject/finally methods for view rendering."
+    },
+    {
+      "id": "class:src/components/outlet/viewContainer.ts:ViewContainer",
+      "type": "class",
+      "name": "ViewContainer",
+      "filePath": "src/components/outlet/viewContainer.ts",
+      "lineRange": [8, 129],
+      "summary": "Encapsulates view rendering logic with loading states, content resolution, and container lifecycle management for individual route views.",
+      "tags": ["view-container", "lifecycle", "loading-state", "promise-like"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/features/render.ts",
+      "type": "file",
+      "name": "render.ts",
+      "filePath": "src/features/render.ts",
+      "summary": "Core rendering feature that orchestrates route rendering, view loading, data fetching, and lifecycle hooks for the KylinRouter, with error handling and Alpine.js integration.",
+      "tags": ["feature", "rendering", "route-processing", "lifecycle-hooks"],
+      "complexity": "complex",
+      "languageNotes": "Implements complex rendering pipeline with abort controllers, hook execution, and error page resolution."
+    },
+    {
+      "id": "class:src/features/render.ts:Render",
+      "type": "class",
+      "name": "Render",
+      "filePath": "src/features/render.ts",
+      "lineRange": [29, 357],
+      "summary": "Mixin class that provides comprehensive route rendering capabilities including view loading, data fetching, lifecycle hooks, and error handling.",
+      "tags": ["mixin", "rendering", "route-processing", "lifecycle"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/utils/findOutlet.ts",
+      "type": "file",
+      "name": "findOutlet.ts",
+      "filePath": "src/utils/findOutlet.ts",
+      "summary": "Utility functions for finding outlet components in the DOM tree using breadth-first search with ancestor checking to prevent redundant traversal.",
+      "tags": ["utility", "dom-traversal", "outlet-finding", "algorithm"],
       "complexity": "simple"
     },
     {
-      "id": "document:.claude/commands/gsd/review-backlog.md",
-      "type": "document",
-      "name": "review-backlog.md",
-      "filePath": ".claude/commands/gsd/review-backlog.md",
-      "summary": "GSD 待办事项审查命令 - 审查待办事项清单并提升为正式阶段",
-      "tags": ["documentation", "gsd命令", "待办事项审查", "路线图规划"],
+      "id": "function:src/utils/findOutlet.ts:hasOutletAncestor",
+      "type": "function",
+      "name": "hasOutletAncestor",
+      "filePath": "src/utils/findOutlet.ts",
+      "lineRange": [6, 16],
+      "summary": "Checks if an element has an outlet ancestor to optimize outlet searching and avoid redundant traversal of already-explored DOM branches.",
+      "tags": ["utility", "dom-traversal", "optimization"],
       "complexity": "simple"
     },
     {
-      "id": "document:.claude/commands/gsd/review.md",
-      "type": "document",
-      "name": "review.md",
-      "filePath": ".claude/commands/gsd/review.md",
-      "summary": "GSD 代码审查命令 - 请求跨 AI 同行审查代码变更",
-      "tags": ["documentation", "gsd命令", "代码审查", "质量保证"],
-      "complexity": "simple"
-    },
-    {
-      "id": "document:.claude/commands/gsd/secure-phase.md",
-      "type": "document",
-      "name": "secure-phase.md",
-      "filePath": ".claude/commands/gsd/secure-phase.md",
-      "summary": "GSD 安全阶段命令 - 回溯性验证阶段的安全威胁和防护措施",
-      "tags": ["documentation", "gsd命令", "安全审计", "威胁建模"],
-      "complexity": "simple"
-    },
-    {
-      "id": "document:.claude/commands/gsd/session-report.md",
-      "type": "document",
-      "name": "session-report.md",
-      "filePath": ".claude/commands/gsd/session-report.md",
-      "summary": "GSD 会话报告命令 - 生成会话报告和上下文摘要",
-      "tags": ["documentation", "gsd命令", "会话报告", "上下文摘要"],
-      "complexity": "simple"
-    },
-    {
-      "id": "document:.claude/commands/gsd/set-profile.md",
-      "type": "document",
-      "name": "set-profile.md",
-      "filePath": ".claude/commands/gsd/set-profile.md",
-      "summary": "GSD 配置切换命令 - 为 GSD 工作流切换模型配置文件",
-      "tags": ["documentation", "gsd命令", "配置管理", "模型切换"],
-      "complexity": "simple"
-    },
-    {
-      "id": "document:.claude/commands/gsd/settings.md",
-      "type": "document",
-      "name": "settings.md",
-      "filePath": ".claude/commands/gsd/settings.md",
-      "summary": "GSD 设置命令 - 配置 GSD 工作流开关和选项",
-      "tags": ["documentation", "gsd命令", "配置", "工作流设置"],
-      "complexity": "simple"
-    },
-    {
-      "id": "document:.claude/commands/gsd/ship.md",
-      "type": "document",
-      "name": "ship.md",
-      "filePath": ".claude/commands/gsd/ship.md",
-      "summary": "GSD 发布命令 - 创建 PR、运行审查并完成发布流程",
-      "tags": ["documentation", "gsd命令", "发布", "pr工作流"],
-      "complexity": "simple"
-    },
-    {
-      "id": "document:.claude/commands/gsd/stats.md",
-      "type": "document",
-      "name": "stats.md",
-      "filePath": ".claude/commands/gsd/stats.md",
-      "summary": "GSD 统计命令 - 显示项目统计数据和指标",
-      "tags": ["documentation", "gsd命令", "统计数据", "项目指标"],
+      "id": "function:src/utils/findOutlet.ts:findOutlet",
+      "type": "function",
+      "name": "findOutlet",
+      "filePath": "src/utils/findOutlet.ts",
+      "lineRange": [24, 51],
+      "summary": "Performs breadth-first search to find all outlet components in the DOM tree, using ancestor checking to optimize traversal and avoid cycles.",
+      "tags": ["utility", "dom-traversal", "outlet-discovery", "breadth-first-search"],
       "complexity": "simple"
     }
   ],
   "edges": [
     {
-      "source": "document:.claude/commands/gsd/plan-phase.md",
-      "target": "document:.claude/commands/gsd/research-phase.md",
-      "type": "depends_on",
+      "source": "file:src/components/outlet/base.layout.ts",
+      "target": "file:src/components/outlet/index.ts",
+      "type": "imports",
       "direction": "forward",
-      "weight": 0.6
+      "weight": 0.7
     },
     {
-      "source": "document:.claude/commands/gsd/reapply-patches.md",
-      "target": "document:.claude/commands/gsd/settings.md",
-      "type": "related",
+      "source": "file:src/components/outlet/collapse.layout.ts",
+      "target": "file:src/components/outlet/base.layout.ts",
+      "type": "imports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.7
     },
     {
-      "source": "document:.claude/commands/gsd/research-phase.md",
-      "target": "document:.claude/commands/gsd/plan-phase.md",
-      "type": "related",
+      "source": "file:src/components/outlet/collapse.layout.ts",
+      "target": "file:src/components/outlet/index.ts",
+      "type": "imports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.7
     },
     {
-      "source": "document:.claude/commands/gsd/review.md",
-      "target": "document:.claude/commands/gsd/ship.md",
-      "type": "related",
+      "source": "file:src/components/outlet/collapse.layout.ts",
+      "target": "class:src/components/outlet/collapse.layout.ts:CollapseLayout",
+      "type": "contains",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 1.0
     },
     {
-      "source": "document:.claude/commands/gsd/pr-branch.md",
-      "target": "document:.claude/commands/gsd/ship.md",
-      "type": "related",
+      "source": "file:src/components/outlet/collapse.layout.ts",
+      "target": "class:src/components/outlet/collapse.layout.ts:CollapseLayout",
+      "type": "exports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.8
     },
     {
-      "source": "document:.claude/commands/gsd/plant-seed.md",
-      "target": "document:.claude/commands/gsd/review-backlog.md",
-      "type": "related",
+      "source": "file:src/components/outlet/index.ts",
+      "target": "file:src/components/base/index.ts",
+      "type": "imports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.7
     },
     {
-      "source": "document:.claude/commands/gsd/quick.md",
-      "target": "document:.claude/commands/gsd/plan-phase.md",
-      "type": "related",
+      "source": "file:src/components/outlet/index.ts",
+      "target": "file:src/components/outlet/base.layout.ts",
+      "type": "imports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.7
     },
     {
-      "source": "document:.claude/commands/gsd/progress.md",
-      "target": "document:.claude/commands/gsd/stats.md",
-      "type": "related",
+      "source": "file:src/components/outlet/index.ts",
+      "target": "file:src/components/outlet/collapse.layout.ts",
+      "type": "imports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.7
     },
     {
-      "source": "document:.claude/commands/gsd/remove-phase.md",
-      "target": "document:.claude/commands/gsd/remove-workspace.md",
-      "type": "related",
+      "source": "file:src/components/outlet/index.ts",
+      "target": "file:src/components/outlet/stack.layout.ts",
+      "type": "imports",
       "direction": "forward",
-      "weight": 0.5
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/outlet/index.ts",
+      "target": "file:src/components/outlet/styles.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/outlet/index.ts",
+      "target": "file:src/components/outlet/tabs.layout.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/outlet/index.ts",
+      "target": "file:src/components/outlet/viewContainer.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/outlet/index.ts",
+      "target": "file:src/types/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/outlet/index.ts",
+      "target": "file:src/utils/findOutlet.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/outlet/index.ts",
+      "target": "class:src/components/outlet/index.ts:KylinOutlet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/outlet/index.ts",
+      "target": "class:src/components/outlet/index.ts:KylinOutlet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:src/components/outlet/index.ts:KylinOutlet",
+      "target": "function:src/utils/findOutlet.ts:findOutlet",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/outlet/stack.layout.ts",
+      "target": "file:src/components/outlet/base.layout.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/outlet/stack.layout.ts",
+      "target": "file:src/components/outlet/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/outlet/stack.layout.ts",
+      "target": "class:src/components/outlet/stack.layout.ts:StackLayout",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/outlet/stack.layout.ts",
+      "target": "class:src/components/outlet/stack.layout.ts:StackLayout",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/outlet/tabs.layout.ts",
+      "target": "file:src/components/outlet/base.layout.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/outlet/tabs.layout.ts",
+      "target": "file:src/components/outlet/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/outlet/tabs.layout.ts",
+      "target": "class:src/components/outlet/tabs.layout.ts:TabsLayout",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/outlet/tabs.layout.ts",
+      "target": "class:src/components/outlet/tabs.layout.ts:TabsLayout",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/outlet/viewContainer.ts",
+      "target": "class:src/components/outlet/viewContainer.ts:ViewContainer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/outlet/viewContainer.ts",
+      "target": "class:src/components/outlet/viewContainer.ts:ViewContainer",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/features/render.ts",
+      "target": "file:src/components/outlet/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/render.ts",
+      "target": "file:src/components/outlet/viewContainer.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/render.ts",
+      "target": "file:src/errors.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/render.ts",
+      "target": "file:src/router.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/render.ts",
+      "target": "file:src/types/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/render.ts",
+      "target": "file:src/utils/findOutlet.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/render.ts",
+      "target": "class:src/features/render.ts:Render",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/features/render.ts",
+      "target": "class:src/features/render.ts:Render",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:src/features/render.ts:Render",
+      "target": "function:src/utils/findOutlet.ts:findOutlet",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:src/features/render.ts:Render",
+      "target": "file:src/components/outlet/index.ts",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/utils/findOutlet.ts",
+      "target": "file:src/components/outlet/index.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/utils/findOutlet.ts",
+      "target": "function:src/utils/findOutlet.ts:hasOutletAncestor",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/findOutlet.ts",
+      "target": "function:src/utils/findOutlet.ts:findOutlet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/utils/findOutlet.ts",
+      "target": "function:src/utils/findOutlet.ts:findOutlet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/utils/findOutlet.ts:findOutlet",
+      "target": "function:src/utils/findOutlet.ts:hasOutletAncestor",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
     }
   ]
 }

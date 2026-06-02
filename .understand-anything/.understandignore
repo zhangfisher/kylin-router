@@ -1,1 +1,11 @@
 __tests__/
+example/
+node_modules/
+.vscode/
+docs/
+.claude/
+dist/
+.codegraph/
+.spec-workflow/
+.trae/
+.planning/
