@@ -180,10 +180,8 @@ export abstract class RouteDataLoaderBase<
     /**
      * 并发加载多个路由
      */
-    public async loadRoutes(routes: KylinMatchedRouteItem[]): Promise<void> {
-        for (const matched of routes) {
-            this.loadRoute(matched);
-        }
+    public loadRoutes(routes: KylinMatchedRouteItem[]) {
+        Promise.allSettled(routes.map((matched) => this.loadRoute(matched)));
     }
 
     private _createErrorSignal(matched: KylinMatchedRouteItem, error: any) {
@@ -194,39 +192,28 @@ export abstract class RouteDataLoaderBase<
     /**
      * 加载单个路由
      */
-    protected loadRoute(matched: KylinMatchedRouteItem): void {
+    protected async loadRoute(matched: KylinMatchedRouteItem) {
         // @ts-ignore
         if (!matched.route[this._optionKey]) return;
-
         const options = this.getRouteOptions(matched);
-
-        let source: any;
         try {
-            source = this.getSource(matched, options);
+            const source = await this.getSource(matched, options);
             if (!source) return;
+            const cacheItem = this.getRouteCache(matched);
+
+            // 2. 缓存优先策略
+            if (this.tryUseCache(matched, cacheItem, options)) {
+                return;
+            }
+
+            // 3. 如果有正在加载的信号，则中断
+            this.abortPendingLoad(matched);
+
+            // 4. 执行加载
+            this.startLoad(matched, source, options);
         } catch (e: any) {
             this._createErrorSignal(matched, e);
-            return;
         }
-
-        // 检查 source 是否是错误对象
-        if (source instanceof Error) {
-            this._createErrorSignal(matched, source);
-            return;
-        }
-
-        const cacheItem = this.getRouteCache(matched);
-
-        // 2. 缓存优先策略
-        if (this.tryUseCache(matched, cacheItem, options)) {
-            return;
-        }
-
-        // 3. 如果有正在加载的信号，则中断
-        this.abortPendingLoad(matched);
-
-        // 4. 执行加载
-        this.startLoad(matched, source, options);
     }
 
     /**
@@ -329,21 +316,16 @@ export abstract class RouteDataLoaderBase<
      * @param options - 数据加载配置选项，包含 from 属性指定数据源
      * @returns 返回静态数据或函数执行结果
      */
-    protected getSource(
+    protected async getSource(
         matched: KylinMatchedRouteItem,
         options: TOptions,
-    ): string | TData | undefined {
+    ): Promise<string | TData | undefined> {
         const source = options.from;
-        try {
-            return typeof source === "function"
-                ? (source as any)(matched)
-                : typeof source === "boolean"
-                  ? this.getAutoUrl(matched, source)
-                  : source;
-        } catch (error) {
-            // 返回错误对象以便在 loadRoute 中处理
-            return error as any;
-        }
+        return typeof source === "function"
+            ? await (source as any)(matched)
+            : typeof source === "boolean"
+              ? this.getAutoUrl(matched, source)
+              : source;
     }
 
     protected getAutoUrl(_matched: KylinMatchedRouteItem, _source: boolean): string | undefined {
@@ -445,7 +427,11 @@ export abstract class RouteDataLoaderBase<
                 () => [matched.id, this.loadType, signal.meta.url],
                 error,
             );
-            signal.reject(error);
+            try {
+                signal.reject(error);
+            } catch (e) {
+                console.log(e);
+            }
         }
     }
 

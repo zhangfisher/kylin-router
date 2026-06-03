@@ -5,7 +5,6 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, spyOn } from "bun:test";
-import { DataLoader } from "../features/dataLoader";
 import type { KylinRouter } from "../router";
 import type { KylinMatchedRouteItem } from "../types/routes";
 
@@ -13,6 +12,10 @@ import { setupTestEnvironment } from "./test-setup";
 
 // 初始化其他测试环境（window, document 等）
 setupTestEnvironment();
+
+// 动态导入 DataLoader，确保在 setupTestEnvironment 之后加载
+let DataLoaderModule: any;
+let DataLoader: any;
 
 // Mock logger
 const mockLogger = {
@@ -62,11 +65,17 @@ function createMockedRoute(path: string, data: any, id: number = 1): KylinMatche
 }
 
 describe("DataLoader", () => {
-    let dataLoader: DataLoader;
+    let dataLoader: any;
     let mockRouter: Partial<KylinRouter>;
     let mockFetch: any;
 
-    beforeEach(() => {
+    beforeEach(async () => {
+        // 动态导入 DataLoader，确保在 setupTestEnvironment 之后加载
+        if (!DataLoader) {
+            const module = await import("../features/dataLoader");
+            DataLoader = module.DataLoader;
+        }
+
         mockRouter = createMockRouter();
         dataLoader = new DataLoader(mockRouter as KylinRouter);
     });
