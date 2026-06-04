@@ -387,9 +387,7 @@ export type RedirectTarget = string | NamedRedirectTarget | RedirectResult;
  * @param route - 当前匹配的路由项
  * @returns 重定向目标或结果对象
  */
-export type RedirectFunction = (
-    route: KylinMatchedRouteItem,
-) => RedirectTarget | null;
+export type RedirectFunction = (route: KylinMatchedRouteItem) => RedirectTarget | null;
 
 // ============================================================================
 // 路由匹配相关类型定义
@@ -399,7 +397,7 @@ export type KylinMatchedRouteItem = {
     /** 匹配的路由配置 */
     route: KylinRouteItem | undefined;
     /** 提取的路径参数 */
-    params: Record<string, string>;
+    params: Record<string, string | number>;
     /** 提取的查询参数 */
     query: Record<string, string>;
     state: Record<string, any>;

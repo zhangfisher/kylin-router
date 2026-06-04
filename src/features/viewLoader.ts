@@ -57,12 +57,14 @@ export class ViewLoader extends RouteDataLoaderBase<"view", KylinRouteViewOption
      * @param html - 原始 HTML 字符串
      * @param options - 视图选项
      * @param signal - 异步信号
+     * @param matched - 匹配的路由项
      * @returns 提取后的内容
      */
     protected onHandleData(
         html: string,
         options: KylinRouteViewOptions,
         signal: IAsyncSignal,
+        _matched: KylinMatchedRouteItem,
     ): string {
         const { selector, allowUnsafe, scopedStyle } = options;
         let htmlResult: string = html;
@@ -85,7 +87,6 @@ export class ViewLoader extends RouteDataLoaderBase<"view", KylinRouteViewOption
             if (outletMatch) {
                 htmlResult = outletMatch[1];
             }
-            htmlResult = html;
         } catch (e: any) {
             this.router.logger.error(`视图内容提取失败: ${e.message}`);
         }

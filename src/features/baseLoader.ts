@@ -188,7 +188,12 @@ export abstract class RouteDataLoaderBase<
         const signal = this.createSignal(matched);
         this.onLoadError(matched, error, signal);
     }
-
+    private _createSuccessSignal(matched: KylinMatchedRouteItem, data: any, options: TOptions) {
+        const signal = this.createSignal(matched);
+        // 设置 hash，确保静态数据源也有 hash
+        signal.meta.hash = this._getHash(matched, options);
+        this.onLoadSuccess(matched, data, options, signal);
+    }
     /**
      * 加载单个路由
      */
@@ -197,25 +202,42 @@ export abstract class RouteDataLoaderBase<
         if (!matched.route[this._optionKey]) return;
         const options = this.getRouteOptions(matched);
         try {
-            const source = await this.getSource(matched, options);
-            if (!source) return;
-            const cacheItem = this.getRouteCache(matched);
-
-            // 2. 缓存优先策略
-            if (this.tryUseCache(matched, cacheItem, options)) {
+            // 1. 缓存优先策略 - 先检查缓存，避免不必要的数据源调用
+            if (this.tryUseCache(matched, options)) {
                 return;
             }
 
-            // 3. 如果有正在加载的信号，则中断
-            this.abortPendingLoad(matched);
+            const source = await this.getSource(matched, options);
+            if (!source) return;
 
-            // 4. 执行加载
+            // 3. 执行加载
             this.startLoad(matched, source, options);
         } catch (e: any) {
             this._createErrorSignal(matched, e);
         }
     }
 
+    private _handleData(
+        data: TData,
+        options: TOptions,
+        signal: IAsyncSignal,
+        matched: KylinMatchedRouteItem,
+    ) {
+        // 静态数据源也需要调用 onHandleData
+        const processedData = this.onHandleData(data, options, signal, matched);
+        // 如果 processedData 是 Promise，使用 then/catch 处理
+        if (processedData instanceof Promise) {
+            processedData
+                .then((result) => {
+                    this.onLoadSuccess(matched, result, options, signal);
+                })
+                .catch((e: any) => {
+                    this.onLoadError(matched, e, signal);
+                });
+        } else {
+            this.onLoadSuccess(matched, processedData, options, signal);
+        }
+    }
     /**
      * 执行加载
      */
@@ -269,17 +291,12 @@ export abstract class RouteDataLoaderBase<
     /**
      * 尝试使用缓存数据
      * @param matched - 匹配的路由项
-     * @param hash - 缓存键的哈希值
-     * @param cacheItem - 缓存项，可能为 undefined
      * @param options - 加载选项配置
      * @returns 是否成功使用缓存数据，true 表示使用缓存成功，false 表示需要重新加载
      */
-    private tryUseCache(
-        matched: KylinMatchedRouteItem,
-        cacheItem: CacheItem<TData> | undefined,
-        options: TOptions,
-    ): boolean {
+    private tryUseCache(matched: KylinMatchedRouteItem, options: TOptions): boolean {
         const hash = this._getHash(matched, options);
+        const cacheItem = this.cache.get(hash);
 
         if ((options.cache || 0) > 0 && cacheItem && !this._isCacheExpired(cacheItem, options)) {
             // 缓存命中时，创建新的 signal 并 resolve
@@ -293,15 +310,6 @@ export abstract class RouteDataLoaderBase<
         }
 
         return false;
-    }
-
-    /**
-     * 中止正在进行的加载
-     * 注意：由于 startLoad 会创建新的 signal 并自动 abort 旧的，
-     * 这个方法现在主要作为一个文档说明，保留接口兼容性
-     */
-    private abortPendingLoad(_matched: KylinMatchedRouteItem): void {
-        // createSignal 会自动 abort 旧的 signal，所以这里不需要额外操作
     }
 
     private _getHash(matched: KylinMatchedRouteItem, options: TOptions) {

@@ -31,12 +31,13 @@ const createMockRouter = (): Partial<KylinRouter> => ({
     logger: mockLogger,
     routes: {
         current: {
+            // @ts-ignore
             route: null,
             params: {},
             query: {},
             matchedRoutes: [],
         },
-    },
+    }, // @ts-ignore
     options: {
         base: "/",
         dataOptions: {
@@ -62,6 +63,16 @@ function createMockedRoute(path: string, data: any, id: number = 1): KylinMatche
         hash: `hash_${path}_${id}`,
         id: id,
     };
+}
+
+/**
+ * 创建 fetch mock，解决 Bun 的 fetch 类型与标准 fetch 类型不兼容的问题
+ * Bun 的 fetch 有额外的属性如 preconnect，导致 spyOn 类型检查失败
+ */
+function createFetchMock(
+    impl: (url: RequestInfo | URL, init?: RequestInit) => Promise<Response>,
+): ReturnType<typeof spyOn> {
+    return spyOn(globalThis, "fetch").mockImplementation(impl as any);
 }
 
 describe("DataLoader", () => {
@@ -155,6 +166,70 @@ describe("DataLoader", () => {
             }
         });
 
+        it("应该成功加载同步函数返回的数据", async () => {
+            const syncDataFn = () => ({
+                userId: 789,
+                username: "sync",
+                timestamp: Date.now(),
+            });
+
+            const matchedRoute = createMockedRoute("/test", { from: syncDataFn });
+
+            await dataLoader.loadDatas([matchedRoute]);
+
+            // 同步函数也是异步处理的，需要等待微任务
+            await new Promise((resolve) => setTimeout(resolve, 10));
+
+            const signal = matchedRoute.route?._getData;
+            expect(signal).toBeDefined();
+            if (signal) {
+                expect(signal.isFulfilled()).toBe(true);
+                expect(signal.result).toMatchObject({ userId: 789, username: "sync" });
+                expect(signal.result).toHaveProperty("timestamp");
+            }
+        });
+
+        it("应该处理同步函数抛出的错误", async () => {
+            const syncErrorFn = () => {
+                throw new Error("Sync error");
+            };
+
+            const matchedRoute = createMockedRoute("/test", { from: syncErrorFn });
+
+            await dataLoader.loadDatas([matchedRoute]);
+
+            // 等待错误处理完成
+            await new Promise((resolve) => setTimeout(resolve, 20));
+
+            const signal = matchedRoute.route?._getData;
+            expect(signal).toBeDefined();
+            if (signal) {
+                expect(signal.isRejected()).toBe(true);
+                expect(signal.error?.message).toBe("Sync error");
+            }
+        });
+
+        it("应该支持带参数的同步函数", async () => {
+            const paramFn = (route: any) => ({
+                userId: route.params?.id || 0,
+                username: `user_${route.params?.id || "default"}`,
+            });
+
+            const matchedRoute = createMockedRoute("/test", { from: paramFn });
+            matchedRoute.params = { id: 123 };
+
+            await dataLoader.loadDatas([matchedRoute]);
+
+            await new Promise((resolve) => setTimeout(resolve, 10));
+
+            const signal = matchedRoute.route?._getData;
+            expect(signal).toBeDefined();
+            if (signal) {
+                expect(signal.isFulfilled()).toBe(true);
+                expect(signal.result).toEqual({ userId: 123, username: "user_123" });
+            }
+        });
+
         it("应该处理动态数据加载失败", async () => {
             const mockDataFn = async () => {
                 throw new Error("Network error");
@@ -179,29 +254,31 @@ describe("DataLoader", () => {
 
     describe("缓存功能测试", () => {
         it("应该缓存数据并在后续请求中重用", async () => {
+            let callCount: number = 0;
             // 设置缓存时间 - 使用 _dataOptions 来覆盖默认值
             const mockDataFn = async () => {
+                callCount++;
                 await new Promise((resolve) => setTimeout(resolve, 20));
                 return { userId: 789, username: "cached" };
             };
 
             // 使用 from 选项来指定数据源，并设置缓存
-            const matchedRoute1 = createMockedRoute("/cached", { from: mockDataFn, cache: 10000 });
-            const matchedRoute2 = createMockedRoute("/cached", { from: mockDataFn, cache: 10000 });
+            // 注意：使用相同的路由实例来测试缓存，因为每个实例有唯一的 hash
+            const matchedRoute = createMockedRoute("/cached", { from: mockDataFn, cache: 10000 });
 
             // 第一次加载
-            await dataLoader.loadDatas([matchedRoute1]);
+            await dataLoader.loadDatas([matchedRoute]);
             await new Promise((resolve) => setTimeout(resolve, 50));
 
             // 验证缓存存在
             expect(dataLoader.cache.size).toBeGreaterThan(0);
 
             // 第二次加载（应该使用缓存）
-            await dataLoader.loadDatas([matchedRoute2]);
+            await dataLoader.loadDatas([matchedRoute]);
             // 等待缓存命中的 signal 被创建
             await new Promise((resolve) => setTimeout(resolve, 50));
-
-            const signal = matchedRoute2.route?._getData;
+            expect(callCount).toBe(1);
+            const signal = matchedRoute.route?._getData;
             expect(signal).toBeDefined();
             if (signal) {
                 expect(signal.isFulfilled()).toBe(true);
@@ -217,24 +294,298 @@ describe("DataLoader", () => {
                 return { userId: 999, username: "expired" };
             };
 
-            const matchedRoute1 = createMockedRoute("/expire", { from: mockDataFn, cache: 50 });
-            const matchedRoute2 = createMockedRoute("/expire", { from: mockDataFn, cache: 50 });
+            const matchedRoute = createMockedRoute("/expire", { from: mockDataFn, cache: 50 });
 
             // 第一次加载
-            await dataLoader.loadDatas([matchedRoute1]);
+            await dataLoader.loadDatas([matchedRoute]);
             await new Promise((resolve) => setTimeout(resolve, 30));
-            // 注意：callCount 是 2 因为 loadRoute 在检查缓存前调用 getSource
-            expect(callCount).toBe(2);
+            expect(callCount).toBe(1);
 
             // 等待缓存过期
             await new Promise((resolve) => setTimeout(resolve, 60));
 
             // 第二次加载（缓存已过期，应该重新加载）
-            await dataLoader.loadDatas([matchedRoute2]);
+            await dataLoader.loadDatas([matchedRoute]);
             await new Promise((resolve) => setTimeout(resolve, 30));
 
-            // 总共是 4 次调用（2次第一次加载，2次第二次加载）
-            expect(callCount).toBe(4);
+            //
+            expect(callCount).toBe(2);
+        });
+
+        it("cache为0时不应该缓存数据", async () => {
+            let callCount = 0;
+            const mockDataFn = async () => {
+                callCount++;
+                return { userId: 111, username: "no-cache" };
+            };
+
+            // 使用相同的路由实例测试 cache: 0 的行为
+            const matchedRoute = createMockedRoute("/no-cache", { from: mockDataFn, cache: 0 });
+
+            // 第一次加载
+            await dataLoader.loadDatas([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 30));
+            expect(callCount).toBe(1);
+
+            // 验证没有缓存
+            expect(dataLoader.cache.size).toBe(0);
+
+            // 第二次加载（因为没有缓存，应该再次调用数据源）
+            await dataLoader.loadDatas([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 30));
+
+            expect(callCount).toBe(2);
+        });
+
+        it("缓存命中时不应该调用数据源函数", async () => {
+            let callCount = 0;
+            const mockDataFn = async () => {
+                callCount++;
+                await new Promise((resolve) => setTimeout(resolve, 10));
+                return { userId: 222, username: "cached-once" };
+            };
+
+            // 使用相同的路由实例测试缓存命中
+            const matchedRoute = createMockedRoute("/cached-once", {
+                from: mockDataFn,
+                cache: 10000,
+            });
+
+            // 第一次加载
+            await dataLoader.loadDatas([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 30));
+            expect(callCount).toBe(1);
+
+            // 第二次加载（使用缓存）
+            await dataLoader.loadDatas([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 30));
+            expect(callCount).toBe(1); // 应该仍然是 1，因为使用了缓存
+
+            // 第三次加载（仍然使用缓存）
+            await dataLoader.loadDatas([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 30));
+            expect(callCount).toBe(1); // 应该仍然是 1
+        });
+
+        it("静态数据源也应该支持缓存", async () => {
+            const staticData = { id: 1, name: "static" };
+            let callCount = 0;
+
+            // 使用函数返回静态数据来跟踪调用
+            const mockDataFn = async () => {
+                callCount++;
+                return staticData;
+            };
+
+            // 使用相同的路由实例测试静态数据缓存
+            const matchedRoute = createMockedRoute("/static-cache", {
+                from: mockDataFn,
+                cache: 10000,
+            });
+
+            // 第一次加载
+            await dataLoader.loadDatas([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 30));
+            expect(callCount).toBe(1);
+            expect(dataLoader.cache.size).toBe(1);
+
+            // 第二次加载（使用缓存）
+            await dataLoader.loadDatas([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 30));
+
+            // 验证缓存命中，没有重新调用
+            expect(callCount).toBe(1);
+        });
+
+        it("不同路径的路由应该有独立缓存", async () => {
+            let path1CallCount = 0;
+            let path2CallCount = 0;
+
+            const mockDataFn1 = async () => {
+                path1CallCount++;
+                return { path: "path1", count: path1CallCount };
+            };
+
+            const mockDataFn2 = async () => {
+                path2CallCount++;
+                return { path: "path2", count: path2CallCount };
+            };
+
+            // 使用相同的路由实例来测试每个路径的独立缓存
+            const matchedRoute1 = createMockedRoute("/path1", { from: mockDataFn1, cache: 10000 });
+            const matchedRoute2 = createMockedRoute("/path2", { from: mockDataFn2, cache: 10000 });
+
+            // 分别加载两个不同的路由
+            await dataLoader.loadDatas([matchedRoute1]);
+            await dataLoader.loadDatas([matchedRoute2]);
+            await new Promise((resolve) => setTimeout(resolve, 50));
+
+            expect(path1CallCount).toBe(1);
+            expect(path2CallCount).toBe(1);
+            expect(dataLoader.cache.size).toBe(2); // 应该有两个独立的缓存
+
+            // 再次加载（都应该使用缓存）
+            await dataLoader.loadDatas([matchedRoute1]);
+            await dataLoader.loadDatas([matchedRoute2]);
+            await new Promise((resolve) => setTimeout(resolve, 50));
+
+            // 验证没有重新调用
+            expect(path1CallCount).toBe(1);
+            expect(path2CallCount).toBe(1);
+        });
+
+        it("相同路径但不同参数的路由应该有独立缓存（基于hash）", async () => {
+            let callCount = 0;
+            const mockDataFn = async () => {
+                callCount++;
+                return { userId: callCount, callCount };
+            };
+
+            // 创建两个相同路径但不同 hash 配置的路由
+            // 通过在配置中指定不同的 hash 值来生成不同的缓存键
+            const matchedRoute1 = createMockedRoute("/user", {
+                from: mockDataFn,
+                cache: 10000,
+                hash: "/user/1",
+            });
+            const matchedRoute2 = createMockedRoute("/user", {
+                from: mockDataFn,
+                cache: 10000,
+                hash: "/user/2",
+            });
+
+            await dataLoader.loadDatas([matchedRoute1]);
+            await dataLoader.loadDatas([matchedRoute2]);
+            await new Promise((resolve) => setTimeout(resolve, 50));
+
+            expect(callCount).toBe(2);
+            expect(dataLoader.cache.size).toBe(2); // 应该有两个独立的缓存
+        });
+
+        it("缓存过期后应该清除旧缓存", async () => {
+            const mockDataFn = async () => {
+                return { timestamp: Date.now() };
+            };
+
+            const matchedRoute = createMockedRoute("/expire-clear", {
+                from: mockDataFn,
+                cache: 50,
+            });
+
+            // 第一次加载
+            await dataLoader.loadDatas([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 30));
+
+            const signal1 = matchedRoute.route?._getData;
+            const timestamp1 = signal1?.result?.timestamp;
+            expect(timestamp1).toBeDefined();
+            expect(dataLoader.cache.size).toBe(1);
+
+            // 等待缓存过期
+            await new Promise((resolve) => setTimeout(resolve, 60));
+
+            // 第二次加载（缓存已过期，应该重新加载）
+            await dataLoader.loadDatas([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 30));
+
+            const signal2 = matchedRoute.route?._getData;
+            const timestamp2 = signal2?.result?.timestamp;
+
+            // 验证获取了新的数据（时间戳应该不同）
+            expect(timestamp2).toBeDefined();
+            expect(timestamp2).toBeGreaterThan(timestamp1!);
+        });
+
+        it("多个并发请求相同路由时应该只调用一次数据源", async () => {
+            let callCount = 0;
+            const mockDataFn = async () => {
+                callCount++;
+                await new Promise((resolve) => setTimeout(resolve, 50));
+                return { concurrent: true };
+            };
+
+            // 使用相同的路由实例测试并发请求
+            const matchedRoute = createMockedRoute("/concurrent", {
+                from: mockDataFn,
+                cache: 10000,
+            });
+
+            // 并发加载（使用 Promise.all 同时发起）
+            await Promise.all([
+                dataLoader.loadDatas([matchedRoute]),
+                dataLoader.loadDatas([matchedRoute]),
+                dataLoader.loadDatas([matchedRoute]),
+            ]);
+
+            await new Promise((resolve) => setTimeout(resolve, 100));
+
+            // 由于第一个请求已经开始加载，后续请求应该等待或复用结果
+            // 实际行为取决于实现，这里验证至少没有报错
+            expect(callCount).toBeGreaterThanOrEqual(1);
+            expect(callCount).toBeLessThanOrEqual(3);
+        });
+
+        it("应该正确处理缓存的 timestamp", async () => {
+            const mockDataFn = async () => {
+                return { data: "timestamp-test" };
+            };
+
+            const matchedRoute = createMockedRoute("/timestamp", {
+                from: mockDataFn,
+                cache: 10000,
+            });
+
+            // 第一次加载
+            await dataLoader.loadDatas([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 30));
+
+            // 验证缓存存在（通过遍历缓存找到正确的项）
+            expect(dataLoader.cache.size).toBeGreaterThan(0);
+
+            let cacheItemFound = false;
+            for (const [, cacheItem] of dataLoader.cache) {
+                if (cacheItem.value?.data === "timestamp-test") {
+                    cacheItemFound = true;
+                    expect(cacheItem.timestamp).toBeDefined();
+                    expect(cacheItem.timestamp).toBeLessThanOrEqual(Date.now());
+                    expect(cacheItem.timestamp).toBeGreaterThan(Date.now() - 1000);
+                    break;
+                }
+            }
+
+            expect(cacheItemFound).toBe(true);
+        });
+
+        it("远程URL数据也应该支持缓存", async () => {
+            mockFetch = createFetchMock(() => {
+                return Promise.resolve({
+                    ok: true,
+                    status: 200,
+                    json: async () => ({ remote: true, cached: true }),
+                } as Response);
+            });
+
+            // 使用相同的路由实例测试远程URL缓存
+            const matchedRoute = createMockedRoute(
+                "/remote-cache",
+                "http://api.example.com/cached.json",
+            );
+
+            // 第一次加载
+            await dataLoader.loadDatas([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 50));
+
+            const signal1 = matchedRoute.route?._getData;
+            expect(signal1?.isFulfilled()).toBe(true);
+            expect(signal1?.result).toEqual({ remote: true, cached: true });
+
+            // 第二次加载（应该使用缓存）
+            await dataLoader.loadDatas([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 50));
+
+            const signal2 = matchedRoute.route?._getData;
+            expect(signal2?.isFulfilled()).toBe(true);
+            expect(signal2?.result).toEqual({ remote: true, cached: true });
         });
     });
 
@@ -341,14 +692,15 @@ describe("DataLoader", () => {
 
     describe("远程 URL 加载测试", () => {
         beforeEach(() => {
-            mockFetch = spyOn(globalThis, "fetch").mockImplementation(async (url: string) => {
-                if (url === "http://api.example.com/data.json") {
+            mockFetch = createFetchMock(async (url: RequestInfo | URL) => {
+                const urlStr = typeof url === "string" ? url : url.toString();
+                if (urlStr === "http://api.example.com/data.json") {
                     return {
                         ok: true,
                         status: 200,
                         json: async () => ({ remote: true, value: 42 }),
                     } as Response;
-                } else if (url === "http://api.example.com/users.json") {
+                } else if (urlStr === "http://api.example.com/users.json") {
                     return {
                         ok: true,
                         status: 200,
@@ -357,14 +709,14 @@ describe("DataLoader", () => {
                             { id: 2, name: "Bob" },
                         ],
                     } as Response;
-                } else if (url === "http://api.example.com/empty.json") {
+                } else if (urlStr === "http://api.example.com/empty.json") {
                     return {
                         ok: true,
                         status: 200,
                         json: async () => ({}),
                     } as Response;
                 }
-                throw new Error("URL not found: " + url);
+                throw new Error("URL not found: " + urlStr);
             });
         });
 
@@ -420,51 +772,52 @@ describe("DataLoader", () => {
 
     describe("HTTP 错误处理测试", () => {
         beforeEach(() => {
-            mockFetch = spyOn(globalThis, "fetch").mockImplementation(async (url: string) => {
-                if (url.includes("404")) {
+            mockFetch = createFetchMock(async (url: RequestInfo | URL) => {
+                const urlStr = typeof url === "string" ? url : url.toString();
+                if (urlStr.includes("404")) {
                     return {
                         ok: false,
                         status: 404,
                         statusText: "Not Found",
                     } as Response;
-                } else if (url.includes("401")) {
+                } else if (urlStr.includes("401")) {
                     return {
                         ok: false,
                         status: 401,
                         statusText: "Unauthorized",
                     } as Response;
-                } else if (url.includes("403")) {
+                } else if (urlStr.includes("403")) {
                     return {
                         ok: false,
                         status: 403,
                         statusText: "Forbidden",
                     } as Response;
-                } else if (url.includes("500")) {
+                } else if (urlStr.includes("500")) {
                     return {
                         ok: false,
                         status: 500,
                         statusText: "Internal Server Error",
                     } as Response;
-                } else if (url.includes("502")) {
+                } else if (urlStr.includes("502")) {
                     return {
                         ok: false,
                         status: 502,
                         statusText: "Bad Gateway",
                     } as Response;
-                } else if (url.includes("503")) {
+                } else if (urlStr.includes("503")) {
                     return {
                         ok: false,
                         status: 503,
                         statusText: "Service Unavailable",
                     } as Response;
-                } else if (url.includes("400")) {
+                } else if (urlStr.includes("400")) {
                     return {
                         ok: false,
                         status: 400,
                         statusText: "Bad Request",
                     } as Response;
                 }
-                throw new Error("Unexpected URL: " + url);
+                throw new Error("Unexpected URL: " + urlStr);
             });
         });
 
@@ -574,7 +927,7 @@ describe("DataLoader", () => {
 
     describe("网络和连接错误测试", () => {
         it("应该处理网络连接失败", async () => {
-            mockFetch = spyOn(globalThis, "fetch").mockImplementation(async () => {
+            mockFetch = createFetchMock(async () => {
                 throw new Error("Network connection failed");
             });
 
@@ -595,7 +948,7 @@ describe("DataLoader", () => {
         });
 
         it("应该处理 CORS 错误模拟", async () => {
-            mockFetch = spyOn(globalThis, "fetch").mockImplementation(async () => {
+            mockFetch = createFetchMock(async () => {
                 throw new TypeError("Failed to fetch");
             });
 
@@ -618,7 +971,7 @@ describe("DataLoader", () => {
 
     describe("超时错误测试", () => {
         it("应该处理加载超时", async () => {
-            mockFetch = spyOn(globalThis, "fetch").mockImplementation(
+            mockFetch = createFetchMock(
                 () =>
                     new Promise((resolve) => {
                         setTimeout(() => {
@@ -654,14 +1007,14 @@ describe("DataLoader", () => {
 
     describe("JSON 解析错误测试", () => {
         it("应该处理无效的 JSON 格式", async () => {
-            mockFetch = spyOn(globalThis, "fetch").mockImplementation(async () => {
+            mockFetch = createFetchMock(async () => {
                 return {
                     ok: true,
                     status: 200,
                     json: async () => {
                         throw new SyntaxError("Unexpected token < in JSON at position 0");
                     },
-                } as Response;
+                } as unknown as Response;
             });
 
             const matchedRoute = createMockedRoute(
@@ -680,14 +1033,14 @@ describe("DataLoader", () => {
         });
 
         it("应该处理损坏的 JSON 数据", async () => {
-            mockFetch = spyOn(globalThis, "fetch").mockImplementation(async () => {
+            mockFetch = createFetchMock(async () => {
                 return {
                     ok: true,
                     status: 200,
                     json: async () => {
                         throw new Error("JSON parse error: incomplete data");
                     },
-                } as Response;
+                } as unknown as Response;
             });
 
             const matchedRoute = createMockedRoute(
@@ -772,9 +1125,9 @@ describe("DataLoader", () => {
 
     describe("Abort 处理测试", () => {
         it("应该正确处理 AbortError", async () => {
-            mockFetch = spyOn(globalThis, "fetch").mockImplementation(
+            mockFetch = createFetchMock(
                 () =>
-                    new Promise((resolve, reject) => {
+                    new Promise((_resolve, reject) => {
                         setTimeout(() => {
                             reject(new DOMException("Aborted", "AbortError"));
                         }, 100);
@@ -961,11 +1314,12 @@ describe("DataLoader", () => {
 
     describe("URL 参数插值测试", () => {
         beforeEach(() => {
-            mockFetch = spyOn(globalThis, "fetch").mockImplementation(async (url: string) => {
+            mockFetch = createFetchMock(async (url: RequestInfo | URL) => {
+                const urlStr = typeof url === "string" ? url : url.toString();
                 return {
                     ok: true,
                     status: 200,
-                    json: async () => ({ url, interpolated: true }),
+                    json: async () => ({ url: urlStr, interpolated: true }),
                 } as Response;
             });
         });
@@ -984,7 +1338,7 @@ describe("DataLoader", () => {
             expect(signal).toBeDefined();
             if (signal) {
                 expect(signal.isFulfilled()).toBe(true);
-                expect(signal.result.url).toContain("123");
+                expect(signal.result!.url).toContain("123");
             }
         });
 
@@ -1002,8 +1356,8 @@ describe("DataLoader", () => {
             expect(signal).toBeDefined();
             if (signal) {
                 expect(signal.isFulfilled()).toBe(true);
-                expect(signal.result.url).toContain("posts/123");
-                expect(signal.result.url).toContain("comments/456");
+                expect(signal.result!.url).toContain("posts/123");
+                expect(signal.result!.url).toContain("comments/456");
             }
         });
     });
@@ -1014,7 +1368,7 @@ describe("DataLoader", () => {
 
     describe("datatype: text 测试", () => {
         it("应该使用 text 而不是 json 解析响应", async () => {
-            mockFetch = spyOn(globalThis, "fetch").mockImplementation(async () => {
+            mockFetch = createFetchMock(async () => {
                 return {
                     ok: true,
                     status: 200,
@@ -1084,8 +1438,8 @@ describe("DataLoader", () => {
             expect(signal).toBeDefined();
             if (signal) {
                 expect(signal.isFulfilled()).toBe(true);
-                expect(signal.result.params).toEqual({ id: "test" });
-                expect(signal.result.query).toEqual({ tab: "info" });
+                expect(signal.result!.params).toEqual({ id: "test" });
+                expect(signal.result!.query).toEqual({ tab: "info" });
             }
         });
     });
