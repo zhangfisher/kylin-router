@@ -30,6 +30,7 @@ const createMockRouter = (): Partial<KylinRouter> => ({
     logger: mockLogger,
     routes: {
         current: {
+            //@ts-ignore
             route: null,
             params: {},
             query: {},
@@ -37,7 +38,7 @@ const createMockRouter = (): Partial<KylinRouter> => ({
         },
     },
     options: {
-        base: "/",
+        base: "/", //@ts-ignore
         viewOptions: {
             timeout: 5000,
             cache: 0,
@@ -217,7 +218,7 @@ describe("ViewLoader", () => {
             expect(signal).toBeDefined();
             if (signal) {
                 expect(signal.isFulfilled()).toBe(true);
-                expect(signal.result).toContain("class=\"user-123\"");
+                expect(signal.result).toContain('class="user-123"');
                 expect(signal.result).toContain("User: 123");
             }
         });
@@ -265,7 +266,7 @@ describe("ViewLoader", () => {
             expect(signal).toBeDefined();
             if (signal) {
                 expect(signal.isFulfilled()).toBe(true);
-                expect(signal.result).toContain("<div class=\"content\">Main Content</div>");
+                expect(signal.result).toContain('<div class="content">Main Content</div>');
                 // 不应该包含 html 和 body 标签
                 expect(signal.result).not.toContain("<html");
                 expect(signal.result).not.toContain("<body");
@@ -322,7 +323,7 @@ describe("ViewLoader", () => {
         });
 
         it("选择器未找到内容时应返回原始 HTML", async () => {
-            const html = "<div class=\"content\">Original</div>";
+            const html = '<div class="content">Original</div>';
             const matchedRoute = createMockedRoute("/test", {
                 from: () => html,
                 selector: ".non-existent",
@@ -552,14 +553,14 @@ describe("ViewLoader", () => {
                     return {
                         ok: true,
                         status: 200,
-                        text: async () => "<div class=\"container\"><h1>Remote View</h1></div>",
+                        text: async () => '<div class="container"><h1>Remote View</h1></div>',
                     } as Response;
                 } else if (urlStr === "http://example.com/full.html") {
                     return {
                         ok: true,
                         status: 200,
                         text: async () =>
-                            "<!DOCTYPE html><html><body><div class=\"content\">Full Page</div></body></html>",
+                            '<!DOCTYPE html><html><body><div class="content">Full Page</div></body></html>',
                     } as Response;
                 } else if (urlStr === "http://example.com/empty.html") {
                     return {
@@ -933,7 +934,10 @@ describe("ViewLoader", () => {
         });
 
         it("应该正确替换 URL 中的 {id} 参数", async () => {
-            const matchedRoute = createMockedRoute("/user/123", "http://example.com/user/{id}.html");
+            const matchedRoute = createMockedRoute(
+                "/user/123",
+                "http://example.com/user/{id}.html",
+            );
             matchedRoute.params = { id: "123" };
 
             await viewLoader.loadViews([matchedRoute]);
@@ -1132,8 +1136,8 @@ describe("ViewLoader", () => {
             expect(signal).toBeDefined();
             if (signal) {
                 expect(signal.isFulfilled()).toBe(true);
-                expect(signal.result).toContain('data-params="{\"id\":\"test\"}"');
-                expect(signal.result).toContain('data-query="{\"tab\":\"info\"}"');
+                expect(signal.result).toContain('data-params="{"id":"test"}"');
+                expect(signal.result).toContain('data-query="{"tab":"info"}"');
             }
         });
     });

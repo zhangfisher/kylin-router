@@ -4,6 +4,7 @@
  */
 
 import { Window } from "happy-dom";
+import { DOMParser } from "linkedom";
 
 /**
  * 初始化测试环境
@@ -28,7 +29,9 @@ export function setupTestEnvironment(): void {
         constructor(callback: MutationCallback) {}
         disconnect() {}
         observe(node: Node, options: any) {}
-        takeRecords(): MutationRecord[] { return []; }
+        takeRecords(): MutationRecord[] {
+            return [];
+        }
     };
 
     // Mock RequestAnimationFrame
@@ -41,6 +44,10 @@ export function setupTestEnvironment(): void {
     globalThis.cancelAnimationFrame = (handle: number) => {
         clearTimeout(handle);
     };
+
+    // DOMParser 来源于 happy-dom 的 Window 实例
+    // @ts-ignore
+    globalThis.DOMParser = DOMParser;
 }
 
 // 自动执行设置（用于 --preload 场景）

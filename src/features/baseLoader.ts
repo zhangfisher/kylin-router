@@ -208,10 +208,13 @@ export abstract class RouteDataLoaderBase<
             }
 
             const source = await this.getSource(matched, options);
-            if (!source) return;
+            if (source == undefined) return;
 
-            // 3. 执行加载
-            this.startLoad(matched, source, options);
+            // 2. 检查 source 是否来自函数
+            const fromFunction = typeof options.from === "function";
+
+            // 3. 执行加载，传递 fromFunction 标记
+            this.startLoad(matched, source, options, fromFunction);
         } catch (e: any) {
             this._createErrorSignal(matched, e);
         }
@@ -245,6 +248,7 @@ export abstract class RouteDataLoaderBase<
         matched: KylinMatchedRouteItem,
         source: string | TData,
         options: Required<TOptions>,
+        fromFunction: boolean = false,
     ): void {
         // 每次加载创建新的信号，旧的信号会被自动 abort
         let signal = this.createSignal(matched);
@@ -258,7 +262,8 @@ export abstract class RouteDataLoaderBase<
             this.onLoadError(matched, error, signal);
         };
         try {
-            if (typeof source === "string") {
+            // 修改判断逻辑：只有当 source 是字符串且不是来自函数时，才视为 URL
+            if (typeof source === "string" && !fromFunction) {
                 const url = prefixBaseUrl(
                     source.params(getRouteVars(matched)),
                     this.router.options.base,
