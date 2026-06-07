@@ -10,7 +10,6 @@
 import type { KylinRouter } from "@/router";
 import type { KylinMatchedRouteItem, KylinRouteViewOptions } from "@/types/routes";
 import { RouteDataLoaderBase } from "./baseLoader";
-import { sanitizeHTML } from "@/utils/sanitizeHTML";
 import { scopeStyles } from "@/utils/scopeStyle";
 import type { IAsyncSignal } from "asyncsignal";
 
@@ -25,14 +24,12 @@ export class ViewLoader extends RouteDataLoaderBase<"view", KylinRouteViewOption
             "view",
             Object.assign(
                 {
-                    allowUnsafe: true,
                     datatype: "text",
                 },
                 router.options.viewOptions,
             ) as Required<Omit<KylinRouteViewOptions, "from">>,
         );
     }
-
     /**
      * 并发加载匹配路由的视图
      * @param routes - 匹配的路由数组
@@ -40,17 +37,6 @@ export class ViewLoader extends RouteDataLoaderBase<"view", KylinRouteViewOption
     async loadViews(routes: KylinMatchedRouteItem[]) {
         return this.loadRoutes(routes);
     }
-
-    /**
-     * 加载单个视图资源（用于 modal 等特殊场景）
-     * @param viewSource - 视图源（URL、元素名或函数）
-     * @param options - 可选的加载选项
-     * @returns 加载结果
-     */
-    async loadView(
-        viewSource: string | (() => Promise<any>),
-        options?: Partial<KylinRouteViewOptions>,
-    ) {}
 
     /**
      * 智能内容提取 - 从 HTML 中提取有效内容
@@ -104,11 +90,11 @@ export class ViewLoader extends RouteDataLoaderBase<"view", KylinRouteViewOption
      */
     protected onHandleData(
         html: string,
-        options: KylinRouteViewOptions,
         signal: IAsyncSignal,
         matched: KylinMatchedRouteItem,
+        options: KylinRouteViewOptions,
     ): string {
-        const { selector = "body", allowUnsafe, scopedStyle } = options;
+        const { selector = "body", scopedStyle } = options;
         let htmlResult: string = html.trim();
         try {
             // 步骤 1: 解析 HTML 文档 - 使用全局 DOMParser 构造函数
@@ -134,9 +120,13 @@ export class ViewLoader extends RouteDataLoaderBase<"view", KylinRouteViewOption
         } catch (e: any) {
             this.router.logger.error(`视图内容提取失败: ${e.message}`);
         }
-        if (!allowUnsafe) {
-            htmlResult = sanitizeHTML(htmlResult);
-        }
         return htmlResult;
+    }
+
+    protected isValidData(content: any): boolean {
+        return (
+            typeof content === "string" ||
+            (typeof content === "object" && content instanceof HTMLElement)
+        );
     }
 }

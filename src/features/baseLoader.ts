@@ -11,7 +11,14 @@ import { asyncSignal, type IAsyncSignal } from "asyncsignal";
 import { getRouteVars } from "@/utils/getRouteVars";
 import { prefixBaseUrl } from "@/utils/prefixBaseUrl";
 import { getSignalHash } from "@/utils/getSignalHash";
-import { KylinRouterError } from "@/errors";
+import {
+    KylinRouterInvalidDataError,
+    KylinRouterLoadError,
+    KylinRouterTimeoutError,
+} from "@/errors";
+import { isUrlSource } from "@/utils/isUrlSource";
+import { isFunction } from "flex-tools/typecheck/isFunction";
+import { isPlainObject } from "flex-tools/typecheck/isPlainObject";
 
 /**
  * 加载器类型标识
@@ -28,7 +35,7 @@ export type LoadType = "data" | "view";
  *         例如view="pages/a.html"时，data=true会自动加载"pages/a.json"
  */
 export type BaseLoaderSource<Data = any> =
-    | true
+    | true // 简化配置
     | string
     | Data
     | ((route: KylinMatchedRouteItem) => Data);
@@ -144,16 +151,18 @@ export abstract class RouteDataLoaderBase<
 
     /**
      * 创建新的加载信号
-     * 在创建前会先 abort 并清理旧的 signal
+     * 直接替换旧 signal 而不 abort，避免 AbortError
      */
-    protected createSignal(matched: KylinMatchedRouteItem): IAsyncSignal {
-        const oldSignal = this.getSignal(matched);
-        if (oldSignal) {
-            oldSignal.abort();
+    protected createSignal(matched: KylinMatchedRouteItem, options: TOptions): IAsyncSignal {
+        const signal = asyncSignal();
+        (matched.route as any)[this._signalKey] = signal;
+        signal.meta.hash = this._getHash(matched, options);
+        return signal;
+    }
+    protected _removeSignal(matched: KylinMatchedRouteItem) {
+        if (matched.route) {
+            delete (matched.route as any)[this._signalKey];
         }
-        const newSignal = asyncSignal();
-        (matched.route as any)[this._signalKey] = newSignal;
-        return newSignal;
     }
 
     /**
@@ -173,26 +182,20 @@ export abstract class RouteDataLoaderBase<
         return typeof data === "object" && data !== null && "from" in data;
     }
 
-    // ========================================
-    // 模板方法（基类实现完整流程）
-    // ========================================
-
     /**
      * 并发加载多个路由
      */
-    public loadRoutes(routes: KylinMatchedRouteItem[]) {
-        Promise.allSettled(routes.map((matched) => this.loadRoute(matched)));
+    public loadRoutes(routes: KylinMatchedRouteItem[]): Promise<PromiseSettledResult<void>[]> {
+        return Promise.allSettled(routes.map((matched) => this.loadRoute(matched)));
     }
 
-    private _createErrorSignal(matched: KylinMatchedRouteItem, error: any) {
-        const signal = this.createSignal(matched);
+    private _createErrorSignal(matched: KylinMatchedRouteItem, error: any, options: TOptions) {
+        const signal = this.createSignal(matched, options);
         this.onLoadError(matched, error, signal);
     }
     private _createSuccessSignal(matched: KylinMatchedRouteItem, data: any, options: TOptions) {
-        const signal = this.createSignal(matched);
-        // 设置 hash，确保静态数据源也有 hash
-        signal.meta.hash = this._getHash(matched, options);
-        this.onLoadSuccess(matched, data, options, signal);
+        const signal = this.createSignal(matched, options);
+        this.onLoadSuccess(matched, data, signal, options);
     }
     /**
      * 加载单个路由
@@ -203,88 +206,56 @@ export abstract class RouteDataLoaderBase<
         const options = this.getRouteOptions(matched);
         try {
             // 1. 缓存优先策略 - 先检查缓存，避免不必要的数据源调用
-            if (this.tryUseCache(matched, options)) {
+            if (this.hitCache(matched, options)) {
                 return;
-            }
-
-            const source = await this.getSource(matched, options);
-            if (source == undefined) return;
-
-            // 2. 检查 source 是否来自函数
-            const fromFunction = typeof options.from === "function";
-
-            // 3. 执行加载，传递 fromFunction 标记
-            this.startLoad(matched, source, options, fromFunction);
-        } catch (e: any) {
-            this._createErrorSignal(matched, e);
-        }
-    }
-
-    private _handleData(
-        data: TData,
-        options: TOptions,
-        signal: IAsyncSignal,
-        matched: KylinMatchedRouteItem,
-    ) {
-        // 静态数据源也需要调用 onHandleData
-        const processedData = this.onHandleData(data, options, signal, matched);
-        // 如果 processedData 是 Promise，使用 then/catch 处理
-        if (processedData instanceof Promise) {
-            processedData
-                .then((result) => {
-                    this.onLoadSuccess(matched, result, options, signal);
-                })
-                .catch((e: any) => {
-                    this.onLoadError(matched, e, signal);
-                });
-        } else {
-            this.onLoadSuccess(matched, processedData, options, signal);
-        }
-    }
-    /**
-     * 执行加载
-     */
-    protected startLoad(
-        matched: KylinMatchedRouteItem,
-        source: string | TData,
-        options: Required<TOptions>,
-        fromFunction: boolean = false,
-    ): void {
-        // 每次加载创建新的信号，旧的信号会被自动 abort
-        let signal = this.createSignal(matched);
-        // 设置 hash，确保静态数据源也有 hash
-        signal.meta.hash = this._getHash(matched, options);
-        // 成功和错误处理
-        const onSuccess = (data: TData) => {
-            this.onLoadSuccess(matched, data, options, signal);
-        };
-        const onError = (error: any) => {
-            this.onLoadError(matched, error, signal);
-        };
-        try {
-            // 修改判断逻辑：只有当 source 是字符串且不是来自函数时，才视为 URL
-            if (typeof source === "string" && !fromFunction) {
-                const url = prefixBaseUrl(
-                    source.params(getRouteVars(matched)),
-                    this.router.options.base,
-                );
-                // 从远程加载数据
-                this.loadRemote(url, options, signal, matched).then(onSuccess).catch(onError);
             } else {
-                // 静态数据源也需要调用 onHandleData
-                const processedData = this.onHandleData(source, options, signal, matched);
-                // 如果 processedData 是 Promise，使用 then/catch 处理
-                if (processedData instanceof Promise) {
-                    processedData.then(onSuccess).catch(onError);
+                const signal = this.createSignal(matched, options);
+                let loader: any;
+                let url: string | undefined;
+                if (this.isValidData(options.from) && !isUrlSource(options.from)) {
+                    this._createSuccessSignal(matched, options.from, options);
+                    return;
                 } else {
-                    onSuccess(processedData);
+                    if (isUrlSource(options.from)) {
+                        url = options.from as string;
+                        signal.meta.url = url;
+                        loader = this._loadFromRemote(url, signal, matched, options);
+                    } else if (options.from === true) {
+                        url = this.getAutoUrl(matched);
+                        if (url) {
+                            signal.meta.url = url;
+                            loader = this._loadFromRemote(url, signal, matched, options);
+                        } else {
+                            this._removeSignal(matched);
+                            return;
+                        }
+                    } else if (isFunction(options.from)) {
+                        loader = options.from(matched);
+                    }
+                    if (loader == undefined) {
+                        this._removeSignal(matched);
+                        return;
+                    }
+                    Promise.resolve(loader)
+                        .then((data) => this.onLoadSuccess(matched, data, signal, options))
+                        .catch((error) => this.onLoadError(matched, error, signal))
+                        .finally(() => {});
                 }
             }
         } catch (e: any) {
-            onError(e);
+            // AbortError 通常是由于用户导航取消导致的，不需要创建 error signal
+            if (e.name !== "AbortError") {
+                this._createErrorSignal(matched, e, options);
+            }
         }
     }
 
+    /**
+     * 检测缓存是否过期
+     * @param cacheItem
+     * @param options
+     * @returns
+     */
     private _isCacheExpired(cacheItem: CacheItem<TData> | undefined, options: TOptions): boolean {
         if (!cacheItem) return true;
         if ((options.cache || 0) > 0) {
@@ -299,16 +270,11 @@ export abstract class RouteDataLoaderBase<
      * @param options - 加载选项配置
      * @returns 是否成功使用缓存数据，true 表示使用缓存成功，false 表示需要重新加载
      */
-    private tryUseCache(matched: KylinMatchedRouteItem, options: TOptions): boolean {
+    private hitCache(matched: KylinMatchedRouteItem, options: TOptions): boolean {
         const hash = this._getHash(matched, options);
         const cacheItem = this.cache.get(hash);
-
         if ((options.cache || 0) > 0 && cacheItem && !this._isCacheExpired(cacheItem, options)) {
-            // 缓存命中时，创建新的 signal 并 resolve
-            const signal = this.createSignal(matched);
-            signal.meta.hash = hash;
-            const processedData = this.onHandleData(cacheItem.value, options, signal, matched);
-            signal.resolve(processedData);
+            this._createSuccessSignal(matched, cacheItem.value, options);
             return true;
         } else if ((options.cache || 0) > 0 && this.cache.has(hash)) {
             this.cache.delete(hash);
@@ -323,63 +289,50 @@ export abstract class RouteDataLoaderBase<
         }
         return getSignalHash(options.hash || "{path}", matched);
     }
-    /**
-     * 获取数据源，根据配置的 from 选项返回静态数据或动态函数
-     * @param matched - 匹配的路由项对象
-     * @param options - 数据加载配置选项，包含 from 属性指定数据源
-     * @returns 返回静态数据或函数执行结果
-     */
-    protected async getSource(
-        matched: KylinMatchedRouteItem,
-        options: TOptions,
-    ): Promise<string | TData | undefined> {
-        const source = options.from;
-        return typeof source === "function"
-            ? await (source as any)(matched)
-            : typeof source === "boolean"
-              ? this.getAutoUrl(matched, source)
-              : source;
-    }
 
-    protected getAutoUrl(_matched: KylinMatchedRouteItem, _source: boolean): string | undefined {
+    protected getAutoUrl(_matched: KylinMatchedRouteItem): string | undefined {
         return undefined;
     }
+    /**
+     * 检查是否是合法的内容
+     *
+     * dataLoader： 必须是一个{}
+     * viewHhtml: 必须是一个String
+     */
+    protected isValidData(_data: any): boolean {
+        return true;
+    }
 
-    private async loadRemote(
+    /**
+     * 从远程 URL 加载数据
+     * 统一的远程加载逻辑，用于处理 URL 字符串
+     */
+    private async _loadFromRemote(
         url: string,
-        options: TOptions,
         signal: IAsyncSignal,
         matched: KylinMatchedRouteItem,
+        options: TOptions,
     ): Promise<TData> {
+        // url字符串支持插值变量
+        const finalUrl = prefixBaseUrl(url.params(getRouteVars(matched)), this.router.options.base);
         let timeoutId: any;
         const { timeout = 0 } = options;
 
         return new Promise((resolve, reject) => {
             if (timeout > 0) {
                 timeoutId = setTimeout(() => {
-                    this.router.logger.warn(
-                        `⏰ [加载调试] 请求超时 - url: ${url}, timeout: ${timeout}`,
-                    );
-                    reject(new Error("Load timeout"));
+                    reject(new KylinRouterTimeoutError());
                 }, timeout);
             }
-            signal.meta.url = url;
-            signal.meta.hash = this._getHash(matched, options);
-            this.router.logger.debug(`{} -> 正在加载 {}(hash={})`, () => [
-                matched.id,
-                url,
-                signal.meta.hash,
-            ]);
-            fetch(url, { signal: signal.getAbortSignal() })
+            fetch(finalUrl, { signal: signal.getAbortSignal() })
                 .then(async (response) => {
                     if (!response.ok) {
-                        throw new KylinRouterError(
-                            `Fail when load ${url} : ${response.statusText}`,
+                        throw new KylinRouterLoadError(
+                            `Fail when load ${finalUrl} : ${response.statusText}`,
                             response.status,
                         );
                     }
-                    const result = await response[this.options.datatype as "json" | "text"]();
-                    return this.onHandleData(result, options, signal, matched) as TData;
+                    return response[this.options.datatype as "json" | "text"]();
                 })
                 .then(resolve)
                 .catch(reject)
@@ -394,39 +347,45 @@ export abstract class RouteDataLoaderBase<
      */
     protected onHandleData(
         data: TData,
-        _options: TOptions,
         _signal: IAsyncSignal,
         _matched: KylinMatchedRouteItem,
+        _options: TOptions,
     ): TData {
         return data;
     }
-
+    protected isCacheEnable(options: TOptions) {
+        return (options.cache || 0) > 0;
+    }
     protected onLoadSuccess(
         matched: KylinMatchedRouteItem,
         data: TData,
-        options: TOptions,
         signal: IAsyncSignal,
+        options: TOptions,
     ): void {
-        // 缓存
-        if ((options.cache || 0) > 0) {
-            const hash = this._getHash(matched, options);
-            this.cache.set(hash, {
-                value: data,
-                timestamp: Date.now(),
-            } as CacheItem<TData>);
+        try {
+            // 是否启用缓存
+            if (this.isCacheEnable(options)) {
+                const hash = this._getHash(matched, options);
+                // 缓存未经处理的数据
+                this.cache.set(hash, {
+                    value: data,
+                    timestamp: Date.now(),
+                } as CacheItem<TData>);
+            }
+            const result = this.onHandleData(data, signal, matched, options);
+            if (this.isValidData(result)) {
+                signal.resolve(result);
+            } else {
+                signal.reject(new KylinRouterInvalidDataError());
+            }
+        } catch (e: any) {
+            signal.reject(e);
         }
-        this.router.logger.debug(`{} -> 加载{}成功: {}`, () => [
-            matched.id,
-            this.loadType,
-            signal.meta.url,
-            matched.url,
-        ]);
-        signal.resolve(data);
     }
 
     protected onLoadError(
         matched: KylinMatchedRouteItem,
-        error: KylinRouterError,
+        error: KylinRouterLoadError,
         signal: IAsyncSignal,
     ): void {
         if (error.name === "AbortError") {
@@ -434,30 +393,21 @@ export abstract class RouteDataLoaderBase<
         } else {
             signal.meta.statusCode = error.status || 500;
             this.cache.delete(matched.hash);
-
-            this.router.logger.error(
-                `{id} -> 加载{type}失败: {url}`,
-                () => [matched.id, this.loadType, signal.meta.url],
-                error,
-            );
-            try {
-                signal.reject(error);
-            } catch (e) {
-                console.log(e);
-            }
+            signal.reject(error);
         }
     }
-
+    /**
+     * 路由配置合并
+     * @param matched
+     * @returns
+     */
     private _mergeRouteOptions(matched: KylinMatchedRouteItem): Required<TOptions> {
-        const routeSource = (matched.route as any)[this._optionKey];
-        return Object.assign(
-            { ...this.options },
-            this.isOptionsObject(routeSource) ? routeSource : { from: routeSource },
-        ) as Required<TOptions>;
-    }
-
-    protected getRouteCache(matched: KylinMatchedRouteItem): CacheItem<TData> | undefined {
-        return this.cache.get(matched.hash);
+        const dataSource = (matched.route as any)[this._optionKey] || {};
+        const isSourceOptions = isPlainObject(dataSource) && "from" in dataSource;
+        return {
+            ...this.options,
+            ...(isSourceOptions ? dataSource : { from: dataSource }),
+        } as Required<TOptions>;
     }
 
     /**

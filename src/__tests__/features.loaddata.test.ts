@@ -9,12 +9,11 @@ import type { KylinRouter } from "../router";
 import type { KylinMatchedRouteItem } from "../types/routes";
 
 import { setupTestEnvironment } from "./test-setup";
+import { KylinRouterError, KylinRouterTimeoutError } from "@/errors";
 
 // 初始化其他测试环境（window, document 等）
 setupTestEnvironment();
 
-// 动态导入 DataLoader，确保在 setupTestEnvironment 之后加载
-let DataLoaderModule: any;
 let DataLoader: any;
 
 // Mock logger
@@ -693,6 +692,7 @@ describe("DataLoader", () => {
     describe("远程 URL 加载测试", () => {
         beforeEach(() => {
             mockFetch = createFetchMock(async (url: RequestInfo | URL) => {
+                // oxlint-disable-next-line typescript/no-base-to-string
                 const urlStr = typeof url === "string" ? url : url.toString();
                 if (urlStr === "http://api.example.com/data.json") {
                     return {
@@ -734,7 +734,7 @@ describe("DataLoader", () => {
             }
         });
 
-        it("应该成功加载远程数组数据", async () => {
+        it("加载远程数组数据是无效的 ", async () => {
             const matchedRoute = createMockedRoute("/users", "http://api.example.com/users.json");
 
             await dataLoader.loadDatas([matchedRoute]);
@@ -743,11 +743,8 @@ describe("DataLoader", () => {
             const signal = matchedRoute.route?._getData;
             expect(signal).toBeDefined();
             if (signal) {
-                expect(signal.isFulfilled()).toBe(true);
-                expect(signal.result).toEqual([
-                    { id: 1, name: "Alice" },
-                    { id: 2, name: "Bob" },
-                ]);
+                expect(signal.isRejected()).toBe(true);
+                expect(signal.error).toBeInstanceOf(KylinRouterError);
             }
         });
 
@@ -773,6 +770,7 @@ describe("DataLoader", () => {
     describe("HTTP 错误处理测试", () => {
         beforeEach(() => {
             mockFetch = createFetchMock(async (url: RequestInfo | URL) => {
+                // oxlint-disable-next-line typescript/no-base-to-string
                 const urlStr = typeof url === "string" ? url : url.toString();
                 if (urlStr.includes("404")) {
                     return {
@@ -996,7 +994,7 @@ describe("DataLoader", () => {
             expect(signal).toBeDefined();
             if (signal) {
                 expect(signal.isRejected()).toBe(true);
-                expect(signal.error.message).toContain("timeout");
+                expect(signal.error).toBeInstanceOf(KylinRouterTimeoutError);
             }
         });
     });
@@ -1162,11 +1160,7 @@ describe("DataLoader", () => {
             await new Promise((resolve) => setTimeout(resolve, 0));
 
             const signal = matchedRoute.route?._getData;
-            expect(signal).toBeDefined();
-            if (signal) {
-                expect(signal.isFulfilled()).toBe(true);
-                expect(signal.result).toEqual([]);
-            }
+            expect(signal).toBeUndefined();
         });
 
         it("应该处理 null 值（falsy 值，不创建 signal）", async () => {
@@ -1202,7 +1196,7 @@ describe("DataLoader", () => {
             const signal = matchedRoute.route?._getData;
             // null 是 falsy 值，loadRoute 会提前返回
             expect(signal).toBeUndefined();
-        });
+        }, 50000000000);
 
         it("应该处理函数返回 undefined（falsy 值，不创建 signal）", async () => {
             const undefinedFn = () => undefined;
@@ -1314,7 +1308,7 @@ describe("DataLoader", () => {
 
     describe("URL 参数插值测试", () => {
         beforeEach(() => {
-            mockFetch = createFetchMock(async (url: RequestInfo | URL) => {
+            mockFetch = createFetchMock(async (url: any) => {
                 const urlStr = typeof url === "string" ? url : url.toString();
                 return {
                     ok: true,

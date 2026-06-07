@@ -1,11 +1,11 @@
 import type { KylinMatchedRouteItem } from "./types";
 
 export class KylinRouterError extends Error {
-    status: number;
+    status: number = 0;
     route?: KylinMatchedRouteItem[];
-    constructor(message: string, statusCode?: number, route?: KylinMatchedRouteItem[]) {
+    constructor(message?: string, status?: number, route?: KylinMatchedRouteItem[]) {
         super(message);
-        this.status = statusCode || 0;
+        this.status = status || 0;
         this.route = route;
     }
 }
@@ -69,3 +69,7 @@ export class KylinLoopRouteError extends KylinRouteError {
         super(`Redirect loop detected: ${chainStr} -> ${chainStr}`, route);
     }
 }
+
+export class KylinRouterLoadError extends KylinRouterError {}
+export class KylinRouterTimeoutError extends KylinRouterError {}
+export class KylinRouterInvalidDataError extends KylinRouterError {}

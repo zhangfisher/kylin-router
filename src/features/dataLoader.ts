@@ -15,6 +15,7 @@ import Alpine from "alpinejs";
 import { getJsonFileFromUrl } from "@/utils/getJsonFileFromUrl";
 import type { IAsyncSignal } from "asyncsignal";
 import { cloneDeep } from "es-toolkit/object";
+import { isPlainObject } from "es-toolkit/predicate";
 
 /**
  * DataLoader 类 - 负责加载路由数据
@@ -29,39 +30,32 @@ export class DataLoader extends RouteDataLoaderBase<
         super(
             router,
             "data", // loadType
-            Object.assign(
-                {
-                    hash: "{url}",
-                },
-                router.options.dataOptions,
-            ) as Required<Omit<KylinRouteDataOptions, "from">>,
+            Object.assign({}, router.options.dataOptions) as Required<
+                Omit<KylinRouteDataOptions, "from">
+            >,
         );
     }
 
     protected onHandleData(
-        data: any,
-        options: KylinRouteDataOptions,
+        data: Record<string, any>,
         signal: IAsyncSignal,
         matched: KylinMatchedRouteItem,
+        options: KylinRouteDataOptions,
     ): any {
         const { store } = options;
+        const hash = signal.meta.hash;
+        // 将 $params 和 $query 添加到数据对象中，使模板可以访问
+        const mergedData = {
+            ...cloneDeep(data),
+            $params: matched.params || {},
+            $query: matched.query || {},
+            $state: matched.state || {},
+        };
         try {
             if (typeof store === "string") {
-                Alpine.store(store, cloneDeep(data));
+                Alpine.store(store, mergedData);
             } else {
-                const hash = signal.meta.hash;
-                // 将 $params 和 $query 添加到数据对象中，使模板可以访问
-                const enrichedData = {
-                    ...cloneDeep(data),
-                    $params: matched.params || {},
-                    $query: matched.query || {},
-                };
-                Alpine.data(hash, () => enrichedData);
-                this.router.logger.debug(
-                    `{} -> Created dataObject<{}> for route<{}>`,
-                    () => [matched.id, hash, matched.url],
-                    enrichedData,
-                );
+                Alpine.data(hash, () => mergedData);
             }
         } catch (e: any) {
             this.router.logger.error(
@@ -77,8 +71,8 @@ export class DataLoader extends RouteDataLoaderBase<
      * @param source
      * @returns
      */
-    protected getAutoUrl(matched: KylinMatchedRouteItem, source: boolean): string | undefined {
-        if (source === true && matched.route) {
+    protected getAutoUrl(matched: KylinMatchedRouteItem): string | undefined {
+        if (matched.route) {
             const viewSrc = matched.route.view;
             const viewUrl = typeof viewSrc === "function" ? viewSrc(matched) : viewSrc;
             if (viewUrl === "string") {
@@ -97,5 +91,9 @@ export class DataLoader extends RouteDataLoaderBase<
      */
     async loadDatas(routes: KylinMatchedRouteItem[]) {
         return this.loadRoutes(routes);
+    }
+
+    protected isValidData(content: any): boolean {
+        return isPlainObject(content);
     }
 }

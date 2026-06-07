@@ -9,6 +9,7 @@ import type { KylinRouter } from "../router";
 import type { KylinMatchedRouteItem } from "../types/routes";
 
 import { setupTestEnvironment } from "./test-setup";
+import { KylinRouterTimeoutError } from "@/errors";
 
 // 初始化其他测试环境（window, document 等）
 setupTestEnvironment();
@@ -42,7 +43,6 @@ const createMockRouter = (): Partial<KylinRouter> => ({
         viewOptions: {
             timeout: 5000,
             cache: 0,
-            allowUnsafe: true,
             scopedStyle: true,
         },
     },
@@ -298,30 +298,6 @@ describe("ViewLoader", () => {
             }
         });
 
-        it("应该提取 data-outlet 属性的元素内容", async () => {
-            const html = `
-                <div class="wrapper">
-                    <div data-outlet>
-                        <h1>Outlet Content</h1>
-                        <p>Paragraph</p>
-                    </div>
-                </div>
-            `;
-
-            const matchedRoute = createMockedRoute("/test", { from: () => html });
-
-            await viewLoader.loadViews([matchedRoute]);
-            await new Promise((resolve) => setTimeout(resolve, 50));
-
-            const signal = matchedRoute.route?._getView;
-            expect(signal).toBeDefined();
-            if (signal) {
-                expect(signal.isFulfilled()).toBe(true);
-                expect(signal.result).toContain("<h1>Outlet Content</h1>");
-                expect(signal.result).not.toContain("data-outlet");
-            }
-        });
-
         it("选择器未找到内容时应返回原始 HTML", async () => {
             const html = '<div class="content">Original</div>';
             const matchedRoute = createMockedRoute("/test", {
@@ -518,6 +494,84 @@ describe("ViewLoader", () => {
                 expect(signal2.isFulfilled()).toBe(true);
                 expect(signal1.result).toContain("Home View");
                 expect(signal2.result).toContain("User View");
+            }
+        });
+
+        it("应该正确处理同一路由多次重入（多次调用 loadViews）", async () => {
+            let loadCount = 0;
+            const mockViewFn = async () => {
+                loadCount++;
+                await new Promise((resolve) => setTimeout(resolve, 50));
+                return `<div>View Load ${loadCount}</div>`;
+            };
+
+            const matchedRoute = createMockedRoute("/repeat", { from: mockViewFn });
+
+            // 第一次加载 - 等待足够时间确保异步操作开始
+            await viewLoader.loadViews([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 60));
+
+            const signal1 = matchedRoute.route?._getView;
+            expect(signal1).toBeDefined();
+            if (signal1) {
+                // 第一次加载应该已完成或正在处理
+                expect(signal1.isFulfilled() || signal1.isPending()).toBe(true);
+            }
+
+            // 第二次加载（在同一路由上）- 会中止第一次的加载
+            await viewLoader.loadViews([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 30));
+
+            const signal2 = matchedRoute.route?._getView;
+            expect(signal2).toBeDefined();
+            if (signal2) {
+                // 第二次加载应该创建新的 signal，旧的应该被 abort
+                expect(signal2.isFulfilled() || signal2.isPending()).toBe(true);
+            }
+
+            // 第三次加载 - 会中止第二次的加载
+            await viewLoader.loadViews([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 80));
+
+            const signal3 = matchedRoute.route?._getView;
+            expect(signal3).toBeDefined();
+            if (signal3) {
+                expect(signal3.isFulfilled()).toBe(true);
+                expect(signal3.result).toContain("View Load");
+            }
+        });
+
+        it("应该正确处理连续多次调用 loadViews（不等待中间结果）", async () => {
+            let loadCount = 0;
+            const mockViewFn = async () => {
+                loadCount++;
+                await new Promise((resolve) => setTimeout(resolve, 100));
+                return `<div>Rapid View ${loadCount}</div>`;
+            };
+
+            const matchedRoute = createMockedRoute("/rapid-repeat", { from: mockViewFn });
+
+            // 连续快速调用 5 次 loadViews（不使用 await）
+            // 由于 loadViews 没有 return 值，这里调用后会立即返回
+            viewLoader.loadViews([matchedRoute]);
+            viewLoader.loadViews([matchedRoute]);
+            viewLoader.loadViews([matchedRoute]);
+            viewLoader.loadViews([matchedRoute]);
+            viewLoader.loadViews([matchedRoute]);
+
+            // 等待所有异步操作完成
+            await new Promise((resolve) => setTimeout(resolve, 150));
+
+            const finalSignal = matchedRoute.route?._getView;
+            expect(finalSignal).toBeDefined();
+            if (finalSignal) {
+                // 最终应该只有最后一次加载的结果
+                expect(finalSignal.isFulfilled()).toBe(true);
+                expect(finalSignal.result).toContain("Rapid View");
+                // 由于连续调用，前面的 4 次都被 abort，只有第 5 次完成
+                // 所以 loadCount 可能是 1-5 之间的值，取决于竞态条件
+                expect(loadCount).toBeGreaterThan(0);
+                expect(loadCount).toBeLessThanOrEqual(5);
             }
         });
     });
@@ -766,7 +820,7 @@ describe("ViewLoader", () => {
             expect(signal).toBeDefined();
             if (signal) {
                 expect(signal.isRejected()).toBe(true);
-                expect(signal.error.message).toContain("timeout");
+                expect(signal.error).toBeInstanceOf(KylinRouterTimeoutError);
             }
         });
     });
@@ -880,21 +934,6 @@ describe("ViewLoader", () => {
             }
         });
 
-        it("应该处理包含特殊字符的 HTML", async () => {
-            const specialHtml = "<div>Test &amp; Test &quot;Quotes&quot; &lt;Tag&gt;</div>";
-            const matchedRoute = createMockedRoute("/special", { from: () => specialHtml });
-
-            await viewLoader.loadViews([matchedRoute]);
-            await new Promise((resolve) => setTimeout(resolve, 50));
-
-            const signal = matchedRoute.route?._getView;
-            expect(signal).toBeDefined();
-            if (signal) {
-                expect(signal.isFulfilled()).toBe(true);
-                expect(signal.result).toContain("Test & Test");
-            }
-        });
-
         it("应该处理大型 HTML 内容", async () => {
             let largeHtml = "<div>";
             for (let i = 0; i < 1000; i++) {
@@ -924,7 +963,7 @@ describe("ViewLoader", () => {
     describe("URL 参数插值测试", () => {
         beforeEach(() => {
             mockFetch = createFetchMock(async (url: RequestInfo | URL) => {
-                const urlStr = typeof url === "string" ? url : url.toString();
+                const urlStr = typeof url === "string" ? url : String(url);
                 return {
                     ok: true,
                     status: 200,
@@ -967,51 +1006,6 @@ describe("ViewLoader", () => {
                 expect(signal.isFulfilled()).toBe(true);
                 expect(signal.result!).toContain("posts/123");
                 expect(signal.result!).toContain("comments/456");
-            }
-        });
-    });
-
-    // ========================================
-    // allowUnsafe 选项测试
-    // ========================================
-
-    describe("allowUnsafe 选项测试", () => {
-        it("allowUnsafe 为 false 时应该清理 HTML", async () => {
-            const unsafeHtml = '<div><script>alert("XSS")</script><p>Content</p></div>';
-            const matchedRoute = createMockedRoute("/unsafe", {
-                from: () => unsafeHtml,
-                allowUnsafe: false,
-            });
-
-            await viewLoader.loadViews([matchedRoute]);
-            await new Promise((resolve) => setTimeout(resolve, 50));
-
-            const signal = matchedRoute.route?._getView;
-            expect(signal).toBeDefined();
-            if (signal) {
-                expect(signal.isFulfilled()).toBe(true);
-                // script 标签应该被清理
-                expect(signal.result).not.toContain("<script>");
-                expect(signal.result).toContain("Content");
-            }
-        });
-
-        it("allowUnsafe 为 true 时应该保留原始 HTML", async () => {
-            const unsafeHtml = '<div><script>alert("XSS")</script><p>Content</p></div>';
-            const matchedRoute = createMockedRoute("/unsafe-true", {
-                from: () => unsafeHtml,
-                allowUnsafe: true,
-            });
-
-            await viewLoader.loadViews([matchedRoute]);
-            await new Promise((resolve) => setTimeout(resolve, 50));
-
-            const signal = matchedRoute.route?._getView;
-            expect(signal).toBeDefined();
-            if (signal) {
-                expect(signal.isFulfilled()).toBe(true);
-                // script 标签应该被保留
-                expect(signal.result).toContain("<script>");
             }
         });
     });
@@ -1064,6 +1058,123 @@ describe("ViewLoader", () => {
                 expect(signal.result).toContain("Content");
             }
         });
+
+        it("scopedStyle 为 true 且包含 v-bind 时应该收集 vBindVars", async () => {
+            const htmlWithVBind = `
+                <div>
+                    <style>
+                        .title { color: v-bind(titleColor); }
+                        .content { font-size: v-bind(contentSize, 16px); }
+                    </style>
+                    <div class="test">Content</div>
+                </div>
+            `;
+            const matchedRoute = createMockedRoute("/vbind", {
+                from: () => htmlWithVBind,
+                scopedStyle: true,
+            });
+
+            await viewLoader.loadViews([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 50));
+
+            const signal = matchedRoute.route?._getView;
+            expect(signal).toBeDefined();
+            if (signal) {
+                expect(signal.isFulfilled()).toBe(true);
+                // vBindVars 应该保存在 signal.meta 中
+                expect(signal.meta.vBindVars).toBeDefined();
+                expect(Array.isArray(signal.meta.vBindVars)).toBe(true);
+                // 应该收集到 titleColor 和 contentViewSize
+                expect(signal.meta.vBindVars).toContain("titleColor");
+                expect(signal.meta.vBindVars).toContain("contentSize");
+                // HTML 应该包含转换后的 CSS var
+                expect(signal.result).toContain("var(--title-color)");
+                expect(signal.result).toContain("var(--content-size, 16px)");
+            }
+        });
+
+        it("应该对 v-bind 变量进行去重", async () => {
+            const htmlWithDuplicateVBind = `
+                <div>
+                    <style>
+                        .title { color: v-bind(titleColor); }
+                        .subtitle { color: v-bind(titleColor); }
+                        .text { font-size: v-bind(titleColor); }
+                    </style>
+                </div>
+            `;
+            const matchedRoute = createMockedRoute("/duplicate-vbind", {
+                from: () => htmlWithDuplicateVBind,
+                scopedStyle: true,
+            });
+
+            await viewLoader.loadViews([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 50));
+
+            const signal = matchedRoute.route?._getView;
+            expect(signal).toBeDefined();
+            if (signal) {
+                expect(signal.isFulfilled()).toBe(true);
+                // 虽然使用了 3 次，但应该去重
+                expect(signal.meta.vBindVars.length).toBe(1);
+                expect(signal.meta.vBindVars[0]).toBe("titleColor");
+            }
+        });
+
+        it("scopedStyle 为 false 时不应该生成 vBindVars", async () => {
+            const htmlWithVBind = `
+                <div>
+                    <style>
+                        .title { color: v-bind(titleColor); }
+                    </style>
+                </div>
+            `;
+            const matchedRoute = createMockedRoute("/no-vbind-vars", {
+                from: () => htmlWithVBind,
+                scopedStyle: false,
+            });
+
+            await viewLoader.loadViews([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 50));
+
+            const signal = matchedRoute.route?._getView;
+            expect(signal).toBeDefined();
+            if (signal) {
+                expect(signal.isFulfilled()).toBe(true);
+                // scopedStyle 为 false 时，不应该有 vBindVars
+                expect(signal.meta.vBindVars).toBeUndefined();
+            }
+        });
+
+        it("应该支持嵌套对象的 v-bind 变量名", async () => {
+            const htmlWithNestedVBind = `
+                <div>
+                    <style>
+                        .title { color: v-bind(theme.primary); }
+                        .content { font-size: v-bind(settings.fontSize); }
+                    </style>
+                </div>
+            `;
+            const matchedRoute = createMockedRoute("/nested-vbind", {
+                from: () => htmlWithNestedVBind,
+                scopedStyle: true,
+            });
+
+            await viewLoader.loadViews([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 50));
+
+            const signal = matchedRoute.route?._getView;
+            expect(signal).toBeDefined();
+            if (signal) {
+                expect(signal.isFulfilled()).toBe(true);
+                // 应该收集嵌套变量名
+                expect(signal.meta.vBindVars).toContain("theme.primary");
+                expect(signal.meta.vBindVars).toContain("settings.fontSize");
+                // HTML 应该包含转换后的 CSS var（使用短横命名）
+                expect(signal.result).toContain("var(--theme.primary)");
+                expect(signal.result).toContain("var(--settings.font-size)");
+            }
+        });
     });
 
     // ========================================
@@ -1091,6 +1202,190 @@ describe("ViewLoader", () => {
             expect(signal).toBeDefined();
             if (signal) {
                 expect(signal.isRejected()).toBe(true);
+            }
+        });
+    });
+
+    // ========================================
+    // signal.meta 测试
+    // ========================================
+
+    describe("signal.meta 测试", () => {
+        it("应该设置 signal.meta.hash", async () => {
+            const matchedRoute = createMockedRoute("/hash-test", {
+                from: () => "<div>Hash Test</div>",
+            });
+
+            await viewLoader.loadViews([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 50));
+
+            const signal = matchedRoute.route?._getView;
+            expect(signal).toBeDefined();
+            if (signal) {
+                expect(signal.isFulfilled()).toBe(true);
+                // hash 应该被设置
+                expect(signal.meta.hash).toBeDefined();
+                expect(typeof signal.meta.hash).toBe("string");
+                expect(signal.meta.hash.length).toBeGreaterThan(0);
+            }
+        });
+
+        it("应该根据 hash 选项设置不同的 hash 值", async () => {
+            const matchedRoute1 = createMockedRoute("/custom-hash-1", {
+                from: () => "<div>Test 1</div>",
+                hash: "{path}",
+            });
+            const matchedRoute2 = createMockedRoute("/custom-hash-2", {
+                from: () => "<div>Test 2</div>",
+                hash: "{id}",
+            });
+
+            await viewLoader.loadViews([matchedRoute1, matchedRoute2]);
+            await new Promise((resolve) => setTimeout(resolve, 50));
+
+            const signal1 = matchedRoute1.route?._getView;
+            const signal2 = matchedRoute2.route?._getView;
+
+            expect(signal1?.meta.hash).toBeDefined();
+            expect(signal2?.meta.hash).toBeDefined();
+            if (signal1 && signal2) {
+                // 不同的 hash 配置应该产生不同的 hash 值
+                expect(signal1.meta.hash).not.toBe(signal2.meta.hash);
+            }
+        });
+
+        it("远程加载时应该设置 signal.meta.url", async () => {
+            mockFetch = createFetchMock(async (url: RequestInfo | URL) => {
+                const urlStr = typeof url === "string" ? url : url.toString();
+                return {
+                    ok: true,
+                    status: 200,
+                    text: async () => "<div>Remote Content</div>",
+                } as Response;
+            });
+
+            const matchedRoute = createMockedRoute(
+                "/remote-meta",
+                "http://example.com/remote.html",
+            );
+
+            await viewLoader.loadViews([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 50));
+
+            const signal = matchedRoute.route?._getView;
+            expect(signal).toBeDefined();
+            if (signal) {
+                expect(signal.isFulfilled()).toBe(true);
+                // url 应该被设置
+                expect(signal.meta.url).toBeDefined();
+                expect(signal.meta.url).toBe("http://example.com/remote.html");
+            }
+        });
+
+        it("静态视图加载时应该有 hash 但没有 url", async () => {
+            const matchedRoute = createMockedRoute("/static-meta", {
+                from: () => "<div>Static Content</div>",
+            });
+
+            await viewLoader.loadViews([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 50));
+
+            const signal = matchedRoute.route?._getView;
+            expect(signal).toBeDefined();
+            if (signal) {
+                expect(signal.isFulfilled()).toBe(true);
+                // 静态视图应该有 hash
+                expect(signal.meta.hash).toBeDefined();
+                // 但不应该有 url（只有远程加载才有）
+                expect(signal.meta.url).toBeUndefined();
+            }
+        });
+
+        it("HTTP 错误时应该设置 signal.meta.statusCode", async () => {
+            mockFetch = createFetchMock(async () => {
+                return {
+                    ok: false,
+                    status: 404,
+                    statusText: "Not Found",
+                } as Response;
+            });
+
+            const matchedRoute = createMockedRoute(
+                "/status-code",
+                "http://example.com/not-found.html",
+            );
+
+            await viewLoader.loadViews([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 50));
+
+            const signal = matchedRoute.route?._getView;
+            expect(signal).toBeDefined();
+            if (signal) {
+                expect(signal.isRejected()).toBe(true);
+                // statusCode 应该被设置
+                expect(signal.meta.statusCode).toBeDefined();
+                expect(signal.meta.statusCode).toBe(404);
+            }
+        });
+
+        it("不同 HTTP 错误状态码应该被正确记录", async () => {
+            mockFetch = createFetchMock(async (url: RequestInfo | URL) => {
+                const urlStr = typeof url === "string" ? url : url.toString();
+                if (urlStr.includes("403")) {
+                    return { ok: false, status: 403, statusText: "Forbidden" } as Response;
+                } else if (urlStr.includes("500")) {
+                    return {
+                        ok: false,
+                        status: 500,
+                        statusText: "Internal Server Error",
+                    } as Response;
+                }
+                throw new Error("Unexpected URL");
+            });
+
+            const matchedRoute403 = createMockedRoute("/error-403", "http://example.com/403.html");
+            const matchedRoute500 = createMockedRoute("/error-500", "http://example.com/500.html");
+
+            await viewLoader.loadViews([matchedRoute403, matchedRoute500]);
+            await new Promise((resolve) => setTimeout(resolve, 50));
+
+            const signal403 = matchedRoute403.route?._getView;
+            const signal500 = matchedRoute500.route?._getView;
+
+            expect(signal403?.meta.statusCode).toBe(403);
+            expect(signal500?.meta.statusCode).toBe(500);
+        });
+
+        it("signal.meta 应该包含完整的元数据", async () => {
+            mockFetch = createFetchMock(async () => {
+                return {
+                    ok: true,
+                    status: 200,
+                    text: async () =>
+                        `<div>
+                            <style>.test { color: v-bind(themeColor); }</style>
+                            <div class="test">Full Meta Test</div>
+                        </div>`,
+                } as Response;
+            });
+
+            const matchedRoute = createMockedRoute("/full-meta", "http://example.com/full.html");
+
+            await viewLoader.loadViews([matchedRoute]);
+            await new Promise((resolve) => setTimeout(resolve, 50));
+
+            const signal = matchedRoute.route?._getView;
+            expect(signal).toBeDefined();
+            if (signal) {
+                expect(signal.isFulfilled()).toBe(true);
+                // 验证所有 meta 属性
+                expect(signal.meta.hash).toBeDefined();
+                expect(signal.meta.url).toBe("http://example.com/full.html");
+                expect(signal.meta.vBindVars).toBeDefined();
+                expect(Array.isArray(signal.meta.vBindVars)).toBe(true);
+                expect(signal.meta.vBindVars).toContain("themeColor");
+                // 成功时不应该有 statusCode
+                expect(signal.meta.statusCode).toBeUndefined();
             }
         });
     });

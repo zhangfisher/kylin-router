@@ -105,11 +105,6 @@ export interface KylinRenderOptions {
  */
 export interface KylinRouteViewOptions extends BaseLoaderOptions<string> {
     /**
-     * 是否允许不安全的 HTML（如 script 标签）
-     * 默认为 false，会移除潜在的危险内容
-     */
-    allowUnsafe?: boolean;
-    /**
      * 自定义内容提取选择器
      * 如果提供，将从加载的 HTML 中提取匹配该选择器的内容
      */
