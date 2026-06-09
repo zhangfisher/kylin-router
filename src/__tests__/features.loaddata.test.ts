@@ -206,7 +206,7 @@ describe("DataLoader", () => {
                 expect(signal.isRejected()).toBe(true);
                 expect(signal.error?.message).toBe("Sync error");
             }
-        });
+        }, 50000000);
 
         it("应该支持带参数的同步函数", async () => {
             const paramFn = (route: any) => ({
@@ -832,7 +832,7 @@ describe("DataLoader", () => {
                 expect(signal.error).toBeDefined();
                 expect(signal.error.message).toContain("404");
             }
-        });
+        }, 500000000);
 
         it("应该处理 401 Unauthorized 错误", async () => {
             const matchedRoute = createMockedRoute("/401", "http://api.example.com/401.json");

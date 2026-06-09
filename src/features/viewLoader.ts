@@ -107,8 +107,12 @@ export class ViewLoader extends RouteDataLoaderBase<"view", KylinRouteViewOption
                     ...matched.query,
                     ...matched.state,
                 });
-                const element = doc.querySelector(s);
-                htmlResult = element ? element.innerHTML : htmlResult;
+                try {
+                    const element = doc.querySelector(s);
+                    htmlResult = element ? element.innerHTML : htmlResult;
+                } catch (e) {
+                    this.router.logger.warn(`Invalid selector: ${s}`);
+                }
             }
             // 应用样式隔离（默认启用）
             if (scopedStyle !== false) {
