@@ -796,15 +796,23 @@ describe("ViewLoader", () => {
     describe("超时错误测试", () => {
         it("应该处理加载超时", async () => {
             mockFetch = createFetchMock(
-                () =>
-                    new Promise((resolve) => {
-                        setTimeout(() => {
+                (url: RequestInfo | URL, init?: RequestInit) =>
+                    new Promise((resolve, reject) => {
+                        const timeoutId = setTimeout(() => {
                             resolve({
                                 ok: true,
                                 status: 200,
                                 text: async () => "<div>Delayed View</div>",
                             } as Response);
                         }, 3000);
+
+                        // 监听 abort signal
+                        if (init?.signal) {
+                            init.signal.addEventListener("abort", () => {
+                                clearTimeout(timeoutId);
+                                reject(new DOMException("Aborted", "AbortError"));
+                            });
+                        }
                     }),
             );
 

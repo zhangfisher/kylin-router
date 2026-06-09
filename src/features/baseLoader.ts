@@ -325,19 +325,26 @@ export abstract class RouteDataLoaderBase<
         const finalUrl = prefixBaseUrl(url.params(getRouteVars(matched)), this.router.options.base);
         const { timeout = 0 } = options;
 
+        // 创建用于内部超时控制的 AbortController
         const timeoutController = new AbortController();
-        const externalSignal = signal.getAbortSignal(); // 只获取一次，改名避免混淆
 
-        let timeoutId: any;
+        // 获取外部取消信号（仅获取一次，避免混淆）
+        const externalSignal = signal.getAbortSignal();
 
-        // 清理函数需要能访问到 externalSignal
+        let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+        // 资源清理函数
         const cleanup = () => {
-            if (timeoutId) clearTimeout(timeoutId);
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            }
             if (externalSignal) {
                 externalSignal.removeEventListener("abort", abortHandler);
             }
         };
 
+        // 外部信号触发时的处理函数
         const abortHandler = () => {
             timeoutController.abort();
         };
@@ -347,48 +354,69 @@ export abstract class RouteDataLoaderBase<
             externalSignal.addEventListener("abort", abortHandler);
         }
 
-        // 设置超时
+        // 设置超时控制器，并在触发时打上专属标记
         if (timeout > 0) {
             timeoutId = setTimeout(() => {
+                // 关键修复：标记此次中止是由超时引起的
+                (timeoutController as any).isTimeout = true;
                 timeoutController.abort();
             }, timeout);
         }
 
-        return new Promise((resolve, reject) => {
-            // 构建 fetch signal，使用外层的 externalSignal
-            const signals = [timeoutController.signal];
-            if (externalSignal) signals.push(externalSignal);
+        // 构建合并后的 fetch signal
+        const signals = [timeoutController.signal];
+        if (externalSignal) signals.push(externalSignal);
 
-            const fetchSignal = signals.length > 1 ? AbortSignal.any(signals) : signals[0];
+        // 兼容不支持 AbortSignal.any 的环境
+        const fetchSignal =
+            typeof AbortSignal.any === "function" ? AbortSignal.any(signals) : signals[0];
 
-            fetch(finalUrl, { signal: fetchSignal })
+        // 使用 try-catch 包裹以捕获可能存在的同步构建异常，防止内存泄漏
+        try {
+            return fetch(finalUrl, { signal: fetchSignal })
                 .then(async (response) => {
+                    // 检查 HTTP 状态码
                     if (!response.ok) {
                         throw new KylinRouterLoadError(
                             `Fail when load ${finalUrl} : ${response.statusText}`,
                             response.status,
                         );
                     }
+
+                    // 解析数据
                     const method = this.options.datatype === "json" ? "json" : "text";
                     if (typeof response[method] !== "function") {
                         throw new KylinRouterLoadError(
                             `Invalid datatype: ${this.options.datatype}`,
                         );
                     }
-                    resolve(await response[method]());
+
+                    return (await response[method]()) as TData;
                 })
                 .catch((error) => {
-                    // 转换 AbortError
+                    // 精确分类 AbortError
                     if (error instanceof DOMException && error.name === "AbortError") {
-                        reject(new KylinRouterTimeoutError());
-                    } else {
-                        reject(error);
+                        if ((timeoutController as any).isTimeout) {
+                            // 真正的超时抛出 TimeoutError
+                            throw new KylinRouterTimeoutError();
+                        } else {
+                            // 外部主动取消，抛出专门的 CanceledError 或直接静默处理
+                            // 这里假设你有一个 KylinRouterCanceledError，如果没有可以抛出一个通用 Error
+                            throw error;
+                        }
                     }
+                    // 其他网络错误或业务错误直接向上抛出
+                    throw error;
                 })
                 .finally(() => {
+                    // 无论成功、失败还是取消，都确保资源被释放
                     cleanup();
                 });
-        });
+        } catch (syncError) {
+            // 如果在构建阶段发生同步异常（极端情况），确保立即清理
+            cleanup();
+            return Promise.reject(syncError);
+        }
     }
     /**
      * 处理数据的钩子方法，子类可以重写此方法以实现自定义的数据处理逻辑
