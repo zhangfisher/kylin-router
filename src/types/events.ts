@@ -1,6 +1,6 @@
 import type { Update } from "history";
 import type { KylinRouteItem } from "./index";
-import type { ModalStackItem } from "./routes";
+import type { KylinMatchedRouteItem, ModalStackItem } from "./routes";
 
 export type KylinRouterEvents = {
     /**
@@ -11,10 +11,20 @@ export type KylinRouterEvents = {
      * 路由表挂载到DOM元素
      */
     "routes:attached": undefined;
-    "navigation:start": { path?: string; navigationType?: "push" | "replace" | "pop" };
+    "navigation:start": {
+        path?: string;
+        mode?: "push" | "replace" | "pop";
+    };
+    /**
+     * 当导航匹配后
+     */
+    "navigation:matched": {
+        fromRoute: KylinMatchedRouteItem[] | undefined;
+        toRoute: KylinMatchedRouteItem[];
+    };
     "navigation:end": {
         location: Update;
-        navigationType: "push" | "replace" | "pop";
+        mode: "push" | "replace" | "pop";
     };
     "route:updated": {
         route: KylinRouteItem | undefined;
@@ -22,6 +32,10 @@ export type KylinRouterEvents = {
         query: Record<string, string>;
         location: Update;
     };
+
+    "render:before": { route: KylinMatchedRouteItem[] };
+    "render:after": { route: KylinMatchedRouteItem[]; error?: Error };
+
     "modal:open": {
         route: KylinRouteItem;
         stackItem: ModalStackItem;

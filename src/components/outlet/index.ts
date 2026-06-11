@@ -1,6 +1,6 @@
 import { customElement, property } from "lit/decorators.js";
 import { styles as commonStyles } from "./styles";
-import { KylinRouterElementBase } from "../base";
+import { KylinRouterElementBase } from "../Base";
 import { html } from "lit";
 import { ViewContainer, type ViewContainerOptions } from "./viewContainer";
 import type { KylinMatchedRouteItem } from "@/types";
@@ -168,8 +168,8 @@ export class KylinOutlet extends KylinRouterElementBase {
 
         // 检测是否为参数变化导致的容器复用
         const existingContainer = this.getViewContainer(viewContainer.viewHash);
-        const isReusedWithParamChange = existingContainer &&
-                                        existingContainer.dataset.url !== matched.url;
+        const isReusedWithParamChange =
+            existingContainer && existingContainer.dataset.url !== matched.url;
 
         // 记录
         viewContainer.container.setAttribute("data-url", matched.url);
@@ -211,7 +211,7 @@ export class KylinOutlet extends KylinRouterElementBase {
                 });
             }
         } catch (error) {
-            console.warn('Failed to update Alpine component data:', error);
+            console.warn("Failed to update Alpine component data:", error);
         }
     }
 

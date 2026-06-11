@@ -3,7 +3,7 @@ import { customElement, property } from "lit/decorators.js";
 import { styles } from "./styles";
 
 @customElement("kylin-loading")
-export class KylinLoadingElement extends LitElement {
+export class KylinLoading extends LitElement {
     static styles = styles;
     /**
      * 自定义加载模板（D-10）
@@ -26,6 +26,6 @@ export class KylinLoadingElement extends LitElement {
 
 declare global {
     interface HTMLElementTagNameMap {
-        "kylin-loading": KylinLoadingElement;
+        "kylin-loading": KylinLoading;
     }
 }

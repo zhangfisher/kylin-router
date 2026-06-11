@@ -102,7 +102,8 @@ export class AlpineManager {
      */
     bindHost(host: HTMLElement): void {
         // 添加 x-data 属性，使整个 host 树可以访问 Alpine store
-        host.setAttribute("x-data", "x");
+        // 使用空对象，避免无效表达式错误
+        host.setAttribute("x-data", "{}");
     }
 
     /**

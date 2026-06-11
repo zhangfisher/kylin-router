@@ -14,10 +14,10 @@
 import { findOutlet } from "@/utils/findOutlet";
 import type { KylinRouter } from "@/router";
 import type { KylinMatchedRouteItem, KylinRouteItem } from "@/types";
-import type { KylinOutlet } from "@/components/outlet";
+import type { KylinOutlet } from "@/components/Outlet";
 import type { IAsyncSignal } from "asyncsignal";
 import { KylinRouterError } from "@/errors";
-import type { ViewContainer } from "@/components/outlet/viewContainer";
+import type { ViewContainer } from "@/components/Outlet/viewContainer";
 import Alpine from "alpinejs";
 
 type RouteSignalReuslt<T = any> = {
@@ -108,6 +108,7 @@ export class Render {
         ++this._renderVersion;
         const abortController = new AbortController();
         this._currentRenderAbortController = abortController;
+        let hasError: any;
         try {
             let currentOutlet: KylinOutlet | null = this._getRootOutlet();
             // 存储当前迭代创建的 viewContainer，用于取消时清理
@@ -118,7 +119,7 @@ export class Render {
                 toRoute[toRoute.length - 1].url,
                 toRoute,
             );
-
+            this.emit("render:before", { route: toRoute });
             const commonRouteIndex: number = this._getCommonRouteIndex(fromRoute, toRoute);
             let preViewHash: string;
             for (let i = 0; i < toRoute.length; i++) {
@@ -237,6 +238,7 @@ export class Render {
             }
         } catch (error: any) {
             this.logger.error(`渲染失败: ${error.message}`, error);
+            hasError = error;
         } finally {
             // 清理：只有当前渲染操作的控制器才清理
             if (this._currentRenderAbortController === abortController) {
@@ -245,6 +247,7 @@ export class Render {
             // 渲染完成后，从渲染根开始重新初始化 Alpine
             // 这样可以让 Alpine 处理动态插入的子路由内容
             Alpine.initTree(this.host);
+            this.emit("render:after", { route: toRoute, error: hasError });
         }
     }
 

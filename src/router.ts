@@ -218,6 +218,8 @@ export class KylinRouter extends Mixin(
             // 执行路由匹配并获取导航上下文
             const matched = this._matchRoute(removePathPrefix(pathname, this.options.base), search);
 
+            this.emit("navigation:matched", matched);
+
             fromRoute = matched.fromRoute;
             toRoute = matched.toRoute;
 
@@ -227,6 +229,7 @@ export class KylinRouter extends Mixin(
                 search,
                 toRoute,
             ]);
+
             // 执行全局前置守卫（beforeEach）
             const shouldContinue = await this.hooks.runBeforeRoute({
                 from: fromRoute,
@@ -250,10 +253,6 @@ export class KylinRouter extends Mixin(
         }
     }
 
-    /**
-     * 确保 router 已 attached，否则抛出错误
-     * @throws {Error} - 如果 router 未 attached
-     */
     protected _ensureAttached(): void {
         if (!this.attached) {
             throw new Error(
@@ -262,10 +261,6 @@ export class KylinRouter extends Mixin(
         }
     }
 
-    /**
-     * 处理守卫失败时的回退逻辑
-     * 按照 D-25: 子路由守卫失败时回退到父路由
-     */
     protected handleGuardFailure(matchedRoutes: any[]): void {
         if (matchedRoutes.length > 1) {
             // 有父路由，回退到父路由
@@ -290,7 +285,7 @@ export class KylinRouter extends Mixin(
         // 触发 navigation/start 事件
         this.emit("navigation:start", {
             path,
-            navigationType: "push",
+            mode: "push",
         });
         if (state !== undefined) {
             this.history.push(path, state);
@@ -304,7 +299,7 @@ export class KylinRouter extends Mixin(
         // 触发 navigation/start 事件
         this.emit("navigation:start", {
             path,
-            navigationType: "replace",
+            mode: "replace",
         });
         if (state !== undefined) {
             this.history.replace(path, state);
@@ -336,7 +331,7 @@ export class KylinRouter extends Mixin(
         // 触发 navigation/start 事件
         this.emit("navigation:start", {
             path: undefined,
-            navigationType: "pop",
+            mode: "pop",
         });
         this.history.back();
     }
@@ -346,7 +341,7 @@ export class KylinRouter extends Mixin(
         // 触发 navigation/start 事件
         this.emit("navigation:start", {
             path: undefined,
-            navigationType: "pop",
+            mode: "pop",
         });
         this.history.forward();
     }
@@ -356,7 +351,7 @@ export class KylinRouter extends Mixin(
         // 触发 navigation/start 事件
         this.emit("navigation:start", {
             path: undefined,
-            navigationType: "pop",
+            mode: "pop",
         });
         this.history.go(delta);
     }

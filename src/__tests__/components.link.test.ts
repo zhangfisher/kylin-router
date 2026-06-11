@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import type { KylinRouter } from "@/router";
-import { isInternalLink, isDangerousProtocol } from "@/components/link";
+import { isInternalLink, isDangerousProtocol } from "@/components/Link";
 
 /**
  * 创建测试用的 DOM 环境
@@ -46,7 +46,7 @@ function simulateHandleClick(
     to: string,
     replace: boolean,
     router: KylinRouter | undefined,
-    event: Event
+    event: Event,
 ) {
     // 安全检查：拒绝危险协议
     if (isDangerousProtocol(to)) {
@@ -176,7 +176,7 @@ describe("KylinLinkElement", () => {
     });
 
     describe("外部链接处理", () => {
-        it("点击 <kylin-link to=\"https://external.com\"> 不应使用 router 导航", async () => {
+        it('点击 <kylin-link to="https://external.com"> 不应使用 router 导航', async () => {
             router = await createRouter(host, { routes });
 
             router.push("/settings");
@@ -189,7 +189,7 @@ describe("KylinLinkElement", () => {
             expect(clickEvent.defaultPrevented).toBe(false);
         });
 
-        it("点击 <kylin-link to=\"http://example.com\"> 不应使用 router 导航", async () => {
+        it('点击 <kylin-link to="http://example.com"> 不应使用 router 导航', async () => {
             router = await createRouter(host, { routes });
 
             router.push("/user");

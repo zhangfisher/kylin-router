@@ -1,6 +1,6 @@
 import { html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { KylinRouterElementBase } from "../base";
+import { KylinRouterElementBase } from "../Base";
 import type { KylinRouter } from "@/router";
 import { joinPath } from "@/utils/joinPath";
 
@@ -24,7 +24,7 @@ export function isDangerousProtocol(path: string): boolean {
 }
 
 @customElement("kylin-link")
-export class KylinLinkElement extends KylinRouterElementBase {
+export class KylinLink extends KylinRouterElementBase {
     @property({ type: String })
     to = "";
 
@@ -121,6 +121,6 @@ export class KylinLinkElement extends KylinRouterElementBase {
 
 declare global {
     interface HTMLElementTagNameMap {
-        "kylin-link": KylinLinkElement;
+        "kylin-link": KylinLink;
     }
 }

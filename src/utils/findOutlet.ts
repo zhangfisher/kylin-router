@@ -1,4 +1,4 @@
-import type { KylinOutlet } from "@/components/outlet";
+import type { KylinOutlet } from "@/components/Outlet";
 
 /**
  * 检查元素的祖先中是否包含 kylin-outlet

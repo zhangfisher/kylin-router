@@ -167,7 +167,7 @@ export interface KylinRouteItem {
      *    - () => Promise<any>: 通过动态导入函数加载组件，支持本地组件和远程HTML内容
      *
      * 2. ViewOptions - 视图配置：
-     *    - form: ViewSource - 视图源
+     *    - from: ViewSource - 视图源
      *    - allowUnsafeHTML: 是否允许不安全的HTML（默认 false）
      *    - timeout: 加载超时时间（默认 5000ms）
      *    - selector: 自定义内容提取选择器

@@ -26,7 +26,7 @@ import { customElement } from "lit/decorators.js";
  * ```
  */
 @customElement("kylin-view-meta")
-export class KylinViewMetaElement extends LitElement {
+export class KylinViewMeta extends LitElement {
     /**
      * 组件不占据任何空间，不参与排版
      */
@@ -170,7 +170,10 @@ export class KylinViewMetaElement extends LitElement {
     getArray(name: string, separator: string = ","): string[] {
         const value = this.get(name);
         if (!value) return [];
-        return value.split(separator).map((s) => s.trim()).filter(Boolean);
+        return value
+            .split(separator)
+            .map((s) => s.trim())
+            .filter(Boolean);
     }
 
     /**
@@ -191,6 +194,6 @@ export class KylinViewMetaElement extends LitElement {
 
 declare global {
     interface HTMLElementTagNameMap {
-        "kylin-view-meta": KylinViewMetaElement;
+        "kylin-view-meta": KylinViewMeta;
     }
 }

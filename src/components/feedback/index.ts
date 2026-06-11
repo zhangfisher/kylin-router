@@ -1,9 +1,13 @@
 // @ts-ignore
-import { parse as parseJson } from "really-relaxed-json";
+import rjson from "really-relaxed-json";
 import { LitElement, html, type TemplateResult } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { customElement, property } from "lit/decorators.js";
 import { styles } from "./styles";
+
+// 创建解析器实例
+const parser = rjson.createParser();
+const parseJson = (str: string) => parser.stringToJson(str);
 
 /**
  * 内置错误类型
@@ -68,7 +72,7 @@ const ACTION_ICONS = {
  * ```
  */
 @customElement("kylin-feedback")
-export class KylinFeedbackElement extends LitElement {
+export class KylinFeedback extends LitElement {
     static styles = styles;
 
     /**
@@ -174,7 +178,9 @@ export class KylinFeedbackElement extends LitElement {
 
         // 使用内置类型图标
         if (this.type && BUILTIN_ICONS[this.type]) {
-            return html`<div class="icon ${this.type}">${unsafeHTML(BUILTIN_ICONS[this.type])}</div>`;
+            return html`<div class="icon ${this.type}">
+                ${unsafeHTML(BUILTIN_ICONS[this.type])}
+            </div>`;
         }
 
         // 默认使用 error 图标
@@ -238,7 +244,9 @@ export class KylinFeedbackElement extends LitElement {
      */
     private _renderActionButton(action: ActionConfig): TemplateResult {
         const title = action.title || action.name;
-        const iconHtml = action.icon ? html`<span class="action-icon">${unsafeHTML(action.icon)}</span>` : "";
+        const iconHtml = action.icon
+            ? html`<span class="action-icon">${unsafeHTML(action.icon)}</span>`
+            : "";
 
         return html`
             <button
@@ -276,7 +284,7 @@ export class KylinFeedbackElement extends LitElement {
 
 declare global {
     interface HTMLElementTagNameMap {
-        "kylin-feedback": KylinFeedbackElement;
+        "kylin-feedback": KylinFeedback;
     }
 
     interface HTMLElementEventMap {

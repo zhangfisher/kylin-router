@@ -15,10 +15,7 @@ import type { KylinRouterLogger } from "@/logger";
  * @param route - 当前匹配的路由项数组
  * @returns 错误页面的 HTMLElement
  */
-export type ErrorPageHandler = (
-    error: any,
-    route: KylinMatchedRouteItem[]
-) => HTMLElement;
+export type ErrorPageHandler = (error: any, route: KylinMatchedRouteItem[]) => HTMLElement;
 
 /**
  * 错误页面配置类型
@@ -113,7 +110,7 @@ export type KylinRouterOptions = {
     /** 日志记录器配置 */
     logger?: KylinRouterLogger;
     /** 全局视图加载配置 */
-    viewOptions?: Omit<KylinRouteViewOptions, "form">;
+    viewOptions?: Omit<KylinRouteViewOptions, "from">;
     /** 全局数据加载配置 */
     dataOptions?: Omit<KylinRouteDataOptions, "from">;
     /**
