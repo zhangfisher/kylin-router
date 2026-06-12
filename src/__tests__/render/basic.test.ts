@@ -56,7 +56,7 @@ describe("基础路由匹配渲染", () => {
                     {
                         name: "user",
                         path: "/user/:id",
-                        view: '<div class="user">User {{ $params.id }}</div>',
+                        view: '<div class="user" x-text="`User ${$params.id}`"></div>',
                     },
                 ],
             });
@@ -67,17 +67,17 @@ describe("基础路由匹配渲染", () => {
 
             const userElement = host.querySelector(".user");
             expect(userElement).not.toBeNull();
+            expect(userElement!.textContent).toBe("User 123");
 
             collector.dispose();
         });
-
         it("应该正确渲染多参数路由", async () => {
             router = await createRouter(host, win, {
                 routes: [
                     {
                         name: "post",
                         path: "/post/:category/:id",
-                        view: '<div class="post">Post {{ $params.category }}/{{ $params.id }}</div>',
+                        view: '<div class="post" x-text="`Post ${$params.category}/${$params.id}`"></div>',
                     },
                 ],
             });
@@ -88,6 +88,7 @@ describe("基础路由匹配渲染", () => {
 
             const postElement = host.querySelector(".post");
             expect(postElement).not.toBeNull();
+            expect(postElement!.textContent).toBe("Post tech/42");
 
             collector.dispose();
         });
@@ -98,7 +99,7 @@ describe("基础路由匹配渲染", () => {
                     {
                         name: "search",
                         path: "/search",
-                        view: '<div class="search">Search {{ $query.q }}</div>',
+                        view: '<div class="search" x-text="`Search ${$query.q}`"></div>',
                     },
                 ],
             });
@@ -109,6 +110,7 @@ describe("基础路由匹配渲染", () => {
 
             const searchElement = host.querySelector(".search");
             expect(searchElement).not.toBeNull();
+            expect(searchElement.textContent).toBe("Search test");
 
             collector.dispose();
         });

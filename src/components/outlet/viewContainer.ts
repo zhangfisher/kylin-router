@@ -88,13 +88,18 @@ export class ViewContainer {
 
     resolve(view: string | HTMLElement, data: Record<string, any> | undefined, cssVars?: string[]) {
         // 设置 x-data 属性
-        // 注意：只有当路由有自己的数据时才设置 x-data
-        // 如果不设置 x-data，子模板会自动继承父路由容器的数据作用域
+        // 有自定义数据函数：使用 dataHash
+        // 无自定义数据函数：使用内联空对象，Alpine 会自动创建响应式对象
+        // 这样可以确保 x-inject-data 指令能找到当前容器的数据作用域
         if (this.dataHash && data && Object.keys(data).length > 0) {
             // 有数据：使用自己的 dataHash
             this.container.setAttribute("x-data", this.dataHash);
+        } else {
+            // 使用内联空对象，Alpine 会自动创建响应式对象
+            // 按需创建，无预注册内存开销
+            // 确保 x-inject-data 指令能找到当前容器的数据作用域
+            this.container.setAttribute("x-data", "{}");
         }
-        // 无数据时不设置 x-data，让模板继承父路由的数据作用域
 
         // 设置 scoped CSS 相关属性 自动注入 x-cssvar 指令
         if (cssVars && cssVars.length > 0) {

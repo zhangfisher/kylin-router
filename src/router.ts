@@ -202,7 +202,11 @@ export class KylinRouter extends Mixin(
         toRoute: KylinMatchedRouteItem[];
     } {
         const fromRoute = this.routes.current;
-        const toRoute = matchRoute(pathname + "?" + search, this.routes.root, {});
+        // location.search 已经包含了 ? 前缀，所以直接拼接即可
+        // 当 search 为 "" 时：pathname + "" = pathname
+        // 当 search 为 "?q=test" 时：pathname + "?q=test" = pathname?q=test
+        const fullPath = pathname + search;
+        const toRoute = matchRoute(fullPath, this.routes.root, {});
         return { fromRoute, toRoute };
     }
 

@@ -157,6 +157,27 @@ export class KylinOutlet extends KylinRouterElementBase {
     getViewContainer(hash: string): HTMLElement | null {
         return this.querySelector(`[id="${hash}"]`);
     }
+    private _injectRouteData(matched: KylinMatchedRouteItem, viewContainer: ViewContainer) {
+        // 检测是否为参数变化导致的容器复用
+        const existingContainer = this.getViewContainer(viewContainer.viewHash);
+        const isReusedWithParamChange =
+            existingContainer && existingContainer.dataset.url !== matched.url;
+
+        const routeData: Record<string, any> = {};
+        if (matched.params && Object.keys(matched.params).length) {
+            routeData["$params"] = matched.params;
+        }
+        if (matched.query && Object.keys(matched.query).length > 0) {
+            routeData["$query"] = matched.query;
+        }
+        if (Object.keys(routeData).length > 0) {
+            viewContainer.container.setAttribute("x-inject-data", JSON.stringify(routeData));
+            // 如果是参数变化导致的容器复用，直接更新 Alpine 组件数据
+            if (isReusedWithParamChange) {
+                this._updateAlpineComponentData(viewContainer.container, routeData);
+            }
+        }
+    }
     /**
      *
      * @param hash
@@ -165,30 +186,10 @@ export class KylinOutlet extends KylinRouterElementBase {
      */
     createViewContainer(matched: KylinMatchedRouteItem, options?: ViewContainerOptions) {
         const viewContainer = new ViewContainer(this, options);
-
-        // 检测是否为参数变化导致的容器复用
-        const existingContainer = this.getViewContainer(viewContainer.viewHash);
-        const isReusedWithParamChange =
-            existingContainer && existingContainer.dataset.url !== matched.url;
-
         // 记录
         viewContainer.container.setAttribute("data-url", matched.url);
-
-        const extraData: Record<string, any> = {};
-        if (matched.params && Object.keys(matched.params).length) {
-            extraData["$params"] = matched.params;
-        }
-        if (matched.query && Object.keys(matched.query).length > 0) {
-            extraData["$query"] = matched.query;
-        }
-        if (Object.keys(extraData).length > 0) {
-            viewContainer.container.setAttribute("x-inject-data", JSON.stringify(extraData));
-
-            // 如果是参数变化导致的容器复用，直接更新 Alpine 组件数据
-            if (isReusedWithParamChange) {
-                this._updateAlpineComponentData(viewContainer.container, extraData);
-            }
-        }
+        // 将路由参数、查询、状态注入视图模板
+        this._injectRouteData(matched, viewContainer);
         return viewContainer;
     }
 

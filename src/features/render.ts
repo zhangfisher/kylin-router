@@ -19,6 +19,7 @@ import type { IAsyncSignal } from "asyncsignal";
 import { KylinRouterError } from "@/errors";
 import type { ViewContainer } from "@/components/Outlet/viewContainer";
 import Alpine from "alpinejs";
+import { isEmptyObject } from "es-toolkit";
 
 type RouteSignalReuslt<T = any> = {
     value: T;
@@ -88,6 +89,16 @@ export class Render {
             this.host.appendChild(outlet);
         }
         return outlet;
+    }
+    private _createDefaultData(matched: KylinMatchedRouteItem) {
+        const mergedData = {
+            $params: matched.params || {},
+            $query: matched.query || {},
+            $state: matched.state || {},
+        };
+        if (!isEmptyObject(mergedData)) {
+            Alpine.data(matched.hash, () => mergedData);
+        }
     }
     /**
      * 执行渲染步骤 - 新的渲染系统
