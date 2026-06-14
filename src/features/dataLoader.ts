@@ -88,9 +88,10 @@ export class DataLoader extends RouteDataLoaderBase<
     /**
      * 并发加载匹配路由的数据
      * @param routes - 匹配的路由数组
+     * @param navSignal - 导航级别的中止信号
      */
-    async loadDatas(routes: KylinMatchedRouteItem[]) {
-        return this.loadRoutes(routes);
+    async loadDatas(routes: KylinMatchedRouteItem[], navSignal?: AbortSignal) {
+        return this.loadRoutes(routes, navSignal);
     }
 
     protected isValidData(content: any): boolean {

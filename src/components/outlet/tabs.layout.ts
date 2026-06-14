@@ -1,5 +1,6 @@
 import { OutletLayoutBase } from "./base.layout";
 import type { KylinOutlet } from "./index";
+import type { KylinSlot } from "../Slot";
 import { css } from "lit";
 
 /**
@@ -54,14 +55,14 @@ export class TabsLayout extends OutletLayoutBase {
         }
 
         /* 内容区域 */
-        kylin-outlet[layout="tabs"] > .kylin-view {
+        kylin-outlet[layout="tabs"] > kylin-slot {
             display: none;
             flex: 1;
             overflow: auto;
             padding: var(--kylin-view-padding, 16px);
         }
 
-        kylin-outlet[layout="tabs"] > .kylin-view.active {
+        kylin-outlet[layout="tabs"] > kylin-slot.active {
             display: block;
             animation: kylin-view-fade-in var(--kylin-view-transition-duration, 0.2s) ease-out;
         }
@@ -185,11 +186,12 @@ export class TabsLayout extends OutletLayoutBase {
     private _rebuildTabs(): void {
         if (!this._tabsHeader) return;
 
-        const views = this.outlet.getViewContainers();
+        const views = this.outlet.getSlots();
         this._tabsHeader.innerHTML = "";
 
         views.forEach((view) => {
-            const url = view.getAttribute("data-url");
+            const slot = view as KylinSlot;
+            const url = slot.url || slot.getAttribute("data-url");
             if (!url) return;
 
             const link = document.createElement("kylin-link");
@@ -198,7 +200,7 @@ export class TabsLayout extends OutletLayoutBase {
             const label = view.getAttribute("data-label") || this._extractLabelFromUrl(url);
             link.textContent = label;
 
-            if (view.classList.contains("active")) {
+            if (view.hasAttribute("active")) {
                 link.classList.add("active");
             }
 
@@ -224,7 +226,7 @@ export class TabsLayout extends OutletLayoutBase {
             mutations.forEach((mutation) => {
                 if (mutation.type === "attributes" && mutation.attributeName === "class") {
                     const target = mutation.target as HTMLElement;
-                    if (target.classList.contains("kylin-view")) {
+                    if (target.classList.contains("kylin-slot")) {
                         this._syncTabActiveState(target);
                     }
                 }
@@ -250,7 +252,7 @@ export class TabsLayout extends OutletLayoutBase {
         const links = this._tabsHeader.querySelectorAll("kylin-link");
         links.forEach((link) => {
             if (link.getAttribute("to") === url) {
-                if (view.classList.contains("active")) {
+                if (view.hasAttribute("active")) {
                     link.classList.add("active");
                 } else {
                     link.classList.remove("active");

@@ -188,9 +188,11 @@ export abstract class RouteDataLoaderBase<
 
     /**
      * 并发加载多个路由
+     * @param routes - 匹配的路由数组
+     * @param navSignal - 导航级别的中止信号
      */
-    public loadRoutes(routes: KylinMatchedRouteItem[]): Promise<PromiseSettledResult<void>[]> {
-        return Promise.allSettled(routes.map((matched) => this.loadRoute(matched)));
+    public loadRoutes(routes: KylinMatchedRouteItem[], navSignal?: AbortSignal): Promise<PromiseSettledResult<void>[]> {
+        return Promise.allSettled(routes.map((matched) => this.loadRoute(matched, navSignal)));
     }
 
     private _createErrorSignal(matched: KylinMatchedRouteItem, error: any, options: TOptions) {
@@ -203,8 +205,10 @@ export abstract class RouteDataLoaderBase<
     }
     /**
      * 加载单个路由
+     * @param matched - 匹配的路由项
+     * @param navSignal - 导航级别的中止信号
      */
-    protected async loadRoute(matched: KylinMatchedRouteItem) {
+    protected async loadRoute(matched: KylinMatchedRouteItem, navSignal?: AbortSignal) {
         // @ts-ignore
         if (!matched.route[this._optionKey]) return;
         const options = this.getRouteOptions(matched);
@@ -221,6 +225,11 @@ export abstract class RouteDataLoaderBase<
                 return;
             }
 
+            // 检查导航是否被中止
+            if (navSignal?.aborted) {
+                return;
+            }
+
             // 3. 异步加载流程
             signal = this.createSignal(matched, options);
             let loader: any;
@@ -229,12 +238,12 @@ export abstract class RouteDataLoaderBase<
             if (isUrlSource(options.from)) {
                 url = options.from as string;
                 signal.meta.url = url;
-                loader = this._loadFromRemote(url, signal, matched, options);
+                loader = this._loadFromRemote(url, signal, matched, options, navSignal);
             } else if (options.from === true) {
                 url = this.getAutoUrl(matched);
                 if (url) {
                     signal.meta.url = url;
-                    loader = this._loadFromRemote(url, signal, matched, options);
+                    loader = this._loadFromRemote(url, signal, matched, options, navSignal);
                 } else {
                     this._removeSignal(matched);
                     return;
@@ -315,12 +324,18 @@ export abstract class RouteDataLoaderBase<
     /**
      * 从远程 URL 加载数据
      * 统一的远程加载逻辑，用于处理 URL 字符串
+     * @param url - 远程 URL
+     * @param signal - 内部信号
+     * @param matched - 匹配的路由项
+     * @param options - 加载选项
+     * @param navSignal - 导航级别的中止信号
      */
     private _loadFromRemote(
         url: string,
         signal: IAsyncSignal,
         matched: KylinMatchedRouteItem,
         options: TOptions,
+        navSignal?: AbortSignal,
     ): Promise<TData> {
         const finalUrl = prefixBaseUrl(url.params(getRouteVars(matched)), this.router.options.base);
         const { timeout = 0 } = options;
@@ -364,8 +379,10 @@ export abstract class RouteDataLoaderBase<
         }
 
         // 构建合并后的 fetch signal
+        // 包含：超时信号 + 外部信号 + 导航级别信号
         const signals = [timeoutController.signal];
         if (externalSignal) signals.push(externalSignal);
+        if (navSignal) signals.push(navSignal);
 
         // 兼容不支持 AbortSignal.any 的环境
         const fetchSignal =
@@ -400,8 +417,7 @@ export abstract class RouteDataLoaderBase<
                             // 真正的超时抛出 TimeoutError
                             throw new KylinRouterTimeoutError();
                         } else {
-                            // 外部主动取消，抛出专门的 CanceledError 或直接静默处理
-                            // 这里假设你有一个 KylinRouterCanceledError，如果没有可以抛出一个通用 Error
+                            // 外部主动取消或导航中止，抛出专门的错误或直接静默处理
                             throw error;
                         }
                     }

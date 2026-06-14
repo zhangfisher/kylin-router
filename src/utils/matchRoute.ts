@@ -815,8 +815,14 @@ function _matchRoutesInternal(
         if (result) return result;
     }
 
-    // 顶层无匹配时，返回未匹配路由项
+    // 顶层无匹配时，根据路径决定是否返回未匹配路由项
     if (parentMatchedRoute === null) {
+        // 对于根路径且没有子路由匹配的情况，返回空数组
+        // 让主函数决定是否返回根路由本身
+        if (path === "/" || path === "") {
+            return [];
+        }
+        // 对于非根路径的无匹配情况，返回未匹配路由项（404处理）
         const unmatchedItem = createUnmatchedRouteItem(path, null, inputQuery, id);
         return [unmatchedItem];
     }
@@ -899,47 +905,8 @@ export function matchRoute(
 
         if (defaultMatches && defaultMatches.length > 0) {
             childMatches = [rootMatch, ...defaultMatches];
-        } else if (!rootChildren || rootChildren.length === 0) {
-            // 如果 normalizeRoutes 已将默认子路由合并到根路由
-            const rootRoute = rootMatch.route;
-            if (rootRoute && rootRoute.name) {
-                const defaultChildRoute: KylinRouteItem = {
-                    path: rootRoute.name || "",
-                    name: rootRoute.name,
-                    view: rootRoute.view,
-                    data: rootRoute.data,
-                };
-                const defaultChildMatch: KylinMatchedRouteItem = {
-                    route: defaultChildRoute,
-                    params: {},
-                    query: inputQuery,
-                    state: {},
-                    path: "/" + (rootRoute.name || ""),
-                    url: "/" + (rootRoute.name || ""),
-                    hash: "",
-                    id: currentId,
-                };
-                defaultChildMatch.hash = getRouteHash(defaultChildMatch);
-
-                if (roots.children && roots.children.length > 0) {
-                    const nestedDefaults = findDefaultRoute(
-                        roots.children,
-                        defaultChildMatch,
-                        inputQuery,
-                        currentId,
-                    );
-                    if (nestedDefaults && nestedDefaults.length > 0) {
-                        childMatches = [rootMatch, defaultChildMatch, ...nestedDefaults];
-                    } else {
-                        childMatches = [rootMatch, defaultChildMatch];
-                    }
-                } else {
-                    childMatches = [rootMatch, defaultChildMatch];
-                }
-            } else {
-                childMatches = [rootMatch];
-            }
         } else {
+            // 没有默认子路由，只返回根路由
             childMatches = [rootMatch];
         }
     } else if (childMatches.length > 0) {

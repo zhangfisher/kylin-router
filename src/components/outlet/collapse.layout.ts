@@ -16,7 +16,7 @@ export class CollapseLayout extends OutletLayoutBase {
             gap: var(--kylin-collapse-gap, 8px);
         }
 
-        kylin-outlet[layout="collapse"] > .kylin-view {
+        kylin-outlet[layout="collapse"] > kylin-slot {
             border: var(--kylin-collapse-border, 1px solid #e0e0e0);
             border-radius: var(--kylin-collapse-radius, 8px);
             background: var(--kylin-collapse-bg, #fff);
@@ -25,31 +25,31 @@ export class CollapseLayout extends OutletLayoutBase {
         }
 
         /* 折叠状态 */
-        kylin-outlet[layout="collapse"] > .kylin-view:not(.expanded) {
+        kylin-outlet[layout="collapse"] > kylin-slot:not(.expanded) {
             max-height: var(--kylin-collapse-collapsed-height, 48px);
         }
 
-        kylin-outlet[layout="collapse"] > .kylin-view:not(.expanded) > * {
+        kylin-outlet[layout="collapse"] > kylin-slot:not(.expanded) > * {
             display: none;
         }
 
         /* 展开状态 */
-        kylin-outlet[layout="collapse"] > .kylin-view.expanded {
+        kylin-outlet[layout="collapse"] > kylin-slot.expanded {
             max-height: none;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        kylin-outlet[layout="collapse"] > .kylin-view.expanded > * {
+        kylin-outlet[layout="collapse"] > kylin-slot.expanded > * {
             display: contents;
         }
 
         /* Active 焦点样式 */
-        kylin-outlet[layout="collapse"] > .kylin-view.active {
+        kylin-outlet[layout="collapse"] > kylin-slot.active {
             border-color: #1890ff;
         }
 
         /* 悬停效果 */
-        kylin-outlet[layout="collapse"] > .kylin-view:hover:not(.expanded) {
+        kylin-outlet[layout="collapse"] > kylin-slot:hover:not(.expanded) {
             border-color: #bbb;
         }
     `;
@@ -69,7 +69,7 @@ export class CollapseLayout extends OutletLayoutBase {
         this.outlet.addEventListener("click", this._clickHandler);
 
         // 初始化时，将当前 active 的视图添加到展开集合
-        const activeView = this.outlet.querySelector(":scope > .kylin-view.active");
+        const activeView = this.outlet.querySelector(":scope > kylin-slot.active");
         if (activeView && activeView.id) {
             this._expandedIds.add(activeView.id);
         }
@@ -86,7 +86,7 @@ export class CollapseLayout extends OutletLayoutBase {
         // 当视图容器被移除时，从展开集合中移除
         mutations.forEach((mutation) => {
             mutation.removedNodes.forEach((node) => {
-                if (node instanceof HTMLElement && node.classList.contains("kylin-view")) {
+                if (node instanceof HTMLElement && node.classList.contains("kylin-slot")) {
                     this._expandedIds.delete(node.id);
                 }
             });
@@ -127,7 +127,7 @@ export class CollapseLayout extends OutletLayoutBase {
      * 更新所有视图的展开状态
      */
     private _updateExpandedState(): void {
-        const views = this.outlet.getViewContainers();
+        const views = this.outlet.getSlots();
 
         views.forEach((view) => {
             if (this._expandedIds.has(view.id)) {

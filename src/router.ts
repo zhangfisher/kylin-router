@@ -87,14 +87,19 @@ export class KylinRouter extends Mixin(
     /** 当前导航版本号（D-23） */
     public currentNavVersion: number = 0;
 
-    /** 渲染版本号，用于取消过期的渲染操作 */
-    protected _renderVersion: number = 0;
-
-    /** 当前渲染操作的 AbortController */
-    protected _currentRenderAbortController: AbortController | null = null;
-
     /** AbortController 用于取消进行中的请求（D-24） */
     private abortController: AbortController = new AbortController();
+
+    /** 导航级别的 AbortController，用于取消进行中的导航操作 */
+    protected _navAbortController: AbortController | null = null;
+
+    /** 当前导航的 AbortSignal，供 dataLoader、viewLoader、render 使用 */
+    get navSignal(): AbortSignal {
+        return this._navAbortController?.signal || new AbortController().signal;
+    }
+
+    /** 当前正在处理的路由 URL，用于检测重复导航 */
+    private _currentNavUrl?: string;
 
     /** 模态容器元素 */
     protected modalContainer: HTMLElement | null = null;
@@ -197,6 +202,7 @@ export class KylinRouter extends Mixin(
     protected _matchRoute(
         pathname: string,
         search: string,
+        state?: unknown,
     ): {
         fromRoute: KylinMatchedRouteItem[] | undefined;
         toRoute: KylinMatchedRouteItem[];
@@ -207,6 +213,12 @@ export class KylinRouter extends Mixin(
         // 当 search 为 "?q=test" 时：pathname + "?q=test" = pathname?q=test
         const fullPath = pathname + search;
         const toRoute = matchRoute(fullPath, this.routes.root, {});
+        // 将 history state 填充到 matched 路由项中
+        if (state) {
+            toRoute.forEach((matchedItem) => {
+                matchedItem.state = state;
+            });
+        }
         return { fromRoute, toRoute };
     }
 
@@ -215,17 +227,64 @@ export class KylinRouter extends Mixin(
      * 执行路由匹配和参数提取
      */
     async onRouteUpdate(location: Update) {
+        // 触发 navigation/start 事件
+        this.emit("navigation:start", location);
         const pathname = location.location.pathname;
         const search = location.location.search;
-        let fromRoute: KylinMatchedRouteItem[] | undefined, toRoute: KylinMatchedRouteItem[];
+
+        // 执行路由匹配并获取导航上下文
+        const matched = this._matchRoute(
+            removePathPrefix(pathname, this.options.base),
+            search,
+            location.location.state,
+        );
+
+        const toRoute = matched.toRoute;
+
+        // 获取目标路由的完整 URL（用于对比）
+        const targetUrl = toRoute.length > 0 ? toRoute[toRoute.length - 1].url : "";
+
+        // 防重入检测：对比当前正在处理的路由 URL
+        // 如果目标路由 URL 相同，说明是重复导航，直接忽略
+        if (this._currentNavUrl === targetUrl) {
+            this.logger.debug("忽略重复导航: {}", targetUrl);
+            // 触发 navigation/start 事件
+            this.emit("navigation:cancel", location);
+            return;
+        }
+
+        // 记录当前正在处理的路由 URL
+        this._currentNavUrl = targetUrl;
+
+        // 递增导航版本号
+        ++this.currentNavVersion;
+        const navVersion = this.currentNavVersion;
+
+        // 中止之前的导航操作（包括 dataLoader、viewLoader、render）
+        if (this._navAbortController) {
+            this.logger.debug("中止之前的导航操作");
+            this._navAbortController.abort();
+        }
+
+        // 创建新的导航 AbortController
+        this._navAbortController = new AbortController();
+        const navSignal = this._navAbortController.signal;
+
+        // 标记正在导航
+        this.isNavigating = true;
+
+        let fromRoute: KylinMatchedRouteItem[] | undefined;
+
         try {
-            // 执行路由匹配并获取导航上下文
-            const matched = this._matchRoute(removePathPrefix(pathname, this.options.base), search);
+            // 检查是否在路由匹配后被中止
+            if (navSignal.aborted) {
+                this.logger.debug("导航在路由匹配后被中止");
+                return;
+            }
 
             this.emit("navigation:matched", matched);
 
             fromRoute = matched.fromRoute;
-            toRoute = matched.toRoute;
 
             this.logger.debug("{} -> 导航到: {} {}, 匹配: {} ", () => [
                 toRoute[0].id,
@@ -239,21 +298,61 @@ export class KylinRouter extends Mixin(
                 from: fromRoute,
                 to: toRoute,
             });
-            if (!shouldContinue) {
-                this.logger.debug("beforeEach 守卫返回 false，取消导航");
+
+            // 检查是否在守卫执行后被中止
+            if (navSignal.aborted) {
+                this.logger.debug("导航在守卫执行后被中止");
                 return;
             }
 
-            // 加载路由视图和数据
-            this.dataLoader.loadDatas(toRoute);
-            this.viewLoader.loadViews(toRoute);
-            // 执行渲染
-            await this._renderRoutes(toRoute, fromRoute);
+            if (!shouldContinue) {
+                this.logger.debug("beforeEach 守卫返回 false，取消导航");
+                this.emit("navigation:cancel", location);
+                return;
+            }
+
+            // 传递 navSignal 给 dataLoader 和 viewLoader
+            // 这样当导航被中止时，正在进行的网络请求也会被取消
+            this.dataLoader.loadDatas(toRoute, navSignal);
+            this.viewLoader.loadViews(toRoute, navSignal);
+
+            // 执行渲染，传递 navSignal
+            await this._renderRoutes(toRoute, fromRoute, navSignal);
         } finally {
+            // 清理导航状态（只有当前导航版本才清理）
+            if (navVersion === this.currentNavVersion) {
+                this.isNavigating = false;
+                this._currentNavUrl = undefined;
+
+                // 清理导航 AbortController
+                if (this._navAbortController) {
+                    this._navAbortController = null;
+                }
+            }
             this.hooks.runAfterRoute({
                 to: toRoute!,
             });
             this.routes.current = toRoute!;
+            this.isNavigating = false;
+            this.emit("navigation:end", location);
+        }
+    }
+
+    /**
+     *
+     */
+    async whenNotNavigating() {
+        if (this.isNavigating) {
+            return new Promise<void>((resolve) => {
+                const cancelSubscriber = this.once("navigation:cancel", () => {
+                    endSubscriber?.();
+                    resolve();
+                });
+                const endSubscriber = this.once("navigation:end", () => {
+                    cancelSubscriber?.();
+                    resolve();
+                });
+            });
         }
     }
 
@@ -286,11 +385,6 @@ export class KylinRouter extends Mixin(
             return;
         }
 
-        // 触发 navigation/start 事件
-        this.emit("navigation:start", {
-            path,
-            mode: "push",
-        });
         if (state !== undefined) {
             this.history.push(path, state);
         } else {
@@ -332,31 +426,16 @@ export class KylinRouter extends Mixin(
             return;
         }
 
-        // 触发 navigation/start 事件
-        this.emit("navigation:start", {
-            path: undefined,
-            mode: "pop",
-        });
         this.history.back();
     }
     forward() {
         this._ensureAttached();
         this._pendingNavigationType = "pop";
-        // 触发 navigation/start 事件
-        this.emit("navigation:start", {
-            path: undefined,
-            mode: "pop",
-        });
         this.history.forward();
     }
     go(delta: number) {
         this._ensureAttached();
         this._pendingNavigationType = "pop";
-        // 触发 navigation/start 事件
-        this.emit("navigation:start", {
-            path: undefined,
-            mode: "pop",
-        });
         this.history.go(delta);
     }
 
@@ -392,12 +471,9 @@ export class KylinRouter extends Mixin(
 
                 // 自动插入默认 outlet（如果 host 内部没有 outlet）
                 this._ensureDefaultOutlet();
-
-                // 标记为已绑定
                 this.attached = true;
-
                 this.emit("routes:attached", undefined);
-
+                // 标记为已绑定
                 // 自动导航到主页
                 this.home();
             })

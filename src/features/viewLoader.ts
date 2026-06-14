@@ -33,9 +33,10 @@ export class ViewLoader extends RouteDataLoaderBase<"view", KylinRouteViewOption
     /**
      * 并发加载匹配路由的视图
      * @param routes - 匹配的路由数组
+     * @param navSignal - 导航级别的中止信号
      */
-    async loadViews(routes: KylinMatchedRouteItem[]) {
-        return this.loadRoutes(routes);
+    async loadViews(routes: KylinMatchedRouteItem[], navSignal?: AbortSignal) {
+        return this.loadRoutes(routes, navSignal);
     }
 
     /**

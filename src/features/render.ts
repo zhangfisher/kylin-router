@@ -4,7 +4,7 @@
  * 提供完整的路由渲染功能，包括：
  * - 逐级嵌套路由渲染
  * - beforeRender/afterRender 钩子集成
- * - viewContainer 管理
+ * - routeSlot 管理
  * - 错误处理和降级
  * - Outlet 查找和创建辅助方法
  *
@@ -17,7 +17,7 @@ import type { KylinMatchedRouteItem, KylinRouteItem } from "@/types";
 import type { KylinOutlet } from "@/components/Outlet";
 import type { IAsyncSignal } from "asyncsignal";
 import { KylinRouterError } from "@/errors";
-import type { ViewContainer } from "@/components/Outlet/viewContainer";
+import type { KylinSlot } from "@/components/Slot";
 import Alpine from "alpinejs";
 import { isEmptyObject } from "es-toolkit";
 
@@ -53,14 +53,14 @@ export class Render {
     private _routeReject(
         this: KylinRouter,
         error: any,
-        viewContainer: ViewContainer,
+        slot: KylinSlot,
         toRoute: KylinMatchedRouteItem[],
     ) {
         this.hooks.runRouteError({
             error,
             to: toRoute,
         });
-        viewContainer.reject(error, this._getErrorPage(error, toRoute));
+        slot.reject(error, this._getErrorPage(error, toRoute));
     }
     private _getCommonRouteIndex(
         this: KylinRouter,
@@ -101,6 +101,46 @@ export class Render {
         }
     }
     /**
+     * 在指定的 Outlet 内部创建或复用 kylin-slot 元素
+     *
+     * @param outlet - 父级 Outlet 元素
+     * @param options - 配置选项
+     * @returns kylin-slot 元素
+     */
+    private _createSlot(
+        this: KylinRouter,
+        outlet: KylinOutlet,
+        options: {
+            id: string; // slot ID，用于唯一标识和复用
+            url?: string; // 当前 URL，用于参数变化检测
+            keepAlive?: boolean; // 是否启用缓存，默认 true
+        },
+    ): KylinSlot {
+        const { id, url, keepAlive = true } = options;
+
+        // 查找已存在的 slot（基于 hash 复用）
+        const existingSlot = outlet.querySelector<KylinSlot>(`kylin-slot[id="${id}"]`);
+
+        // keepAlive=false 时删除旧 slot 并创建新的
+        if (existingSlot && !keepAlive) {
+            existingSlot.remove();
+        }
+
+        // keepAlive=true 时复用已存在的 slot（hash 相同即复用，忽略 url）
+        if (existingSlot && keepAlive) {
+            return existingSlot;
+        }
+
+        // 创建新 slot
+        const slot = document.createElement("kylin-slot") as KylinSlot;
+        slot.id = id;
+        if (url) slot.url = url;
+        slot.loading = true; // 渲染前显示 Loading
+        outlet.appendChild(slot);
+
+        return slot;
+    }
+    /**
      * 执行渲染步骤 - 新的渲染系统
      * 支持逐级嵌套路由渲染、beforeRender/afterRender 钩子、layout 布局等
      * 包含并发控制，防止快速导航时渲染混乱
@@ -109,21 +149,14 @@ export class Render {
         this: KylinRouter,
         toRoute: KylinMatchedRouteItem[],
         fromRoute: KylinMatchedRouteItem[] | undefined,
+        navSignal: AbortSignal,
     ): Promise<void> {
-        // 取消之前的渲染操作
-        if (this._currentRenderAbortController) {
-            this._currentRenderAbortController.abort();
-        }
-
-        // 递增渲染版本号并创建新的取消控制器
-        ++this._renderVersion;
-        const abortController = new AbortController();
-        this._currentRenderAbortController = abortController;
         let hasError: any;
+        let slot: KylinSlot | null | undefined;
         try {
             let currentOutlet: KylinOutlet | null = this._getRootOutlet();
-            // 存储当前迭代创建的 viewContainer，用于取消时清理
-            let pendingViewContainer: ViewContainer | null = null as ViewContainer | null;
+            // 存储当前迭代创建的 routeSlot，用于取消时清理
+            let pendingViewContainer: KylinSlot | null = null as KylinSlot | null;
             this.logger.debug(
                 "{} -> 开始渲染: {}",
                 toRoute[0].id,
@@ -145,9 +178,9 @@ export class Render {
                     ],
                     toRoute[i],
                 );
-                // 检查是否已被新渲染取消
-                if (abortController.signal.aborted) {
-                    this.logger.debug("{} -> 渲染被新导航取消", toRoute[0].id);
+                // 检查是否被导航中止
+                if (navSignal.aborted) {
+                    this.logger.debug("{} -> 渲染被中止", toRoute[0].id);
                     // 清理已创建但未完成的视图容器
                     if (pendingViewContainer) {
                         pendingViewContainer.abort();
@@ -163,7 +196,6 @@ export class Render {
                         i === 0 ? this._getRootOutlet() : currentOutlet.findOutlet(preViewHash!);
 
                     const viewHash = matched.hash;
-                    const dataHash = curRouteItem?._getData?.meta?.hash;
                     preViewHash = viewHash;
 
                     // 公共路由跳过逻辑：直接跳过，currentOutlet 保持不变
@@ -171,21 +203,7 @@ export class Render {
                         continue;
                     }
 
-                    // keepAlive 缓存逻辑：如果视图容器已存在，则跳过渲染
-                    // keepAlive 默认为 true，除非显式设置为 false
-                    if (curRouteItem?.keepAlive !== false) {
-                        const viewContainer = currentOutlet.getViewContainer(viewHash);
-                        if (viewContainer) {
-                            // 相同的hash且需要url一致时才可以复用视图
-                            // 如果url不一样，则只是复用视图容器
-                            const url = viewContainer.dataset.url;
-                            if (url === matched.url) {
-                                currentOutlet.view = viewHash;
-                                currentOutlet = currentOutlet.findOutlet(viewHash);
-                                continue;
-                            }
-                        }
-                    }
+                    // keepAlive 逻辑已在 _createSlot() 内部处理
 
                     // 检查 currentOutlet 是否有效
                     if (!currentOutlet) {
@@ -195,53 +213,60 @@ export class Render {
                     // 是否指定了View参数，如果没有指定
                     const hasView = matched.route?.view;
 
-                    // 创建空的视图容器: 用于插入视图内容或错误页或404页
-                    // 重点： 无论是否加载成功均应该创建容器
-                    //     加载前显示Loading/成功后显示视图/失败后显示错误
-                    const viewContainer = hasView
-                        ? currentOutlet.createViewContainer(matched, {
-                              viewHash: viewHash,
-                              dataHash: dataHash,
+                    // 创建 kylin-slot: 用于渲染视图内容或错误页
+                    slot = hasView
+                        ? this._createSlot(currentOutlet, {
+                              id: viewHash,
+                              url: matched.url,
                               keepAlive: curRouteItem.keepAlive !== false,
                           })
                         : null;
+
+                    // 创建默认数据（$params、$query、$state）并注册到 Alpine
+                    this._createDefaultData(matched);
                     // 提醒：没有view为什么还要继续？没有view但可能可以加载数据，数据可以供后续子路由访问
                     try {
-                        pendingViewContainer = viewContainer;
+                        pendingViewContainer = slot;
+
+                        // 检查导航是否被中止
+                        if (navSignal.aborted) {
+                            this.logger.debug("数据加载前被中止");
+                            return;
+                        }
+
                         const data = await this._loadData(matched);
+
+                        if (navSignal.aborted) {
+                            this.logger.debug("视图加载前被中止");
+                            return;
+                        }
+
                         const view = await this._loadView(matched);
-                        this.logger.debug(
-                            "{} -> 路由数据加载完成 {}/{} data={}({}) view={}",
-                            () => [toRoute[0].id, i + 1, toRoute.length, data, data?.hash, view],
-                        );
                         // 如果 view 为 null/undefined，即没有创建
                         if (view) {
                             if (view.error) {
-                                this._routeReject(view.error, viewContainer!, toRoute);
+                                this._routeReject(view.error, slot!, toRoute);
                                 break;
                             } else {
                                 await this._runBeforeRender(
                                     fromRoute || [],
                                     toRoute,
-                                    viewContainer!.container,
+                                    slot!,
                                     data?.value,
                                 );
-                                viewContainer?.resolve(view.value, data?.value);
-                                this._runAfterRender(
-                                    fromRoute || [],
-                                    toRoute,
-                                    viewContainer!.container,
-                                );
+                                slot?.resolve(view.value, data);
+                                slot!.active = true;
+                                this._runAfterRender(fromRoute || [], toRoute, slot!);
                             }
                         }
                     } catch (loadingError) {
                         this.logger.error("视图或数据加载失败", loadingError);
-                        if (viewContainer) this._routeReject(loadingError, viewContainer, toRoute);
+                        if (slot) this._routeReject(loadingError, slot, toRoute);
                         break;
                     } finally {
-                        if (viewContainer) {
-                            viewContainer.finally();
-                            Alpine.initTree(viewContainer.container);
+                        if (slot) {
+                            slot.finally();
+                            Alpine.initTree(slot);
                         }
                         pendingViewContainer = null;
                     }
@@ -251,14 +276,10 @@ export class Render {
             this.logger.error(`渲染失败: ${error.message}`, error);
             hasError = error;
         } finally {
-            // 清理：只有当前渲染操作的控制器才清理
-            if (this._currentRenderAbortController === abortController) {
-                this._currentRenderAbortController = null;
-            }
             // 渲染完成后，从渲染根开始重新初始化 Alpine
             // 这样可以让 Alpine 处理动态插入的子路由内容
             Alpine.initTree(this.host);
-            this.emit("render:after", { route: toRoute, error: hasError });
+            this.emit("render:after", { route: toRoute, error: hasError, slot });
         }
     }
 

@@ -229,15 +229,15 @@ export function findElementInOutlet(host: HTMLElement, selector: string): Elemen
 }
 
 /**
- * 验证视图容器存在
+ * 验证视图容器存在（查找 kylin-slot）
  * @param host - 宿主元素
- * @param hash - 视图容器的 hash 值
- * @returns 视图容器元素或 null
+ * @param hash - kylin-slot 的 id（即路由 hash）
+ * @returns kylin-slot 元素或 null
  */
 export function findViewContainer(host: HTMLElement, hash: string): Element | null {
     const outlet = host.querySelector("kylin-outlet");
     if (!outlet) return null;
-    return outlet.querySelector(`.kylin-view[id="${hash}"]`);
+    return outlet.querySelector(`kylin-slot[id="${hash}"]`);
 }
 
 /**
@@ -250,7 +250,7 @@ export function findViewContainer(host: HTMLElement, hash: string): Element | nu
 export function validateRenderStructure(
     host: HTMLElement,
     collector: RouteEventCollector,
-    contentSelector: string
+    contentSelector: string,
 ): {
     outletExists: boolean;
     contentInOutlet: boolean;
@@ -271,17 +271,17 @@ export function validateRenderStructure(
 }
 
 /**
- * 便捷的断言函数：验证渲染内容在 kylin-outlet 内且视图容器存在（使用事件监听）
+ * 便捷的断言函数：验证渲染内容在 kylin-outlet 内且视图容器存在
  * @param host - 宿主元素
- * @param collector - 路由事件收集器实例
+ * @param router - KylinRouter 实例
  * @param contentSelector - 渲染内容的选择器
  * @param textContent - 可选，验证渲染内容的文本
  */
 export function assertRenderInOutlet(
     host: HTMLElement,
-    collector: RouteEventCollector,
+    router: any,
     contentSelector: string,
-    textContent?: string
+    textContent?: string,
 ): void {
     // 验证 kylin-outlet 存在
     const outlet = host.querySelector("kylin-outlet");
@@ -299,14 +299,17 @@ export function assertRenderInOutlet(
     if (textContent !== undefined) {
         const actualText = contentElement.textContent;
         if (actualText !== textContent) {
-            throw new Error(
-                `文本内容不匹配。期望: "${textContent}", 实际: "${actualText}"`
-            );
+            throw new Error(`文本内容不匹配。期望: "${textContent}", 实际: "${actualText}"`);
         }
     }
 
-    // 验证视图容器存在（根据 hash）
-    const routeHash = collector.toRouteHash;
+    // 验证视图容器存在（根据 router.routes.current）
+    const currentRoutes = router.routes.current;
+    if (!currentRoutes || currentRoutes.length === 0) {
+        throw new Error("当前路由不存在");
+    }
+
+    const routeHash = currentRoutes[currentRoutes.length - 1].hash;
     if (!routeHash) {
         throw new Error("无法获取路由 hash");
     }
@@ -316,9 +319,9 @@ export function assertRenderInOutlet(
         throw new Error(`视图容器不存在: hash=${routeHash}`);
     }
 
-    // 验证视图容器有正确的 class
-    if (!viewContainer.className.includes("kylin-view")) {
-        throw new Error(`视图容器缺少 kylin-view class: ${viewContainer.className}`);
+    // 验证视图容器是 kylin-slot 元素
+    if (viewContainer.tagName.toLowerCase() !== "kylin-slot") {
+        throw new Error(`视图容器不是 kylin-slot 元素: ${viewContainer.tagName}`);
     }
 }
 
@@ -328,7 +331,10 @@ export function assertRenderInOutlet(
  * @param timeout - 超时时间（毫秒），默认 5000
  * @returns 路由事件收集器实例
  */
-export async function waitForRender(router: KylinRouter, timeout: number = 5000): Promise<RouteEventCollector> {
+export async function waitForRender(
+    router: KylinRouter,
+    timeout: number = 5000,
+): Promise<RouteEventCollector> {
     const collector = new RouteEventCollector(router);
 
     return new Promise((resolve, reject) => {
@@ -352,7 +358,10 @@ export async function waitForRender(router: KylinRouter, timeout: number = 5000)
  * @param timeout - 超时时间（毫秒），默认 1000
  * @returns 路由事件收集器实例
  */
-export async function waitForNavigationMatched(router: KylinRouter, timeout: number = 1000): Promise<RouteEventCollector> {
+export async function waitForNavigationMatched(
+    router: KylinRouter,
+    timeout: number = 1000,
+): Promise<RouteEventCollector> {
     const collector = new RouteEventCollector(router);
 
     return new Promise((resolve, reject) => {
@@ -377,13 +386,11 @@ export async function waitForNavigationMatched(router: KylinRouter, timeout: num
  */
 export function assertNavigationMode(
     collector: RouteEventCollector,
-    expectedMode: "push" | "replace" | "pop"
+    expectedMode: "push" | "replace" | "pop",
 ): void {
     const actualMode = collector.navigationMode;
     if (actualMode !== expectedMode) {
-        throw new Error(
-            `导航模式不匹配。期望: "${expectedMode}", 实际: "${actualMode}"`
-        );
+        throw new Error(`导航模式不匹配。期望: "${expectedMode}", 实际: "${actualMode}"`);
     }
 }
 
@@ -396,21 +403,17 @@ export function assertNavigationMode(
 export function assertRouteTransition(
     collector: RouteEventCollector,
     toHash: string,
-    fromHash?: string
+    fromHash?: string,
 ): void {
     const actualToHash = collector.toRouteHash;
     if (actualToHash !== toHash) {
-        throw new Error(
-            `目标路由 hash 不匹配。期望: "${toHash}", 实际: "${actualToHash}"`
-        );
+        throw new Error(`目标路由 hash 不匹配。期望: "${toHash}", 实际: "${actualToHash}"`);
     }
 
     if (fromHash !== undefined) {
         const actualFromHash = collector.fromRouteHash;
         if (actualFromHash !== fromHash) {
-            throw new Error(
-                `源路由 hash 不匹配。期望: "${fromHash}", 实际: "${actualFromHash}"`
-            );
+            throw new Error(`源路由 hash 不匹配。期望: "${fromHash}", 实际: "${actualFromHash}"`);
         }
     }
 }
@@ -431,7 +434,10 @@ export function assertNoRenderError(collector: RouteEventCollector): void {
  * @param collector - 路由事件收集器实例
  * @param expectedErrorMessage - 期望的错误消息（可选）
  */
-export function assertRenderError(collector: RouteEventCollector, expectedErrorMessage?: string): void {
+export function assertRenderError(
+    collector: RouteEventCollector,
+    expectedErrorMessage?: string,
+): void {
     if (!collector.hasRenderError) {
         throw new Error("期望渲染发生错误，但渲染成功");
     }
@@ -440,7 +446,7 @@ export function assertRenderError(collector: RouteEventCollector, expectedErrorM
         const actualError = collector.renderError;
         if (!actualError?.message.includes(expectedErrorMessage)) {
             throw new Error(
-                `错误消息不匹配。期望包含: "${expectedErrorMessage}", 实际: "${actualError?.message}"`
+                `错误消息不匹配。期望包含: "${expectedErrorMessage}", 实际: "${actualError?.message}"`,
             );
         }
     }
@@ -470,6 +476,7 @@ export async function createRouter(host: HTMLElement, win: any, options: any) {
 
     // 先导入组件以确保自定义元素被注册
     const componentsModule = await import("@/components");
+    const { KylinSlot } = await import("@/components/Slot");
 
     // 确保 happy-dom 的 customElements 有正确的注册
     // 重新注册所有自定义元素到 win.customElements
@@ -491,6 +498,9 @@ export async function createRouter(host: HTMLElement, win: any, options: any) {
     if (!win.customElements.get("kylin-view-meta") && KylinViewMeta) {
         win.customElements.define("kylin-view-meta", KylinViewMeta);
     }
+    if (!win.customElements.get("kylin-slot") && KylinSlot) {
+        win.customElements.define("kylin-slot", KylinSlot);
+    }
 
     const { KylinRouter } = await import("@/router");
     const router = new KylinRouter(host, options);
@@ -509,7 +519,5 @@ export async function createRouter(host: HTMLElement, win: any, options: any) {
             clearTimeout(timeout);
             resolve(router);
         });
-
-        router.attach();
     });
 }

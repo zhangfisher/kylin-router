@@ -1,6 +1,9 @@
 import type { Update } from "history";
 import type { KylinRouteItem } from "./index";
 import type { KylinMatchedRouteItem, ModalStackItem } from "./routes";
+import type { KylinSlot } from "@/components/Slot";
+
+export type NavigationLocation = Update;
 
 export type KylinRouterEvents = {
     /**
@@ -11,20 +14,15 @@ export type KylinRouterEvents = {
      * 路由表挂载到DOM元素
      */
     "routes:attached": undefined;
-    "navigation:start": {
-        path?: string;
-        mode?: "push" | "replace" | "pop";
-    };
+    "navigation:start": NavigationLocation;
+    "navigation:cancel": NavigationLocation;
+    "navigation:end": NavigationLocation;
     /**
      * 当导航匹配后
      */
     "navigation:matched": {
         fromRoute: KylinMatchedRouteItem[] | undefined;
         toRoute: KylinMatchedRouteItem[];
-    };
-    "navigation:end": {
-        location: Update;
-        mode: "push" | "replace" | "pop";
     };
     "route:updated": {
         route: KylinRouteItem | undefined;
@@ -34,7 +32,7 @@ export type KylinRouterEvents = {
     };
 
     "render:before": { route: KylinMatchedRouteItem[] };
-    "render:after": { route: KylinMatchedRouteItem[]; error?: Error };
+    "render:after": { route: KylinMatchedRouteItem[]; error?: Error; slot?: KylinSlot | null };
 
     "modal:open": {
         route: KylinRouteItem;

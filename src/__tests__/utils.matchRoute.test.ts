@@ -2562,3 +2562,77 @@ describe("matchRoute - 重定向处理", () => {
         });
     });
 });
+
+describe("matchRoute - 根路由无子路由边界情况", () => {
+    it("当路径为'/'且路由无children时，应仅返回rootMatch（无name属性）", () => {
+        const routes: KylinRouteItem = normalizeRoutes({
+            path: "/"
+        });
+
+        const result = matchRoute("/", routes);
+
+        expect(result).toHaveLength(1);
+        expect(result[0].route.path).toBe("/");
+        expect(result[0].url).toBe("/");
+    });
+
+    it("当路径为'/'且路由children为空数组时，应仅返回rootMatch（无name属性）", () => {
+        const routes: KylinRouteItem = normalizeRoutes({
+            path: "/",
+            children: []
+        });
+
+        const result = matchRoute("/", routes);
+
+        expect(result).toHaveLength(1);
+        expect(result[0].route.path).toBe("/");
+        expect(result[0].url).toBe("/");
+    });
+
+    it("当路径为'/'且路由有name属性时，应仅返回rootMatch（不自动创建默认子路由）", () => {
+        const routes: KylinRouteItem = normalizeRoutes({
+            path: "/",
+            name: "home",
+            view: "home.html"
+        });
+
+        const result = matchRoute("/", routes);
+
+        // 根路由有name属性时，也不应该自动创建默认子路由
+        expect(result).toHaveLength(1);
+        expect(result[0].route.path).toBe("/");
+        expect(result[0].route.name).toBe("home");
+        expect(result[0].route.view).toBe("home.html");
+        expect(result[0].url).toBe("/");
+    });
+
+    it("非根路径无匹配时仍应返回未匹配项（404处理）", () => {
+        const routes: KylinRouteItem = normalizeRoutes({
+            path: "/",
+            children: []
+        });
+
+        const result = matchRoute("/nonexistent", routes);
+
+        expect(result).toHaveLength(2);
+        expect(result[0].route.path).toBe("/");
+        expect(result[1].route).toBeUndefined();
+        expect(result[1].url).toBe("/nonexistent");
+    });
+
+    it("子路由存在时应正常匹配", () => {
+        const routes: KylinRouteItem = normalizeRoutes({
+            path: "/",
+            children: [
+                { name: "about", path: "about" }
+            ]
+        });
+
+        const result = matchRoute("/about", routes);
+
+        expect(result).toHaveLength(2);
+        expect(result[0].route.path).toBe("/");
+        expect(result[1].route.name).toBe("about");
+        expect(result[1].url).toBe("/about");
+    });
+});

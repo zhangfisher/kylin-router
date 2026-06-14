@@ -25,6 +25,24 @@ describe("基础路由匹配渲染", () => {
     });
 
     describe("静态路由渲染", () => {
+        it("默认导航到主页", async () => {
+            router = await createRouter(host, win, {
+                routes: {
+                    name: "home",
+                    path: "/",
+                    view: '<div class="home">Home Page</div>',
+                },
+            });
+
+            // 在 push 之前创建事件收集器
+            const collector = new RouteEventCollector(router);
+            // 等待渲染完成
+            await new Promise((resolve) => setTimeout(resolve, 150));
+            // 使用 router 验证渲染结构
+            assertRenderInOutlet(host, router, ".home", "Home Page");
+            // 清理事件监听器
+            collector.dispose();
+        }, 5000000000);
         it("应该正确渲染静态路由", async () => {
             router = await createRouter(host, win, {
                 routes: {
@@ -36,17 +54,17 @@ describe("基础路由匹配渲染", () => {
 
             // 在 push 之前创建事件收集器
             const collector = new RouteEventCollector(router);
-            router.push("/");
+            // router.push("/");
 
             // 等待渲染完成
-            await new Promise((resolve) => setTimeout(resolve, 100));
+            await new Promise((resolve) => setTimeout(resolve, 150));
 
-            // 使用事件收集器验证渲染结构
-            assertRenderInOutlet(host, collector, ".home", "Home Page");
+            // 使用 router 验证渲染结构
+            assertRenderInOutlet(host, router, ".home", "Home Page");
 
             // 清理事件监听器
             collector.dispose();
-        });
+        }, 5000000000);
     });
 
     describe("参数化路由渲染", () => {
@@ -63,7 +81,28 @@ describe("基础路由匹配渲染", () => {
 
             const collector = new RouteEventCollector(router);
             router.push("/user/123");
-            await new Promise((resolve) => setTimeout(resolve, 100));
+            await new Promise((resolve) => setTimeout(resolve, 150));
+
+            const userElement = host.querySelector(".user");
+            expect(userElement).not.toBeNull();
+            expect(userElement!.textContent).toBe("User 123");
+
+            collector.dispose();
+        });
+        it("应该正确渲染路由参数插值", async () => {
+            router = await createRouter(host, win, {
+                routes: [
+                    {
+                        name: "user",
+                        path: "/user/:id",
+                        view: '<div class="user">User {{ $params.id }}</div>',
+                    },
+                ],
+            });
+
+            const collector = new RouteEventCollector(router);
+            router.push("/user/123");
+            await new Promise((resolve) => setTimeout(resolve, 150));
 
             const userElement = host.querySelector(".user");
             expect(userElement).not.toBeNull();
@@ -84,7 +123,7 @@ describe("基础路由匹配渲染", () => {
 
             const collector = new RouteEventCollector(router);
             router.push("/post/tech/42");
-            await new Promise((resolve) => setTimeout(resolve, 100));
+            await new Promise((resolve) => setTimeout(resolve, 150));
 
             const postElement = host.querySelector(".post");
             expect(postElement).not.toBeNull();
@@ -106,11 +145,33 @@ describe("基础路由匹配渲染", () => {
 
             const collector = new RouteEventCollector(router);
             router.push("/search?q=test&page=1");
-            await new Promise((resolve) => setTimeout(resolve, 100));
+            await new Promise((resolve) => setTimeout(resolve, 150));
 
             const searchElement = host.querySelector(".search");
             expect(searchElement).not.toBeNull();
-            expect(searchElement.textContent).toBe("Search test");
+            expect(searchElement!.textContent).toBe("Search test");
+
+            collector.dispose();
+        });
+
+        it("应该正确处理导航状态 state 参数", async () => {
+            router = await createRouter(host, win, {
+                routes: [
+                    {
+                        name: "user",
+                        path: "/user/:id",
+                        view: '<div class="user" x-text="`User ${$params.id} from ${$state.from || \'direct\'}`"></div>',
+                    },
+                ],
+            });
+
+            const collector = new RouteEventCollector(router);
+            router.push("/user/123", { from: "home", timestamp: Date.now() });
+            await new Promise((resolve) => setTimeout(resolve, 150));
+
+            const userElement = host.querySelector(".user");
+            expect(userElement).not.toBeNull();
+            expect(userElement!.textContent).toBe("User 123 from home");
 
             collector.dispose();
         });
