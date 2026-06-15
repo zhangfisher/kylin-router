@@ -100,6 +100,8 @@ export class KylinRouter extends Mixin(
 
     /** 当前正在处理的路由 URL，用于检测重复导航 */
     private _currentNavUrl?: string;
+    protected _lastViewSlot: HTMLElement | null = null;
+    protected _lastMatched: KylinMatchedRouteItem[] | null = null;
 
     /** 模态容器元素 */
     protected modalContainer: HTMLElement | null = null;
@@ -193,6 +195,13 @@ export class KylinRouter extends Mixin(
         return this.history.location;
     }
 
+    get lastViewSlot() {
+        return this._lastViewSlot;
+    }
+    get lastMatched() {
+        return this._lastMatched;
+    }
+
     /**
      * 执行路由匹配并构造导航上下文
      * @param pathname - 路径名称
@@ -227,17 +236,20 @@ export class KylinRouter extends Mixin(
      * 执行路由匹配和参数提取
      */
     async onRouteUpdate(location: Update) {
+        // 标记正在导航
+        this.isNavigating = true;
         // 触发 navigation/start 事件
         this.emit("navigation:start", location);
         const pathname = location.location.pathname;
         const search = location.location.search;
-
+        this._lastViewSlot = null;
         // 执行路由匹配并获取导航上下文
         const matched = this._matchRoute(
             removePathPrefix(pathname, this.options.base),
             search,
             location.location.state,
         );
+        this.emit("navigation:matched", matched);
 
         const toRoute = matched.toRoute;
 
@@ -269,9 +281,6 @@ export class KylinRouter extends Mixin(
         // 创建新的导航 AbortController
         this._navAbortController = new AbortController();
         const navSignal = this._navAbortController.signal;
-
-        // 标记正在导航
-        this.isNavigating = true;
 
         let fromRoute: KylinMatchedRouteItem[] | undefined;
 
@@ -339,17 +348,20 @@ export class KylinRouter extends Mixin(
     }
 
     /**
-     *
+     * 等待结束导航
      */
-    async whenNotNavigating() {
+    async isStopNavigating() {
         if (this.isNavigating) {
             return new Promise<void>((resolve) => {
+                let endSubscriber: (() => void) | null = null;
+
                 const cancelSubscriber = this.once("navigation:cancel", () => {
                     endSubscriber?.();
                     resolve();
                 });
-                const endSubscriber = this.once("navigation:end", () => {
-                    cancelSubscriber?.();
+
+                endSubscriber = this.once("navigation:end", () => {
+                    cancelSubscriber();
                     resolve();
                 });
             });
@@ -394,11 +406,6 @@ export class KylinRouter extends Mixin(
     replace(path: string, state?: Record<string, any>) {
         this._ensureAttached();
         this._pendingNavigationType = "replace";
-        // 触发 navigation/start 事件
-        this.emit("navigation:start", {
-            path,
-            mode: "replace",
-        });
         if (state !== undefined) {
             this.history.replace(path, state);
         } else {

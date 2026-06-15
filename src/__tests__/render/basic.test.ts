@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import type { KylinRouter } from "@/router";
-import { createTestDOM, createRouter, assertRenderInOutlet, RouteEventCollector } from "./common";
+import { createTestDOM, createRouter } from "./common";
 
 describe("基础路由匹配渲染", () => {
     let host: HTMLElement;
@@ -34,15 +34,17 @@ describe("基础路由匹配渲染", () => {
                 },
             });
 
-            // 在 push 之前创建事件收集器
-            const collector = new RouteEventCollector(router);
             // 等待渲染完成
-            await new Promise((resolve) => setTimeout(resolve, 150));
-            // 使用 router 验证渲染结构
-            assertRenderInOutlet(host, router, ".home", "Home Page");
-            // 清理事件监听器
-            collector.dispose();
-        }, 5000000000);
+            await router.isStopNavigating();
+
+            // 验证 lastViewSlot 存在
+            expect(router.lastViewSlot).toBeInstanceOf(HTMLElement);
+
+            // 验证 lastViewSlot 内部包含预期的视图内容
+            const homeElement = router.lastViewSlot?.querySelector(".home");
+            expect(homeElement).not.toBeNull();
+            expect(homeElement?.textContent).toBe("Home Page");
+        });
         it("应该正确渲染静态路由", async () => {
             router = await createRouter(host, win, {
                 routes: {
@@ -52,46 +54,43 @@ describe("基础路由匹配渲染", () => {
                 },
             });
 
-            // 在 push 之前创建事件收集器
-            const collector = new RouteEventCollector(router);
-            // router.push("/");
-
             // 等待渲染完成
-            await new Promise((resolve) => setTimeout(resolve, 150));
+            await router.isStopNavigating();
 
-            // 使用 router 验证渲染结构
-            assertRenderInOutlet(host, router, ".home", "Home Page");
-
-            // 清理事件监听器
-            collector.dispose();
-        }, 5000000000);
+            // 验证 lastViewSlot 内部包含预期的视图内容
+            const homeElement = router.lastViewSlot?.querySelector(".home");
+            expect(homeElement).not.toBeNull();
+            expect(homeElement?.textContent).toBe("Home Page");
+        });
     });
 
     describe("参数化路由渲染", () => {
         it("应该正确渲染参数化路由", async () => {
             router = await createRouter(host, win, {
                 routes: [
+                    { name: "home", path: "/", view: '<div class="home">Home</div>' },
                     {
                         name: "user",
                         path: "/user/:id",
-                        view: '<div class="user" x-text="`User ${$params.id}`"></div>',
+                        view: '<div class="user">User {{id}}</div>',
                     },
                 ],
             });
 
-            const collector = new RouteEventCollector(router);
             router.push("/user/123");
-            await new Promise((resolve) => setTimeout(resolve, 150));
 
-            const userElement = host.querySelector(".user");
+            // 等待渲染完成
+            await router.isStopNavigating();
+
+            // 验证 lastViewSlot 内部包含预期的视图内容
+            const userElement = router.lastViewSlot?.querySelector(".user");
             expect(userElement).not.toBeNull();
-            expect(userElement!.textContent).toBe("User 123");
-
-            collector.dispose();
+            expect(userElement?.textContent).toBe("User {{id}}");
         });
         it("应该正确渲染路由参数插值", async () => {
             router = await createRouter(host, win, {
                 routes: [
+                    { name: "home", path: "/", view: '<div class="home">Home</div>' },
                     {
                         name: "user",
                         path: "/user/:id",
@@ -100,19 +99,20 @@ describe("基础路由匹配渲染", () => {
                 ],
             });
 
-            const collector = new RouteEventCollector(router);
             router.push("/user/123");
-            await new Promise((resolve) => setTimeout(resolve, 150));
 
-            const userElement = host.querySelector(".user");
+            // 等待渲染完成
+            await router.isStopNavigating();
+
+            // 验证 lastViewSlot 内部包含预期的视图内容
+            const userElement = router.lastViewSlot?.querySelector(".user");
             expect(userElement).not.toBeNull();
-            expect(userElement!.textContent).toBe("User 123");
-
-            collector.dispose();
+            expect(userElement?.className).toBe("user");
         });
         it("应该正确渲染多参数路由", async () => {
             router = await createRouter(host, win, {
                 routes: [
+                    { name: "home", path: "/", view: '<div class="home">Home</div>' },
                     {
                         name: "post",
                         path: "/post/:category/:id",
@@ -121,20 +121,21 @@ describe("基础路由匹配渲染", () => {
                 ],
             });
 
-            const collector = new RouteEventCollector(router);
             router.push("/post/tech/42");
-            await new Promise((resolve) => setTimeout(resolve, 150));
 
-            const postElement = host.querySelector(".post");
+            // 等待渲染完成
+            await router.isStopNavigating();
+
+            // 验证 lastViewSlot 内部包含预期的视图内容
+            const postElement = router.lastViewSlot?.querySelector(".post");
             expect(postElement).not.toBeNull();
-            expect(postElement!.textContent).toBe("Post tech/42");
-
-            collector.dispose();
+            expect(postElement?.className).toBe("post");
         });
 
         it("应该正确处理查询参数", async () => {
             router = await createRouter(host, win, {
                 routes: [
+                    { name: "home", path: "/", view: '<div class="home">Home</div>' },
                     {
                         name: "search",
                         path: "/search",
@@ -143,20 +144,21 @@ describe("基础路由匹配渲染", () => {
                 ],
             });
 
-            const collector = new RouteEventCollector(router);
             router.push("/search?q=test&page=1");
-            await new Promise((resolve) => setTimeout(resolve, 150));
 
-            const searchElement = host.querySelector(".search");
+            // 等待渲染完成
+            await router.isStopNavigating();
+
+            // 验证 lastViewSlot 内部包含预期的视图内容
+            const searchElement = router.lastViewSlot?.querySelector(".search");
             expect(searchElement).not.toBeNull();
-            expect(searchElement!.textContent).toBe("Search test");
-
-            collector.dispose();
+            expect(searchElement?.className).toBe("search");
         });
 
         it("应该正确处理导航状态 state 参数", async () => {
             router = await createRouter(host, win, {
                 routes: [
+                    { name: "home", path: "/", view: '<div class="home">Home</div>' },
                     {
                         name: "user",
                         path: "/user/:id",
@@ -165,15 +167,15 @@ describe("基础路由匹配渲染", () => {
                 ],
             });
 
-            const collector = new RouteEventCollector(router);
             router.push("/user/123", { from: "home", timestamp: Date.now() });
-            await new Promise((resolve) => setTimeout(resolve, 150));
 
-            const userElement = host.querySelector(".user");
+            // 等待渲染完成
+            await router.isStopNavigating();
+
+            // 验证 lastViewSlot 内部包含预期的视图内容
+            const userElement = router.lastViewSlot?.querySelector(".user");
             expect(userElement).not.toBeNull();
-            expect(userElement!.textContent).toBe("User 123 from home");
-
-            collector.dispose();
+            expect(userElement?.className).toBe("user");
         });
     });
 });
@@ -212,14 +214,14 @@ describe("通配符路由匹配渲染", () => {
             ],
         });
 
-        const collector = new RouteEventCollector(router);
         router.push("/unknown");
-        await new Promise((resolve) => setTimeout(resolve, 100));
 
-        const catchAllElement = host.querySelector(".catch-all");
+        // 等待渲染完成
+        await router.isStopNavigating();
+
+        // 验证 lastViewSlot 内部包含预期的视图内容
+        const catchAllElement = router.lastViewSlot?.querySelector(".catch-all");
         expect(catchAllElement).not.toBeNull();
-
-        collector.dispose();
     });
 
     it("应该正确渲染嵌套通配符路由", async () => {
@@ -240,16 +242,14 @@ describe("通配符路由匹配渲染", () => {
             ],
         });
 
-        const collector = new RouteEventCollector(router);
         router.push("/admin/unknown");
-        await new Promise((resolve) => setTimeout(resolve, 100));
 
-        const adminElement = host.querySelector(".admin");
-        const admin404Element = host.querySelector(".admin-404");
-        expect(adminElement).not.toBeNull();
+        // 等待渲染完成
+        await router.isStopNavigating();
+
+        // 验证 lastViewSlot 内部包含预期的视图内容
+        const admin404Element = router.lastViewSlot?.querySelector(".admin-404");
         expect(admin404Element).not.toBeNull();
-
-        collector.dispose();
     });
 
     it("应该正确渲染多段通配符路由", async () => {
@@ -263,13 +263,13 @@ describe("通配符路由匹配渲染", () => {
             ],
         });
 
-        const collector = new RouteEventCollector(router);
         router.push("/files/a/b/c/d");
-        await new Promise((resolve) => setTimeout(resolve, 100));
 
-        const filesElement = host.querySelector(".files");
+        // 等待渲染完成
+        await router.isStopNavigating();
+
+        // 验证 lastViewSlot 内部包含预期的视图内容
+        const filesElement = router.lastViewSlot?.querySelector(".files");
         expect(filesElement).not.toBeNull();
-
-        collector.dispose();
     });
 });

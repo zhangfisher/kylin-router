@@ -71,12 +71,6 @@ export class KylinSlot extends KylinRouterElementBase {
     private _errorElement?: HTMLElement;
 
     /**
-     * Alpine x-data 值
-     */
-    @state()
-    private _xDataValue: string = "{}";
-
-    /**
      * 解析视图内容到槽位中
      *
      * @param view - 视图内容（HTML字符串或HTMLElement）
@@ -84,7 +78,7 @@ export class KylinSlot extends KylinRouterElementBase {
      * @param cssVars - CSS变量列表（预留参数）
      * @returns this - 返回 slot 元素本身，用于传递给 afterRender 钩子
      */
-    resolve(view: string | HTMLElement, data?: RouteSignalReuslt, _cssVars?: string[]): KylinSlot {
+    resolve(view: string | HTMLElement, data?: RouteSignalReuslt, cssVars?: string[]): KylinSlot {
         // 设置 Alpine x-data 属性（直接在元素上设置，不会破坏 Lit 渲染）
         if (data?.hash) {
             this.setAttribute("x-data", data.hash);

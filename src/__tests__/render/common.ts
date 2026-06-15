@@ -132,11 +132,162 @@ export class RouteEventCollector {
     }
 }
 
+// 模块级状态跟踪，确保 MutationObserver 只被设置一次
+let _enhancedMutationObserverSetup = false;
+
+/**
+ * 设置增强的 MutationObserver（仅执行一次）
+ */
+function setupEnhancedMutationObserver() {
+    if (_enhancedMutationObserverSetup) {
+        return;
+    }
+    _enhancedMutationObserverSetup = true;
+
+    // 增强的 MutationObserver - 使 Alpine.js 能够正常工作
+    // Alpine.js 使用 MutationObserver 来检测 DOM 变化并初始化组件
+    class EnhancedMutationObserver implements MutationObserver {
+        private callback: MutationCallback;
+        private isObserving = false;
+
+        constructor(callback: MutationCallback) {
+            this.callback = callback;
+        }
+
+        observe(node: Node, options: MutationObserverInit): void {
+            this.isObserving = true;
+
+            // 保存原始方法引用（仅第一次）
+            const originalAppendChild = Node.prototype.appendChild;
+            const originalRemoveChild = Node.prototype.removeChild;
+            const originalInsertBefore = Node.prototype.insertBefore;
+            const originalReplaceChild = Node.prototype.replaceChild;
+            const originalSetAttribute = Element.prototype.setAttribute;
+            const originalRemoveAttribute = Element.prototype.removeAttribute;
+
+            const self = this;
+
+            // 简化的 DOM 变化检测 - 只在 appendChild 时触发
+            const wrappedAppendChild = function (this: Node, child: Node): Node {
+                const result = originalAppendChild.call(this, child);
+
+                if (self.isObserving) {
+                    queueMicrotask(() => {
+                        self.callback(
+                            [
+                                {
+                                    type: "childList",
+                                    target: this,
+                                    addedNodes: [child],
+                                    removedNodes: [],
+                                    attributeName: null,
+                                    attributeNamespace: null,
+                                    nextSibling: null,
+                                    oldValue: null,
+                                    previousSibling: null,
+                                } as MutationRecord,
+                            ],
+                            self as unknown as MutationObserver,
+                        );
+                    });
+                }
+
+                return result;
+            };
+
+            const wrappedRemoveChild = function (this: Node, child: Node): Node {
+                const result = originalRemoveChild.call(this, child);
+
+                if (self.isObserving) {
+                    queueMicrotask(() => {
+                        self.callback(
+                            [
+                                {
+                                    type: "childList",
+                                    target: this,
+                                    addedNodes: [],
+                                    removedNodes: [child],
+                                    attributeName: null,
+                                    attributeNamespace: null,
+                                    nextSibling: null,
+                                    oldValue: null,
+                                    previousSibling: null,
+                                } as MutationRecord,
+                            ],
+                            self as unknown as MutationObserver,
+                        );
+                    });
+                }
+
+                return result;
+            };
+
+            const wrappedSetAttribute = function (this: Element, name: string, value: string): void {
+                const oldValue = this.getAttribute(name);
+                originalSetAttribute.call(this, name, value);
+
+                if (self.isObserving && (options.attributes || options.attributeFilter)) {
+                    if (options.attributeFilter && !options.attributeFilter.includes(name)) {
+                        return;
+                    }
+
+                    queueMicrotask(() => {
+                        self.callback(
+                            [
+                                {
+                                    type: "attributes",
+                                    target: this,
+                                    addedNodes: [],
+                                    removedNodes: [],
+                                    attributeName: name,
+                                    attributeNamespace: null,
+                                    nextSibling: null,
+                                    oldValue: options.attributeOldValue ? oldValue : null,
+                                    previousSibling: null,
+                                } as MutationRecord,
+                            ],
+                            self as unknown as MutationObserver,
+                        );
+                    });
+                }
+            };
+
+            // 只在第一次包装原型方法（使用 WeakMap 检测）
+            const wrappedMap = new WeakMap();
+
+            if (!wrappedMap.has(Node.prototype)) {
+                wrappedMap.set(Node.prototype, true);
+                Node.prototype.appendChild = wrappedAppendChild as any;
+                Node.prototype.removeChild = wrappedRemoveChild as any;
+            }
+
+            if (!wrappedMap.has(Element.prototype)) {
+                wrappedMap.set(Element.prototype, true);
+                Element.prototype.setAttribute = wrappedSetAttribute as any;
+            }
+        }
+
+        disconnect(): void {
+            this.isObserving = false;
+        }
+
+        takeRecords(): MutationRecord[] {
+            return [];
+        }
+    }
+
+    // @ts-ignore
+    globalThis.MutationObserver = EnhancedMutationObserver;
+}
+
 /**
  * 创建测试用的 DOM 环境
  * 正确支持 happy-dom 的 WebComponents
  */
 export function createTestDOM() {
+    // 设置增强的 MutationObserver（仅首次调用生效）
+    setupEnhancedMutationObserver();
+
     const { Window } = require("happy-dom");
     const win = new Window({ url: "http://localhost/" });
 
@@ -171,8 +322,10 @@ export function createTestDOM() {
     globalThis.Document = win.Document;
     // @ts-ignore
     globalThis.CSSStyleSheet = win.CSSStyleSheet;
+
+    // 确保 MutationObserver 在 window 和 globalThis 上都可用
     // @ts-ignore
-    globalThis.MutationObserver = win.MutationObserver;
+    win.MutationObserver = globalThis.MutationObserver;
 
     // 确保 SyntaxError 可用（happy-dom 需要）
     // @ts-ignore

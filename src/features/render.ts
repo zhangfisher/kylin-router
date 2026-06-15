@@ -90,14 +90,14 @@ export class Render {
         }
         return outlet;
     }
-    private _createDefaultData(matched: KylinMatchedRouteItem) {
-        const mergedData = {
+    private _injectRouteParams(slot: KylinSlot, matched: KylinMatchedRouteItem) {
+        const params = {
             $params: matched.params || {},
             $query: matched.query || {},
             $state: matched.state || {},
         };
-        if (!isEmptyObject(mergedData)) {
-            Alpine.data(matched.hash, () => mergedData);
+        if (!isEmptyObject(params)) {
+            slot.setAttribute("x-inject-data", JSON.stringify(params));
         }
     }
     /**
@@ -109,6 +109,7 @@ export class Render {
      */
     private _createSlot(
         this: KylinRouter,
+        matched: KylinMatchedRouteItem,
         outlet: KylinOutlet,
         options: {
             id: string; // slot ID，用于唯一标识和复用
@@ -136,6 +137,7 @@ export class Render {
         slot.id = id;
         if (url) slot.url = url;
         slot.loading = true; // 渲染前显示 Loading
+        this._injectRouteParams(slot, matched);
         outlet.appendChild(slot);
 
         return slot;
@@ -155,36 +157,12 @@ export class Render {
         let slot: KylinSlot | null | undefined;
         try {
             let currentOutlet: KylinOutlet | null = this._getRootOutlet();
-            // 存储当前迭代创建的 routeSlot，用于取消时清理
-            let pendingViewContainer: KylinSlot | null = null as KylinSlot | null;
-            this.logger.debug(
-                "{} -> 开始渲染: {}",
-                toRoute[0].id,
-                toRoute[toRoute.length - 1].url,
-                toRoute,
-            );
             this.emit("render:before", { route: toRoute });
             const commonRouteIndex: number = this._getCommonRouteIndex(fromRoute, toRoute);
             let preViewHash: string;
             for (let i = 0; i < toRoute.length; i++) {
-                this.logger.debug(
-                    "{} -> 准备渲染 {}/{} {} -> {}",
-                    () => [
-                        toRoute[0].id,
-                        i + 1,
-                        toRoute.length,
-                        toRoute[i].url || "",
-                        toRoute[i].route?.path || "",
-                    ],
-                    toRoute[i],
-                );
                 // 检查是否被导航中止
                 if (navSignal.aborted) {
-                    this.logger.debug("{} -> 渲染被中止", toRoute[0].id);
-                    // 清理已创建但未完成的视图容器
-                    if (pendingViewContainer) {
-                        pendingViewContainer.abort();
-                    }
                     return;
                 }
 
@@ -215,19 +193,14 @@ export class Render {
 
                     // 创建 kylin-slot: 用于渲染视图内容或错误页
                     slot = hasView
-                        ? this._createSlot(currentOutlet, {
+                        ? this._createSlot(matched, currentOutlet, {
                               id: viewHash,
                               url: matched.url,
                               keepAlive: curRouteItem.keepAlive !== false,
                           })
                         : null;
-
-                    // 创建默认数据（$params、$query、$state）并注册到 Alpine
-                    this._createDefaultData(matched);
-                    // 提醒：没有view为什么还要继续？没有view但可能可以加载数据，数据可以供后续子路由访问
+                    this._lastViewSlot = slot;
                     try {
-                        pendingViewContainer = slot;
-
                         // 检查导航是否被中止
                         if (navSignal.aborted) {
                             this.logger.debug("数据加载前被中止");
@@ -268,7 +241,6 @@ export class Render {
                             slot.finally();
                             Alpine.initTree(slot);
                         }
-                        pendingViewContainer = null;
                     }
                 }
             }
