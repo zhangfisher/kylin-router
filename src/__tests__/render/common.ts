@@ -660,17 +660,54 @@ export async function createRouter(host: HTMLElement, win: any, options: any) {
 
     // 等待 router 真正 attached 完成
     // attach() 是异步的，需要等待 routes:attached 事件
+    // 注意：routes:attached 在 home() 之前触发，所以需要等待 navigation:end
     return new Promise<KylinRouter>((resolve, reject) => {
+        let routesAttached = false;
+        let navigationCompleted = false;
+
         // 设置超时保护
         const timeout = setTimeout(() => {
-            reject(new Error("Router attach timeout - routes:attached event not fired"));
+            if (!routesAttached) {
+                reject(new Error("Router attach timeout - routes:attached event not fired"));
+            } else if (!navigationCompleted) {
+                reject(new Error("Router initial navigation timeout - navigation:end event not fired"));
+            }
         }, 5000);
 
         // 监听 attached 事件
         // @ts-ignore
         router.on("routes:attached", () => {
-            clearTimeout(timeout);
-            resolve(router);
+            routesAttached = true;
+
+            // 检查是否已经在导航中
+            if (router.isNavigating) {
+                // 等待导航完成
+                router.isStopNavigating().then(() => {
+                    clearTimeout(timeout);
+                    navigationCompleted = true;
+                    resolve(router);
+                }).catch((error: Error) => {
+                    clearTimeout(timeout);
+                    reject(error);
+                });
+            } else {
+                // 如果没有在导航中，可能已经完成或还未开始
+                // 等待一小段时间确保导航完成
+                setTimeout(() => {
+                    clearTimeout(timeout);
+                    resolve(router);
+                }, 100);
+            }
+        });
+
+        // 监听导航结束事件（fallback）
+        // @ts-ignore
+        router.on("navigation:end", () => {
+            if (routesAttached && !navigationCompleted) {
+                clearTimeout(timeout);
+                navigationCompleted = true;
+                resolve(router);
+            }
         });
     });
 }
