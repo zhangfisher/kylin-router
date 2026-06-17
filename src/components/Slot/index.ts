@@ -1,74 +1,132 @@
-import { html } from "lit";
-import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { customElement, property, state } from "lit/decorators.js";
-import { KylinRouterElementBase } from "../Base";
-import { styles } from "./styles";
-import type { RouteSignalReuslt } from "./types";
-
 /**
- * KylinSlot - 路由槽位组件
+ * KylinSlot - 路由槽位组件（原生 Web Component）
  *
  * 用于在 kylin-outlet 中渲染单个路由视图
  *
  * @module components/Slot
  */
-@customElement("kylin-slot")
-export class KylinSlot extends KylinRouterElementBase {
+
+import type { RouteSignalReuslt } from "./types";
+import { styles } from "./styles";
+
+export class KylinSlot extends HTMLElement {
     static styles = styles;
+    // ============================================
+    // 属性定义
+    // ============================================
+
+    static observedAttributes = ["url", "loading", "active"];
 
     /**
      * 当前 URL，用于参数变化检测
      */
-    @property({ type: String, reflect: true })
-    url?: string;
+    get url(): string | undefined {
+        return this.getAttribute("url") || undefined;
+    }
+    set url(value: string | undefined) {
+        if (value === undefined) {
+            this.removeAttribute("url");
+        } else {
+            this.setAttribute("url", value);
+        }
+    }
 
     /**
      * 是否显示 Loading 状态
      */
-    @property({ type: Boolean, reflect: true })
-    loading = false;
-
-    private _active = false;
+    get loading(): boolean {
+        return this.hasAttribute("loading");
+    }
+    set loading(value: boolean) {
+        if (value) {
+            this.setAttribute("loading", "");
+        } else {
+            this.removeAttribute("loading");
+        }
+    }
 
     /**
      * 是否为活动状态
      * 当设置为 true 时，自动将同一父元素下的其他 slot 的 active 设为 false
      */
-    @property({ type: Boolean, reflect: true })
     get active(): boolean {
-        return this._active;
+        return this.hasAttribute("active");
     }
     set active(value: boolean) {
-        if (this._active === value) return;
+        if (value) {
+            this.setAttribute("active", "");
+        } else {
+            this.removeAttribute("active");
+        }
+    }
 
-        this._active = value;
+    // ============================================
+    // 生命周期回调
+    // ============================================
 
-        // 当设置为 true 时，将同一父元素下的其他 slot 的 active 设为 false
-        if (value && this.parentElement) {
-            const siblings = Array.from(
-                this.parentElement.querySelectorAll<KylinSlot>(":scope > kylin-slot"),
-            );
-            siblings.forEach((sibling) => {
-                if (sibling !== this && sibling.active) {
-                    sibling.active = false;
-                }
-            });
+    constructor() {
+        super();
+    }
+    connectedCallback() {
+        this.adoptLightStyles();
+    }
+    adoptLightStyles() {
+        const styles = (this.constructor as any).styles as any;
+        if (document.adoptedStyleSheets) {
+            document.adoptedStyleSheets = [...document.adoptedStyleSheets, styles];
+        } else {
+            // 降级方案：创建 <style> 标签并添加到 <head>
+            const style = document.createElement("style");
+            style.textContent = styles.cssText;
+            document.head.appendChild(style);
+        }
+    }
+    attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null) {
+        if (oldValue === newValue) return;
+
+        // active 变化时更新兄弟节点
+        if (name === "active" && newValue !== null) {
+            this.#updateSiblingsActive();
         }
 
-        this.requestUpdate("active", !value);
+        // loading 变化时显示/隐藏 loading 组件
+        if (name === "loading") {
+            if (newValue !== null) {
+                this.showLoading();
+            } else {
+                this.hideLoading();
+            }
+        }
+    }
+
+    // ============================================
+    // 公共方法
+    // ============================================
+
+    /**
+     * 显示 Loading 状态
+     * 在内部插入 kylin-loading 元素，不覆盖其他子元素
+     */
+    showLoading(): void {
+        // 如果已经有 kylin-loading，不重复添加
+        if (this.querySelector("kylin-loading")) {
+            return;
+        }
+        const loading = document.createElement("kylin-loading");
+        loading.style.cssText = "z-index: 9;";
+        this.appendChild(loading);
     }
 
     /**
-     * 存储视图内容（内部状态）
+     * 隐藏 Loading 状态
+     * 删除内部的 kylin-loading 元素
      */
-    @state()
-    private _viewContent?: string;
-
-    /**
-     * 存储错误元素（内部状态）
-     */
-    @state()
-    private _errorElement?: HTMLElement;
+    hideLoading(): void {
+        const loading = this.querySelector("kylin-loading");
+        if (loading) {
+            loading.remove();
+        }
+    }
 
     /**
      * 解析视图内容到槽位中
@@ -79,26 +137,23 @@ export class KylinSlot extends KylinRouterElementBase {
      * @returns this - 返回 slot 元素本身，用于传递给 afterRender 钩子
      */
     resolve(view: string | HTMLElement, data?: RouteSignalReuslt, cssVars?: string[]): KylinSlot {
-        // 设置 Alpine x-data 属性（直接在元素上设置，不会破坏 Lit 渲染）
+        // 设置 Alpine x-data 属性
         if (data?.hash) {
             this.setAttribute("x-data", data.hash);
         } else {
             this.setAttribute("x-data", "{}");
         }
 
-        // 使用响应式状态存储内容
+        // 直接设置内容
         if (typeof view === "string") {
-            this._viewContent = this._interpolateTemplate(view);
+            this.innerHTML = view;
         } else {
-            // 将 HTMLElement 转换为 HTML 字符串
-            this._viewContent = view.outerHTML;
+            this.innerHTML = "";
+            this.appendChild(view);
         }
 
-        // 清除错误状态
-        this._errorElement = undefined;
-
-        // 触发重新渲染
-        this.requestUpdate();
+        // 解析完成后设置 loading = false
+        this.loading = false;
 
         return this;
     }
@@ -110,12 +165,9 @@ export class KylinSlot extends KylinRouterElementBase {
      * @param errorElement - 错误页面元素
      */
     reject(_error: any, errorElement: HTMLElement): void {
-        // 存储错误元素
-        this._errorElement = errorElement;
-        this._viewContent = undefined;
-
-        // 触发重新渲染
-        this.requestUpdate();
+        this.innerHTML = "";
+        this.appendChild(errorElement.cloneNode(true));
+        this.loading = false;
     }
 
     /**
@@ -132,41 +184,31 @@ export class KylinSlot extends KylinRouterElementBase {
         this.remove();
     }
 
+    // ============================================
+    // 私有方法
+    // ============================================
+
     /**
-     * 将模板中的 {{ }} 语法转换为 x-text 指令
-     *
-     * @param text - 模板文本
-     * @returns 转换后的文本
+     * 更新兄弟节点的 active 状态
      */
-    private _interpolateTemplate(text: string): string {
-        // 将 {{ }} 语法转换为 x-text 指令
-        return text.replace(/\{\{\s*(.*?)\s*\}\}/g, (_match, expression) => {
-            return `<span x-text="${expression}"></span>`;
+    #updateSiblingsActive(): void {
+        if (!this.parentElement) return;
+
+        const siblings = Array.from(
+            this.parentElement.querySelectorAll<KylinSlot>(":scope > kylin-slot"),
+        );
+
+        siblings.forEach((sibling) => {
+            if (sibling !== this && sibling.active) {
+                sibling.active = false;
+            }
         });
     }
+}
 
-    render() {
-        // 使用 Light DOM，根据状态渲染不同内容
-        if (this.loading) {
-            return html`<kylin-loading style="z-index: 9"></kylin-loading>`;
-        }
-
-        // 渲染错误元素
-        if (this._errorElement) {
-            return html`${this._errorElement}`;
-        }
-
-        // 渲染视图内容
-        if (this._viewContent) {
-            return html`${unsafeHTML(this._viewContent)}`;
-        }
-
-        return html``;
-    }
-
-    createRenderRoot() {
-        return this; // 使用 Light DOM
-    }
+// 注册自定义元素
+if (!customElements.get("kylin-slot")) {
+    customElements.define("kylin-slot", KylinSlot);
 }
 
 declare global {

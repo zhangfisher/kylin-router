@@ -46,11 +46,6 @@ describe("基础路由匹配渲染", () => {
                 },
             });
 
-            // 等待 Lit 组件更新完成
-            if (router.lastViewSlot?.updateComplete) {
-                await router.lastViewSlot.updateComplete;
-            }
-
             // 验证 lastViewSlot 内部包含预期的视图内容
             const homeElement = router.lastViewSlot?.querySelector(".home");
             expect(homeElement).not.toBeNull();
@@ -76,11 +71,6 @@ describe("基础路由匹配渲染", () => {
             // 等待渲染完成
             await router.isStopNavigating();
 
-            // 等待 Lit 组件更新完成
-            if (router.lastViewSlot?.updateComplete) {
-                await router.lastViewSlot.updateComplete;
-            }
-
             // 验证 lastViewSlot 内部包含预期的视图内容
             const userElement = router.lastViewSlot?.querySelector(".user");
             expect(userElement).not.toBeNull();
@@ -105,11 +95,6 @@ describe("基础路由匹配渲染", () => {
             // 等待渲染完成
             await router.isStopNavigating();
 
-            // 等待 Lit 组件更新完成
-            if (router.lastViewSlot?.updateComplete) {
-                await router.lastViewSlot.updateComplete;
-            }
-
             // 验证 lastViewSlot 内部包含预期的视图内容
             const userElement = router.lastViewSlot?.querySelector(".user");
             expect(userElement).not.toBeNull();
@@ -131,11 +116,6 @@ describe("基础路由匹配渲染", () => {
 
             // 等待渲染完成
             await router.isStopNavigating();
-
-            // 等待 Lit 组件更新完成
-            if (router.lastViewSlot?.updateComplete) {
-                await router.lastViewSlot.updateComplete;
-            }
 
             // 验证 lastViewSlot 内部包含预期的视图内容
             const postElement = router.lastViewSlot?.querySelector(".post");
@@ -160,11 +140,6 @@ describe("基础路由匹配渲染", () => {
             // 等待渲染完成
             await router.isStopNavigating();
 
-            // 等待 Lit 组件更新完成
-            if (router.lastViewSlot?.updateComplete) {
-                await router.lastViewSlot.updateComplete;
-            }
-
             // 验证 lastViewSlot 内部包含预期的视图内容
             const searchElement = router.lastViewSlot?.querySelector(".search");
             expect(searchElement).not.toBeNull();
@@ -187,11 +162,6 @@ describe("基础路由匹配渲染", () => {
 
             // 等待渲染完成
             await router.isStopNavigating();
-
-            // 等待 Lit 组件更新完成
-            if (router.lastViewSlot?.updateComplete) {
-                await router.lastViewSlot.updateComplete;
-            }
 
             // 验证 lastViewSlot 内部包含预期的视图内容
             const userElement = router.lastViewSlot?.querySelector(".user");
@@ -233,12 +203,7 @@ describe("通配符路由匹配渲染", () => {
         router.push("/unknown");
 
         // 等待渲染完成
-
-        // 等待 Lit 组件更新完成
-        if (router.lastViewSlot?.updateComplete) {
-            await router.lastViewSlot.updateComplete;
-        }
-
+        await router.isStopNavigating();
         // 验证 lastViewSlot 内部包含预期的视图内容
         const catchAllElement = router.lastViewSlot?.querySelector(".catch-all");
         expect(catchAllElement).not.toBeNull();
@@ -270,11 +235,6 @@ describe("通配符路由匹配渲染", () => {
         // 等待渲染完成
         await router.isStopNavigating();
 
-        // 等待 Lit 组件更新完成
-        if (router.lastViewSlot?.updateComplete) {
-            await router.lastViewSlot.updateComplete;
-        }
-
         // 验证 lastViewSlot 内部包含预期的视图内容
         const admin404Element = router.lastViewSlot?.querySelector(".admin-404");
         expect(admin404Element).not.toBeNull();
@@ -298,11 +258,6 @@ describe("通配符路由匹配渲染", () => {
 
         // 等待渲染完成
         await router.isStopNavigating();
-
-        // 等待 Lit 组件更新完成
-        if (router.lastViewSlot?.updateComplete) {
-            await router.lastViewSlot.updateComplete;
-        }
 
         // 验证 lastViewSlot 内部包含预期的视图内容
         const filesElement = router.lastViewSlot?.querySelector(".files");
