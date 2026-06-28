@@ -1,8 +1,5 @@
-import { LitElement, html, css } from "lit";
-import { customElement } from "lit/decorators.js";
-
 /**
- * kylin-view-meta 组件
+ * kylin-view-meta 组件（原生 Web Components 版本）
  *
  * 用于存储视图级别的元数据，支持任意自定义属性。
  * 这些元数据可以被父组件或其他系统读取，用于配置页面行为、SEO、权限控制等。
@@ -25,21 +22,14 @@ import { customElement } from "lit/decorators.js";
  * const roles = meta?.get('roles')?.split(',');
  * ```
  */
-@customElement("kylin-view-meta")
-export class KylinViewMeta extends LitElement {
+export class KylinViewMeta extends HTMLElement {
     /**
      * 组件不占据任何空间，不参与排版
      */
-    static styles = css`
-        :host {
-            display: none;
-        }
-    `;
-    /**
-     * 创建 Light DOM（非 Shadow DOM），允许样式和事件穿透
-     */
-    override createRenderRoot() {
-        return this;
+    constructor() {
+        super();
+        // 设置样式使元素不可见
+        this.style.display = "none";
     }
 
     /**
@@ -179,17 +169,15 @@ export class KylinViewMeta extends LitElement {
     /**
      * 转换为字符串表示（用于调试）
      */
-    override toString(): string {
+    toString(): string {
         const data = this.getAll();
         return JSON.stringify(data, null, 2);
     }
+}
 
-    /**
-     * 渲染空内容（该组件不渲染任何可见内容）
-     */
-    override render() {
-        return html``;
-    }
+// 注册自定义元素
+if (!customElements.get("kylin-view-meta")) {
+    customElements.define("kylin-view-meta", KylinViewMeta);
 }
 
 declare global {

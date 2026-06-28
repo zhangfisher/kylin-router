@@ -1,12 +1,18 @@
-// @ts-ignore
-import rjson from "really-relaxed-json";
-import { LitElement, html, type TemplateResult } from "lit";
-import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { customElement, property } from "lit/decorators.js";
 import { styles } from "./styles";
 
 // 创建解析器实例
-const parser = rjson.createParser();
+let parser: any = null;
+try {
+    // @ts-ignore
+    const rjson = require("really-relaxed-json");
+    parser = rjson.createParser();
+} catch {
+    // 如果解析器不可用，使用 JSON.parse
+    parser = {
+        stringToJson: (str: string) => JSON.parse(str)
+    };
+}
+
 const parseJson = (str: string) => parser.stringToJson(str);
 
 /**
@@ -55,7 +61,7 @@ const ACTION_ICONS = {
 };
 
 /**
- * 反馈页面组件
+ * 反馈页面组件（原生 Web Components 版本）
  *
  * 用于显示各种类型的消息、错误和状态页面。
  * 支持自定义图标、内置类型、动作按钮等功能。
@@ -71,80 +77,168 @@ const ACTION_ICONS = {
  * ></kylin-feedback>
  * ```
  */
-@customElement("kylin-feedback")
-export class KylinFeedback extends LitElement {
-    static styles = styles;
+export class KylinFeedback extends HTMLElement {
+    // 私有属性存储
+    private _message?: string;
+    private _description?: string;
+    private _icon?: string;
+    private _type?: ErrorType;
+    private _actions?: ActionConfig[] | string;
+    private _closeable = false;
+    private _retryable = false;
+    private _backable = false;
+    private _inline = false;
+
+    // 声明观察的属性
+    static observedAttributes = [
+        "message",
+        "description",
+        "icon",
+        "type",
+        "actions",
+        "closeable",
+        "retryable",
+        "backable",
+        "inline"
+    ];
+
+    // 属性访问器
+    get message(): string | undefined {
+        return this._message;
+    }
+    set message(value: string | undefined) {
+        this._message = value;
+        this._render();
+    }
+
+    get description(): string | undefined {
+        return this._description;
+    }
+    set description(value: string | undefined) {
+        this._description = value;
+        this._render();
+    }
+
+    get icon(): string | undefined {
+        return this._icon;
+    }
+    set icon(value: string | undefined) {
+        this._icon = value;
+        this._render();
+    }
+
+    get type(): ErrorType | undefined {
+        return this._type;
+    }
+    set type(value: ErrorType | undefined) {
+        this._type = value;
+        this._render();
+    }
+
+    get actions(): ActionConfig[] | string | undefined {
+        return this._actions;
+    }
+    set actions(value: ActionConfig[] | string | undefined) {
+        this._actions = value;
+        this._render();
+    }
+
+    get closeable(): boolean {
+        return this._closeable;
+    }
+    set closeable(value: boolean) {
+        this._closeable = value;
+        this._render();
+    }
+
+    get retryable(): boolean {
+        return this._retryable;
+    }
+    set retryable(value: boolean) {
+        this._retryable = value;
+        this._render();
+    }
+
+    get backable(): boolean {
+        return this._backable;
+    }
+    set backable(value: boolean) {
+        this._backable = value;
+        this._render();
+    }
+
+    get inline(): boolean {
+        return this._inline;
+    }
+    set inline(value: boolean) {
+        this._inline = value;
+        this._render();
+    }
+
+    connectedCallback() {
+        // 创建 Shadow DOM
+        this.attachShadow({ mode: "open" });
+        // 应用样式
+        if (this.shadowRoot) {
+            this.shadowRoot.adoptedStyleSheets = [styles];
+        }
+        // 初始渲染
+        this._render();
+    }
 
     /**
-     * 主要消息/标题
+     * 属性变化回调
      */
-    @property({ type: String })
-    message?: string;
+    attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null) {
+        if (oldValue === newValue) return;
 
-    /**
-     * 详细描述文本
-     */
-    @property({ type: String })
-    description?: string;
-
-    /**
-     * 自定义图标（图片URL或SVG字符串）
-     */
-    @property({ type: String })
-    icon?: string;
-
-    /**
-     * 内置错误类型，会使用对应的默认图标和颜色
-     */
-    @property({ type: String })
-    type?: ErrorType;
-
-    /**
-     * 自定义动作按钮配置（JSON字符串或已解析的对象）
-     */
-    @property({ type: Object })
-    actions?: ActionConfig[] | string;
-
-    /**
-     * 是否显示关闭按钮
-     */
-    @property({ type: Boolean })
-    closeable = false;
-
-    /**
-     * 是否显示重试按钮
-     */
-    @property({ type: Boolean })
-    retryable = false;
-
-    /**
-     * 是否显示返回按钮
-     */
-    @property({ type: Boolean })
-    backable = false;
-
-    /**
-     * 是否取消充满父容器，使用内联模式
-     */
-    @property({ type: Boolean })
-    inline = false;
+        switch (name) {
+            case "message":
+                this.message = newValue || undefined;
+                break;
+            case "description":
+                this.description = newValue || undefined;
+                break;
+            case "icon":
+                this.icon = newValue || undefined;
+                break;
+            case "type":
+                this.type = newValue as ErrorType;
+                break;
+            case "actions":
+                this.actions = newValue || undefined;
+                break;
+            case "closeable":
+                this.closeable = newValue !== null;
+                break;
+            case "retryable":
+                this.retryable = newValue !== null;
+                break;
+            case "backable":
+                this.backable = newValue !== null;
+                break;
+            case "inline":
+                this.inline = newValue !== null;
+                break;
+        }
+    }
 
     /**
      * 解析后的动作列表
      */
     private get _parsedActions(): ActionConfig[] {
-        if (!this.actions) return [];
+        if (!this._actions) return [];
 
         let parsed: ActionConfig[];
-        if (typeof this.actions === "string") {
+        if (typeof this._actions === "string") {
             try {
-                parsed = parseJson(this.actions) as ActionConfig[];
+                parsed = parseJson(this._actions) as ActionConfig[];
             } catch {
-                console.warn("[kylin-feedback] Failed to parse actions:", this.actions);
+                console.warn("[kylin-feedback] Failed to parse actions:", this._actions);
                 return [];
             }
         } else {
-            parsed = this.actions;
+            parsed = this._actions;
         }
 
         // 解析每个 action 的 icon 字段（可能是 JSON 字符串）
@@ -163,37 +257,12 @@ export class KylinFeedback extends LitElement {
     }
 
     /**
-     * 获取要显示的图标 HTML
-     */
-    private _renderIcon(): TemplateResult {
-        // 优先使用自定义 icon
-        if (this.icon) {
-            // 判断是否为 SVG（以 <svg 开头）
-            if (this.icon.trim().startsWith("<svg")) {
-                return html`<div class="icon">${unsafeHTML(this.icon)}</div>`;
-            }
-            // 作为图片 URL 处理
-            return html`<img class="icon" src="${this.icon}" alt="" />`;
-        }
-
-        // 使用内置类型图标
-        if (this.type && BUILTIN_ICONS[this.type]) {
-            return html`<div class="icon ${this.type}">
-                ${unsafeHTML(BUILTIN_ICONS[this.type])}
-            </div>`;
-        }
-
-        // 默认使用 error 图标
-        return html`<div class="icon error">${unsafeHTML(BUILTIN_ICONS.error)}</div>`;
-    }
-
-    /**
      * 获取所有要显示的动作按钮
      */
     private get _allActions(): ActionConfig[] {
         const result: ActionConfig[] = [...this._parsedActions];
 
-        if (this.backable) {
+        if (this._backable) {
             result.unshift({
                 name: "back",
                 title: "返回",
@@ -201,7 +270,7 @@ export class KylinFeedback extends LitElement {
             });
         }
 
-        if (this.retryable) {
+        if (this._retryable) {
             result.unshift({
                 name: "retry",
                 title: "重试",
@@ -210,7 +279,7 @@ export class KylinFeedback extends LitElement {
             });
         }
 
-        if (this.closeable) {
+        if (this._closeable) {
             result.push({
                 name: "close",
                 title: "关闭",
@@ -219,6 +288,41 @@ export class KylinFeedback extends LitElement {
         }
 
         return result;
+    }
+
+    /**
+     * 渲染图标 HTML
+     */
+    private _renderIcon(): HTMLElement | null {
+        const iconDiv = document.createElement("div");
+
+        // 优先使用自定义 icon
+        if (this._icon) {
+            iconDiv.className = "icon";
+            // 判断是否为 SVG（以 <svg 开头）
+            if (this._icon.trim().startsWith("<svg")) {
+                iconDiv.innerHTML = this._icon;
+                return iconDiv;
+            }
+            // 作为图片 URL 处理
+            const img = document.createElement("img");
+            img.className = "icon";
+            img.src = this._icon;
+            img.alt = "";
+            return img;
+        }
+
+        // 使用内置类型图标
+        if (this._type && BUILTIN_ICONS[this._type]) {
+            iconDiv.className = `icon ${this._type}`;
+            iconDiv.innerHTML = BUILTIN_ICONS[this._type];
+            return iconDiv;
+        }
+
+        // 默认使用 error 图标
+        iconDiv.className = "icon error";
+        iconDiv.innerHTML = BUILTIN_ICONS.error;
+        return iconDiv;
     }
 
     /**
@@ -242,44 +346,84 @@ export class KylinFeedback extends LitElement {
     /**
      * 渲染单个动作按钮
      */
-    private _renderActionButton(action: ActionConfig): TemplateResult {
-        const title = action.title || action.name;
-        const iconHtml = action.icon
-            ? html`<span class="action-icon">${unsafeHTML(action.icon)}</span>`
-            : "";
+    private _renderActionButton(action: ActionConfig): HTMLElement {
+        const button = document.createElement("button");
+        button.className = "action-button";
+        if (action.primary) {
+            button.classList.add("primary");
+        }
+        button.title = action.tips || action.title || action.name;
 
-        return html`
-            <button
-                class="action-button ${action.primary ? "primary" : ""}"
-                title="${action.tips || title}"
-                @click="${(e: Event) => this._handleAction(action, e)}"
-            >
-                ${iconHtml}${title}
-            </button>
-        `;
+        // 添加图标
+        if (action.icon) {
+            const iconSpan = document.createElement("span");
+            iconSpan.className = "action-icon";
+            iconSpan.innerHTML = action.icon;
+            button.appendChild(iconSpan);
+        }
+
+        // 添加标题
+        const titleNode = document.createTextNode(action.title || action.name);
+        button.appendChild(titleNode);
+
+        // 绑定点击事件
+        button.addEventListener("click", (e) => this._handleAction(action, e));
+
+        return button;
     }
 
-    override render(): TemplateResult {
+    /**
+     * 渲染方法
+     */
+    private _render() {
+        if (!this.shadowRoot) return;
+
+        // 创建容器
+        const container = document.createElement("div");
+        container.className = "container";
+
+        // 渲染图标
         const iconHtml = this._renderIcon();
-        const messageHtml = this.message ? html`<div class="message">${this.message}</div>` : "";
-        const descriptionHtml = this.description
-            ? html`<div class="description">${this.description}</div>`
-            : "";
+        if (iconHtml) {
+            container.appendChild(iconHtml);
+        }
 
+        // 渲染消息
+        if (this._message) {
+            const messageDiv = document.createElement("div");
+            messageDiv.className = "message";
+            messageDiv.textContent = this._message;
+            container.appendChild(messageDiv);
+        }
+
+        // 渲染描述
+        if (this._description) {
+            const descriptionDiv = document.createElement("div");
+            descriptionDiv.className = "description";
+            descriptionDiv.textContent = this._description;
+            container.appendChild(descriptionDiv);
+        }
+
+        // 渲染动作按钮
         const actions = this._allActions;
-        const actionsHtml =
-            actions.length > 0
-                ? html`
-                      <div class="actions">
-                          ${actions.map((action) => this._renderActionButton(action))}
-                      </div>
-                  `
-                : "";
+        if (actions.length > 0) {
+            const actionsDiv = document.createElement("div");
+            actionsDiv.className = "actions";
+            actions.forEach((action) => {
+                actionsDiv.appendChild(this._renderActionButton(action));
+            });
+            container.appendChild(actionsDiv);
+        }
 
-        return html`
-            <div class="container">${iconHtml}${messageHtml}${descriptionHtml}${actionsHtml}</div>
-        `;
+        // 清空并添加新内容
+        this.shadowRoot.innerHTML = "";
+        this.shadowRoot.appendChild(container);
     }
+}
+
+// 注册自定义元素
+if (!customElements.get("kylin-feedback")) {
+    customElements.define("kylin-feedback", KylinFeedback);
 }
 
 declare global {

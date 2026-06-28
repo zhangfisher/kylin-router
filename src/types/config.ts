@@ -8,6 +8,7 @@ import type { KylinRouteViewOptions } from "./routes";
 import type { KylinRouteDataOptions } from "./data";
 import type { AfterRenderHook, AfterRouteHook, BeforeRenderHook, BeforeRouteHook } from "./hooks";
 import type { KylinRouterLogger } from "@/logger";
+import type { KylinRouterViewRendererBase } from "@/renderers/base";
 
 /**
  * 错误页面处理函数类型
@@ -136,4 +137,12 @@ export type KylinRouterOptions = {
     afterRoute?: AfterRouteHook | AfterRouteHook[];
     beforeRender?: BeforeRenderHook | BeforeRenderHook[];
     afterRender?: AfterRenderHook | AfterRenderHook[];
+
+    /**
+     * 注册视图渲染器
+     *
+     * 在加载视图时会依次执行test方法，如果true则使用方渲染器
+     * 所以渲染器的注册顺序比较重要
+     */
+    renderers?: KylinRouterViewRendererBase[];
 };

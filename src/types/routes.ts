@@ -16,6 +16,7 @@ import type { ErrorBoundaryOptions, RetryOptions } from "./config";
 import type { ModalConfig } from "./modals";
 import type { IAsyncSignal } from "asyncsignal";
 import type { BaseLoaderOptions } from "@/features/baseLoader";
+import type { KylinRouterViewRendererBase } from "@/renderers/base";
 // 重新导出 RouteData 以保持向后兼容
 export type { KylinRouteDataSource as RouteData };
 
@@ -103,18 +104,8 @@ export interface KylinRenderOptions {
  * 视图加载配置选项
  * 当 view 需要特殊配置时使用
  */
-export interface KylinRouteViewOptions extends BaseLoaderOptions<string> {
-    /**
-     * 自定义内容提取选择器
-     * 如果提供，将从加载的 HTML 中提取匹配该选择器的内容
-     */
-    selector?: string;
-    /**
-     * 启用样式隔离（默认 true）
-     * - true: 启用 scoped CSS，为样式添加 data-v-xxx 属性前缀
-     * - false: 禁用样式隔离，样式全局生效
-     */
-    scopedStyle?: boolean;
+export interface KylinRouteViewOptions<T = string> extends BaseLoaderOptions<T> {
+    renderer?: KylinRouterViewRendererBase;
 }
 /**
  * 路由配置项
@@ -420,6 +411,7 @@ export type KylinMatchedRouteItem = {
      *
      */
     url: string;
+
     /**
      * 计算后的路由视图哈希标识
      */

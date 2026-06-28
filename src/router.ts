@@ -31,6 +31,8 @@ import { joinPath, matchRoute } from "./utils";
 import { createLogger, type KylinRouterLogger } from "./logger";
 import { removePathPrefix } from "./utils/removePathPrefix";
 import { errorPages } from "./pages/errors";
+import { KylinRouterError } from "./errors";
+import { KylinRouterHTMLViewRenderer } from "./renderers/html";
 
 export class KylinRouter extends Mixin(
     Context,
@@ -78,7 +80,6 @@ export class KylinRouter extends Mixin(
         query?: Record<string, string>;
     };
 
-    /** 解析后的最终配置选项 */
     public options: KylinRouterOptions;
 
     /** 是否已绑定到 DOM */
@@ -135,29 +136,7 @@ export class KylinRouter extends Mixin(
         } // 标记 host 元素
         this.host.setAttribute("data-kylin-router", "");
         (this.host as any).router = this;
-
-        // 存储解析后的最终配置
-        this.options = Object.assign(
-            {
-                mode: "history",
-                base: getBaseUrl(), // 自动检测 base URL
-                debug: false,
-                home: "/",
-                keeyAlive: true,
-                data: {},
-                errorPages: {},
-                // 公共路由配置
-                routeOptions: {
-                    keepAlive: true,
-                },
-            },
-            options && typeof options === "object" && "routes" in options
-                ? options
-                : {
-                      routes: options,
-                  },
-        );
-        this.options.errorPages = { ...errorPages, ...this.options.errorPages };
+        this.options = this._initOptions(options);
         this.attach();
     }
     /**
@@ -194,14 +173,51 @@ export class KylinRouter extends Mixin(
     get location() {
         return this.history.location;
     }
-
+    /**
+     * 最后一次渲染的视图元素slot
+     */
     get lastViewSlot() {
         return this._lastViewSlot;
     }
+    /**
+     * 最后一次匹配的路由对象
+     */
     get lastMatched() {
         return this._lastMatched;
     }
+    /**
+     *
+     */
+    get renderers() {
+        return this.options.renderers!;
+    }
 
+    private _initOptions(options: KylinRouterOptions | KylinRouterOptions["routes"] = []) {
+        this.options = Object.assign(
+            {
+                mode: "history",
+                base: getBaseUrl(), // 自动检测 base URL
+                debug: false,
+                home: "/",
+                keeyAlive: true,
+                data: {},
+                errorPages: {},
+                renderers: [], // 视图渲染器
+                // 公共路由配置
+                routeOptions: {
+                    keepAlive: true,
+                },
+                viewOptions: {},
+            },
+            options && typeof options === "object" && "routes" in options
+                ? options
+                : {
+                      routes: options,
+                  },
+        );
+        this.options.errorPages = { ...errorPages, ...this.options.errorPages };
+        return this.options;
+    }
     /**
      * 执行路由匹配并构造导航上下文
      * @param pathname - 路径名称

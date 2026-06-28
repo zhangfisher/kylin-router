@@ -1,7 +1,3 @@
-import { customElement, property } from "lit/decorators.js";
-import { styles as commonStyles } from "./styles";
-import { KylinRouterElementBase } from "../Base";
-import { html } from "lit";
 import type { KylinSlot } from "../Slot";
 import type { KylinMatchedRouteItem } from "@/types";
 import { OutletLayoutBase } from "./base.layout";
@@ -9,60 +5,150 @@ import { StackLayout } from "./stack.layout";
 import { TabsLayout } from "./tabs.layout";
 import { CollapseLayout } from "./collapse.layout";
 import { findOutlet } from "@/utils/findOutlet";
+import { KylinRouterElementBase } from "../Base";
+import { styles as commonStyles } from "./styles";
 
-@customElement("kylin-outlet")
+/**
+ * KylinOutlet 组件（原生 Web Components 版本）
+ *
+ * 路由出口组件，用于渲染匹配的视图
+ * - 使用 Light DOM 模式
+ * - 支持多种布局模式（stack、tabs、collapse）
+ * - 支持 keepalive 缓存
+ */
 export class KylinOutlet extends KylinRouterElementBase {
-    /**
-     * 启用 keepalive 缓存
-     * 当启用时，视图会被缓存而不是销毁
-     *
-     * - false: 离开路由时销毁视图
-     * - true: 保留视图以便复用（默认）
-     */
-    @property({ type: Boolean, reflect: true })
-    keepalive: boolean = true;
-
-    /**
-     * 加载状态
-     * 当为 true 时，显示加载指示器
-     */
-    @property({ type: Boolean, reflect: true })
-    loading: boolean = false;
-
-    @property({ type: String, reflect: true })
-    view?: string;
-
-    /**
-     * 布局模式
-     * 控制多个 viewContainer 的布局方式
-     */
-    @property({ type: String, reflect: true })
-    layout: "stack" | "tabs" | "collapse" = "stack";
-
-    /**
-     * Tabs 布局方向
-     * 控制 tabs 头部的显示位置
-     */
-    @property({ type: String, reflect: true })
-    tabDirection: "top" | "left" | "right" | "bottom" = "top";
+    // 私有属性存储
+    private _keepalive: boolean = true;
+    private _loading: boolean = false;
+    private _view?: string;
+    private _layout: "stack" | "tabs" | "collapse" = "stack";
+    private _tabDirection: "top" | "left" | "right" | "bottom" = "top";
 
     private mutationObserver: MutationObserver | null = null;
     private _layoutInstance: OutletLayoutBase | null = null;
 
+    // 声明观察的属性
+    static observedAttributes = [
+        "keepalive",
+        "loading",
+        "view",
+        "layout",
+        "tabdirection"
+    ];
+
+    // 属性访问器
+    get keepalive(): boolean {
+        return this._keepalive;
+    }
+    set keepalive(value: boolean) {
+        const oldValue = this._keepalive;
+        const coercedValue = this._coerceBoolean(value);
+        this._keepalive = coercedValue;
+        this._onPropertyChanged("keepalive", oldValue, coercedValue);
+        // 强制 keepalive 约束
+        this._enforceKeepaliveConstraint();
+    }
+
+    get loading(): boolean {
+        return this._loading;
+    }
+    set loading(value: boolean) {
+        const oldValue = this._loading;
+        const coercedValue = this._coerceBoolean(value);
+        this._loading = coercedValue;
+        this._onPropertyChanged("loading", oldValue, coercedValue);
+    }
+
+    get view(): string | undefined {
+        return this._view;
+    }
+    set view(value: string | undefined) {
+        const oldValue = this._view;
+        this._view = value;
+        this._onPropertyChanged("view", oldValue, value);
+    }
+
+    get layout(): "stack" | "tabs" | "collapse" {
+        return this._layout;
+    }
+    set layout(value: "stack" | "tabs" | "collapse") {
+        const oldValue = this._layout;
+        this._layout = value;
+        this._onPropertyChanged("layout", oldValue, value);
+        // 强制 keepalive 约束
+        this._enforceKeepaliveConstraint();
+    }
+
+    get tabDirection(): "top" | "left" | "right" | "bottom" {
+        return this._tabDirection;
+    }
+    set tabDirection(value: "top" | "left" | "right" | "bottom") {
+        const oldValue = this._tabDirection;
+        this._tabDirection = value;
+        this._onPropertyChanged("tabDirection", oldValue, value);
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        this._injectStyles();
+        this._switchLayout();
+    }
+
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        if (this.mutationObserver) {
+            this.mutationObserver.disconnect();
+            this.mutationObserver = null;
+        }
+        if (this._layoutInstance) {
+            this._layoutInstance.cleanup();
+            this._layoutInstance = null;
+        }
+    }
+
     /**
-     * 重写 createRenderRoot，使组件不使用 Shadow DOM，以便样式和事件能够穿透到组件内部
-     * 这对于路由组件来说很重要，因为它们需要与外部的路由状态和事件进行交互。
-     * @returns
+     * 属性变化回调
      */
-    createRenderRoot() {
-        return this;
+    attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null) {
+        const propName = this._attributeToProperty(name);
+        if (newValue !== null) {
+            const coercedValue = this._coerceAttributeValue(propName, newValue);
+            (this as any)[propName] = coercedValue;
+        }
+    }
+
+    /**
+     * 属性变化处理（替代 updated()）
+     */
+    private _onPropertyChanged(name: string, oldValue: any, newValue: any) {
+        // 布局切换时重新初始化
+        if (name === "layout" && oldValue !== newValue) {
+            this._switchLayout();
+        }
+
+        // 通知布局实例
+        if (this._layoutInstance) {
+            this._layoutInstance.onPropertyChanged(name, oldValue, newValue);
+        }
+    }
+
+    /**
+     * 强制 keepalive 约束
+     * 当 layout="tabs" 或 "collapse" 时，自动将 keepalive 设置为 true
+     */
+    private _enforceKeepaliveConstraint() {
+        if ((this._layout === "tabs" || this._layout === "collapse") && !this._keepalive) {
+            this._keepalive = true;
+            // 反映到 DOM
+            this.setAttribute("keepalive", "");
+        }
     }
 
     /**
      * 获取当前布局实例
      */
     private _getLayout(): OutletLayoutBase | null {
-        switch (this.layout) {
+        switch (this._layout) {
             case "stack":
                 return new StackLayout(this);
             case "tabs":
@@ -86,25 +172,6 @@ export class KylinOutlet extends KylinRouterElementBase {
         // 创建新布局
         this._layoutInstance = this._getLayout();
         this._layoutInstance?.init();
-    }
-
-    /**
-     * 强制 keepalive 约束
-     * 当 layout="tabs" 或 "collapse" 时，自动将 keepalive 设置为 true
-     */
-    override requestUpdate(name?: PropertyKey, oldValue?: unknown): void {
-        // tabs 或 collapse 布局必须 keepalive=true
-        if ((this.layout === "tabs" || this.layout === "collapse") && !this.keepalive) {
-            this.keepalive = true;
-        }
-
-        super.requestUpdate(name, oldValue);
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._injectStyles();
-        this._switchLayout();
     }
 
     /**
@@ -136,18 +203,6 @@ export class KylinOutlet extends KylinRouterElementBase {
         document.head.appendChild(style);
     }
 
-    disconnectedCallback() {
-        super.disconnectedCallback();
-        if (this.mutationObserver) {
-            this.mutationObserver.disconnect();
-            this.mutationObserver = null;
-        }
-        if (this._layoutInstance) {
-            this._layoutInstance.cleanup();
-            this._layoutInstance = null;
-        }
-    }
-
     /**
      * 根据 hash 获取 routeSlot
      * @param hash - routeSlot 的 hash
@@ -157,33 +212,13 @@ export class KylinOutlet extends KylinRouterElementBase {
         return this.querySelector(`kylin-slot[id="${hash}"]`);
     }
 
-    // 监听属性变化
-    protected updated(changedProperties: Map<string, any>) {
-        super.updated(changedProperties);
-
-        // 布局切换时重新初始化
-        if (changedProperties.has("layout")) {
-            this._switchLayout();
-        }
-
-        // 通知布局实例属性变化
-        if (this._layoutInstance) {
-            changedProperties.forEach((oldValue, name) => {
-                this._layoutInstance!.onPropertyChanged(
-                    name as string,
-                    oldValue,
-                    this[name as keyof this],
-                );
-            });
-        }
-    }
-
     /**
      * 获取所有 viewContainer (kylin-slot 元素)
      */
     getSlots(): HTMLElement[] {
         return Array.from(this.querySelectorAll(":scope > kylin-slot[id]")) as HTMLElement[];
     }
+
     findOutlet(viewHash?: string): KylinOutlet {
         if (viewHash) {
             const viewContainer = this.getSlot(viewHash);
@@ -194,9 +229,34 @@ export class KylinOutlet extends KylinRouterElementBase {
         }
         return this;
     }
-    render() {
-        return html``;
+
+    // 辅助方法
+    private _attributeToProperty(attr: string): string {
+        // 将 attribute-name 转换为 propertyName
+        if (attr === "tabdirection") {
+            return "tabDirection";
+        }
+        return attr;
     }
+
+    private _coerceAttributeValue(name: string, value: string): any {
+        switch (name) {
+            case "keepalive":
+            case "loading":
+                return this._coerceBoolean(value);
+            default:
+                return value;
+        }
+    }
+
+    private _coerceBoolean(value: string | boolean | null): boolean {
+        return value !== null && value !== "false" && value !== false;
+    }
+}
+
+// 注册自定义元素
+if (!customElements.get("kylin-outlet")) {
+    customElements.define("kylin-outlet", KylinOutlet);
 }
 
 export type { KylinSlot } from "../Slot";

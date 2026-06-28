@@ -1,24 +1,25 @@
 import type { KylinRouter } from "@/router";
 import { triggerEvent } from "@/utils/triggerEvent";
-import { LitElement, html } from "lit";
+
 /**
  * Context 回调函数类型
  */
 type ContextCallback<ValueType> = (value: ValueType, unsubscribe?: () => void) => void;
 
 /**
-
-/**
- * KylinRouter 组件基类
+ * KylinRouter 组件基类（原生 Web Components 版本）
  *
- * - 为所有继承此基类的组件提供获取router实例
- * - 使用Light DOM而不是Shadow DOM,以便样式和事件能够穿透到组件内部
+ * - 为所有继承此基类的组件提供获取 router 实例的能力
+ * - 不依赖 LitElement，使用原生 Web Components API
+ * - 使用 Light DOM 模式，子类直接操作 DOM
  *
  * 使用示例：
  * - 继承此类即可自动获取 router 实例
- * - 在 render() 或其他方法中通过 this.router 访问路由 
+ * - 在 connectedCallback 或其他方法中通过 this.router 访问路由
+ *
+ * 注意：这是抽象基类，不需要注册为自定义元素
  */
-export class KylinRouterElementBase extends LitElement {
+export class KylinRouterElementBase extends HTMLElement {
     /**
      * Router 实例引用，由 KylinRouter 通过 context 提供
      */
@@ -29,15 +30,14 @@ export class KylinRouterElementBase extends LitElement {
      */
     private _contextRequested = false;
 
-    override connectedCallback() {
-        super.connectedCallback();
+    connectedCallback() {
         // 在组件连接到 DOM 后请求 context
         if (!this._contextRequested) {
             // 优先尝试同步获取 router 实例
             const syncRouter = this._getRouterSync();
             if (syncRouter) {
                 this.router = syncRouter;
-                this.requestUpdate();
+                this.onRouterReady();
             } else {
                 // 同步获取失败，使用异步方式
                 this.getRouter();
@@ -46,8 +46,16 @@ export class KylinRouterElementBase extends LitElement {
         }
     }
 
-    override disconnectedCallback() {
-        super.disconnectedCallback();
+    disconnectedCallback() {
+        // 清理逻辑（子类可重写）
+    }
+
+    /**
+     * 子类可重写的方法：router 就绪时的处理
+     * 当同步获取到 router 实例时调用
+     */
+    protected onRouterReady() {
+        // 子类可重写此方法进行初始化操作
     }
 
     /**
@@ -117,10 +125,7 @@ export class KylinRouterElementBase extends LitElement {
     private _contextCallback: ContextCallback<KylinRouter> = (router: KylinRouter) => {
         // 保存 router 实例
         this.router = router;
-        // 触发组件更新
-        this.requestUpdate();
+        // 触发 router 就绪回调
+        this.onRouterReady();
     };
-    render() {
-        return html`<slot></slot>`;
-    }
 }

@@ -8,6 +8,19 @@
 
 ## 变更记录 (Changelog)
 
+### 2026-06-21
+
+- **重大架构升级**：完成所有组件去 LitElement 化改造
+- **组件改造**：
+  - KylinRouterElementBase → 原生 HTMLElement
+  - KylinLink → 原生 Web Components（Light DOM）
+  - KylinOutlet → 原生 Web Components（Light DOM）
+  - KylinLoading → 原生 Web Components（Shadow DOM）
+  - KylinFeedback → 原生 Web Components（Shadow DOM）
+  - KylinViewMeta → 原生 HTMLElement
+- **依赖清理**：移除 lit 和 @lit/context 依赖
+- **架构优势**：更轻量、完全掌控组件行为、零框架依赖
+
 ### 2026-04-04 10:12:22
 
 - 初始化项目架构文档
@@ -19,13 +32,14 @@
 
 ## 项目愿景
 
-Kylin Router 是一个基于 **Lit (Web Components)** 和`history` 的现代化前端路由库，旨在构建轻量级、高性能的路由库
+Kylin Router 是一个基于 **原生 Web Components** 和 `history` 的现代化前端路由库，旨在构建轻量级、高性能的路由库
 
 **核心特性：**
 
-- 基于 Web Components 标准，无框架依赖
+- 原生 Web Components，零框架依赖
 - TypeScript 严格模式，确保类型安全
-- HMR 热模块替换，提升开发体验
+- 支持 Light DOM 和 Shadow DOM 两种模式
+- 完全掌控组件行为
 
 ---
 
@@ -34,18 +48,18 @@ Kylin Router 是一个基于 **Lit (Web Components)** 和`history` 的现代化�
 ### 技术栈
 
 ```
-前端框架：Lit 3.3.2 (Web Components)
+核心标准：原生 Web Components（HTMLElement + Custom Elements）
 构建工具：Vite 8.0.1
 开发语言：TypeScript 6.0.2 (严格模式)
 路由管理：History 5.3.0
 包管理器：Bun
-目标运行时：ES2023 + 现代浏览器
+目标运行时：ES2021 + 现代浏览器
 ```
 
 ### 项目类型
 
-- **组件库** 基础架构展示
-- **Vite + Lit** 快速启动模板
+- **路由库** 原生 Web Components 路由解决方案
+- **零依赖** 不依赖 Lit、Vue、React 等框架
 
 ---
 
@@ -138,14 +152,14 @@ chore: 构建/工具变更
 
 ### 对 AI 助手的建议
 
-1. **组件开发**: 优先使用 Lit 装饰器语法，保持与现有代码风格一致
+1. **组件开发**: 使用原生 Web Components API，observedAttributes + attributeChangedCallback
 2. **类型安全**: 所有公共API必须有完整的 TypeScript 类型注解
-3. **响应式设计**: 新组件应考虑移动端适配，使用媒体查询
-4. **性能优化**: 避免在 `render()` 中创建新函数/对象，使用类方法
+3. **DOM 模式**: 根据需求选择 Light DOM 或 Shadow DOM
+4. **性能优化**: 直接操作 DOM，避免虚拟 DOM 开销
 
 ### 常见任务
 
-- **主题定制**: 修改 `:host` CSS 变量定义
+- **主题定制**: 修改 CSS 样式或 CSS 变量
 - **构建优化**: 调整 `vite.config.ts`（如需添加）
 
 ---
@@ -154,13 +168,15 @@ chore: 构建/工具变更
 
 ### 核心依赖
 
-- **lit**: 3.3.2 - Web Components 基础框架
 - **history**: 5.3.0 - 路由历史管理
+- **mitt**: 3.0.1 - 事件发射器
+- **ts-mixer**: 6.0.4 - Mixin 工具（用于 KylinRouter）
 
 ### 开发依赖
 
 - **typescript**: 6.0.2 - 类型检查与编译
 - **vite**: 8.0.1 - 构建工具与开发服务器
+- **happy-dom**: 20.10.2 - DOM 测试实现
 
 ---
 
